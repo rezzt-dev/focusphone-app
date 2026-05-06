@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">focusphone</string>
+    <string name="app_label">focusphone</string>
+
+    <string name="home_all_apps">todas las aplicaciones</string>
+    <string name="home_settings">ajustes de focus</string>
+    <string name="home_edit_apps">editar aplicaciones</string>
+    <string name="home_long_press_hint">mantén pulsada una app para quitarla de la lista</string>
+    <string name="home_no_apps">sin apps seleccionadas.\ntoca el menú para añadir apps.</string>
+    <string name="home_menu_desc">abrir menú</string>
+
+    <string name="allapps_title">todas las apps</string>
+    <string name="allapps_close">cerrar</string>
+
+    <string name="menu_open_app">abrir</string>
+    <string name="menu_remove_app">quitar de la lista</string>
+    <string name="menu_app_info">info de la app</string>
+
+    <string name="appselect_title">selecciona tus apps</string>
+    <string name="appselect_subtitle">elige las apps que más importan</string>
+    <string name="appselect_search_hint">buscar…</string>
+    <string name="appselect_done">listo</string>
+    <string name="appselect_selected_count">%1$d de %2$d apps seleccionadas</string>
+    <string name="appselect_limit_reached">has alcanzado el límite de %1$d apps</string>
+
+    <string name="settings_title">ajustes</string>
+    <string name="settings_section_appearance">apariencia</string>
+    <string name="settings_theme_label">tema</string>
+    <string name="settings_theme_off_white">blanco roto</string>
+    <string name="settings_theme_slate">pizarra</string>
+    <string name="settings_theme_warm_beige">beige cálido</string>
+    <string name="settings_theme_navy">azul marino</string>
+    
+    <string name="settings_alignment">alineación</string>
+    <string name="settings_alignment_left">izquierda</string>
+    <string name="settings_alignment_center">centro</string>
+    <string name="settings_alignment_right">derecha</string>
+
+    <string name="settings_section_clock">reloj</string>
+    <string name="settings_clock_style_label">estilo de reloj</string>
+    <string name="settings_clock_thin">fino</string>
+    <string name="settings_clock_light">ligero</string>
+    <string name="settings_clock_regular">normal</string>
+    <string name="settings_clock_bold">negrita</string>
+    <string name="settings_section_font">fuente</string>
+    <string name="settings_font_label">fuente del launcher</string>
+    <string name="settings_section_launcher">launcher</string>
+    <string name="settings_set_default">establecer como launcher</string>
+    <string name="settings_set_default_desc">abrir ajustes del sistema</string>
+    <string name="settings_section_about">acerca de</string>
+    <string name="settings_version">versión %1$s</string>
+    <string name="settings_privacy_policy">política de privacidad</string>
+    <string name="settings_open_source">licencias de código abierto</string>
+    <string name="settings_back">atrás</string>
+
+    <string name="settings_section_language">idioma</string>
+    <string name="settings_language_system">predeterminado del sistema</string>
+    <string name="settings_language_es">español</string>
+    <string name="settings_language_en_us">english (us)</string>
+    <string name="settings_language_en_gb">english (uk)</string>
+    <string name="settings_language_fr">français</string>
+    <string name="settings_language_de">deutsch</string>
+
+    <string name="onboarding_skip">omitir</string>
+    <string name="onboarding_next">siguiente</string>
+    <string name="onboarding_get_started">empezar</string>
+    <string name="onboarding_step1_title">bienvenido.</string>
+    <string name="onboarding_step1_body">focusphone convierte tu android en una herramienta sin distracciones. solo las apps que necesitas, nada más.</string>
+    <string name="onboarding_step2_title">ponlo como launcher.</string>
+    <string name="onboarding_step2_body">para usar focusphone como pantalla de inicio, establécelo como launcher predeterminado en los ajustes del sistema.</string>
+    <string name="onboarding_step2_action">establecer como predeterminado</string>
+    <string name="onboarding_step3_title">elige tus apps.</string>
+    <string name="onboarding_step3_body">selecciona hasta 6 apps que de verdad necesites. puedes cambiarlas cuando quieras.</string>
+    <string name="onboarding_step3_action">seleccionar apps</string>
+
+    <string name="error_app_not_found">no se pudo abrir la app</string>
+    <string name="cd_back_button">volver</string>
+    <string name="cd_remove_app">quitar %1$s del inicio</string>
+    <string name="customize_name_title">personalizar nombre</string>
+    <string name="customize_name_message">escribe un nombre personalizado para %1$s:</string>
+    <string name="action_save">guardar</string>
+    <string name="action_reset">restablecer</string>
+    <string name="action_cancel">cancelar</string>
+    <string name="settings_clock_size">tamaño del reloj</string>
+    <string name="settings_hide_status_bar">ocultar barra de estado</string>
+    <string name="settings_hide_status_bar_desc">esconde la barra superior para mayor minimalismo</string>
+</resources>

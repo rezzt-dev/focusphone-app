@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         BASE THEME  –  attributes shared across all 4 themes
+         ═══════════════════════════════════════════════════════════════ -->
+    <!-- ── Root: required by AAPT as implicit parent of Theme.FocusPhone.* ── -->
+    <style name="Theme.FocusPhone" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+    </style>
+
+    <!-- ── Shared base attrs ─────────────────────────────────────────────── -->
+    <style name="Base.Theme.FocusPhone" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="28">shortEdges</item>
+        <!-- Global default font: regular weight throughout the entire app -->
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         THEME 1: OFF-WHITE  (light, cool grey)
+         ═══════════════════════════════════════════════════════════════ -->
+    <style name="Theme.FocusPhone.OffWhite" parent="Base.Theme.FocusPhone">
+        <item name="android:colorBackground">@color/ow_bg_primary</item>
+        <item name="colorSurface">@color/ow_bg_secondary</item>
+        <item name="colorOutline">@color/ow_accent</item>
+        <item name="android:textColorPrimary">@color/ow_text_primary</item>
+        <item name="android:textColorSecondary">@color/ow_text_secondary</item>
+        <item name="colorOnBackground">@color/ow_text_primary</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+    </style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         THEME 2: SLATE  (dark, deep charcoal) — DEFAULT
+         ═══════════════════════════════════════════════════════════════ -->
+    <style name="Theme.FocusPhone.Slate" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:colorBackground">@color/sl_bg_primary</item>
+        <item name="colorSurface">@color/sl_bg_secondary</item>
+        <item name="colorOutline">@color/sl_accent</item>
+        <item name="android:textColorPrimary">@color/sl_text_primary</item>
+        <item name="android:textColorSecondary">@color/sl_text_secondary</item>
+        <item name="colorOnBackground">@color/sl_text_primary</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+    </style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         THEME 3: WARM BEIGE  (light, warm cream)
+         ═══════════════════════════════════════════════════════════════ -->
+    <style name="Theme.FocusPhone.WarmBeige" parent="Base.Theme.FocusPhone">
+        <item name="android:colorBackground">@color/wb_bg_primary</item>
+        <item name="colorSurface">@color/wb_bg_secondary</item>
+        <item name="colorOutline">@color/wb_accent</item>
+        <item name="android:textColorPrimary">@color/wb_text_primary</item>
+        <item name="android:textColorSecondary">@color/wb_text_secondary</item>
+        <item name="colorOnBackground">@color/wb_text_primary</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+    </style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         THEME 4: NAVY  (dark, deep blue)
+         ═══════════════════════════════════════════════════════════════ -->
+    <style name="Theme.FocusPhone.Navy" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:colorBackground">@color/nv_bg_primary</item>
+        <item name="colorSurface">@color/nv_bg_secondary</item>
+        <item name="colorOutline">@color/nv_accent</item>
+        <item name="android:textColorPrimary">@color/nv_text_primary</item>
+        <item name="android:textColorSecondary">@color/nv_text_secondary</item>
+        <item name="colorOnBackground">@color/nv_text_primary</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+    </style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         COMMON WIDGET STYLES
+         ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Root: required by AAPT as implicit parent of FocusPhone.* widget styles -->
+    <style name="FocusPhone" parent="android:Widget" />
+
+    <!-- Ripple background for clickable items -->
+    <style name="FocusPhone.RippleItem">
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <!-- App item in the home launcher list -->
+    <style name="FocusPhone.AppItem" parent="FocusPhone.RippleItem">
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">@dimen/spacing_xl</item>
+        <item name="android:paddingEnd">@dimen/spacing_xl</item>
+        <item name="android:paddingTop">@dimen/app_item_vertical_padding</item>
+        <item name="android:paddingBottom">@dimen/app_item_vertical_padding</item>
+        <item name="android:textSize">@dimen/text_app_item</item>
+        <item name="android:textColor">?attr/android:textColorPrimary</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <!-- Bottom action buttons (text buttons, minimal) -->
+    <style name="FocusPhone.ActionButton">
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:textSize">@dimen/text_action_button</item>
+        <item name="android:textColor">?attr/android:textColorSecondary</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:paddingStart">@dimen/spacing_l</item>
+        <item name="android:paddingEnd">@dimen/spacing_l</item>
+        <item name="android:paddingTop">@dimen/spacing_m</item>
+        <item name="android:paddingBottom">@dimen/spacing_m</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- Custom Material AlertDialog styling -->
+    <style name="FocusPhone.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <!-- Dialog card styling -->
+        <item name="colorSurface">?attr/colorSurface</item>
+        <item name="colorOnSurface">?attr/android:textColorPrimary</item>
+        <item name="colorOnSurfaceVariant">?attr/android:textColorSecondary</item>
+        
+        <!-- Text styling -->
+        <item name="materialAlertDialogTitleTextStyle">@style/FocusPhone.DialogTitleTextStyle</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/FocusPhone.DialogBodyTextStyle</item>
+        
+        <!-- Button styling -->
+        <item name="buttonBarPositiveButtonStyle">@style/FocusPhone.DialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/FocusPhone.DialogButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/FocusPhone.DialogButton</item>
+    </style>
+
+    <style name="FocusPhone.DialogTitleTextStyle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">?attr/android:textColorPrimary</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="FocusPhone.DialogBodyTextStyle" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">?attr/android:textColorSecondary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="FocusPhone.DialogButton" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">?attr/android:textColorPrimary</item>
+        <item name="rippleColor">?attr/android:textColorSecondary</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+</resources>

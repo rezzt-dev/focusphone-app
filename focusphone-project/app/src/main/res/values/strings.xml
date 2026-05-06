@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">focusphone</string>
+    <string name="app_label">focusphone</string>
+
+    <!-- Home screen -->
+    <string name="home_all_apps">all applications</string>
+    <string name="home_settings">focus settings</string>
+    <string name="home_edit_apps">edit applications</string>
+    <string name="home_long_press_hint">hold an app to remove it from your list</string>
+    <string name="home_no_apps">no apps selected.\ntap the menu to add apps.</string>
+    <string name="home_menu_desc">open menu</string>
+
+    <!-- All apps screen -->
+    <string name="allapps_title">all apps</string>
+    <string name="allapps_close">close</string>
+
+    <!-- App context menu -->
+    <string name="menu_open_app">open</string>
+    <string name="menu_remove_app">remove from list</string>
+    <string name="menu_app_info">app info</string>
+
+    <!-- App select screen -->
+    <string name="appselect_title">select your apps</string>
+    <string name="appselect_subtitle">choose the apps that matter most</string>
+    <string name="appselect_search_hint">search…</string>
+    <string name="appselect_done">done</string>
+    <string name="appselect_selected_count">%1$d of %2$d apps selected</string>
+    <string name="appselect_limit_reached">you\'ve reached the limit of %1$d apps</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">settings</string>
+    <string name="settings_section_appearance">appearance</string>
+    <string name="settings_theme_label">theme</string>
+    <string name="settings_theme_off_white">off-white</string>
+    <string name="settings_theme_slate">slate</string>
+    <string name="settings_theme_warm_beige">warm beige</string>
+    <string name="settings_theme_navy">navy</string>
+
+    <string name="settings_alignment">alignment</string>
+    <string name="settings_alignment_left">left</string>
+    <string name="settings_alignment_center">center</string>
+    <string name="settings_alignment_right">right</string>
+
+    <string name="settings_section_launcher">launcher</string>
+    <string name="settings_set_default">set as default launcher</string>
+    <string name="settings_set_default_desc">tap to open system settings</string>
+    <string name="settings_section_clock">clock</string>
+    <string name="settings_clock_style_label">clock style</string>
+    <string name="settings_clock_thin">thin</string>
+    <string name="settings_clock_light">light</string>
+    <string name="settings_clock_regular">regular</string>
+    <string name="settings_clock_bold">bold</string>
+    <string name="settings_section_font">font</string>
+    <string name="settings_font_label">launcher font</string>
+    <string name="settings_section_about">about</string>
+    <string name="settings_version">version %1$s</string>
+    <string name="settings_privacy_policy">privacy policy</string>
+    <string name="settings_open_source">open source licences</string>
+    <string name="settings_back">back</string>
+
+    <!-- Settings: Language -->
+    <string name="settings_section_language">language</string>
+    <string name="settings_language_system">system default</string>
+    <string name="settings_language_es">español</string>
+    <string name="settings_language_en_us">english (us)</string>
+    <string name="settings_language_en_gb">english (uk)</string>
+    <string name="settings_language_fr">français</string>
+    <string name="settings_language_de">deutsch</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">skip</string>
+    <string name="onboarding_next">next</string>
+    <string name="onboarding_get_started">get started</string>
+    <string name="onboarding_step1_title">welcome.</string>
+    <string name="onboarding_step1_body">focusphone turns your Android into a distraction-free tool. just the apps you need, nothing else.</string>
+    <string name="onboarding_step2_title">set as launcher.</string>
+    <string name="onboarding_step2_body">to make focusphone your home screen, set it as the default launcher in your system settings.</string>
+    <string name="onboarding_step2_action">set as default</string>
+    <string name="onboarding_step3_title">pick your apps.</string>
+    <string name="onboarding_step3_body">choose up to 6 apps you truly need. you can change them anytime from the home screen.</string>
+    <string name="onboarding_step3_action">select apps</string>
+
+    <!-- Errors / General -->
+    <string name="error_app_not_found">could not open app</string>
+    <string name="cd_back_button">go back</string>
+    <string name="cd_remove_app">remove %1$s from home</string>
+    <string name="customize_name_title">customize name</string>
+    <string name="customize_name_message">write a custom name for %1$s:</string>
+    <string name="action_save">save</string>
+    <string name="action_reset">reset</string>
+    <string name="action_cancel">cancel</string>
+    <string name="settings_clock_size">clock size</string>
+    <string name="settings_hide_status_bar">hide status bar</string>
+    <string name="settings_hide_status_bar_desc">hide the top bar for maximum minimalism</string>
+</resources>

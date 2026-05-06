@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    FocusPhone launcher icon foreground.
+    Design: "fp" monogram in thin sans-serif on transparent background.
+    108×108dp with safe zone 72×72dp centred.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- "f" glyph — thin stroke, drawn as paths -->
+    <!-- Vertical stem of f -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M34,30 L34,78 L38,78 L38,30 Z" />
+    <!-- Horizontal crossbar of f -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M34,50 L50,50 L50,46 L34,46 Z" />
+    <!-- Top curve hint of f (small horizontal cap line) -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M34,30 L42,30 L42,34 L34,34 Z" />
+
+    <!-- "p" glyph — thin stroke -->
+    <!-- Vertical stem of p (extends below baseline for descender) -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M56,44 L56,84 L60,84 L60,44 Z" />
+    <!-- Bowl of p — right half circle approximated as rectangle + small corners -->
+    <!-- Top horizontal of bowl -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M56,44 L70,44 L70,48 L56,48 Z" />
+    <!-- Right vertical of bowl -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M70,44 L74,44 L74,64 L70,64 Z" />
+    <!-- Bottom horizontal of bowl -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M56,64 L70,64 L70,68 L56,68 Z" />
+    <!-- Small corner rounds (top-right and bottom-right) -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M68,44 Q74,44 74,50 L70,50 Q70,48 68,48 Z" />
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M68,64 Q74,64 74,58 L70,58 Q70,64 68,64 Z" />
+</vector>

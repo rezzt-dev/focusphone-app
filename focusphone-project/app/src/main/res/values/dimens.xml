@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_s">8dp</dimen>
+    <dimen name="spacing_m">12dp</dimen>
+    <dimen name="spacing_l">16dp</dimen>
+    <dimen name="spacing_xl">24dp</dimen>
+    <dimen name="spacing_xxl">36dp</dimen>
+    <dimen name="spacing_xxxl">52dp</dimen>
+
+    <!-- Clock on home screen -->
+    <dimen name="text_clock">58sp</dimen>
+    <dimen name="text_date">16sp</dimen>
+
+    <!-- App list (home launcher) — regular weight for legibility -->
+    <dimen name="text_app_item">21sp</dimen>
+    <dimen name="app_item_vertical_padding">20dp</dimen>
+
+    <!-- Bottom action bar -->
+    <dimen name="text_action_button">13sp</dimen>
+    <dimen name="action_bar_height">56dp</dimen>
+
+    <!-- Divider -->
+    <dimen name="divider_height">0.8dp</dimen>
+    <dimen name="divider_margin_horizontal">28dp</dimen>
+
+    <!-- Settings -->
+    <dimen name="text_section_label">12sp</dimen>
+    <dimen name="text_setting_item">16sp</dimen>
+    <dimen name="setting_item_padding_vertical">16dp</dimen>
+
+    <!-- Onboarding -->
+    <dimen name="text_onboarding_title">28sp</dimen>
+    <dimen name="text_onboarding_body">16sp</dimen>
+
+    <!-- Theme card in settings -->
+    <dimen name="theme_card_corner">12dp</dimen>
+    <dimen name="theme_card_size">72dp</dimen>
+    <dimen name="theme_card_border">2dp</dimen>
+</resources>

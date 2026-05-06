@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         THEME: OFF-WHITE  (light)
+         ══════════════════════════════════════════════════════════════ -->
+    <color name="ow_bg_primary">#FAFAFA</color>
+    <color name="ow_bg_secondary">#F5F5F5</color>
+    <color name="ow_accent">#E0E0E0</color>
+    <color name="ow_text_primary">#333333</color>
+    <color name="ow_text_secondary">#757575</color>
+    <color name="ow_divider">#E0E0E0</color>
+    <color name="ow_ripple">#1A333333</color>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         THEME: SLATE  (dark)
+         ══════════════════════════════════════════════════════════════ -->
+    <color name="sl_bg_primary">#181818</color>
+    <color name="sl_bg_secondary">#1E1E1E</color>
+    <color name="sl_accent">#333333</color>
+    <color name="sl_text_primary">#E0E0E0</color>
+    <color name="sl_text_secondary">#9E9E9E</color>
+    <color name="sl_divider">#2C2C2C</color>
+    <color name="sl_ripple">#1AE0E0E0</color>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         THEME: WARM BEIGE  (light)
+         ══════════════════════════════════════════════════════════════ -->
+    <color name="wb_bg_primary">#FEFEFE</color>
+    <color name="wb_bg_secondary">#F0EDE8</color>
+    <color name="wb_accent">#D4C9B0</color>
+    <color name="wb_text_primary">#4A4A4A</color>
+    <color name="wb_text_secondary">#8A8078</color>
+    <color name="wb_divider">#D4C9B0</color>
+    <color name="wb_ripple">#1A4A4A4A</color>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         THEME: NAVY  (dark)
+         ══════════════════════════════════════════════════════════════ -->
+    <color name="nv_bg_primary">#0A0E17</color>
+    <color name="nv_bg_secondary">#1A1F2E</color>
+    <color name="nv_accent">#2D3748</color>
+    <color name="nv_text_primary">#E2E8F0</color>
+    <color name="nv_text_secondary">#94A3B8</color>
+    <color name="nv_divider">#1E2A3A</color>
+    <color name="nv_ripple">#1AE2E8F0</color>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         SHARED
+         ══════════════════════════════════════════════════════════════ -->
+    <color name="transparent">#00000000</color>
+
+</resources>
