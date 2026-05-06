@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Tells Google Play Services to pre-download these fonts when the app is installed,
+    so they are available offline immediately on first launch.
+-->
+<resources>
+    <array name="preloaded_fonts" translatable="false">
+        <item>@font/fp_poppins</item>
+        <item>@font/fp_comfortaa</item>
+        <item>@font/fp_figtree</item>
+        <item>@font/fp_jetbrains_mono</item>
+        <item>@font/fp_space_mono</item>
+    </array>
+</resources>

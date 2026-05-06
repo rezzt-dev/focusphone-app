@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Item in the "all installed apps" list with icon + name + checkbox -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:minHeight="60dp"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/spacing_xl"
+    android:paddingTop="@dimen/spacing_l"
+    android:paddingEnd="@dimen/spacing_l"
+    android:paddingBottom="@dimen/spacing_l">
+
+    <!-- App icon -->
+    <ImageView
+        android:id="@+id/iv_app_icon"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:contentDescription="@null"
+        android:scaleType="fitCenter"
+        tools:src="@mipmap/ic_launcher" />
+
+    <!-- App name: regular weight for legibility -->
+    <TextView
+        android:id="@+id/tv_app_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_l"
+        android:layout_weight="1"
+        android:fontFamily="sans-serif"
+        android:letterSpacing="0.01"
+        android:textColor="?attr/android:textColorPrimary"
+        android:textSize="@dimen/text_setting_item"
+        tools:text="Messages" />
+
+    <!-- Favourite toggle checkbox -->
+    <CheckBox
+        android:id="@+id/cb_favourite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_m"
+        android:buttonTint="?attr/android:textColorPrimary"
+        android:clickable="false"
+        android:focusable="false" />
+
+</LinearLayout>

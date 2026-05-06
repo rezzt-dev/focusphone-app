@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">focusphone</string>
+    <string name="app_label">focusphone</string>
+
+    <string name="home_all_apps">alle apps</string>
+    <string name="home_settings">einstellungen</string>
+    <string name="home_edit_apps">apps bearbeiten</string>
+    <string name="home_long_press_hint">halte eine app gedrückt, um sie von der liste zu entfernen</string>
+    <string name="home_no_apps">keine apps ausgewählt.\ntippe auf das menü, um apps hinzuzufügen.</string>
+    <string name="home_menu_desc">menü öffnen</string>
+
+    <string name="allapps_title">alle apps</string>
+    <string name="allapps_close">schließen</string>
+
+    <string name="menu_open_app">öffnen</string>
+    <string name="menu_remove_app">von der liste entfernen</string>
+    <string name="menu_app_info">app-info</string>
+
+    <string name="appselect_title">wähle deine apps</string>
+    <string name="appselect_subtitle">wähle die apps, die dir am wichtigsten sind</string>
+    <string name="appselect_search_hint">suchen…</string>
+    <string name="appselect_done">fertig</string>
+    <string name="appselect_selected_count">%1$d von %2$d apps ausgewählt</string>
+    <string name="appselect_limit_reached">du hast das limit von %1$d apps erreicht</string>
+
+    <string name="settings_title">einstellungen</string>
+    <string name="settings_section_appearance">aussehen</string>
+    <string name="settings_theme_label">design</string>
+    <string name="settings_theme_off_white">gebrochen weiß</string>
+    <string name="settings_theme_slate">schiefer</string>
+    <string name="settings_theme_warm_beige">warmes beige</string>
+    <string name="settings_theme_navy">marineblau</string>
+
+    <string name="settings_alignment">ausrichtung</string>
+    <string name="settings_alignment_left">links</string>
+    <string name="settings_alignment_center">zentriert</string>
+    <string name="settings_alignment_right">rechts</string>
+
+    <string name="settings_section_clock">uhr</string>
+    <string name="settings_clock_style_label">uhrstil</string>
+    <string name="settings_section_font">schriftart</string>
+    <string name="settings_font_label">launcher-schriftart</string>
+    <string name="settings_section_launcher">launcher</string>
+    <string name="settings_set_default">als standard-launcher festlegen</string>
+    <string name="settings_set_default_desc">systemeinstellungen öffnen</string>
+    <string name="settings_section_about">über</string>
+    <string name="settings_version">version %1$s</string>
+    <string name="settings_privacy_policy">datenschutzrichtlinie</string>
+    <string name="settings_open_source">open-source-lizenzen</string>
+    <string name="settings_back">zurück</string>
+
+    <string name="settings_section_language">sprache</string>
+    <string name="settings_language_system">systemstandard</string>
+    <string name="settings_language_es">español</string>
+    <string name="settings_language_en_us">english (us)</string>
+    <string name="settings_language_en_gb">english (uk)</string>
+    <string name="settings_language_fr">français</string>
+    <string name="settings_language_de">deutsch</string>
+
+    <string name="onboarding_skip">überspringen</string>
+    <string name="onboarding_next">weiter</string>
+    <string name="onboarding_get_started">los geht\'s</string>
+    <string name="onboarding_step1_title">willkommen.</string>
+    <string name="onboarding_step1_body">focusphone verwandelt dein android in ein ablenkungsfreies werkzeug. nur die apps, die du brauchst.</string>
+    <string name="onboarding_step2_title">als launcher festlegen.</string>
+    <string name="onboarding_step2_body">um focusphone als startbildschirm zu nutzen, lege es als standard-launcher in den systemeinstellungen fest.</string>
+    <string name="onboarding_step2_action">als standard festlegen</string>
+    <string name="onboarding_step3_title">wähle deine apps.</string>
+    <string name="onboarding_step3_body">wähle bis zu 6 apps, die du wirklich brauchst. du kannst sie jederzeit ändern.</string>
+    <string name="onboarding_step3_action">apps auswählen</string>
+
+    <string name="error_app_not_found">app konnte nicht geöffnet werden</string>
+    <string name="cd_back_button">zurück</string>
+    <string name="cd_remove_app">%1$s vom startbildschirm entfernen</string>
+</resources>
