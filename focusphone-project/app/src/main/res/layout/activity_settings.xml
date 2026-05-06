@@ -265,6 +265,45 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Status Bar Toggle -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_hide_status_bar"
+                        android:textColor="?attr/android:textColorPrimary"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/settings_hide_status_bar_desc"
+                        android:textColor="?attr/android:textColorSecondary"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_hide_status_bar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
 
             <!-- Section divider -->
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
@@ -296,6 +335,34 @@
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
                 android:paddingBottom="4dp" />
+
+            <!-- Clock Size Slider -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:letterSpacing="0.14"
+                android:paddingStart="24dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="4dp"
+                android:text="@string/settings_clock_size"
+                android:textAllCaps="true"
+                android:textColor="?attr/android:textColorSecondary"
+                android:textSize="11sp" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/slider_clock_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:valueFrom="0.0"
+                android:valueTo="100.0"
+                android:stepSize="1.0"
+                app:thumbColor="?attr/android:textColorPrimary"
+                app:trackColorActive="?attr/android:textColorPrimary"
+                app:trackColorInactive="?attr/android:textColorSecondary" />
 
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"

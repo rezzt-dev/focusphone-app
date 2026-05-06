@@ -4,9 +4,9 @@
     <string name="app_label">focusphone</string>
 
     <!-- Home screen -->
-    <string name="home_all_apps">all apps</string>
-    <string name="home_settings">settings</string>
-    <string name="home_edit_apps">edit apps</string>
+    <string name="home_all_apps">all applications</string>
+    <string name="home_settings">focus settings</string>
+    <string name="home_edit_apps">edit applications</string>
     <string name="home_long_press_hint">hold an app to remove it from your list</string>
     <string name="home_no_apps">no apps selected.\ntap the menu to add apps.</string>
     <string name="home_menu_desc">open menu</string>
@@ -85,4 +85,12 @@
     <string name="error_app_not_found">could not open app</string>
     <string name="cd_back_button">go back</string>
     <string name="cd_remove_app">remove %1$s from home</string>
+    <string name="customize_name_title">customize name</string>
+    <string name="customize_name_message">write a custom name for %1$s:</string>
+    <string name="action_save">save</string>
+    <string name="action_reset">reset</string>
+    <string name="action_cancel">cancel</string>
+    <string name="settings_clock_size">clock size</string>
+    <string name="settings_hide_status_bar">hide status bar</string>
+    <string name="settings_hide_status_bar_desc">hide the top bar for maximum minimalism</string>
 </resources>

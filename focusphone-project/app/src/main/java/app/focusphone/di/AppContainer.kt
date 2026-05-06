@@ -23,14 +23,18 @@ class AppContainer(context: Context) {
 
     // ── Data ─────────────────────────────────────────────────────
 
+    val customAppLabelsPreferences: app.focusphone.data.preferences.CustomAppLabelsPreferences by lazy {
+        app.focusphone.data.preferences.CustomAppLabelsPreferences(appContext)
+    }
+
     private val favouriteAppsPreferences: FavouriteAppsPreferences by lazy {
-        FavouriteAppsPreferences(appContext)
+        FavouriteAppsPreferences(appContext, customAppLabelsPreferences)
     }
 
     // ── Repositories ──────────────────────────────────────────────
 
     val appRepository: AppRepository by lazy {
-        AppRepositoryImpl(appContext)
+        AppRepositoryImpl(appContext, customAppLabelsPreferences)
     }
 
     val favouriteAppRepository: FavouriteAppRepository by lazy {

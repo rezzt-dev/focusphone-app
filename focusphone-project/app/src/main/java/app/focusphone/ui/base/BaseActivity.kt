@@ -47,4 +47,20 @@ abstract class BaseActivity : AppCompatActivity() {
     private fun enableEdgeToEdge() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
     }
+
+    override fun onResume() {
+        super.onResume()
+        applyStatusBarVisibility()
+    }
+
+    protected fun applyStatusBarVisibility() {
+        val hideStatusBar = ThemePreferences.isStatusBarHidden(this)
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        if (hideStatusBar) {
+            controller.hide(androidx.core.view.WindowInsetsCompat.Type.statusBars())
+            controller.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        } else {
+            controller.show(androidx.core.view.WindowInsetsCompat.Type.statusBars())
+        }
+    }
 }

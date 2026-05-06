@@ -35,6 +35,8 @@ class SettingsActivity : BaseActivity() {
         setupThemeSelector()
         setupAlignmentSelector()
         setupClockTypeSelector()
+        setupClockSizeSlider()
+        setupStatusBarToggle()
         setupLanguageSelector()
         binding.itemSetDefaultLauncher.setOnClickListener {
             startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
@@ -137,6 +139,22 @@ class SettingsActivity : BaseActivity() {
             }
             binding.clockTypeContainer.addView(item.root)
             tiles.add(item)
+        }
+    }
+
+    private fun setupClockSizeSlider() {
+        val current = FontPreferences.getClockSizePercent(this)
+        binding.sliderClockSize.value = current.toFloat()
+        binding.sliderClockSize.addOnChangeListener { _, value, _ ->
+            FontPreferences.setClockSizePercent(this, value.toInt())
+        }
+    }
+
+    private fun setupStatusBarToggle() {
+        binding.switchHideStatusBar.isChecked = ThemePreferences.isStatusBarHidden(this)
+        binding.switchHideStatusBar.setOnCheckedChangeListener { _, isChecked ->
+            ThemePreferences.setStatusBarHidden(this, isChecked)
+            applyStatusBarVisibility()
         }
     }
 

@@ -14,18 +14,26 @@ import kotlinx.coroutines.flow.asStateFlow
  * This is a Phase-1 implementation. Room + KSP will replace it in Phase 2
  * once AGP 9.x annotation-processing compatibility is resolved.
  */
-class FavouriteAppsPreferences(context: Context) {
+class FavouriteAppsPreferences(context: Context, private val customLabels: CustomAppLabelsPreferences) {
 
     private val prefs = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
 
     private val _appsFlow = MutableStateFlow<List<FavouriteApp>>(loadFromPrefs())
 
     /** Reactive stream of persisted favourite apps. */
-    val appsFlow: StateFlow<List<FavouriteApp>> = _appsFlow.asStateFlow()
+    val appsFlow: kotlinx.coroutines.flow.Flow<List<FavouriteApp>> = kotlinx.coroutines.flow.combine(_appsFlow, customLabels.labelsFlow) { list, labels ->
+        list.map { app ->
+            val custom = labels[app.packageName]
+            if (custom != null) app.copy(label = custom) else app
+        }
+    }
 
     // ── Read ──────────────────────────────────────────────────────
 
-    fun getAll(): List<FavouriteApp> = _appsFlow.value
+    fun getAll(): List<FavouriteApp> = _appsFlow.value.map { app ->
+        val custom = customLabels.getCustomLabel(app.packageName)
+        if (custom != null) app.copy(label = custom) else app
+    }
 
     fun contains(packageName: String): Boolean =
         _appsFlow.value.any { it.packageName == packageName }

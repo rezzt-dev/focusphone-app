@@ -35,7 +35,7 @@ class AppSelectViewModel(
 
     init { loadApps() }
 
-    private fun loadApps() {
+    fun loadApps() {
         viewModelScope.launch {
             _isLoading.value = true
             _allApps.value   = getInstalledApps()

@@ -3,9 +3,9 @@
     <string name="app_name">focusphone</string>
     <string name="app_label">focusphone</string>
 
-    <string name="home_all_apps">todas las apps</string>
-    <string name="home_settings">ajustes</string>
-    <string name="home_edit_apps">editar apps</string>
+    <string name="home_all_apps">todas las aplicaciones</string>
+    <string name="home_settings">ajustes de focus</string>
+    <string name="home_edit_apps">editar aplicaciones</string>
     <string name="home_long_press_hint">mantén pulsada una app para quitarla de la lista</string>
     <string name="home_no_apps">sin apps seleccionadas.\ntoca el menú para añadir apps.</string>
     <string name="home_menu_desc">abrir menú</string>
@@ -77,4 +77,12 @@
     <string name="error_app_not_found">no se pudo abrir la app</string>
     <string name="cd_back_button">volver</string>
     <string name="cd_remove_app">quitar %1$s del inicio</string>
+    <string name="customize_name_title">personalizar nombre</string>
+    <string name="customize_name_message">escribe un nombre personalizado para %1$s:</string>
+    <string name="action_save">guardar</string>
+    <string name="action_reset">restablecer</string>
+    <string name="action_cancel">cancelar</string>
+    <string name="settings_clock_size">tamaño del reloj</string>
+    <string name="settings_hide_status_bar">ocultar barra de estado</string>
+    <string name="settings_hide_status_bar_desc">esconde la barra superior para mayor minimalismo</string>
 </resources>

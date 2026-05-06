@@ -12,7 +12,8 @@ object FontPreferences {
 
     private const val PREFS_NAME = "focusphone_prefs"
     private const val KEY_FONT   = "selected_font"
-    private const val KEY_CLOCK  = "clock_type"
+    private const val KEY_CLOCK      = "clock_type"
+    private const val KEY_CLOCK_SIZE = "clock_size"
 
     // ── Font ──────────────────────────────────────────────────────
 
@@ -63,6 +64,21 @@ object FontPreferences {
 
     fun setClockType(context: Context, type: ClockType) =
         prefs(context).edit().putString(KEY_CLOCK, type.key).apply()
+
+    // ── Clock size ────────────────────────────────────────────────
+
+    fun getClockSize(context: Context): Float {
+        val size = prefs(context).getInt(KEY_CLOCK_SIZE, 50)
+        // map 0..100 to 0.7f..1.3f multiplier for a subtle but noticeable scale
+        return 0.7f + (size / 100f * 0.6f)
+    }
+
+    fun getClockSizePercent(context: Context): Int {
+        return prefs(context).getInt(KEY_CLOCK_SIZE, 50)
+    }
+
+    fun setClockSizePercent(context: Context, percent: Int) =
+        prefs(context).edit().putInt(KEY_CLOCK_SIZE, percent).apply()
 
     // ── Internal ──────────────────────────────────────────────────
 

@@ -10,7 +10,10 @@ import app.focusphone.domain.repository.AppRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class AppRepositoryImpl(private val context: Context) : AppRepository {
+class AppRepositoryImpl(
+    private val context: Context,
+    private val customLabels: app.focusphone.data.preferences.CustomAppLabelsPreferences
+) : AppRepository {
 
     override suspend fun getInstalledApps(): List<AppInfo> = withContext(Dispatchers.IO) {
         val pm = context.packageManager
@@ -26,9 +29,10 @@ class AppRepositoryImpl(private val context: Context) : AppRepository {
         list.mapNotNull { info ->
             val pkg = info.activityInfo.packageName
             if (pkg == context.packageName) return@mapNotNull null
+            val custom = customLabels.getCustomLabel(pkg)
             AppInfo(
                 packageName = pkg,
-                label       = info.loadLabel(pm).toString(),
+                label       = custom ?: info.loadLabel(pm).toString(),
                 icon        = info.loadIcon(pm)
             )
         }.sortedBy { it.label.lowercase() }

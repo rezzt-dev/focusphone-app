@@ -9,7 +9,8 @@ import app.focusphone.databinding.ItemInstalledAppBinding
 import app.focusphone.domain.model.AppInfo
 
 class InstalledAppsAdapter(
-    private val onToggle: (AppInfo) -> Unit
+    private val onToggle: (AppInfo) -> Unit,
+    private val onLongToggle: ((AppInfo) -> Unit)? = null
 ) : ListAdapter<AppInfo, InstalledAppsAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -32,8 +33,14 @@ class InstalledAppsAdapter(
             binding.cbFavourite.isChecked = app.isFavourite
             if (app.icon != null) {
                 binding.ivAppIcon.setImageDrawable(app.icon)
+            } else {
+                binding.ivAppIcon.setImageDrawable(null)
             }
             binding.root.setOnClickListener { onToggle(app) }
+            binding.root.setOnLongClickListener {
+                onLongToggle?.invoke(app)
+                true
+            }
         }
     }
 

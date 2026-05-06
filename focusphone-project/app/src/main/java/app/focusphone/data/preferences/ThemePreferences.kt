@@ -61,4 +61,14 @@ object ThemePreferences {
 
     fun markOnboardingComplete(context: Context) =
         prefs(context).edit().putBoolean(KEY_ONBOARDING, true).apply()
+
+    // ── Status Bar ────────────────────────────────────────────────
+
+    private const val KEY_STATUS_BAR = "hide_status_bar"
+
+    fun isStatusBarHidden(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_STATUS_BAR, false)
+
+    fun setStatusBarHidden(context: Context, hide: Boolean) =
+        prefs(context).edit().putBoolean(KEY_STATUS_BAR, hide).apply()
 }

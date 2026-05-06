@@ -81,6 +81,9 @@ class HomeActivity : BaseActivity() {
         setupDrawerPushEffect()
         showLongPressHintIfNeeded()
         observeFavourites()
+
+        binding.indicatorContainer.visibility = View.INVISIBLE
+        binding.indicatorContainer.alpha = 0f
     }
 
     override fun onResume() {
@@ -99,6 +102,7 @@ class HomeActivity : BaseActivity() {
             else -> android.view.Gravity.CENTER_HORIZONTAL or android.view.Gravity.CENTER_VERTICAL
         }
         adapter.updateAlignment(gravity)
+        populateCalendar()
     }
 
     private fun verifyInstalledApps() {
@@ -140,7 +144,7 @@ class HomeActivity : BaseActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             binding.clockContainer.setPadding(0, bars.top + dp(8), 0, 0)
-            binding.drawerMenu.setPadding(0, bars.top, 0, bars.bottom)
+            binding.drawerMenu.setPadding(dp(32), bars.top + dp(32), dp(32), bars.bottom + dp(32))
             binding.indicatorContainer.setPadding(0, 0, 0, bars.bottom)
             insets
         }
@@ -214,23 +218,27 @@ class HomeActivity : BaseActivity() {
         binding.clockTypeWords  .visibility = if (type == ClockType.WORDS)   View.VISIBLE else View.GONE
         binding.clockTypeAnalog .visibility = if (type == ClockType.ANALOG)  View.VISIBLE else View.GONE
         
-        // Ajustar centrado si el reloj está oculto
+        // Ajustar centrado si el reloj está oculto y aplicar escala
+        val scale = FontPreferences.getClockSize(this)
+        binding.clockContainer.scaleX = scale
+        binding.clockContainer.scaleY = scale
+
         val constraintSet = androidx.constraintlayout.widget.ConstraintSet()
         constraintSet.clone(binding.rootHome)
         if (isHidden) {
             constraintSet.connect(R.id.apps_container, androidx.constraintlayout.widget.ConstraintSet.TOP, androidx.constraintlayout.widget.ConstraintSet.PARENT_ID, androidx.constraintlayout.widget.ConstraintSet.TOP)
         } else {
-            constraintSet.connect(R.id.apps_container, androidx.constraintlayout.widget.ConstraintSet.TOP, R.id.guideline_top, androidx.constraintlayout.widget.ConstraintSet.BOTTOM)
+            constraintSet.connect(R.id.apps_container, androidx.constraintlayout.widget.ConstraintSet.TOP, R.id.clock_container, androidx.constraintlayout.widget.ConstraintSet.BOTTOM)
         }
         constraintSet.applyTo(binding.rootHome)
         
         // Adjust gravity for the RecyclerView and Empty state
         val rvParams = binding.rvFavouriteApps.layoutParams as android.widget.FrameLayout.LayoutParams
-        rvParams.gravity = if (isHidden) android.view.Gravity.CENTER_VERTICAL else android.view.Gravity.TOP
+        rvParams.gravity = android.view.Gravity.CENTER_VERTICAL
         binding.rvFavouriteApps.layoutParams = rvParams
         
         val emptyParams = binding.tvEmpty.layoutParams as android.widget.FrameLayout.LayoutParams
-        emptyParams.gravity = if (isHidden) android.view.Gravity.CENTER_VERTICAL else android.view.Gravity.TOP
+        emptyParams.gravity = android.view.Gravity.CENTER_VERTICAL
         binding.tvEmpty.layoutParams = emptyParams
     }
 
@@ -342,12 +350,44 @@ class HomeActivity : BaseActivity() {
                 val moveFactor = -(drawerView.width * slideOffset)
                 binding.rootHome.translationX = moveFactor
                 updateIndicators(slideOffset)
+                if (slideOffset > 0f) {
+                    showIndicatorsWithTimeout()
+                }
             }
 
             override fun onDrawerOpened(drawerView: View) {}
             override fun onDrawerClosed(drawerView: View) {}
             override fun onDrawerStateChanged(newState: Int) {}
         })
+    }
+
+    private var hideRunnable: Runnable? = null
+
+    private fun showIndicatorsWithTimeout() {
+        hideRunnable?.let { binding.indicatorContainer.removeCallbacks(it) }
+        
+        if (binding.indicatorContainer.visibility != View.VISIBLE) {
+            binding.indicatorContainer.visibility = View.VISIBLE
+            binding.indicatorContainer.alpha = 0f
+            binding.indicatorContainer.animate()
+                .alpha(1f)
+                .setDuration(200)
+                .start()
+        } else {
+            binding.indicatorContainer.animate().cancel()
+            binding.indicatorContainer.alpha = 1f
+        }
+        
+        hideRunnable = Runnable {
+            binding.indicatorContainer.animate()
+                .alpha(0f)
+                .setDuration(300)
+                .withEndAction {
+                    binding.indicatorContainer.visibility = View.INVISIBLE
+                }
+                .start()
+        }
+        binding.indicatorContainer.postDelayed(hideRunnable, 2000)
     }
 
     private fun updateIndicators(slideOffset: Float) {
@@ -463,6 +503,93 @@ class HomeActivity : BaseActivity() {
     }
 
     // ── Helpers ────────────────────────────────────────────────────
+
+    private fun populateCalendar() {
+        val calendar = Calendar.getInstance()
+        val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
+        
+        // Month title formatted as "{dia} de {mes} | {año}"
+        val monthFormat = SimpleDateFormat("MMMM", Locale.getDefault())
+        val monthName = monthFormat.format(calendar.time).replaceFirstChar { it.lowercase() }
+        val year = calendar.get(Calendar.YEAR)
+        binding.tvCalendarMonth.text = "$currentDay de $monthName | $year"
+        
+        // Set to first day of month to calculate starting weekday offset
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        val firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) // Sunday = 1, Monday = 2, Tuesday = 3...
+        
+        // Monday = 0, Tuesday = 1, ..., Sunday = 6
+        val startOffset = (firstDayOfWeek + 5) % 7
+        val maxDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+        
+        binding.calendarGrid.removeAllViews()
+        
+        var dayCounter = 1
+        val totalSlots = startOffset + maxDays
+        val totalWeeks = kotlin.math.ceil(totalSlots.toDouble() / 7).toInt()
+        
+        // Get primary and secondary colors from current theme
+        val typedValue = android.util.TypedValue()
+        theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
+        val colorPrimary = typedValue.data
+        theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
+        val colorSecondary = typedValue.data
+        
+        for (w in 0 until totalWeeks) {
+            val weekRow = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                weightSum = 7f
+            }
+            
+            for (d in 0 until 7) {
+                val cellIndex = w * 7 + d
+                val cell = android.widget.FrameLayout(this).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                        0,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                        1f
+                    )
+                }
+                
+                val dayTextView = android.widget.TextView(this).apply {
+                    layoutParams = android.widget.FrameLayout.LayoutParams(
+                        dp(32),
+                        dp(32)
+                    ).apply {
+                        gravity = android.view.Gravity.CENTER
+                        topMargin = dp(6)
+                        bottomMargin = dp(6)
+                    }
+                    gravity = android.view.Gravity.CENTER
+                    setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14f)
+                }
+                
+                if (cellIndex >= startOffset && dayCounter <= maxDays) {
+                    dayTextView.text = dayCounter.toString()
+                    if (dayCounter == currentDay) {
+                        val bgValue = android.util.TypedValue()
+                        theme.resolveAttribute(android.R.attr.colorBackground, bgValue, true)
+                        dayTextView.setTextColor(bgValue.data)
+                        dayTextView.setBackgroundResource(R.drawable.shape_current_day)
+                        dayTextView.typeface = android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.BOLD)
+                    } else {
+                        dayTextView.setTextColor(colorSecondary)
+                        dayTextView.setTypeface(null, android.graphics.Typeface.NORMAL)
+                    }
+                    dayCounter++
+                } else {
+                    dayTextView.text = ""
+                }
+                cell.addView(dayTextView)
+                weekRow.addView(cell)
+            }
+            binding.calendarGrid.addView(weekRow)
+        }
+    }
 
     private fun haptic(view: View) = view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
