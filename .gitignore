@@ -1,0 +1,44 @@
+# Gradle files and caches
+.gradle/
+build/
+/*/build/
+kotlin-js-store/
+
+# Local configuration files (contains local SDK paths, keys, etc.)
+local.properties
+
+# Android Studio / IntelliJ IDEA files
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/deploymentTargetSelector.xml
+.idea/shelf/
+*.iml
+*.ipr
+*.iws
+
+# Built artifacts
+*.apk
+*.ap_
+*.aar
+*.jar
+*.class
+
+# Log files
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Device captures and builds
+/captures/
+.externalNativeBuild/
+.cxx/
+
+# Kotlin / Compiler caches
+.kotlin/
