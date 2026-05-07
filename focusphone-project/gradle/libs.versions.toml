@@ -18,6 +18,9 @@ coroutines       = "1.8.1"
 # UI
 material         = "1.12.0"
 
+# Room
+room             = "2.8.4"
+
 # Testing
 junit            = "4.13.2"
 junitExt         = "1.2.1"
@@ -44,6 +47,11 @@ kotlinx-coroutines-core    = { group = "org.jetbrains.kotlinx",     name = "kotl
 
 # UI
 material                   = { group = "com.google.android.material", name = "material",              version.ref = "material"          }
+
+# Room
+room-runtime               = { group = "androidx.room",              name = "room-runtime",           version.ref = "room"              }
+room-compiler              = { group = "androidx.room",              name = "room-compiler",          version.ref = "room"              }
+room-ktx                   = { group = "androidx.room",              name = "room-ktx",               version.ref = "room"              }
 
 # Testing
 junit                      = { group = "junit",                      name = "junit",                  version.ref = "junit"             }

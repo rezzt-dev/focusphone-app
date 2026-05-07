@@ -93,4 +93,37 @@
     <string name="settings_clock_size">clock size</string>
     <string name="settings_hide_status_bar">hide status bar</string>
     <string name="settings_hide_status_bar_desc">hide the top bar for maximum minimalism</string>
+
+    <!-- Conscious Pause -->
+    <string name="settings_section_conscious_pause">conscious pause</string>
+    <string name="settings_conscious_pause_title">enable conscious pause</string>
+    <string name="settings_conscious_pause_desc">take a deep breath before opening any app</string>
+    <string name="settings_conscious_pause_duration">pause duration: %1$d seconds</string>
+    <string name="pause_inhale">inhale…</string>
+    <string name="pause_exhale">exhale…</string>
+    <string name="pause_hold">hold…</string>
+    <string name="pause_mindful_question">are you sure you want to open %1$s?</string>
+    <string name="pause_cancel">cancel</string>
+
+    <!-- Contextual Profiles & Detox -->
+    <string name="home_profile_label">selected profile: %1$s</string>
+    <string name="profile_normal">normal</string>
+    <string name="profile_work">work</string>
+    <string name="profile_detox">detox</string>
+    <string name="profile_select_title">select profile</string>
+    <string name="profile_detox_select_duration">select detox duration</string>
+    <string name="detox_duration_15m">15 minutes</string>
+    <string name="detox_duration_30m">30 minutes</string>
+    <string name="detox_duration_1h">1 hour</string>
+    <string name="detox_duration_2h">2 hours</string>
+    <string name="detox_blocked_title">detox active</string>
+    <string name="detox_blocked_desc">you are in detox mode. take a moment to reconnect with the real world.</string>
+    <string name="detox_remaining_time">remaining: %1$s</string>
+
+    <!-- Custom App Blocking -->
+    <string name="allapps_dialog_rename">rename</string>
+    <string name="allapps_dialog_block">block in work/detox</string>
+    <string name="allapps_dialog_unblock">allow in work/detox</string>
+    <string name="allapps_toast_blocked">%1$s blocked</string>
+    <string name="allapps_toast_unblocked">%1$s allowed</string>
 </resources>

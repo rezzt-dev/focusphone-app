@@ -20,6 +20,10 @@ object ThemePreferences {
     const val THEME_SLATE      = "slate"
     const val THEME_WARM_BEIGE = "warm_beige"
     const val THEME_NAVY       = "navy"
+    const val THEME_CUSTOM     = "custom"
+
+    private const val KEY_CUSTOM_BG = "custom_bg_color"
+    private const val KEY_CUSTOM_FG = "custom_fg_color"
 
     private fun prefs(context: Context) =
         context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
@@ -31,6 +35,36 @@ object ThemePreferences {
 
     fun setTheme(context: Context, theme: String) =
         prefs(context).edit().putString(KEY_THEME, theme).apply()
+
+    fun getCustomBackgroundColorHex(context: Context): String =
+        prefs(context).getString(KEY_CUSTOM_BG, "#181818") ?: "#181818"
+
+    fun setCustomBackgroundColorHex(context: Context, hex: String) =
+        prefs(context).edit().putString(KEY_CUSTOM_BG, hex).apply()
+
+    fun getCustomForegroundColorHex(context: Context): String =
+        prefs(context).getString(KEY_CUSTOM_FG, "#FAFAFA") ?: "#FAFAFA"
+
+    fun setCustomForegroundColorHex(context: Context, hex: String) =
+        prefs(context).edit().putString(KEY_CUSTOM_FG, hex).apply()
+
+    fun getCustomBackgroundColor(context: Context): Int {
+        val hex = getCustomBackgroundColorHex(context)
+        return try {
+            android.graphics.Color.parseColor(hex)
+        } catch (e: Exception) {
+            android.graphics.Color.parseColor("#181818")
+        }
+    }
+
+    fun getCustomForegroundColor(context: Context): Int {
+        val hex = getCustomForegroundColorHex(context)
+        return try {
+            android.graphics.Color.parseColor(hex)
+        } catch (e: Exception) {
+            android.graphics.Color.parseColor("#FAFAFA")
+        }
+    }
 
     @StyleRes
     fun resolveStyleRes(theme: String): Int = when (theme) {

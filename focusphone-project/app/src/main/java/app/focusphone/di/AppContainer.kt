@@ -1,7 +1,6 @@
 package app.focusphone.di
 
 import android.content.Context
-import app.focusphone.data.preferences.FavouriteAppsPreferences
 import app.focusphone.data.repository.AppRepositoryImpl
 import app.focusphone.data.repository.FavouriteAppRepositoryImpl
 import app.focusphone.domain.repository.AppRepository
@@ -27,8 +26,8 @@ class AppContainer(context: Context) {
         app.focusphone.data.preferences.CustomAppLabelsPreferences(appContext)
     }
 
-    private val favouriteAppsPreferences: FavouriteAppsPreferences by lazy {
-        FavouriteAppsPreferences(appContext, customAppLabelsPreferences)
+    private val database: app.focusphone.data.local.AppDatabase by lazy {
+        app.focusphone.data.local.AppDatabase.getDatabase(appContext)
     }
 
     // ── Repositories ──────────────────────────────────────────────
@@ -38,7 +37,7 @@ class AppContainer(context: Context) {
     }
 
     val favouriteAppRepository: FavouriteAppRepository by lazy {
-        FavouriteAppRepositoryImpl(favouriteAppsPreferences)
+        FavouriteAppRepositoryImpl(database.favouriteAppDao(), customAppLabelsPreferences, appContext)
     }
 
     // ── Use Cases ─────────────────────────────────────────────────

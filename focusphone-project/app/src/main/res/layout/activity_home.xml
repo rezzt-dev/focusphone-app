@@ -333,6 +333,21 @@
                 android:textColor="?attr/android:textColorPrimary"
                 android:textSize="26sp" />
 
+            <!-- "perfil: libre" -->
+            <TextView
+                android:id="@+id/tv_menu_profile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:fontFamily="sans-serif"
+                android:gravity="start|center_vertical"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:textColor="?attr/android:textColorPrimary"
+                android:textSize="26sp"
+                tools:text="perfil: libre" />
+
         </LinearLayout>
 
     </LinearLayout>

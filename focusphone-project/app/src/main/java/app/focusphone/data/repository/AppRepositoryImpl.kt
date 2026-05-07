@@ -33,7 +33,7 @@ class AppRepositoryImpl(
             AppInfo(
                 packageName = pkg,
                 label       = custom ?: info.loadLabel(pm).toString(),
-                icon        = info.loadIcon(pm)
+                icon        = null
             )
         }.sortedBy { it.label.lowercase() }
     }

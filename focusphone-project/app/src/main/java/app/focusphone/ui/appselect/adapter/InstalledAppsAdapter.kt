@@ -29,13 +29,10 @@ class InstalledAppsAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(app: AppInfo) {
-            binding.tvAppName.text      = app.label
-            binding.cbFavourite.isChecked = app.isFavourite
-            if (app.icon != null) {
-                binding.ivAppIcon.setImageDrawable(app.icon)
-            } else {
-                binding.ivAppIcon.setImageDrawable(null)
-            }
+            binding.tvAppName.text = app.label.lowercase()
+            binding.tvSelectIndicator.text = if (app.isFavourite) "✓" else "+"
+            binding.tvSelectIndicator.alpha = if (app.isFavourite) 1.0f else 0.4f
+            
             binding.root.setOnClickListener { onToggle(app) }
             binding.root.setOnLongClickListener {
                 onLongToggle?.invoke(app)

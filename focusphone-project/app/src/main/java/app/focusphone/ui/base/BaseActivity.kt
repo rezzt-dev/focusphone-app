@@ -16,6 +16,9 @@ import app.focusphone.data.preferences.ThemePreferences
  *  - Apply consistent fade transitions on every Activity launch.
  */
 abstract class BaseActivity : AppCompatActivity() {
+    private var currentTheme: String? = null
+    private var customBgColor: Int? = null
+    private var customFgColor: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         applyTheme()
@@ -39,7 +42,66 @@ abstract class BaseActivity : AppCompatActivity() {
 
     private fun applyTheme() {
         val theme = ThemePreferences.getTheme(this)
+        currentTheme = theme
+        if (theme == ThemePreferences.THEME_CUSTOM) {
+            customBgColor = ThemePreferences.getCustomBackgroundColor(this)
+            customFgColor = ThemePreferences.getCustomForegroundColor(this)
+        }
         setTheme(ThemePreferences.resolveStyleRes(theme))
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        applyCustomThemeColors()
+    }
+
+    private fun applyCustomThemeColors() {
+        val theme = ThemePreferences.getTheme(this)
+        if (theme == ThemePreferences.THEME_CUSTOM) {
+            val bgColor = ThemePreferences.getCustomBackgroundColor(this)
+            val fgColor = ThemePreferences.getCustomForegroundColor(this)
+            
+            // Set window and content background colors
+            window.decorView.setBackgroundColor(bgColor)
+            val contentFrame = findViewById<android.view.View>(android.R.id.content)
+            contentFrame?.setBackgroundColor(bgColor)
+            
+            // Recursively style all child views with custom background and foreground colors
+            contentFrame?.let { applyCustomThemeToView(it, fgColor, bgColor) }
+        }
+    }
+
+    private fun applyCustomThemeToView(view: android.view.View, fgColor: Int, bgColor: Int) {
+        val className = view.javaClass.name
+        if (className.contains("ConstraintLayout") || 
+            className.contains("LinearLayout") || 
+            className.contains("ScrollView") || 
+            className.contains("RecyclerView") ||
+            view.id == android.R.id.content) {
+            
+            // Safely skip overriding backgrounds on theme circular cards or segmented controls
+            val viewIdHex = try { resources.getResourceEntryName(view.id) } catch (e: Exception) { "" }
+            if (!viewIdHex.startsWith("card_theme") && 
+                !viewIdHex.startsWith("view_theme") && 
+                !viewIdHex.contains("preview") &&
+                !viewIdHex.contains("segmented")) {
+                view.setBackgroundColor(bgColor)
+            }
+        }
+
+        if (view is android.widget.TextView) {
+            view.setTextColor(fgColor)
+            if (view is android.widget.EditText) {
+                // Suttle placeholder tint based on custom foreground color
+                view.setHintTextColor((fgColor and 0x00FFFFFF) or 0x66000000)
+            }
+        }
+
+        if (view is android.view.ViewGroup) {
+            for (i in 0 until view.childCount) {
+                applyCustomThemeToView(view.getChildAt(i), fgColor, bgColor)
+            }
+        }
     }
 
     // ── Edge-to-edge ───────────────────────────────────────────────
@@ -51,6 +113,18 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         applyStatusBarVisibility()
+
+        // System-wide dynamic theme change detection on resume
+        val activeTheme = ThemePreferences.getTheme(this)
+        if (activeTheme != currentTheme) {
+            recreate()
+        } else if (activeTheme == ThemePreferences.THEME_CUSTOM) {
+            val bg = ThemePreferences.getCustomBackgroundColor(this)
+            val fg = ThemePreferences.getCustomForegroundColor(this)
+            if (bg != customBgColor || fg != customFgColor) {
+                recreate()
+            }
+        }
     }
 
     protected fun applyStatusBarVisibility() {

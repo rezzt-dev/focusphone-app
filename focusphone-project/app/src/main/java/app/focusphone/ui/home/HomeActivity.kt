@@ -30,6 +30,10 @@ import app.focusphone.R
 import app.focusphone.data.model.FavouriteApp
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
+import app.focusphone.data.preferences.ConsciousPausePreferences
+import app.focusphone.data.preferences.ProfilePreferences
+import app.focusphone.ui.pause.ConsciousPauseActivity
+import app.focusphone.ui.detox.DetoxBlockedActivity
 import app.focusphone.databinding.ActivityHomeBinding
 import app.focusphone.domain.model.ClockType
 import app.focusphone.ui.allapps.AllAppsActivity
@@ -95,6 +99,7 @@ class HomeActivity : BaseActivity() {
         applyClockType()
         updateClock()
         verifyInstalledApps()
+        updateProfileLabel()
         
         val gravity = when (app.focusphone.data.preferences.ThemePreferences.getAlignment(this)) {
             app.focusphone.data.preferences.ThemePreferences.ALIGN_LEFT -> android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
@@ -109,13 +114,15 @@ class HomeActivity : BaseActivity() {
         val currentApps = adapter.currentList
         if (currentApps.isEmpty()) return
         
-        val pm = packageManager
-        currentApps.forEach { app ->
-            try {
-                pm.getPackageInfo(app.packageName, 0)
-            } catch (e: android.content.pm.PackageManager.NameNotFoundException) {
-                // App was uninstalled, remove it from favourites
-                viewModel.removeFavourite(app.packageName, app.label)
+        lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            val pm = packageManager
+            currentApps.forEach { app ->
+                try {
+                    pm.getPackageInfo(app.packageName, 0)
+                } catch (e: android.content.pm.PackageManager.NameNotFoundException) {
+                    // App was uninstalled, remove it from favourites
+                    viewModel.removeFavourite(app.packageName, app.label)
+                }
             }
         }
     }
@@ -413,6 +420,96 @@ class HomeActivity : BaseActivity() {
             binding.drawerLayout.closeDrawers()
             openSettings() 
         }
+        binding.tvMenuProfile.setOnClickListener {
+            showProfileSelectionDialog()
+        }
+    }
+
+    private fun updateProfileLabel() {
+        val profileKey = ProfilePreferences.getProfile(this)
+        val profileNameRes = when (profileKey) {
+            ProfilePreferences.PROFILE_WORK -> R.string.profile_work
+            ProfilePreferences.PROFILE_DETOX -> R.string.profile_detox
+            else -> R.string.profile_normal
+        }
+        binding.tvMenuProfile.text = getString(R.string.home_profile_label, getString(profileNameRes))
+    }
+
+    private fun showProfileSelectionDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_profile_select, null)
+        val dialog = android.app.AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+
+        view.findViewById<View>(R.id.btn_profile_normal).setOnClickListener {
+            ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_NORMAL)
+            updateProfileLabel()
+            dialog.dismiss()
+        }
+        view.findViewById<View>(R.id.btn_profile_work).setOnClickListener {
+            ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_WORK)
+            updateProfileLabel()
+            dialog.dismiss()
+        }
+        view.findViewById<View>(R.id.btn_profile_detox).setOnClickListener {
+            dialog.dismiss()
+            showDetoxDurationDialog()
+        }
+
+        dialog.show()
+    }
+
+    private fun showDetoxDurationDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_detox_duration_select, null)
+        val dialog = android.app.AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+
+        val durationMs = arrayOf(
+            15 * 60 * 1000L,
+            30 * 60 * 1000L,
+            60 * 60 * 1000L,
+            120 * 60 * 1000L
+        )
+
+        view.findViewById<View>(R.id.btn_duration_15m).setOnClickListener {
+            val endTime = System.currentTimeMillis() + durationMs[0]
+            ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_DETOX)
+            ProfilePreferences.setDetoxEndTime(this, endTime)
+            updateProfileLabel()
+            binding.drawerLayout.closeDrawers()
+            dialog.dismiss()
+        }
+        view.findViewById<View>(R.id.btn_duration_30m).setOnClickListener {
+            val endTime = System.currentTimeMillis() + durationMs[1]
+            ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_DETOX)
+            ProfilePreferences.setDetoxEndTime(this, endTime)
+            updateProfileLabel()
+            binding.drawerLayout.closeDrawers()
+            dialog.dismiss()
+        }
+        view.findViewById<View>(R.id.btn_duration_1h).setOnClickListener {
+            val endTime = System.currentTimeMillis() + durationMs[2]
+            ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_DETOX)
+            ProfilePreferences.setDetoxEndTime(this, endTime)
+            updateProfileLabel()
+            binding.drawerLayout.closeDrawers()
+            dialog.dismiss()
+        }
+        view.findViewById<View>(R.id.btn_duration_2h).setOnClickListener {
+            val endTime = System.currentTimeMillis() + durationMs[3]
+            ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_DETOX)
+            ProfilePreferences.setDetoxEndTime(this, endTime)
+            updateProfileLabel()
+            binding.drawerLayout.closeDrawers()
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     // ── Long-press hint ────────────────────────────────────────────
@@ -480,8 +577,21 @@ class HomeActivity : BaseActivity() {
 
     private fun launchApp(app: FavouriteApp) {
         haptic(binding.rvFavouriteApps)
-        try { startActivity(packageManager.getLaunchIntentForPackage(app.packageName) ?: return) }
-        catch (_: Exception) { Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show() }
+        if (ProfilePreferences.isAppBlocked(this, app.packageName)) {
+            startActivity(Intent(this, DetoxBlockedActivity::class.java))
+            return
+        }
+        val launchIntent = packageManager.getLaunchIntentForPackage(app.packageName) ?: return
+        if (ConsciousPausePreferences.isEnabled(this)) {
+            val intent = Intent(this, ConsciousPauseActivity::class.java).apply {
+                putExtra("target_intent", launchIntent)
+                putExtra("app_label", app.label)
+            }
+            startActivity(intent)
+        } else {
+            try { startActivity(launchIntent) }
+            catch (_: Exception) { Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show() }
+        }
     }
 
     private fun showAppContextMenu(app: FavouriteApp): Boolean {

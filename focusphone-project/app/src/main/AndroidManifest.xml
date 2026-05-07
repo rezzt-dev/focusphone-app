@@ -61,6 +61,18 @@
             android:exported="false"
             android:launchMode="singleTop" />
 
+        <!-- ── Conscious Pause Activity ───────────────────────────── -->
+        <activity
+            android:name=".ui.pause.ConsciousPauseActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
+        <!-- ── Detox Blocked Activity ─────────────────────────────── -->
+        <activity
+            android:name=".ui.detox.DetoxBlockedActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
     </application>
 
 </manifest>
