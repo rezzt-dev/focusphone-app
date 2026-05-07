@@ -24,6 +24,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import app.focusphone.FocusPhoneApp
 import app.focusphone.R
+import app.focusphone.data.preferences.ConsciousPausePreferences
+import app.focusphone.data.preferences.ProfilePreferences
+import app.focusphone.data.preferences.ThemePreferences
+import app.focusphone.ui.pause.ConsciousPauseActivity
+import app.focusphone.ui.detox.DetoxBlockedActivity
 import app.focusphone.databinding.ActivityAllAppsBinding
 import app.focusphone.databinding.ItemAllAppBinding
 import app.focusphone.domain.model.AppInfo
@@ -37,227 +42,281 @@ import kotlinx.coroutines.launch
 // ── ViewModel ──────────────────────────────────────────────────────
 
 class AllAppsViewModel(
-    private val getInstalledApps: GetInstalledAppsUseCase
+  private val getInstalledApps: GetInstalledAppsUseCase
 ) : ViewModel() {
 
-    private val _allApps  = MutableStateFlow<List<AppInfo>>(emptyList())
-    private val _filtered = MutableStateFlow<List<AppInfo>>(emptyList())
-    private val _query    = MutableStateFlow("")
+  private val _allApps  = MutableStateFlow<List<AppInfo>>(emptyList())
+  private val _filtered = MutableStateFlow<List<AppInfo>>(emptyList())
+  private val _query    = MutableStateFlow("")
 
-    val filteredApps: StateFlow<List<AppInfo>> = _filtered.asStateFlow()
-    val isLoading = MutableStateFlow(true)
+  val filteredApps: StateFlow<List<AppInfo>> = _filtered.asStateFlow()
+  val isLoading = MutableStateFlow(true)
 
-    init { load() }
+  init { load() }
 
-    fun load() {
-        viewModelScope.launch {
-            isLoading.value = true
-            _allApps.value  = getInstalledApps()
-            applyFilter()
-            isLoading.value = false
-        }
+  fun load() {
+    viewModelScope.launch {
+      isLoading.value = true
+      _allApps.value  = getInstalledApps()
+      applyFilter()
+      isLoading.value = false
     }
+  }
 
-    fun onQuery(q: String) { _query.value = q; applyFilter() }
+  fun onQuery(q: String) { _query.value = q; applyFilter() }
 
-    private fun applyFilter() {
-        val q = _query.value.trim().lowercase()
-        _filtered.value = if (q.isEmpty()) _allApps.value
-        else _allApps.value.filter { it.label.lowercase().contains(q) }
-    }
+  private fun applyFilter() {
+    val q = _query.value.trim().lowercase()
+    _filtered.value = if (q.isEmpty()) _allApps.value
+    else _allApps.value.filter { it.label.lowercase().contains(q) }
+  }
 
-    companion object {
-        fun factory(app: FocusPhoneApp): ViewModelProvider.Factory =
-            object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    AllAppsViewModel(app.container.getInstalledAppsUseCase) as T
-            }
-    }
+  companion object {
+    fun factory(app: FocusPhoneApp): ViewModelProvider.Factory =
+      object : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+          AllAppsViewModel(app.container.getInstalledAppsUseCase) as T
+      }
+  }
 }
 
 // ── Activity ───────────────────────────────────────────────────────
 
 class AllAppsActivity : BaseActivity() {
 
-    private lateinit var binding: ActivityAllAppsBinding
-    private val viewModel: AllAppsViewModel by viewModels { AllAppsViewModel.factory(application as FocusPhoneApp) }
+  private lateinit var binding: ActivityAllAppsBinding
+  private val viewModel: AllAppsViewModel by viewModels { AllAppsViewModel.factory(application as FocusPhoneApp) }
 
-    private val adapter = AllAppsAdapter(
-        onTap = { app ->
-            binding.root.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-            try {
-                startActivity(packageManager.getLaunchIntentForPackage(app.packageName) ?: return@AllAppsAdapter)
-            } catch (_: Exception) {
-                Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
-            }
-        },
-        onLongTap = { app ->
-            binding.root.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-            showRenameDialog(app)
+  private val adapter = AllAppsAdapter(
+    onTap = { app ->
+      binding.root.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+      if (ProfilePreferences.isAppBlocked(this, app.packageName)) {
+        startActivity(Intent(this, DetoxBlockedActivity::class.java))
+        return@AllAppsAdapter
+      }
+      val launchIntent = packageManager.getLaunchIntentForPackage(app.packageName) ?: return@AllAppsAdapter
+      if (ConsciousPausePreferences.isEnabled(this)) {
+        val intent = Intent(this, ConsciousPauseActivity::class.java).apply {
+          putExtra("target_intent", launchIntent)
+          putExtra("app_label", app.label)
         }
+        startActivity(intent)
+      } else {
+        try { startActivity(launchIntent) }
+        catch (_: Exception) { Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show() }
+      }
+    },
+    onLongTap = { app ->
+      binding.root.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+      showAppOptionsDialog(app)
+    }
+  )
+
+  private fun showRenameDialog(app: AppInfo) {
+    try {
+      val input = android.widget.EditText(this@AllAppsActivity).apply {
+        setText(app.label)
+        setSelection(text.length)
+        setSingleLine()
+
+        val gd = android.graphics.drawable.GradientDrawable().apply {
+          shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+          cornerRadius = dp(16).toFloat()
+
+          val typedValue = android.util.TypedValue()
+          theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+          setColor(typedValue.data)
+
+          theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
+          setStroke(dp(1), typedValue.data)
+        }
+        background = gd
+
+        val typedValue = android.util.TypedValue()
+        theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
+        setTextColor(typedValue.data)
+        theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
+        setHintTextColor(typedValue.data)
+
+        textSize = 15f
+        val padH = dp(16)
+        val padV = dp(14)
+        setPadding(padH, padV, padH, padV)
+      }
+      val container = android.widget.FrameLayout(this@AllAppsActivity).apply {
+        addView(input, android.widget.FrameLayout.LayoutParams(
+          android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+          android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+          leftMargin = dp(24)
+          rightMargin = dp(24)
+          topMargin = dp(8)
+          bottomMargin = dp(8)
+        })
+      }
+
+      com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AllAppsActivity)
+        .setTitle(R.string.customize_name_title)
+        .setMessage(getString(R.string.customize_name_message, app.label))
+        .setView(container)
+        .setPositiveButton(R.string.action_save) { _, _ ->
+          val newLabel = input.text.toString().trim()
+          val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
+          if (newLabel.isEmpty()) {
+            prefs.setCustomLabel(app.packageName, null)
+          } else {
+            prefs.setCustomLabel(app.packageName, newLabel)
+          }
+          viewModel.load()
+        }
+        .setNeutralButton(R.string.action_reset) { _, _ ->
+          val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
+          prefs.setCustomLabel(app.packageName, null)
+          viewModel.load()
+        }
+        .setNegativeButton(R.string.action_cancel, null)
+        .show()
+    } catch (e: Exception) {
+      e.printStackTrace()
+      val input = android.widget.EditText(this@AllAppsActivity).apply {
+        setText(app.label)
+        setSelection(text.length)
+        setSingleLine()
+      }
+      val container = android.widget.FrameLayout(this@AllAppsActivity).apply {
+        addView(input, android.widget.FrameLayout.LayoutParams(
+          android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+          android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+          leftMargin = dp(24)
+          rightMargin = dp(24)
+          topMargin = dp(8)
+          bottomMargin = dp(8)
+        })
+      }
+      com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AllAppsActivity)
+        .setTitle("personalizar nombre")
+        .setMessage("escribe un nombre personalizado para ${app.label}:")
+        .setView(container)
+        .setPositiveButton("guardar") { _, _ ->
+          val newLabel = input.text.toString().trim()
+          val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
+          if (newLabel.isEmpty()) {
+            prefs.setCustomLabel(app.packageName, null)
+          } else {
+            prefs.setCustomLabel(app.packageName, newLabel)
+          }
+          viewModel.load()
+        }
+        .setNegativeButton("cancelar", null)
+        .show()
+    }
+  }
+
+  private fun showAppOptionsDialog(app: AppInfo) {
+    val isBlocked = ProfilePreferences.getBlockedApps(this).contains(app.packageName)
+    val blockActionText = if (isBlocked) {
+      getString(R.string.allapps_dialog_unblock)
+    } else {
+      getString(R.string.allapps_dialog_block)
+    }
+    val options = arrayOf(
+      getString(R.string.allapps_dialog_rename),
+      blockActionText
     )
 
-    private fun showRenameDialog(app: AppInfo) {
-        try {
-            val input = android.widget.EditText(this@AllAppsActivity).apply {
-                setText(app.label)
-                setSelection(text.length)
-                setSingleLine()
-                
-                val gd = android.graphics.drawable.GradientDrawable().apply {
-                    shape = android.graphics.drawable.GradientDrawable.RECTANGLE
-                    cornerRadius = dp(16).toFloat()
-                    
-                    val typedValue = android.util.TypedValue()
-                    theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-                    setColor(typedValue.data)
-                    
-                    theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-                    setStroke(dp(1), typedValue.data)
-                }
-                background = gd
-                
-                val typedValue = android.util.TypedValue()
-                theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-                setTextColor(typedValue.data)
-                theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-                setHintTextColor(typedValue.data)
-                
-                textSize = 15f
-                val padH = dp(16)
-                val padV = dp(14)
-                setPadding(padH, padV, padH, padV)
+    com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+      .setTitle(app.label.lowercase())
+      .setItems(options) { _, which ->
+        when (which) {
+          0 -> showRenameDialog(app)
+          1 -> {
+            ProfilePreferences.setAppBlockedState(this, app.packageName, !isBlocked)
+            val toastFormat = if (isBlocked) {
+              R.string.allapps_toast_unblocked
+            } else {
+              R.string.allapps_toast_blocked
             }
-            val container = android.widget.FrameLayout(this@AllAppsActivity).apply {
-                addView(input, android.widget.FrameLayout.LayoutParams(
-                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    leftMargin = dp(24)
-                    rightMargin = dp(24)
-                    topMargin = dp(8)
-                    bottomMargin = dp(8)
-                })
-            }
-            
-            com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AllAppsActivity)
-                .setTitle(R.string.customize_name_title)
-                .setMessage(getString(R.string.customize_name_message, app.label))
-                .setView(container)
-                .setPositiveButton(R.string.action_save) { _, _ ->
-                    val newLabel = input.text.toString().trim()
-                    val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
-                    if (newLabel.isEmpty()) {
-                        prefs.setCustomLabel(app.packageName, null)
-                    } else {
-                        prefs.setCustomLabel(app.packageName, newLabel)
-                    }
-                    viewModel.load()
-                }
-                .setNeutralButton(R.string.action_reset) { _, _ ->
-                    val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
-                    prefs.setCustomLabel(app.packageName, null)
-                    viewModel.load()
-                }
-                .setNegativeButton(R.string.action_cancel, null)
-                .show()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            val input = android.widget.EditText(this@AllAppsActivity).apply {
-                setText(app.label)
-                setSelection(text.length)
-                setSingleLine()
-            }
-            val container = android.widget.FrameLayout(this@AllAppsActivity).apply {
-                addView(input, android.widget.FrameLayout.LayoutParams(
-                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    leftMargin = dp(24)
-                    rightMargin = dp(24)
-                    topMargin = dp(8)
-                    bottomMargin = dp(8)
-                })
-            }
-            com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AllAppsActivity)
-                .setTitle("personalizar nombre")
-                .setMessage("escribe un nombre personalizado para ${app.label}:")
-                .setView(container)
-                .setPositiveButton("guardar") { _, _ ->
-                    val newLabel = input.text.toString().trim()
-                    val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
-                    if (newLabel.isEmpty()) {
-                        prefs.setCustomLabel(app.packageName, null)
-                    } else {
-                        prefs.setCustomLabel(app.packageName, newLabel)
-                    }
-                    viewModel.load()
-                }
-                .setNegativeButton("cancelar", null)
-                .show()
+            Toast.makeText(
+              this,
+              getString(toastFormat, app.label.lowercase()),
+              Toast.LENGTH_SHORT
+            ).show()
+          }
         }
-    }
+      }
+      .show()
+  }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityAllAppsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        setupInsets()
-        binding.rvApps.layoutManager = LinearLayoutManager(this)
-        binding.rvApps.adapter = adapter
-        binding.btnClose.setOnClickListener { finish() }
-        binding.etSearch.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
-            override fun afterTextChanged(s: Editable?) = Unit
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                viewModel.onQuery(s?.toString() ?: "")
-            }
-        })
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.filteredApps.collect { adapter.submitList(it) }
-            }
-        }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    binding = ActivityAllAppsBinding.inflate(layoutInflater)
+    setContentView(binding.root)
+    setupInsets()
+    binding.rvApps.layoutManager = LinearLayoutManager(this)
+    binding.rvApps.adapter = adapter
+    binding.btnClose.setOnClickListener { finish() }
+    binding.etSearch.addTextChangedListener(object : TextWatcher {
+      override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+      override fun afterTextChanged(s: Editable?) = Unit
+      override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        viewModel.onQuery(s?.toString() ?: "")
+      }
+    })
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.filteredApps.collect { adapter.submitList(it) }
+      }
     }
+  }
 
-    private fun setupInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.header.setPadding(0, bars.top + dp(12), 0, 0)
-            binding.btnClose.setPadding(0, 0, 0, bars.bottom)
-            insets
-        }
+  private fun setupInsets() {
+    ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+      val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+      binding.header.setPadding(0, bars.top + dp(12), 0, 0)
+      binding.btnClose.setPadding(0, 0, 0, bars.bottom)
+      insets
     }
+  }
 
-    private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
+  private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
 }
 
 // ── Adapter ────────────────────────────────────────────────────────
 
 class AllAppsAdapter(
-    private val onTap: (AppInfo) -> Unit,
-    private val onLongTap: (AppInfo) -> Unit
+  private val onTap: (AppInfo) -> Unit,
+  private val onLongTap: (AppInfo) -> Unit
 ) : ListAdapter<AppInfo, AllAppsAdapter.VH>(DIFF) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        VH(ItemAllAppBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+    VH(ItemAllAppBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
-    override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(getItem(position))
+  override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(getItem(position))
+  inner class VH(private val b: ItemAllAppBinding) : RecyclerView.ViewHolder(b.root) {
+    fun bind(app: AppInfo) {
+      val context = b.root.context
+      b.tvName.text = app.label.lowercase()
 
-    inner class VH(private val b: ItemAllAppBinding) : RecyclerView.ViewHolder(b.root) {
-        fun bind(app: AppInfo) {
-            b.ivIcon.setImageDrawable(app.icon)
-            b.tvName.text = app.label.lowercase()
-            b.root.setOnClickListener { onTap(app) }
-            b.root.setOnLongClickListener { onLongTap(app); true }
-        }
+      val activeTheme = ThemePreferences.getTheme(context)
+      if (activeTheme == ThemePreferences.THEME_CUSTOM) {
+        val fgColor = ThemePreferences.getCustomForegroundColor(context)
+        b.tvName.setTextColor(fgColor)
+      } else {
+        val typedValue = android.util.TypedValue()
+        context.theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
+        b.tvName.setTextColor(typedValue.data)
+      }
+
+      b.root.setOnClickListener { onTap(app) }
+      b.root.setOnLongClickListener { onLongTap(app); true }
     }
-
-    companion object {
-        private val DIFF = object : DiffUtil.ItemCallback<AppInfo>() {
-            override fun areItemsTheSame(o: AppInfo, n: AppInfo) = o.packageName == n.packageName
-            override fun areContentsTheSame(o: AppInfo, n: AppInfo) = o == n
-        }
+  }
+  companion object {
+    private val DIFF = object : DiffUtil.ItemCallback<AppInfo>() {
+      override fun areItemsTheSame(o: AppInfo, n: AppInfo) = o.packageName == n.packageName
+      override fun areContentsTheSame(o: AppInfo, n: AppInfo) = o == n
     }
+  }
 }

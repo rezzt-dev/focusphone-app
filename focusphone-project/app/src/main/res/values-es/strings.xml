@@ -85,4 +85,37 @@
     <string name="settings_clock_size">tamaño del reloj</string>
     <string name="settings_hide_status_bar">ocultar barra de estado</string>
     <string name="settings_hide_status_bar_desc">esconde la barra superior para mayor minimalismo</string>
+
+    <!-- Pausa Consciente -->
+    <string name="settings_section_conscious_pause">pausa consciente</string>
+    <string name="settings_conscious_pause_title">activar pausa consciente</string>
+    <string name="settings_conscious_pause_desc">toma un respiro profundo antes de abrir cualquier app</string>
+    <string name="settings_conscious_pause_duration">duración de la pausa: %1$d segundos</string>
+    <string name="pause_inhale">inhala…</string>
+    <string name="pause_exhale">exhala…</string>
+    <string name="pause_hold">mantén…</string>
+    <string name="pause_mindful_question">¿seguro que quieres abrir %1$s?</string>
+    <string name="pause_cancel">cancelar</string>
+
+    <!-- Perfiles Contextuales y Detox -->
+    <string name="home_profile_label">perfil seleccionado: %1$s</string>
+    <string name="profile_normal">libre</string>
+    <string name="profile_work">trabajo</string>
+    <string name="profile_detox">detox</string>
+    <string name="profile_select_title">seleccionar perfil</string>
+    <string name="profile_detox_select_duration">duración del detox</string>
+    <string name="detox_duration_15m">15 minutos</string>
+    <string name="detox_duration_30m">30 minutos</string>
+    <string name="detox_duration_1h">1 hora</string>
+    <string name="detox_duration_2h">2 horas</string>
+    <string name="detox_blocked_title">detox activo</string>
+    <string name="detox_blocked_desc">estás en modo detox. tómate un respiro para reconectar con el mundo real.</string>
+    <string name="detox_remaining_time">quedan: %1$s</string>
+
+    <!-- Bloqueo Personalizado de Aplicaciones -->
+    <string name="allapps_dialog_rename">renombrar</string>
+    <string name="allapps_dialog_block">bloquear en trabajo/detox</string>
+    <string name="allapps_dialog_unblock">permitir en trabajo/detox</string>
+    <string name="allapps_toast_blocked">%1$s bloqueada</string>
+    <string name="allapps_toast_unblocked">%1$s permitida</string>
 </resources>

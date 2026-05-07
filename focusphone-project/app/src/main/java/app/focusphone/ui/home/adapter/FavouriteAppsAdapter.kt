@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import app.focusphone.data.model.FavouriteApp
 import app.focusphone.databinding.ItemFavouriteAppBinding
+import app.focusphone.data.preferences.ThemePreferences
 
 class FavouriteAppsAdapter(
     private val onAppClick: (FavouriteApp) -> Unit,
@@ -74,9 +75,21 @@ class FavouriteAppsAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(app: FavouriteApp) {
+            val context = binding.root.context
             binding.tvAppName.text     = app.label.lowercase()
             binding.tvAppName.typeface = typeface
             binding.tvAppName.gravity  = textAlignment
+
+            val activeTheme = ThemePreferences.getTheme(context)
+            if (activeTheme == ThemePreferences.THEME_CUSTOM) {
+                val fgColor = ThemePreferences.getCustomForegroundColor(context)
+                binding.tvAppName.setTextColor(fgColor)
+            } else {
+                val typedValue = android.util.TypedValue()
+                context.theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
+                binding.tvAppName.setTextColor(typedValue.data)
+            }
+
             binding.root.setOnClickListener     { onAppClick(app) }
             binding.root.setOnLongClickListener { onAppLongClick(app) }
         }

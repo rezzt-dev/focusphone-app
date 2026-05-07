@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.android.legacy-kapt") version "9.2.1"
 }
 
 android {
@@ -63,6 +64,11 @@ dependencies {
 
     // Material 3
     implementation(libs.material)
+
+    // Room
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    "kapt"(libs.room.compiler)
 
     // Testing
     testImplementation(libs.junit)
