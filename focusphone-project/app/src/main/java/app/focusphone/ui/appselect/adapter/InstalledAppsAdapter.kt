@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import app.focusphone.R
 import app.focusphone.databinding.ItemInstalledAppBinding
 import app.focusphone.domain.model.AppInfo
 
@@ -30,8 +31,9 @@ class InstalledAppsAdapter(
 
         fun bind(app: AppInfo) {
             binding.tvAppName.text = app.label.lowercase()
-            binding.tvSelectIndicator.text = if (app.isFavourite) "✓" else "+"
-            binding.tvSelectIndicator.alpha = if (app.isFavourite) 1.0f else 0.4f
+            val resId = if (app.isFavourite) R.drawable.ic_check else R.drawable.ic_add
+            binding.ivSelectIndicator.setImageResource(resId)
+            binding.ivSelectIndicator.alpha = if (app.isFavourite) 1.0f else 0.4f
             
             binding.root.setOnClickListener { onToggle(app) }
             binding.root.setOnLongClickListener {

@@ -93,194 +93,46 @@
                 android:textColor="?attr/android:textColorSecondary"
                 android:textSize="11sp" />
 
-            <!-- 1×4 Horizontal Theme Row — 4 clean solid color circles with active outlines -->
+            <!-- Theme Dialog Selector Row -->
             <LinearLayout
-                android:id="@+id/theme_selector"
+                android:id="@+id/btn_toggle_theme"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="56dp"
                 android:orientation="horizontal"
-                android:gravity="center"
                 android:paddingStart="24dp"
-                android:paddingEnd="24dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="16dp">
+                android:paddingEnd="24dp">
 
-                <!-- Off-White Circle -->
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_active_theme_label"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
+                    android:fontFamily="sans-serif-medium"
+                    android:text="@string/settings_theme_label"
+                    android:textColor="?attr/android:textColorPrimary"
+                    android:textSize="15sp" />
 
-                    <FrameLayout
-                        android:id="@+id/card_theme_off_white"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:padding="4dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
+                <!-- Preview Circle of Current Theme -->
+                <View
+                    android:id="@+id/view_active_theme_circle_preview"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="@drawable/bg_theme_card_slate" />
 
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/bg_theme_card_off_white" />
-                    </FrameLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/settings_theme_off_white"
-                        android:textColor="?attr/android:textColorPrimary"
-                        android:textSize="12sp"
-                        android:alpha="0.75"
-                        android:fontFamily="sans-serif"
-                        android:letterSpacing="0.02" />
-                </LinearLayout>
-
-                <!-- Slate Circle -->
-                <LinearLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/tv_active_theme_name"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <FrameLayout
-                        android:id="@+id/card_theme_slate"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:padding="4dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/bg_theme_card_slate" />
-                    </FrameLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/settings_theme_slate"
-                        android:textColor="?attr/android:textColorPrimary"
-                        android:textSize="12sp"
-                        android:alpha="0.75"
-                        android:fontFamily="sans-serif"
-                        android:letterSpacing="0.02" />
-                </LinearLayout>
-
-                <!-- Warm Beige Circle -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <FrameLayout
-                        android:id="@+id/card_theme_warm_beige"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:padding="4dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/bg_theme_card_warm_beige" />
-                    </FrameLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/settings_theme_warm_beige"
-                        android:textColor="?attr/android:textColorPrimary"
-                        android:textSize="12sp"
-                        android:alpha="0.75"
-                        android:fontFamily="sans-serif"
-                        android:letterSpacing="0.02" />
-                </LinearLayout>
-
-                <!-- Navy Circle -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <FrameLayout
-                        android:id="@+id/card_theme_navy"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:padding="4dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/bg_theme_card_navy" />
-                    </FrameLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/settings_theme_navy"
-                        android:textColor="?attr/android:textColorPrimary"
-                        android:textSize="12sp"
-                        android:alpha="0.75"
-                        android:fontFamily="sans-serif"
-                        android:letterSpacing="0.02" />
-                </LinearLayout>
-
-                <!-- Custom Theme Circle -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <FrameLayout
-                        android:id="@+id/card_theme_custom"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:padding="4dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <View
-                            android:id="@+id/view_theme_custom_circle"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/bg_theme_card_slate" />
-                    </FrameLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="custom"
-                        android:textColor="?attr/android:textColorPrimary"
-                        android:textSize="12sp"
-                        android:alpha="0.75"
-                        android:fontFamily="sans-serif"
-                        android:letterSpacing="0.02" />
-                </LinearLayout>
-
+                    android:fontFamily="sans-serif"
+                    android:textColor="?attr/android:textColorSecondary"
+                    android:textSize="14sp"
+                    android:text="slate" />
             </LinearLayout>
 
             <!-- Expandable "personalizar tema" panel -->
@@ -613,6 +465,39 @@
                 app:trackColorActive="?attr/android:textColorPrimary"
                 app:trackColorInactive="?attr/android:textColorSecondary" />
 
+            <!-- Text Size Slider -->
+            <TextView
+                android:id="@+id/tv_text_size_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:letterSpacing="0.14"
+                android:paddingStart="24dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="4dp"
+                android:text="@string/settings_text_size"
+                android:textAllCaps="true"
+                android:textColor="?attr/android:textColorSecondary"
+                android:textSize="11sp" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/slider_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:valueFrom="8.0"
+                android:valueTo="24.0"
+                android:stepSize="1.0"
+                app:thumbRadius="6dp"
+                app:trackHeight="4dp"
+                app:tickVisible="false"
+                app:haloColor="#1AFFFFFF"
+                app:thumbColor="?attr/android:textColorPrimary"
+                app:trackColorActive="?attr/android:textColorPrimary"
+                app:trackColorInactive="?attr/android:textColorSecondary" />
+
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
                 android:layout_marginTop="20dp"
@@ -773,6 +658,60 @@
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
                 android:layout_marginTop="20dp"
+                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
+
+            <!-- ═══ TUTORIAL ════════════════════════════════════════ -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:letterSpacing="0.14"
+                android:paddingStart="24dp"
+                android:paddingTop="28dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="4dp"
+                android:text="@string/settings_section_tutorial"
+                android:textAllCaps="true"
+                android:textColor="?attr/android:textColorSecondary"
+                android:textSize="11sp" />
+
+            <LinearLayout
+                android:id="@+id/item_tutorial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:minHeight="56dp"
+                android:orientation="horizontal"
+                android:paddingStart="24dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="12dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif" android:textSize="16sp"
+                        android:textColor="?attr/android:textColorPrimary"
+                        android:text="@string/settings_tutorial_title" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif" android:textSize="13sp"
+                        android:layout_marginTop="2dp"
+                        android:textColor="?attr/android:textColorSecondary"
+                        android:text="@string/settings_tutorial_desc" />
+                </LinearLayout>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:textColor="?attr/android:textColorSecondary"
+                    android:textSize="20sp"
+                    android:text="›" />
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
                 android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
 
             <!-- ═══ LAUNCHER ════════════════════════════════════════ -->

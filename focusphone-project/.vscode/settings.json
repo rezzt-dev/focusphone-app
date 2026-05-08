@@ -1,0 +1,7 @@
+{
+    "java.jdt.ls.java.home": "/usr/lib/jvm/java-21-openjdk",
+    "java.home": "/usr/lib/jvm/java-21-openjdk",
+    "terminal.integrated.env.linux": {
+        "JAVA_HOME": "/usr/lib/jvm/java-21-openjdk"
+    }
+}

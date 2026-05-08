@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import app.focusphone.R
+import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
 
 /**
@@ -19,8 +20,17 @@ abstract class BaseActivity : AppCompatActivity() {
     private var currentTheme: String? = null
     private var customBgColor: Int? = null
     private var customFgColor: Int? = null
+    private var currentFontScale: Float? = null
+
+    override fun attachBaseContext(newBase: android.content.Context) {
+        val config = android.content.res.Configuration(newBase.resources.configuration)
+        config.fontScale = FontPreferences.getFontScale(newBase)
+        val context = newBase.createConfigurationContext(config)
+        super.attachBaseContext(context)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        currentFontScale = FontPreferences.getFontScale(this)
         applyTheme()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -114,9 +124,10 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onResume()
         applyStatusBarVisibility()
 
-        // System-wide dynamic theme change detection on resume
+        // System-wide dynamic theme or font scale change detection on resume
         val activeTheme = ThemePreferences.getTheme(this)
-        if (activeTheme != currentTheme) {
+        val activeFontScale = FontPreferences.getFontScale(this)
+        if (activeTheme != currentTheme || activeFontScale != currentFontScale) {
             recreate()
         } else if (activeTheme == ThemePreferences.THEME_CUSTOM) {
             val bg = ThemePreferences.getCustomBackgroundColor(this)

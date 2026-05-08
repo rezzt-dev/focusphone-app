@@ -444,18 +444,76 @@ class HomeActivity : BaseActivity() {
         dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
 
         view.findViewById<View>(R.id.btn_profile_normal).setOnClickListener {
-            ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_NORMAL)
-            updateProfileLabel()
-            dialog.dismiss()
+            changeProfileWithDetoxCheck(ProfilePreferences.PROFILE_NORMAL) {
+                updateProfileLabel()
+                dialog.dismiss()
+            }
         }
         view.findViewById<View>(R.id.btn_profile_work).setOnClickListener {
-            ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_WORK)
-            updateProfileLabel()
-            dialog.dismiss()
+            changeProfileWithDetoxCheck(ProfilePreferences.PROFILE_WORK) {
+                updateProfileLabel()
+                dialog.dismiss()
+            }
         }
         view.findViewById<View>(R.id.btn_profile_detox).setOnClickListener {
             dialog.dismiss()
             showDetoxDurationDialog()
+        }
+
+        dialog.show()
+    }
+
+    private fun changeProfileWithDetoxCheck(newProfile: String, onApproved: () -> Unit) {
+        if (ProfilePreferences.isDetoxActive(this)) {
+            showDetoxVerifyPasswordDialog {
+                ProfilePreferences.setProfile(this, newProfile)
+                onApproved()
+            }
+        } else {
+            ProfilePreferences.setProfile(this, newProfile)
+            onApproved()
+        }
+    }
+
+    private fun showDetoxVerifyPasswordDialog(onSuccess: () -> Unit) {
+        val view = layoutInflater.inflate(R.layout.dialog_detox_password_verify, null)
+        val dialog = android.app.AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+
+        val etPassword = view.findViewById<android.widget.EditText>(R.id.et_detox_password_verify)
+
+        view.findViewById<View>(R.id.btn_cancel).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        var incorrectAttempts = 0
+
+        view.findViewById<View>(R.id.btn_ok).setOnClickListener {
+            val entered = etPassword.text.toString()
+            val correct = ProfilePreferences.getDetoxPassword(this)
+            if (entered == correct) {
+                ProfilePreferences.setDetoxPassword(this, null)
+                onSuccess()
+                dialog.dismiss()
+            } else {
+                incorrectAttempts++
+                if (incorrectAttempts >= 4) {
+                    ProfilePreferences.setDetoxPassword(this, null)
+                    ProfilePreferences.setDetoxEndTime(this, 0L)
+                    onSuccess()
+                    dialog.dismiss()
+                    android.widget.Toast.makeText(
+                        this,
+                        getString(R.string.detox_force_disabled),
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    android.widget.Toast.makeText(this, getString(R.string.error_incorrect_password), android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
         dialog.show()
@@ -477,36 +535,87 @@ class HomeActivity : BaseActivity() {
         )
 
         view.findViewById<View>(R.id.btn_duration_15m).setOnClickListener {
-            val endTime = System.currentTimeMillis() + durationMs[0]
-            ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_DETOX)
-            ProfilePreferences.setDetoxEndTime(this, endTime)
-            updateProfileLabel()
-            binding.drawerLayout.closeDrawers()
             dialog.dismiss()
+            showDetoxSetPasswordDialog(durationMs[0]) {}
         }
         view.findViewById<View>(R.id.btn_duration_30m).setOnClickListener {
-            val endTime = System.currentTimeMillis() + durationMs[1]
-            ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_DETOX)
-            ProfilePreferences.setDetoxEndTime(this, endTime)
-            updateProfileLabel()
-            binding.drawerLayout.closeDrawers()
             dialog.dismiss()
+            showDetoxSetPasswordDialog(durationMs[1]) {}
         }
         view.findViewById<View>(R.id.btn_duration_1h).setOnClickListener {
-            val endTime = System.currentTimeMillis() + durationMs[2]
-            ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_DETOX)
-            ProfilePreferences.setDetoxEndTime(this, endTime)
-            updateProfileLabel()
-            binding.drawerLayout.closeDrawers()
             dialog.dismiss()
+            showDetoxSetPasswordDialog(durationMs[2]) {}
         }
         view.findViewById<View>(R.id.btn_duration_2h).setOnClickListener {
-            val endTime = System.currentTimeMillis() + durationMs[3]
-            ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_DETOX)
-            ProfilePreferences.setDetoxEndTime(this, endTime)
-            updateProfileLabel()
-            binding.drawerLayout.closeDrawers()
             dialog.dismiss()
+            showDetoxSetPasswordDialog(durationMs[3]) {}
+        }
+        view.findViewById<View>(R.id.btn_duration_custom).setOnClickListener {
+            dialog.dismiss()
+            showDetoxCustomTimeDialog()
+        }
+
+        dialog.show()
+    }
+
+    private fun showDetoxCustomTimeDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_detox_custom_time, null)
+        val dialog = android.app.AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+
+        val etHours = view.findViewById<android.widget.EditText>(R.id.et_hours)
+        val etMinutes = view.findViewById<android.widget.EditText>(R.id.et_minutes)
+
+        view.findViewById<View>(R.id.btn_cancel).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        view.findViewById<View>(R.id.btn_ok).setOnClickListener {
+            val hours = etHours.text.toString().toLongOrNull() ?: 0L
+            val minutes = etMinutes.text.toString().toLongOrNull() ?: 0L
+            val totalMinutes = hours * 60 + minutes
+            if (totalMinutes > 0) {
+                dialog.dismiss()
+                showDetoxSetPasswordDialog(totalMinutes * 60 * 1000L) {}
+            } else {
+                android.widget.Toast.makeText(this, getString(R.string.error_invalid_duration), android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        dialog.show()
+    }
+
+    private fun showDetoxSetPasswordDialog(durationMs: Long, onSet: () -> Unit) {
+        val view = layoutInflater.inflate(R.layout.dialog_detox_password_set, null)
+        val dialog = android.app.AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+
+        val etPassword = view.findViewById<android.widget.EditText>(R.id.et_detox_password)
+
+        view.findViewById<View>(R.id.btn_cancel).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        view.findViewById<View>(R.id.btn_ok).setOnClickListener {
+            val pwd = etPassword.text.toString()
+            if (pwd.length >= 4) {
+                ProfilePreferences.setDetoxPassword(this, pwd)
+                val endTime = System.currentTimeMillis() + durationMs
+                ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_DETOX)
+                ProfilePreferences.setDetoxEndTime(this, endTime)
+                updateProfileLabel()
+                binding.drawerLayout.closeDrawers()
+                dialog.dismiss()
+                onSet()
+            } else {
+                android.widget.Toast.makeText(this, getString(R.string.error_min_characters), android.widget.Toast.LENGTH_SHORT).show()
+            }
         }
 
         dialog.show()
@@ -618,11 +727,11 @@ class HomeActivity : BaseActivity() {
         val calendar = Calendar.getInstance()
         val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
         
-        // Month title formatted as "{dia} de {mes} | {año}"
+        // Month title formatted using localized resource string
         val monthFormat = SimpleDateFormat("MMMM", Locale.getDefault())
         val monthName = monthFormat.format(calendar.time).replaceFirstChar { it.lowercase() }
         val year = calendar.get(Calendar.YEAR)
-        binding.tvCalendarMonth.text = "$currentDay de $monthName | $year"
+        binding.tvCalendarMonth.text = getString(R.string.calendar_date_format, monthName, currentDay, year)
         
         // Set to first day of month to calculate starting weekday offset
         calendar.set(Calendar.DAY_OF_MONTH, 1)

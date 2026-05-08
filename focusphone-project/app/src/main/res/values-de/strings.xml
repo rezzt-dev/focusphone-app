@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">focusphone</string>
+    <string name="calendar_date_format">%2$d. %1$s | %3$d</string>
     <string name="app_label">focusphone</string>
 
     <string name="home_all_apps">alle apps</string>
@@ -39,6 +40,9 @@
 
     <string name="settings_section_clock">uhr</string>
     <string name="settings_clock_style_label">uhrstil</string>
+    <string name="settings_clock_size">uhrgröße</string>
+    <string name="settings_text_size">textgröße</string>
+    <string name="settings_text_size_pt">textgröße: %1$dpt</string>
     <string name="settings_section_font">schriftart</string>
     <string name="settings_font_label">launcher-schriftart</string>
     <string name="settings_section_launcher">launcher</string>
@@ -73,4 +77,46 @@
     <string name="error_app_not_found">app konnte nicht geöffnet werden</string>
     <string name="cd_back_button">zurück</string>
     <string name="cd_remove_app">%1$s vom startbildschirm entfernen</string>
+    <string name="detox_duration_custom">anpassen…</string>
+    <string name="detox_custom_title">benutzerdefinierte dauer</string>
+    <string name="detox_custom_hours">stunden</string>
+    <string name="detox_custom_minutes">minuten</string>
+    <string name="detox_btn_cancel">abbrechen</string>
+    <string name="detox_btn_done">fertig</string>
+    <string name="detox_lock_title">detox sperren</string>
+    <string name="detox_lock_desc">definiere ein passwort (mind. 4 zeichen), um den detox-modus zu sperren:</string>
+    <string name="detox_password_hint">passwort</string>
+    <string name="detox_btn_start">starten</string>
+    <string name="detox_unlock_title">detox entsperren</string>
+    <string name="detox_unlock_desc">gib das passwort ein, um den detox-modus zu deaktivieren:</string>
+    <string name="detox_btn_unlock">entsperren</string>
+    <string name="error_incorrect_password">falsches passwort</string>
+    <string name="detox_force_disabled">detox-modus zur sicherheit automatisch deaktiviert</string>
+    <string name="error_min_characters">mindestens 4 zeichen</string>
+    <string name="error_invalid_duration">ungültige dauer</string>
+    <!-- Settings Sections -->
+    <string name="settings_section_tutorial">anleitung</string>
+    <string name="settings_tutorial_title">interaktive anleitung</string>
+    <string name="settings_tutorial_desc">lerne 100% der funktionen von focusphone kennen</string>
+
+    <!-- Tutorial Slides -->
+    <string name="tutorial_slide_1_title">minimalismus &amp; startseite</string>
+    <string name="tutorial_slide_1_desc">dein sauberer startbildschirm, frei von ablenkenden, lautstarken symbolen, optimiert auf das wesentliche.</string>
+    <string name="tutorial_slide_2_title">apps anheften</string>
+    <string name="tutorial_slide_2_desc">halte einen leeren bereich auf dem startbildschirm gedrückt oder nutze die favoritenauswahl, um bis zu 6 wichtige apps anzuheften.</string>
+    <string name="tutorial_slide_3_title">kontextbezogene profile</string>
+    <string name="tutorial_slide_3_desc">wechsle im seitenmenü das profil (normal, arbeit oder detox), um sichtbare apps zu filtern und ablenkungen zu minimieren.</string>
+    <string name="tutorial_slide_4_title">ablenkungen blockieren</string>
+    <string name="tutorial_slide_4_desc">halte eine app in der app-liste gedrückt, um den zugriff während der arbeit oder im detox-modus zu sperren.</string>
+    <string name="tutorial_slide_5_title">umbenennen &amp; anpassen</string>
+    <string name="tutorial_slide_5_desc">halte eine app in der app-liste gedrückt, um sie umzubenennen und ihr einen minimalistischen, markenfreien namen zu geben.</string>
+    <string name="tutorial_slide_6_title">absoluter detox-modus</string>
+    <string name="tutorial_slide_6_desc">starte eine detox-sitzung mit benutzerdefinierter dauer und passwortsperre, um ein vorzeitiges abbrechen zu verhindern.</string>
+    <string name="tutorial_slide_7_title">bewusste pause</string>
+    <string name="tutorial_slide_7_desc">aktiviere einen atem-timer vor dem öffnen blockierter apps, um innezuhalten und ablenkungen zu reflektieren.</string>
+    <string name="tutorial_slide_8_title">uhrzeit &amp; anpassung</string>
+    <string name="tutorial_slide_8_desc">personalisiere den stil und die größe der uhr, passe die textausrichtung an und blende die statusleiste oben ein oder aus.</string>
+    <string name="tutorial_btn_next">weiter</string>
+    <string name="tutorial_btn_back">zurück</string>
+    <string name="tutorial_btn_finish">beenden</string>
 </resources>
