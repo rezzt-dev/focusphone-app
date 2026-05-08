@@ -37,9 +37,11 @@ class SettingsActivity : BaseActivity() {
         setupAlignmentSelector()
         setupClockTypeSelector()
         setupClockSizeSlider()
+        setupTextSizeSlider()
         setupStatusBarToggle()
         setupConsciousPause()
         setupLanguageSelector()
+        setupTutorial()
         binding.itemSetDefaultLauncher.setOnClickListener {
             startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
         }
@@ -86,12 +88,11 @@ class SettingsActivity : BaseActivity() {
     // ── Theme ──────────────────────────────────────────────────────
 
     private fun setupThemeSelector() {
-        highlightTheme(ThemePreferences.getTheme(this))
-        binding.cardThemeOffWhite.setOnClickListener  { applyTheme(ThemePreferences.THEME_OFF_WHITE)  }
-        binding.cardThemeSlate.setOnClickListener     { applyTheme(ThemePreferences.THEME_SLATE)      }
-        binding.cardThemeWarmBeige.setOnClickListener { applyTheme(ThemePreferences.THEME_WARM_BEIGE) }
-        binding.cardThemeNavy.setOnClickListener      { applyTheme(ThemePreferences.THEME_NAVY)       }
-        binding.cardThemeCustom.setOnClickListener    { applyTheme(ThemePreferences.THEME_CUSTOM)     }
+        val currentTheme = ThemePreferences.getTheme(this)
+        updateThemeRowUI(currentTheme)
+        binding.btnToggleTheme.setOnClickListener {
+            showThemeSelectionDialog()
+        }
 
         setupCustomThemePanel()
     }
@@ -107,33 +108,80 @@ class SettingsActivity : BaseActivity() {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
-    private fun highlightTheme(theme: String) {
-        val all = listOf(
-            binding.cardThemeOffWhite,
-            binding.cardThemeSlate,
-            binding.cardThemeWarmBeige,
-            binding.cardThemeNavy,
-            binding.cardThemeCustom
-        )
-        all.forEach {
-            it.alpha = 0.55f
-            it.foreground = null
+    private fun updateThemeRowUI(theme: String) {
+        val themeName = when (theme) {
+            ThemePreferences.THEME_OFF_WHITE -> getString(R.string.settings_theme_off_white)
+            ThemePreferences.THEME_SLATE -> getString(R.string.settings_theme_slate)
+            ThemePreferences.THEME_WARM_BEIGE -> getString(R.string.settings_theme_warm_beige)
+            ThemePreferences.THEME_NAVY -> getString(R.string.settings_theme_navy)
+            ThemePreferences.THEME_CUSTOM -> "custom"
+            else -> getString(R.string.settings_theme_slate)
         }
+        binding.tvActiveThemeName.text = themeName.lowercase()
 
-        // Dynamically color the 5th circle with the active custom background color
+        val drawableRes = when (theme) {
+            ThemePreferences.THEME_OFF_WHITE -> R.drawable.bg_theme_card_off_white
+            ThemePreferences.THEME_SLATE -> R.drawable.bg_theme_card_slate
+            ThemePreferences.THEME_WARM_BEIGE -> R.drawable.bg_theme_card_warm_beige
+            ThemePreferences.THEME_NAVY -> R.drawable.bg_theme_card_navy
+            ThemePreferences.THEME_CUSTOM -> R.drawable.bg_theme_card_slate
+            else -> R.drawable.bg_theme_card_slate
+        }
+        if (theme == ThemePreferences.THEME_CUSTOM) {
+            val customColor = ThemePreferences.getCustomBackgroundColor(this)
+            val customDrawable = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.OVAL
+                setColor(customColor)
+                setStroke((1.5f * resources.displayMetrics.density).toInt(), android.graphics.Color.parseColor("#3A3A3A"))
+            }
+            binding.viewActiveThemeCirclePreview.background = customDrawable
+            binding.viewActiveThemeCirclePreview.backgroundTintList = null
+        } else {
+            binding.viewActiveThemeCirclePreview.setBackgroundResource(drawableRes)
+            binding.viewActiveThemeCirclePreview.backgroundTintList = null
+        }
+    }
+
+    private fun showThemeSelectionDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_theme_select, null)
+        val dialog = android.app.AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+
+        // Programmatically generate Custom circle with border
         val customColor = ThemePreferences.getCustomBackgroundColor(this)
-        binding.viewThemeCustomCircle.backgroundTintList = android.content.res.ColorStateList.valueOf(customColor)
-
-        val card = when (theme) {
-            ThemePreferences.THEME_OFF_WHITE  -> binding.cardThemeOffWhite
-            ThemePreferences.THEME_SLATE      -> binding.cardThemeSlate
-            ThemePreferences.THEME_WARM_BEIGE -> binding.cardThemeWarmBeige
-            ThemePreferences.THEME_NAVY       -> binding.cardThemeNavy
-            ThemePreferences.THEME_CUSTOM     -> binding.cardThemeCustom
-            else                              -> binding.cardThemeSlate
+        val customDrawable = android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.OVAL
+            setColor(customColor)
+            setStroke((1.5f * resources.displayMetrics.density).toInt(), android.graphics.Color.parseColor("#3A3A3A"))
         }
-        card.alpha = 1f
-        card.foreground = androidx.core.content.ContextCompat.getDrawable(this, R.drawable.bg_theme_card_selected)
+        view.findViewById<View>(R.id.view_theme_custom_circle_dialog).background = customDrawable
+        view.findViewById<View>(R.id.view_theme_custom_circle_dialog).backgroundTintList = null
+
+        view.findViewById<View>(R.id.btn_theme_off_white).setOnClickListener {
+            applyTheme(ThemePreferences.THEME_OFF_WHITE)
+            dialog.dismiss()
+        }
+        view.findViewById<View>(R.id.btn_theme_slate).setOnClickListener {
+            applyTheme(ThemePreferences.THEME_SLATE)
+            dialog.dismiss()
+        }
+        view.findViewById<View>(R.id.btn_theme_warm_beige).setOnClickListener {
+            applyTheme(ThemePreferences.THEME_WARM_BEIGE)
+            dialog.dismiss()
+        }
+        view.findViewById<View>(R.id.btn_theme_navy).setOnClickListener {
+            applyTheme(ThemePreferences.THEME_NAVY)
+            dialog.dismiss()
+        }
+        view.findViewById<View>(R.id.btn_theme_custom).setOnClickListener {
+            applyTheme(ThemePreferences.THEME_CUSTOM)
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun setupCustomThemePanel() {
@@ -270,6 +318,21 @@ class SettingsActivity : BaseActivity() {
         }
     }
 
+    private fun setupTextSizeSlider() {
+        val current = FontPreferences.getFontSizePt(this)
+        binding.sliderTextSize.value = current.toFloat()
+        updateTextSizeLabel(current)
+        binding.sliderTextSize.addOnChangeListener { _, value, _ ->
+            val size = value.toInt()
+            FontPreferences.setFontSizePt(this, size)
+            updateTextSizeLabel(size)
+        }
+    }
+
+    private fun updateTextSizeLabel(size: Int) {
+        binding.tvTextSizeLabel.text = getString(R.string.settings_text_size_pt, size)
+    }
+
     private fun setupStatusBarToggle() {
         binding.switchHideStatusBar.isChecked = ThemePreferences.isStatusBarHidden(this)
         binding.switchHideStatusBar.setOnCheckedChangeListener { _, isChecked ->
@@ -368,6 +431,119 @@ class SettingsActivity : BaseActivity() {
 
     private fun updateDurationLabel(duration: Int) {
         binding.tvConsciousPauseDurationLabel.text = getString(R.string.settings_conscious_pause_duration, duration)
+    }
+
+    private fun setupTutorial() {
+        binding.itemTutorial.setOnClickListener {
+            showTutorialDialog()
+        }
+    }
+
+    private fun showTutorialDialog() {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_tutorial_carousel, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val tvCounter = dialogView.findViewById<TextView>(R.id.tv_slide_counter)
+        val ivIcon = dialogView.findViewById<android.widget.ImageView>(R.id.iv_tutorial_icon)
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tv_tutorial_title)
+        val tvDesc = dialogView.findViewById<TextView>(R.id.tv_tutorial_desc)
+        val layoutDots = dialogView.findViewById<LinearLayout>(R.id.layout_dots)
+        val btnPrev = dialogView.findViewById<TextView>(R.id.btn_prev)
+        val btnNext = dialogView.findViewById<TextView>(R.id.btn_next)
+
+        val slides = listOf(
+            Triple(R.drawable.ic_tutorial_home, R.string.tutorial_slide_1_title, R.string.tutorial_slide_1_desc),
+            Triple(R.drawable.ic_add, R.string.tutorial_slide_2_title, R.string.tutorial_slide_2_desc),
+            Triple(R.drawable.ic_tutorial_profiles, R.string.tutorial_slide_3_title, R.string.tutorial_slide_3_desc),
+            Triple(R.drawable.ic_tutorial_block, R.string.tutorial_slide_4_title, R.string.tutorial_slide_4_desc),
+            Triple(R.drawable.ic_tutorial_edit, R.string.tutorial_slide_5_title, R.string.tutorial_slide_5_desc),
+            Triple(R.drawable.ic_tutorial_detox, R.string.tutorial_slide_6_title, R.string.tutorial_slide_6_desc),
+            Triple(R.drawable.ic_tutorial_pause, R.string.tutorial_slide_7_title, R.string.tutorial_slide_7_desc),
+            Triple(R.drawable.ic_tutorial_clock, R.string.tutorial_slide_8_title, R.string.tutorial_slide_8_desc)
+        )
+
+        var currentIndex = 0
+
+        fun resolveColorAttr(attrId: Int): Int {
+            val typedValue = android.util.TypedValue()
+            theme.resolveAttribute(attrId, typedValue, true)
+            return typedValue.data
+        }
+
+        val primaryColor = resolveColorAttr(android.R.attr.textColorPrimary)
+        val secondaryColor = resolveColorAttr(android.R.attr.textColorSecondary)
+
+        fun updateSlide() {
+            val (iconRes, titleRes, descRes) = slides[currentIndex]
+            
+            tvCounter.text = "${currentIndex + 1} / ${slides.size}"
+            
+            ivIcon.setImageResource(iconRes)
+            ivIcon.imageTintList = android.content.res.ColorStateList.valueOf(primaryColor)
+            
+            tvTitle.setText(titleRes)
+            tvDesc.setText(descRes)
+
+            if (currentIndex == 0) {
+                btnPrev.visibility = View.INVISIBLE
+            } else {
+                btnPrev.visibility = View.VISIBLE
+                btnPrev.text = "←"
+            }
+
+            if (currentIndex == slides.size - 1) {
+                btnNext.text = "✓"
+            } else {
+                btnNext.text = "→"
+            }
+
+            layoutDots.removeAllViews()
+            for (i in slides.indices) {
+                val dot = View(this)
+                val size = (8 * resources.displayMetrics.density).toInt()
+                val params = LinearLayout.LayoutParams(size, size).apply {
+                    setMargins(
+                        (4 * resources.displayMetrics.density).toInt(),
+                        0,
+                        (4 * resources.displayMetrics.density).toInt(),
+                        0
+                    )
+                }
+                dot.layoutParams = params
+                
+                if (i == currentIndex) {
+                    dot.setBackgroundResource(R.drawable.bg_dot_active)
+                    dot.backgroundTintList = android.content.res.ColorStateList.valueOf(primaryColor)
+                } else {
+                    dot.setBackgroundResource(R.drawable.bg_dot_inactive)
+                    dot.backgroundTintList = android.content.res.ColorStateList.valueOf(secondaryColor).withAlpha(76)
+                }
+                layoutDots.addView(dot)
+            }
+        }
+
+        btnPrev.setOnClickListener {
+            if (currentIndex > 0) {
+                currentIndex--
+                updateSlide()
+            }
+        }
+
+        btnNext.setOnClickListener {
+            if (currentIndex < slides.size - 1) {
+                currentIndex++
+                updateSlide()
+            } else {
+                dialog.dismiss()
+            }
+        }
+
+        updateSlide()
+        dialog.show()
     }
 
     private fun dp(value: Int): Int =

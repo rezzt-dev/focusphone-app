@@ -80,6 +80,21 @@ object FontPreferences {
     fun setClockSizePercent(context: Context, percent: Int) =
         prefs(context).edit().putInt(KEY_CLOCK_SIZE, percent).apply()
 
+    // ── Font Size Scale ───────────────────────────────────────────
+
+    fun getFontSizePt(context: Context): Int {
+        return prefs(context).getInt("font_size_pt", 14) // default is 14pt
+    }
+
+    fun setFontSizePt(context: Context, size: Int) {
+        prefs(context).edit().putInt("font_size_pt", size).apply()
+    }
+
+    fun getFontScale(context: Context): Float {
+        val size = getFontSizePt(context)
+        return size / 14.0f
+    }
+
     // ── Internal ──────────────────────────────────────────────────
 
     private fun prefs(context: Context) =

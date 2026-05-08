@@ -2,6 +2,7 @@
 <!-- Item in the "all installed apps" list with icon + name + checkbox -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -35,15 +36,15 @@
         android:textSize="17sp"
         tools:text="messages" />
 
-    <!-- Favourite toggle text indicator -->
-    <TextView
-        android:id="@+id/tv_select_indicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <!-- Favourite toggle image indicator -->
+    <ImageView
+        android:id="@+id/iv_select_indicator"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_marginStart="16dp"
-        android:fontFamily="sans-serif-light"
-        android:textSize="18sp"
-        android:textColor="?attr/android:textColorPrimary"
-        tools:text="+" />
+        android:contentDescription="@null"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_add"
+        app:tint="?attr/android:textColorPrimary" />
 
 </LinearLayout>

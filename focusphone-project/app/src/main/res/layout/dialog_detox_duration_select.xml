@@ -126,4 +126,30 @@
         android:textColor="?attr/android:textColorPrimary"
         android:textSize="17sp" />
 
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/android:textColorSecondary"
+        android:alpha="0.1"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Option: Custom -->
+    <TextView
+        android:id="@+id/btn_duration_custom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="sans-serif-light"
+        android:paddingTop="18dp"
+        android:paddingBottom="18dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/detox_duration_custom"
+        android:textColor="?attr/android:textColorPrimary"
+        android:textSize="17sp" />
+
 </LinearLayout>

@@ -10,6 +10,7 @@ object ProfilePreferences {
     private const val PREF_FILE     = "focusphone_profile"
     private const val KEY_PROFILE   = "current_profile"
     private const val KEY_DETOX_END = "detox_end_time"
+    private const val KEY_DETOX_PASSWORD = "detox_password"
 
     const val PROFILE_NORMAL = "normal"
     const val PROFILE_WORK   = "work"
@@ -30,6 +31,13 @@ object ProfilePreferences {
 
     fun setDetoxEndTime(context: Context, endTimeMs: Long) {
         prefs(context).edit().putLong(KEY_DETOX_END, endTimeMs).apply()
+    }
+
+    fun getDetoxPassword(context: Context): String? =
+        prefs(context).getString(KEY_DETOX_PASSWORD, null)
+
+    fun setDetoxPassword(context: Context, password: String?) {
+        prefs(context).edit().putString(KEY_DETOX_PASSWORD, password).apply()
     }
 
     /**

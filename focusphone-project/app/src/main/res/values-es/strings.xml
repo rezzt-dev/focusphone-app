@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">focusphone</string>
+    <string name="calendar_date_format">%2$d de %1$s | %3$d</string>
     <string name="app_label">focusphone</string>
 
     <string name="home_all_apps">todas las aplicaciones</string>
@@ -27,6 +28,7 @@
     <string name="settings_title">ajustes</string>
     <string name="settings_section_appearance">apariencia</string>
     <string name="settings_theme_label">tema</string>
+    <string name="theme_select_title">seleccionar tema</string>
     <string name="settings_theme_off_white">blanco roto</string>
     <string name="settings_theme_slate">pizarra</string>
     <string name="settings_theme_warm_beige">beige cálido</string>
@@ -83,6 +85,8 @@
     <string name="action_reset">restablecer</string>
     <string name="action_cancel">cancelar</string>
     <string name="settings_clock_size">tamaño del reloj</string>
+    <string name="settings_text_size">tamaño de texto</string>
+    <string name="settings_text_size_pt">tamaño de texto: %1$dpt</string>
     <string name="settings_hide_status_bar">ocultar barra de estado</string>
     <string name="settings_hide_status_bar_desc">esconde la barra superior para mayor minimalismo</string>
 
@@ -108,9 +112,52 @@
     <string name="detox_duration_30m">30 minutos</string>
     <string name="detox_duration_1h">1 hora</string>
     <string name="detox_duration_2h">2 horas</string>
+    <string name="detox_duration_custom">personalizar…</string>
+    <string name="detox_custom_title">duración personalizada</string>
+    <string name="detox_custom_hours">horas</string>
+    <string name="detox_custom_minutes">minutos</string>
+    <string name="detox_btn_cancel">cancelar</string>
+    <string name="detox_btn_done">aceptar</string>
+    <string name="detox_lock_title">bloquear detox</string>
+    <string name="detox_lock_desc">define una contraseña (mínimo 4 caracteres) para bloquear el modo detox:</string>
+    <string name="detox_password_hint">contraseña</string>
+    <string name="detox_btn_start">empezar</string>
+    <string name="detox_unlock_title">desbloquear detox</string>
+    <string name="detox_unlock_desc">introduce la contraseña para desactivar el modo detox:</string>
+    <string name="detox_btn_unlock">desbloquear</string>
+    <string name="error_incorrect_password">contraseña incorrecta</string>
+    <string name="detox_force_disabled">modo detox desactivado automáticamente por seguridad</string>
+    <string name="error_min_characters">mínimo 4 caracteres</string>
+    <string name="error_invalid_duration">duración no válida</string>
     <string name="detox_blocked_title">detox activo</string>
     <string name="detox_blocked_desc">estás en modo detox. tómate un respiro para reconectar con el mundo real.</string>
     <string name="detox_remaining_time">quedan: %1$s</string>
+
+    <!-- Settings Sections -->
+    <string name="settings_section_tutorial">tutorial</string>
+    <string name="settings_tutorial_title">tutorial interactivo</string>
+    <string name="settings_tutorial_desc">aprende a usar el 100% de las funciones de focusphone</string>
+
+    <!-- Tutorial Slides -->
+    <string name="tutorial_slide_1_title">minimalismo e inicio</string>
+    <string name="tutorial_slide_1_desc">tu pantalla principal limpia, libre de distracciones e iconos ruidosos, optimizada para centrarte en lo importante.</string>
+    <string name="tutorial_slide_2_title">fijar aplicaciones</string>
+    <string name="tutorial_slide_2_desc">mantén presionado un espacio vacío en la pantalla de inicio o usa la selección de favoritos para fijar hasta 6 aplicaciones esenciales.</string>
+    <string name="tutorial_slide_3_title">perfiles contextuales</string>
+    <string name="tutorial_slide_3_desc">cambia de perfil (normal, trabajo o detox) desde el menú lateral para ajustar las aplicaciones visibles y bloquear distracciones.</string>
+    <string name="tutorial_slide_4_title">bloquear aplicaciones</string>
+    <string name="tutorial_slide_4_desc">en la lista de todas las aplicaciones, mantén presionada una app para bloquear su acceso cuando el modo Trabajo o Detox esté activo.</string>
+    <string name="tutorial_slide_5_title">renombrar y personalizar</string>
+    <string name="tutorial_slide_5_desc">mantén presionada cualquier aplicación en el cajón de apps para cambiar su nombre por uno más minimalista y libre de marcas.</string>
+    <string name="tutorial_slide_6_title">modo detox absoluto</string>
+    <string name="tutorial_slide_6_desc">inicia una sesión detox con tiempo personalizado y contraseña obligatoria para evitar desactivarlo antes de tiempo de forma impulsiva.</string>
+    <string name="tutorial_slide_7_title">pausa consciente</string>
+    <string name="tutorial_slide_7_desc">añade un temporizador de respiración antes de abrir cualquier aplicación marcada para reflexionar antes de caer en distracciones.</string>
+    <string name="tutorial_slide_8_title">reloj y pantalla</string>
+    <string name="tutorial_slide_8_desc">personaliza el estilo y tamaño del reloj, ajusta la alineación del texto y decide si mostrar u ocultar la barra de estado superior.</string>
+    <string name="tutorial_btn_next">siguiente</string>
+    <string name="tutorial_btn_back">atrás</string>
+    <string name="tutorial_btn_finish">terminar</string>
 
     <!-- Bloqueo Personalizado de Aplicaciones -->
     <string name="allapps_dialog_rename">renombrar</string>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">focusphone</string>
+    <string name="calendar_date_format">%2$d %1$s | %3$d</string>
     <string name="app_label">focusphone</string>
 
     <string name="home_all_apps">toutes les apps</string>
@@ -39,6 +40,9 @@
 
     <string name="settings_section_clock">horloge</string>
     <string name="settings_clock_style_label">style d\'horloge</string>
+    <string name="settings_clock_size">taille de l\'horloge</string>
+    <string name="settings_text_size">taille du texte</string>
+    <string name="settings_text_size_pt">taille du texte : %1$dpt</string>
     <string name="settings_section_font">police</string>
     <string name="settings_font_label">police du launcher</string>
     <string name="settings_section_launcher">launcher</string>
@@ -73,4 +77,46 @@
     <string name="error_app_not_found">impossible d\'ouvrir l\'app</string>
     <string name="cd_back_button">retour</string>
     <string name="cd_remove_app">retirer %1$s de l\'accueil</string>
+    <string name="detox_duration_custom">personnaliser…</string>
+    <string name="detox_custom_title">durée personnalisée</string>
+    <string name="detox_custom_hours">heures</string>
+    <string name="detox_custom_minutes">minutes</string>
+    <string name="detox_btn_cancel">annuler</string>
+    <string name="detox_btn_done">valider</string>
+    <string name="detox_lock_title">verrouiller detox</string>
+    <string name="detox_lock_desc">définissez un mot de passe (min 4 caractères) pour verrouiller le mode detox :</string>
+    <string name="detox_password_hint">mot de passe</string>
+    <string name="detox_btn_start">démarrer</string>
+    <string name="detox_unlock_title">déverrouiller detox</string>
+    <string name="detox_unlock_desc">entrez le mot de passe pour désactiver le mode detox :</string>
+    <string name="detox_btn_unlock">déverrouiller</string>
+    <string name="error_incorrect_password">mot de passe incorrect</string>
+    <string name="detox_force_disabled">mode detox désactivé automatiquement par sécurité</string>
+    <string name="error_min_characters">minimum 4 caractères</string>
+    <string name="error_invalid_duration">durée invalide</string>
+    <!-- Settings Sections -->
+    <string name="settings_section_tutorial">tutoriel</string>
+    <string name="settings_tutorial_title">tutoriel interactif</string>
+    <string name="settings_tutorial_desc">apprenez à utiliser 100% des fonctions de focusphone</string>
+
+    <!-- Tutorial Slides -->
+    <string name="tutorial_slide_1_title">minimalisme &amp; accueil</string>
+    <string name="tutorial_slide_1_desc">votre écran d\'accueil propre, débarrassé des icônes bruyantes et distrayantes, optimisé pour l\'essentiel.</string>
+    <string name="tutorial_slide_2_title">épingler des apps</string>
+    <string name="tutorial_slide_2_desc">maintenez un espace vide sur l\'écran d\'accueil ou utilisez le sélecteur de favoris pour épingler jusqu\'à 6 apps indispensables.</string>
+    <string name="tutorial_slide_3_title">profils contextuels</string>
+    <string name="tutorial_slide_3_desc">basculez de profil (normal, travail ou detox) depuis le menu latéral pour contrôler les apps visibles et filtrer les distractions.</string>
+    <string name="tutorial_slide_4_title">bloquer les distractions</string>
+    <string name="tutorial_slide_4_desc">dans la liste de toutes les applications, maintenez une app pour bloquer son accès en mode travail ou detox.</string>
+    <string name="tutorial_slide_5_title">renommer &amp; personnaliser</string>
+    <string name="tutorial_slide_5_desc">maintenez n\'importe quelle app dans le tiroir d\'applications pour la renommer en un nom propre, épuré et sans marque.</string>
+    <string name="tutorial_slide_6_title">mode detox absolu</string>
+    <string name="tutorial_slide_6_desc">lancez une session detox avec durée personnalisée et mot de passe obligatoire pour éviter de désactiver le mode trop tôt.</string>
+    <string name="tutorial_slide_7_title">pause consciente</string>
+    <string name="tutorial_slide_7_desc">ajoutez un timer de respiration avant d\'ouvrir les applications sélectionnées pour réfléchir avant de vous laisser distraire.</string>
+    <string name="tutorial_slide_8_title">horloge &amp; personnalisation</string>
+    <string name="tutorial_slide_8_desc">personnalisez le style et la taille de l\'horloge, alignez le texte et décidez d\'afficher ou de masquer la barre de statut supérieure.</string>
+    <string name="tutorial_btn_next">suivant</string>
+    <string name="tutorial_btn_back">retour</string>
+    <string name="tutorial_btn_finish">terminer</string>
 </resources>
