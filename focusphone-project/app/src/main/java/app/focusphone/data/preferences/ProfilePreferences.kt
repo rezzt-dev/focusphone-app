@@ -1,6 +1,7 @@
 package app.focusphone.data.preferences
 
 import android.content.Context
+import java.security.MessageDigest
 
 /**
  * Synchronous preference manager for Contextual Profiles and Detox app blocking.
@@ -33,11 +34,25 @@ object ProfilePreferences {
         prefs(context).edit().putLong(KEY_DETOX_END, endTimeMs).apply()
     }
 
+    /** Returns the SHA-256 hash of the detox password, or null if none is set. */
     fun getDetoxPassword(context: Context): String? =
         prefs(context).getString(KEY_DETOX_PASSWORD, null)
 
+    /** Stores the password as a SHA-256 hash. Pass null to clear. */
     fun setDetoxPassword(context: Context, password: String?) {
-        prefs(context).edit().putString(KEY_DETOX_PASSWORD, password).apply()
+        val hash = password?.let { sha256(it) }
+        prefs(context).edit().putString(KEY_DETOX_PASSWORD, hash).apply()
+    }
+
+    /** Hashes input and compares with stored hash. */
+    fun verifyDetoxPassword(context: Context, input: String): Boolean {
+        val stored = getDetoxPassword(context) ?: return false
+        return stored == sha256(input)
+    }
+
+    private fun sha256(input: String): String {
+        val bytes = MessageDigest.getInstance("SHA-256").digest(input.toByteArray(Charsets.UTF_8))
+        return bytes.joinToString("") { "%02x".format(it) }
     }
 
     /**

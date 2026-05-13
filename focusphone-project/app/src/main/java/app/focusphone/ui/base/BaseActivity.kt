@@ -2,6 +2,9 @@ package app.focusphone.ui.base
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import app.focusphone.R
@@ -67,49 +70,43 @@ abstract class BaseActivity : AppCompatActivity() {
 
     private fun applyCustomThemeColors() {
         val theme = ThemePreferences.getTheme(this)
-        if (theme == ThemePreferences.THEME_CUSTOM) {
-            val bgColor = ThemePreferences.getCustomBackgroundColor(this)
-            val fgColor = ThemePreferences.getCustomForegroundColor(this)
-            
-            // Set window and content background colors
-            window.decorView.setBackgroundColor(bgColor)
-            val contentFrame = findViewById<android.view.View>(android.R.id.content)
-            contentFrame?.setBackgroundColor(bgColor)
-            
-            // Recursively style all child views with custom background and foreground colors
-            contentFrame?.let { applyCustomThemeToView(it, fgColor, bgColor) }
-        }
-    }
+        if (theme != ThemePreferences.THEME_CUSTOM) return
 
-    private fun applyCustomThemeToView(view: android.view.View, fgColor: Int, bgColor: Int) {
-        val className = view.javaClass.name
-        if (className.contains("ConstraintLayout") || 
-            className.contains("LinearLayout") || 
-            className.contains("ScrollView") || 
-            className.contains("RecyclerView") ||
-            view.id == android.R.id.content) {
-            
-            // Safely skip overriding backgrounds on theme circular cards or segmented controls
-            val viewIdHex = try { resources.getResourceEntryName(view.id) } catch (e: Exception) { "" }
-            if (!viewIdHex.startsWith("card_theme") && 
-                !viewIdHex.startsWith("view_theme") && 
-                !viewIdHex.contains("preview") &&
-                !viewIdHex.contains("segmented")) {
-                view.setBackgroundColor(bgColor)
-            }
-        }
+        val bgColor = ThemePreferences.getCustomBackgroundColor(this)
+        val fgColor = ThemePreferences.getCustomForegroundColor(this)
 
-        if (view is android.widget.TextView) {
-            view.setTextColor(fgColor)
-            if (view is android.widget.EditText) {
-                // Suttle placeholder tint based on custom foreground color
-                view.setHintTextColor((fgColor and 0x00FFFFFF) or 0x66000000)
-            }
-        }
+        // Set window and content background colors
+        window.decorView.setBackgroundColor(bgColor)
+        val contentFrame = findViewById<View>(android.R.id.content)
+        contentFrame?.setBackgroundColor(bgColor)
 
-        if (view is android.view.ViewGroup) {
-            for (i in 0 until view.childCount) {
-                applyCustomThemeToView(view.getChildAt(i), fgColor, bgColor)
+        // Iteratively (non-recursively) style all views to avoid deep-call overhead
+        val stack = ArrayDeque<View>()
+        contentFrame?.let { stack.add(it) }
+        while (stack.isNotEmpty()) {
+            val view = stack.removeFirst()
+            when (view) {
+                is TextView -> {
+                    view.setTextColor(fgColor)
+                    if (view is android.widget.EditText) {
+                        // Subtle placeholder tint based on custom foreground color
+                        view.setHintTextColor((fgColor and 0x00FFFFFF) or 0x66000000)
+                    }
+                }
+                is ViewGroup -> {
+                    // Apply background to layout containers, skipping themed preview views
+                    val viewId = try { resources.getResourceEntryName(view.id) } catch (_: Exception) { "" }
+                    val skip = viewId.startsWith("card_theme") ||
+                            viewId.startsWith("view_theme") ||
+                            viewId.contains("preview") ||
+                            viewId.contains("segmented")
+                    if (!skip && view.id != android.R.id.content) {
+                        view.setBackgroundColor(bgColor)
+                    }
+                    for (i in 0 until view.childCount) {
+                        stack.addLast(view.getChildAt(i))
+                    }
+                }
             }
         }
     }

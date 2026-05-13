@@ -4,16 +4,12 @@ import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.View
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import app.focusphone.R
 import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.databinding.ActivityDetoxBlockedBinding
 import app.focusphone.ui.base.BaseActivity
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.Locale
 
 /**
@@ -24,14 +20,22 @@ class DetoxBlockedActivity : BaseActivity() {
 
     private lateinit var binding: ActivityDetoxBlockedBinding
     private var pulseAnimator: ObjectAnimator? = null
+    private var countDownTimer: CountDownTimer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDetoxBlockedBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupInsets()
+        applyDetoxCircleTint()
         setupPulsingAnimation()
         startCountdownTimer()
+    }
+
+    private fun applyDetoxCircleTint() {
+        val typedValue = android.util.TypedValue()
+        theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
+        binding.viewDetoxCircle.backgroundTintList = android.content.res.ColorStateList.valueOf(typedValue.data)
     }
 
     private fun setupInsets() {
@@ -54,23 +58,26 @@ class DetoxBlockedActivity : BaseActivity() {
     }
 
     private fun startCountdownTimer() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                while (true) {
-                    val endTime = ProfilePreferences.getDetoxEndTime(this@DetoxBlockedActivity)
-                    val remainingMs = endTime - System.currentTimeMillis()
-
-                    if (remainingMs <= 0) {
-                        ProfilePreferences.setProfile(this@DetoxBlockedActivity, ProfilePreferences.PROFILE_NORMAL)
-                        finish()
-                        break
-                    }
-
-                    binding.tvDetoxCountdown.text = formatTime(remainingMs)
-                    delay(500)
-                }
-            }
+        val endTime = ProfilePreferences.getDetoxEndTime(this)
+        val remainingMs = endTime - System.currentTimeMillis()
+        if (remainingMs <= 0) {
+            ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_NORMAL)
+            finish()
+            return
         }
+
+        binding.tvDetoxCountdown.text = formatTime(remainingMs)
+
+        countDownTimer = object : CountDownTimer(remainingMs, 1_000L) {
+            override fun onTick(millisUntilFinished: Long) {
+                binding.tvDetoxCountdown.text = formatTime(millisUntilFinished)
+            }
+
+            override fun onFinish() {
+                ProfilePreferences.setProfile(this@DetoxBlockedActivity, ProfilePreferences.PROFILE_NORMAL)
+                finish()
+            }
+        }.start()
     }
 
     private fun formatTime(millis: Long): String {
@@ -87,6 +94,7 @@ class DetoxBlockedActivity : BaseActivity() {
 
     override fun onDestroy() {
         pulseAnimator?.cancel()
+        countDownTimer?.cancel()
         super.onDestroy()
     }
 }

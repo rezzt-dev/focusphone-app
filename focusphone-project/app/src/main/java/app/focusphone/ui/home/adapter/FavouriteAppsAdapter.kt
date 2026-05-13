@@ -22,19 +22,18 @@ class FavouriteAppsAdapter(
         set(value) {
             if (field != value) {
                 field = value
-                notifyItemRangeChanged(0, itemCount)
+                notifyItemRangeChanged(0, itemCount, PAYLOAD_HEIGHT)
             }
         }
 
     fun updateTypeface(tf: Typeface) {
         typeface = tf
-        // Redraw all visible items with the new font
-        notifyItemRangeChanged(0, itemCount)
+        notifyItemRangeChanged(0, itemCount, PAYLOAD_TYPEFACE)
     }
 
     fun updateAlignment(gravity: Int) {
         textAlignment = gravity
-        notifyItemRangeChanged(0, itemCount)
+        notifyItemRangeChanged(0, itemCount, PAYLOAD_ALIGNMENT)
     }
 
     private var tempReorderList: MutableList<FavouriteApp>? = null
@@ -61,17 +60,36 @@ class FavouriteAppsAdapter(
         return ViewHolder(binding)
     }
 
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isEmpty()) {
+            onBindViewHolder(holder, position)
+            return
+        }
+        // Apply only the changed properties
+        payloads.forEach { payload ->
+            when (payload) {
+                PAYLOAD_HEIGHT -> applyHeight(holder)
+                PAYLOAD_TYPEFACE -> holder.binding.tvAppName.typeface = typeface
+                PAYLOAD_ALIGNMENT -> holder.binding.tvAppName.gravity = textAlignment
+            }
+        }
+    }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        applyHeight(holder)
+        holder.bind(getItem(position))
+    }
+
+    private fun applyHeight(holder: ViewHolder) {
         if (itemHeight > 0) {
             val params = holder.itemView.layoutParams
             params.height = itemHeight
             holder.itemView.layoutParams = params
         }
-        holder.bind(getItem(position))
     }
 
     inner class ViewHolder(
-        private val binding: ItemFavouriteAppBinding
+        val binding: ItemFavouriteAppBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(app: FavouriteApp) {
@@ -102,5 +120,9 @@ class FavouriteAppsAdapter(
             override fun areContentsTheSame(old: FavouriteApp, new: FavouriteApp) =
                 old == new
         }
+
+        private const val PAYLOAD_TYPEFACE = "typeface"
+        private const val PAYLOAD_ALIGNMENT = "alignment"
+        private const val PAYLOAD_HEIGHT = "height"
     }
 }

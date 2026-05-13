@@ -6,6 +6,7 @@ import android.animation.ValueAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.lifecycleScope
 import app.focusphone.R
 import app.focusphone.data.preferences.ConsciousPausePreferences
@@ -21,6 +22,7 @@ class ConsciousPauseActivity : BaseActivity() {
     private var countdownJob: Job? = null
     private var scaleAnimator: AnimatorSet? = null
     private var remainingSeconds: Int = -1
+    private var wasAnimating: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,14 +37,34 @@ class ConsciousPauseActivity : BaseActivity() {
             finish()
         }
 
-        startBreathingAnimation()
+        applyBreathingCircleTint()
+
         remainingSeconds = savedInstanceState?.getInt(KEY_REMAINING, -1) ?: -1
+        wasAnimating = savedInstanceState?.getBoolean(KEY_WAS_ANIMATING, true) ?: true
+
+        if (wasAnimating) {
+            startBreathingAnimation()
+        }
         startCountdown()
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+            }
+        })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(KEY_REMAINING, remainingSeconds)
+        outState.putBoolean(KEY_WAS_ANIMATING, scaleAnimator?.isRunning == true)
+    }
+
+    private fun applyBreathingCircleTint() {
+        val typedValue = android.util.TypedValue()
+        theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
+        binding.viewBreathingCircle.backgroundTintList = android.content.res.ColorStateList.valueOf(typedValue.data)
     }
 
     private fun setupInsets() {
@@ -109,22 +131,16 @@ class ConsciousPauseActivity : BaseActivity() {
             }
         }
         finish()
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     companion object {
         private const val KEY_REMAINING = "remaining_seconds"
+        private const val KEY_WAS_ANIMATING = "was_animating"
     }
 
     override fun onDestroy() {
         super.onDestroy()
         countdownJob?.cancel()
         scaleAnimator?.cancel()
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        // Pressing back cancels the launch and goes back to home screen
-        super.onBackPressed()
     }
 }

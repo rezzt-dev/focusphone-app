@@ -1,12 +1,12 @@
 package app.focusphone.data.repository
 
 import android.content.Context
+import android.util.Log
 import app.focusphone.data.local.FavouriteAppDao
 import app.focusphone.data.model.FavouriteApp
 import app.focusphone.data.preferences.CustomAppLabelsPreferences
 import app.focusphone.domain.repository.FavouriteAppRepository
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -14,7 +14,8 @@ import kotlinx.coroutines.launch
 class FavouriteAppRepositoryImpl(
     private val dao: FavouriteAppDao,
     private val customLabels: CustomAppLabelsPreferences,
-    context: Context
+    context: Context,
+    private val applicationScope: CoroutineScope
 ) : FavouriteAppRepository {
 
     init {
@@ -25,7 +26,7 @@ class FavouriteAppRepositoryImpl(
         val oldPrefs = context.getSharedPreferences("focusphone_favourites", Context.MODE_PRIVATE)
         val raw = oldPrefs.getString("apps", null)
         if (raw != null) {
-            CoroutineScope(Dispatchers.IO).launch {
+            applicationScope.launch {
                 try {
                     val apps = raw.split("\n")
                         .filter { it.isNotBlank() }
@@ -40,7 +41,7 @@ class FavouriteAppRepositoryImpl(
                     dao.insertAll(apps)
                     oldPrefs.edit().remove("apps").apply()
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.e("FavRepo", "Migration failed", e)
                 }
             }
         }
@@ -61,10 +62,7 @@ class FavouriteAppRepositoryImpl(
         }
 
     override suspend fun addFavourite(app: FavouriteApp) {
-        val current = dao.getAll()
-        if (current.none { it.packageName == app.packageName }) {
-            dao.insert(app.copy(sortOrder = current.size))
-        }
+        dao.insertIfNotExists(app)
     }
 
     override suspend fun removeFavourite(packageName: String) {
@@ -72,7 +70,7 @@ class FavouriteAppRepositoryImpl(
     }
 
     override suspend fun isFavourite(packageName: String): Boolean =
-        dao.getAll().any { it.packageName == packageName }
+        dao.exists(packageName)
 
     override suspend fun replaceAll(apps: List<FavouriteApp>) {
         val ordered = apps.mapIndexed { index, app -> app.copy(sortOrder = index) }

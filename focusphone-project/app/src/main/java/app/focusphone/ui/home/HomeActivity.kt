@@ -17,6 +17,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.PopupMenu
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -63,6 +64,9 @@ class HomeActivity : BaseActivity() {
         onAppLongClick = ::showAppContextMenu
     )
 
+    private var lastAppliedClockType: ClockType? = null
+    private var lastVerifyTime = 0L
+
     private val clockReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) = updateClock()
     }
@@ -86,9 +90,21 @@ class HomeActivity : BaseActivity() {
         setupDrawerPushEffect()
         showLongPressHintIfNeeded()
         observeFavourites()
+        setupBackPress()
 
         binding.indicatorContainer.visibility = View.INVISIBLE
         binding.indicatorContainer.alpha = 0f
+    }
+
+    private fun setupBackPress() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!isDefaultLauncher()) {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
     }
 
     override fun onResume() {
@@ -113,12 +129,24 @@ class HomeActivity : BaseActivity() {
             else -> android.view.Gravity.CENTER_HORIZONTAL or android.view.Gravity.CENTER_VERTICAL
         }
         adapter.updateAlignment(gravity)
+        val emptyGravity = when (app.focusphone.data.preferences.ThemePreferences.getAlignment(this)) {
+            app.focusphone.data.preferences.ThemePreferences.ALIGN_LEFT -> android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
+            app.focusphone.data.preferences.ThemePreferences.ALIGN_RIGHT -> android.view.Gravity.END or android.view.Gravity.CENTER_VERTICAL
+            else -> android.view.Gravity.CENTER_HORIZONTAL or android.view.Gravity.CENTER_VERTICAL
+        }
+        val emptyParams = binding.tvEmpty.layoutParams as android.widget.FrameLayout.LayoutParams
+        emptyParams.gravity = emptyGravity
+        binding.tvEmpty.layoutParams = emptyParams
         populateCalendar()
     }
 
     private fun verifyInstalledApps() {
         val currentApps = adapter.currentList.toList() // snapshot
         if (currentApps.isEmpty()) return
+
+        val now = System.currentTimeMillis()
+        if (now - lastVerifyTime < 60 * 60 * 1000L) return
+        lastVerifyTime = now
 
         lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             val pm = packageManager
@@ -138,12 +166,7 @@ class HomeActivity : BaseActivity() {
         hintToastJob?.cancel()
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        // Only swallow back if we ARE the default launcher
-        val isDefault = isDefaultLauncher()
-        if (!isDefault) { super.onBackPressed() }
-    }
+
 
     private fun isDefaultLauncher(): Boolean {
         val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
@@ -159,6 +182,7 @@ class HomeActivity : BaseActivity() {
             binding.clockContainer.setPadding(0, bars.top + dp(8), 0, 0)
             binding.drawerMenu.setPadding(dp(32), bars.top + dp(32), dp(32), bars.bottom + dp(32))
             binding.indicatorContainer.setPadding(0, 0, 0, bars.bottom)
+            binding.appsContainer.setPadding(0, 0, 0, bars.bottom)
             insets
         }
     }
@@ -223,14 +247,17 @@ class HomeActivity : BaseActivity() {
 
     private fun applyClockType() {
         val type = FontPreferences.getClockType(this)
+        if (type == lastAppliedClockType) return
+        lastAppliedClockType = type
+
         val isHidden = type == ClockType.HIDDEN
-        
+
         binding.clockContainer.visibility   = if (isHidden) View.GONE else View.VISIBLE
         binding.clockTypeDigital.visibility = if (type == ClockType.DIGITAL) View.VISIBLE else View.GONE
         binding.clockTypeStacked.visibility = if (type == ClockType.STACKED) View.VISIBLE else View.GONE
         binding.clockTypeWords  .visibility = if (type == ClockType.WORDS)   View.VISIBLE else View.GONE
         binding.clockTypeAnalog .visibility = if (type == ClockType.ANALOG)  View.VISIBLE else View.GONE
-        
+
         // Ajustar centrado si el reloj está oculto y aplicar escala
         val scale = FontPreferences.getClockSize(this)
         binding.clockContainer.scaleX = scale
@@ -244,12 +271,12 @@ class HomeActivity : BaseActivity() {
             constraintSet.connect(R.id.apps_container, androidx.constraintlayout.widget.ConstraintSet.TOP, R.id.clock_container, androidx.constraintlayout.widget.ConstraintSet.BOTTOM)
         }
         constraintSet.applyTo(binding.rootHome)
-        
+
         // Adjust gravity for the RecyclerView and Empty state
         val rvParams = binding.rvFavouriteApps.layoutParams as android.widget.FrameLayout.LayoutParams
         rvParams.gravity = android.view.Gravity.CENTER_VERTICAL
         binding.rvFavouriteApps.layoutParams = rvParams
-        
+
         val emptyParams = binding.tvEmpty.layoutParams as android.widget.FrameLayout.LayoutParams
         emptyParams.gravity = android.view.Gravity.CENTER_VERTICAL
         binding.tvEmpty.layoutParams = emptyParams
@@ -499,8 +526,7 @@ class HomeActivity : BaseActivity() {
 
         view.findViewById<View>(R.id.btn_ok).setOnClickListener {
             val entered = etPassword.text.toString()
-            val correct = ProfilePreferences.getDetoxPassword(this)
-            if (entered == correct) {
+            if (ProfilePreferences.verifyDetoxPassword(this, entered)) {
                 ProfilePreferences.setDetoxPassword(this, null)
                 onSuccess()
                 dialog.dismiss()
@@ -734,21 +760,36 @@ class HomeActivity : BaseActivity() {
     private fun populateCalendar() {
         val calendar = Calendar.getInstance()
         val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
-        
+
         // Month title formatted using localized resource string
         val monthFormat = SimpleDateFormat("MMMM", Locale.getDefault())
         val monthName = monthFormat.format(calendar.time).replaceFirstChar { it.lowercase() }
         val year = calendar.get(Calendar.YEAR)
         binding.tvCalendarMonth.text = getString(R.string.calendar_date_format, monthName, currentDay, year)
-        
+
+        // Update weekday headers using localized short names (Mon..Sun)
+        val weekdays = java.text.DateFormatSymbols.getInstance(Locale.getDefault()).shortWeekdays
+        val dayViews = listOf(
+            binding.tvDay0, binding.tvDay1, binding.tvDay2,
+            binding.tvDay3, binding.tvDay4, binding.tvDay5, binding.tvDay6
+        )
+        // Calendar.MONDAY=2 ... Calendar.SUNDAY=1
+        val calDayIndices = listOf(
+            Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
+            Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY
+        )
+        dayViews.forEachIndexed { index, textView ->
+            textView.text = weekdays[calDayIndices[index]]?.take(1)?.uppercase(Locale.getDefault()) ?: ""
+        }
+
         // Set to first day of month to calculate starting weekday offset
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         val firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) // Sunday = 1, Monday = 2, Tuesday = 3...
-        
+
         // Monday = 0, Tuesday = 1, ..., Sunday = 6
         val startOffset = (firstDayOfWeek + 5) % 7
         val maxDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-        
+
         binding.calendarGrid.removeAllViews()
         
         var dayCounter = 1

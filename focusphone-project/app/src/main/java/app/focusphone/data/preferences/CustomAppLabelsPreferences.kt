@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class CustomAppLabelsPreferences(context: Context) {
     private val prefs = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
-    
     private val _labelsFlow = MutableStateFlow<Map<String, String>>(loadAllLabels())
     val labelsFlow: StateFlow<Map<String, String>> = _labelsFlow.asStateFlow()
 
@@ -16,12 +15,15 @@ class CustomAppLabelsPreferences(context: Context) {
     }
 
     fun setCustomLabel(packageName: String, label: String?) {
+        val current = _labelsFlow.value.toMutableMap()
         if (label.isNullOrBlank()) {
+            current.remove(packageName)
             prefs.edit().remove(packageName).apply()
         } else {
+            current[packageName] = label
             prefs.edit().putString(packageName, label).apply()
         }
-        _labelsFlow.value = loadAllLabels()
+        _labelsFlow.value = current.toMap()
     }
 
     private fun loadAllLabels(): Map<String, String> {

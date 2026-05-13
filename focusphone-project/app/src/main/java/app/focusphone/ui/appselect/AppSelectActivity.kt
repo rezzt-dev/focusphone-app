@@ -3,6 +3,7 @@ package app.focusphone.ui.appselect
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
@@ -36,106 +37,69 @@ class AppSelectActivity : BaseActivity() {
     )
 
     private fun showRenameDialog(app: AppInfo) {
-        try {
-            val input = android.widget.EditText(this@AppSelectActivity).apply {
-                setText(app.label)
-                setSelection(text.length)
-                setSingleLine()
-                
-                val gd = android.graphics.drawable.GradientDrawable().apply {
-                    shape = android.graphics.drawable.GradientDrawable.RECTANGLE
-                    cornerRadius = dp(16).toFloat()
-                    
-                    val typedValue = android.util.TypedValue()
-                    theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-                    setColor(typedValue.data)
-                    
-                    theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-                    setStroke(dp(1), typedValue.data)
-                }
-                background = gd
-                
+        val input = android.widget.EditText(this@AppSelectActivity).apply {
+            setText(app.label)
+            setSelection(text.length)
+            setSingleLine()
+
+            val gd = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = dp(16).toFloat()
+
                 val typedValue = android.util.TypedValue()
-                theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-                setTextColor(typedValue.data)
+                theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+                setColor(typedValue.data)
+
                 theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-                setHintTextColor(typedValue.data)
-                
-                textSize = 15f
-                val padH = dp(16)
-                val padV = dp(14)
-                setPadding(padH, padV, padH, padV)
+                setStroke(dp(1), typedValue.data)
             }
-            val container = android.widget.FrameLayout(this@AppSelectActivity).apply {
-                addView(input, android.widget.FrameLayout.LayoutParams(
-                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    leftMargin = dp(24)
-                    rightMargin = dp(24)
-                    topMargin = dp(8)
-                    bottomMargin = dp(8)
-                })
-            }
-            
-            activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AppSelectActivity)
-                .setTitle(R.string.customize_name_title)
-                .setMessage(getString(R.string.customize_name_message, app.label))
-                .setView(container)
-                .setPositiveButton(R.string.action_save) { _, _ ->
-                    val newLabel = input.text.toString().trim()
-                    val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
-                    if (newLabel.isEmpty()) {
-                        prefs.setCustomLabel(app.packageName, null)
-                    } else {
-                        prefs.setCustomLabel(app.packageName, newLabel)
-                    }
-                    viewModel.loadApps()
-                }
-                .setNeutralButton(R.string.action_reset) { _, _ ->
-                    val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
-                    prefs.setCustomLabel(app.packageName, null)
-                    viewModel.loadApps()
-                }
-                .setNegativeButton(R.string.action_cancel, null)
-                .create()
-            activeDialog?.show()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            val input = android.widget.EditText(this@AppSelectActivity).apply {
-                setText(app.label)
-                setSelection(text.length)
-                setSingleLine()
-            }
-            val container = android.widget.FrameLayout(this@AppSelectActivity).apply {
-                addView(input, android.widget.FrameLayout.LayoutParams(
-                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    leftMargin = dp(24)
-                    rightMargin = dp(24)
-                    topMargin = dp(8)
-                    bottomMargin = dp(8)
-                })
-            }
-            activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AppSelectActivity)
-                .setTitle("personalizar nombre")
-                .setMessage("escribe un nombre personalizado para ${app.label}:")
-                .setView(container)
-                .setPositiveButton("guardar") { _, _ ->
-                    val newLabel = input.text.toString().trim()
-                    val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
-                    if (newLabel.isEmpty()) {
-                        prefs.setCustomLabel(app.packageName, null)
-                    } else {
-                        prefs.setCustomLabel(app.packageName, newLabel)
-                    }
-                    viewModel.loadApps()
-                }
-                .setNegativeButton("cancelar", null)
-                .create()
-            activeDialog?.show()
+            background = gd
+
+            val typedValue = android.util.TypedValue()
+            theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
+            setTextColor(typedValue.data)
+            theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
+            setHintTextColor(typedValue.data)
+
+            textSize = 15f
+            val padH = dp(16)
+            val padV = dp(14)
+            setPadding(padH, padV, padH, padV)
         }
+        val container = android.widget.FrameLayout(this@AppSelectActivity).apply {
+            addView(input, android.widget.FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                leftMargin = dp(24)
+                rightMargin = dp(24)
+                topMargin = dp(8)
+                bottomMargin = dp(8)
+            })
+        }
+
+        activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AppSelectActivity)
+            .setTitle(R.string.customize_name_title)
+            .setMessage(getString(R.string.customize_name_message, app.label))
+            .setView(container)
+            .setPositiveButton(R.string.action_save) { _, _ ->
+                val newLabel = input.text.toString().trim()
+                val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
+                if (newLabel.isEmpty()) {
+                    prefs.setCustomLabel(app.packageName, null)
+                } else {
+                    prefs.setCustomLabel(app.packageName, newLabel)
+                }
+                viewModel.loadApps()
+            }
+            .setNeutralButton(R.string.action_reset) { _, _ ->
+                val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
+                prefs.setCustomLabel(app.packageName, null)
+                viewModel.loadApps()
+            }
+            .setNegativeButton(R.string.action_cancel, null)
+            .create()
+        activeDialog?.show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -193,6 +157,9 @@ class AppSelectActivity : BaseActivity() {
                         viewModel.selectedCount(),
                         viewModel.maxApps()
                     )
+                    val empty = apps.isEmpty() && !viewModel.isLoading.value
+                    binding.tvEmpty.visibility = if (empty) View.VISIBLE else View.GONE
+                    binding.rvApps.visibility = if (empty) View.GONE else View.VISIBLE
                 }
             }
         }

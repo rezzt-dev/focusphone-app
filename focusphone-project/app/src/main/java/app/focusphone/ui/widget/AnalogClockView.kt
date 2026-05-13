@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.view.ViewCompat
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
@@ -60,7 +61,16 @@ class AnalogClockView @JvmOverloads constructor(
     fun setTime(h: Int, m: Int) {
         hours   = h
         minutes = m
+        updateContentDescription()
         invalidate()
+    }
+
+    private fun updateContentDescription() {
+        val displayHour = if (hours % 12 == 0) 12 else hours % 12
+        val amPm = if (hours >= 12) "PM" else "AM"
+        val desc = String.format("%02d:%02d %s", displayHour, minutes, amPm)
+        ViewCompat.setStateDescription(this, desc)
+        contentDescription = desc
     }
 
     // ── Drawing ────────────────────────────────────────────────────
@@ -74,31 +84,31 @@ class AnalogClockView @JvmOverloads constructor(
         paintDot.color = colorSecondary
         val dotR = radius * 0.028f
         for (i in 0..11) {
-            val angle = Math.toRadians(i * 30.0 - 90.0)
-            val x = cx + (radius * 0.86f * cos(angle)).toFloat()
-            val y = cy + (radius * 0.86f * sin(angle)).toFloat()
+            val rad = Math.toRadians(i * 30.0 - 90.0).toFloat()
+            val x = cx + (radius * 0.86f * cos(rad))
+            val y = cy + (radius * 0.86f * sin(rad))
             canvas.drawCircle(x, y, dotR, paintDot)
         }
 
         // Hour hand
-        val hourAngle = Math.toRadians((hours % 12 + minutes / 60.0) * 30.0 - 90.0)
+        val hourRad = Math.toRadians((hours % 12 + minutes / 60.0) * 30.0 - 90.0).toFloat()
         paintHourHand.color       = colorPrimary
         paintHourHand.strokeWidth = radius * 0.055f
         canvas.drawLine(
             cx, cy,
-            (cx + radius * 0.50f * cos(hourAngle)).toFloat(),
-            (cy + radius * 0.50f * sin(hourAngle)).toFloat(),
+            cx + radius * 0.50f * cos(hourRad),
+            cy + radius * 0.50f * sin(hourRad),
             paintHourHand
         )
 
         // Minute hand
-        val minAngle = Math.toRadians(minutes * 6.0 - 90.0)
+        val minRad = Math.toRadians(minutes * 6.0 - 90.0).toFloat()
         paintMinuteHand.color       = colorPrimary
         paintMinuteHand.strokeWidth = radius * 0.035f
         canvas.drawLine(
             cx, cy,
-            (cx + radius * 0.72f * cos(minAngle)).toFloat(),
-            (cy + radius * 0.72f * sin(minAngle)).toFloat(),
+            cx + radius * 0.72f * cos(minRad),
+            cy + radius * 0.72f * sin(minRad),
             paintMinuteHand
         )
 

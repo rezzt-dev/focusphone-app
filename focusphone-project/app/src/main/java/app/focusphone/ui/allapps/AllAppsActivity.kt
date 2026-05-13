@@ -13,10 +13,10 @@ import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -34,6 +34,8 @@ import app.focusphone.databinding.ItemAllAppBinding
 import app.focusphone.domain.model.AppInfo
 import app.focusphone.domain.usecase.GetInstalledAppsUseCase
 import app.focusphone.ui.base.BaseActivity
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,6 +54,8 @@ class AllAppsViewModel(
   val filteredApps: StateFlow<List<AppInfo>> = _filtered.asStateFlow()
   val isLoading = MutableStateFlow(true)
 
+  private var searchJob: Job? = null
+
   init { load() }
 
   fun load() {
@@ -63,7 +67,14 @@ class AllAppsViewModel(
     }
   }
 
-  fun onQuery(q: String) { _query.value = q; applyFilter() }
+  fun onQuery(q: String) {
+    _query.value = q
+    searchJob?.cancel()
+    searchJob = viewModelScope.launch {
+      delay(150)
+      applyFilter()
+    }
+  }
 
   private fun applyFilter() {
     val q = _query.value.trim().lowercase()
@@ -116,106 +127,69 @@ class AllAppsActivity : BaseActivity() {
   )
 
   private fun showRenameDialog(app: AppInfo) {
-    try {
-      val input = android.widget.EditText(this@AllAppsActivity).apply {
-        setText(app.label)
-        setSelection(text.length)
-        setSingleLine()
+    val input = android.widget.EditText(this@AllAppsActivity).apply {
+      setText(app.label)
+      setSelection(text.length)
+      setSingleLine()
 
-        val gd = android.graphics.drawable.GradientDrawable().apply {
-          shape = android.graphics.drawable.GradientDrawable.RECTANGLE
-          cornerRadius = dp(16).toFloat()
-
-          val typedValue = android.util.TypedValue()
-          theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-          setColor(typedValue.data)
-
-          theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-          setStroke(dp(1), typedValue.data)
-        }
-        background = gd
+      val gd = android.graphics.drawable.GradientDrawable().apply {
+        shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+        cornerRadius = dp(16).toFloat()
 
         val typedValue = android.util.TypedValue()
-        theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-        setTextColor(typedValue.data)
+        theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+        setColor(typedValue.data)
+
         theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-        setHintTextColor(typedValue.data)
+        setStroke(dp(1), typedValue.data)
+      }
+      background = gd
 
-        textSize = 15f
-        val padH = dp(16)
-        val padV = dp(14)
-        setPadding(padH, padV, padH, padV)
-      }
-      val container = android.widget.FrameLayout(this@AllAppsActivity).apply {
-        addView(input, android.widget.FrameLayout.LayoutParams(
-          android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-          android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-        ).apply {
-          leftMargin = dp(24)
-          rightMargin = dp(24)
-          topMargin = dp(8)
-          bottomMargin = dp(8)
-        })
-      }
+      val typedValue = android.util.TypedValue()
+      theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
+      setTextColor(typedValue.data)
+      theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
+      setHintTextColor(typedValue.data)
 
-      activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AllAppsActivity)
-        .setTitle(R.string.customize_name_title)
-        .setMessage(getString(R.string.customize_name_message, app.label))
-        .setView(container)
-        .setPositiveButton(R.string.action_save) { _, _ ->
-          val newLabel = input.text.toString().trim()
-          val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
-          if (newLabel.isEmpty()) {
-            prefs.setCustomLabel(app.packageName, null)
-          } else {
-            prefs.setCustomLabel(app.packageName, newLabel)
-          }
-          viewModel.load()
-        }
-        .setNeutralButton(R.string.action_reset) { _, _ ->
-          val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
-          prefs.setCustomLabel(app.packageName, null)
-          viewModel.load()
-        }
-        .setNegativeButton(R.string.action_cancel, null)
-        .create()
-      activeDialog?.show()
-    } catch (e: Exception) {
-      e.printStackTrace()
-      val input = android.widget.EditText(this@AllAppsActivity).apply {
-        setText(app.label)
-        setSelection(text.length)
-        setSingleLine()
-      }
-      val container = android.widget.FrameLayout(this@AllAppsActivity).apply {
-        addView(input, android.widget.FrameLayout.LayoutParams(
-          android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-          android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-        ).apply {
-          leftMargin = dp(24)
-          rightMargin = dp(24)
-          topMargin = dp(8)
-          bottomMargin = dp(8)
-        })
-      }
-      activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AllAppsActivity)
-        .setTitle("personalizar nombre")
-        .setMessage("escribe un nombre personalizado para ${app.label}:")
-        .setView(container)
-        .setPositiveButton("guardar") { _, _ ->
-          val newLabel = input.text.toString().trim()
-          val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
-          if (newLabel.isEmpty()) {
-            prefs.setCustomLabel(app.packageName, null)
-          } else {
-            prefs.setCustomLabel(app.packageName, newLabel)
-          }
-          viewModel.load()
-        }
-        .setNegativeButton("cancelar", null)
-        .create()
-      activeDialog?.show()
+      textSize = 15f
+      val padH = dp(16)
+      val padV = dp(14)
+      setPadding(padH, padV, padH, padV)
     }
+    val container = android.widget.FrameLayout(this@AllAppsActivity).apply {
+      addView(input, android.widget.FrameLayout.LayoutParams(
+        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+        android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+      ).apply {
+        leftMargin = dp(24)
+        rightMargin = dp(24)
+        topMargin = dp(8)
+        bottomMargin = dp(8)
+      })
+    }
+
+    activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AllAppsActivity)
+      .setTitle(R.string.customize_name_title)
+      .setMessage(getString(R.string.customize_name_message, app.label))
+      .setView(container)
+      .setPositiveButton(R.string.action_save) { _, _ ->
+        val newLabel = input.text.toString().trim()
+        val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
+        if (newLabel.isEmpty()) {
+          prefs.setCustomLabel(app.packageName, null)
+        } else {
+          prefs.setCustomLabel(app.packageName, newLabel)
+        }
+        viewModel.load()
+      }
+      .setNeutralButton(R.string.action_reset) { _, _ ->
+        val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
+        prefs.setCustomLabel(app.packageName, null)
+        viewModel.load()
+      }
+      .setNegativeButton(R.string.action_cancel, null)
+      .create()
+    activeDialog?.show()
   }
 
   private fun showAppOptionsDialog(app: AppInfo) {
@@ -272,7 +246,12 @@ class AllAppsActivity : BaseActivity() {
     binding.etSearch.addTextChangedListener(searchTextWatcher!!)
     lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
-        viewModel.filteredApps.collect { adapter.submitList(it) }
+        viewModel.filteredApps.collect {
+            adapter.submitList(it)
+            val empty = it.isEmpty() && !viewModel.isLoading.value
+            binding.tvEmpty.visibility = if (empty) View.VISIBLE else View.GONE
+            binding.rvApps.visibility = if (empty) View.GONE else View.VISIBLE
+        }
       }
     }
   }

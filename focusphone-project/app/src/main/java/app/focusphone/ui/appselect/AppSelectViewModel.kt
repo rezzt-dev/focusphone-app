@@ -8,6 +8,8 @@ import app.focusphone.domain.model.AppInfo
 import app.focusphone.domain.model.ToggleResult
 import app.focusphone.domain.usecase.GetInstalledAppsUseCase
 import app.focusphone.domain.usecase.ToggleFavouriteAppUseCase
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -33,6 +35,8 @@ class AppSelectViewModel(
     private val _events = MutableSharedFlow<AppSelectEvent>()
     val events: SharedFlow<AppSelectEvent> = _events.asSharedFlow()
 
+    private var searchJob: Job? = null
+
     init { loadApps() }
 
     fun loadApps() {
@@ -46,7 +50,11 @@ class AppSelectViewModel(
 
     fun onSearchQuery(query: String) {
         _query.value = query
-        applyFilter()
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(150)
+            applyFilter()
+        }
     }
 
     fun onToggle(app: AppInfo) {

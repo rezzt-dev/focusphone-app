@@ -8,6 +8,7 @@ import app.focusphone.domain.repository.FavouriteAppRepository
 import app.focusphone.domain.usecase.GetFavouriteAppsUseCase
 import app.focusphone.domain.usecase.GetInstalledAppsUseCase
 import app.focusphone.domain.usecase.ToggleFavouriteAppUseCase
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Manual dependency injection container.
@@ -16,7 +17,7 @@ import app.focusphone.domain.usecase.ToggleFavouriteAppUseCase
  *
  * TODO Phase 2: migrate to Hilt once compatible version is available for AGP 9.x.
  */
-class AppContainer(context: Context) {
+class AppContainer(context: Context, private val applicationScope: CoroutineScope) {
 
     private val appContext: Context = context.applicationContext
 
@@ -37,7 +38,12 @@ class AppContainer(context: Context) {
     }
 
     val favouriteAppRepository: FavouriteAppRepository by lazy {
-        FavouriteAppRepositoryImpl(database.favouriteAppDao(), customAppLabelsPreferences, appContext)
+        FavouriteAppRepositoryImpl(
+            database.favouriteAppDao(),
+            customAppLabelsPreferences,
+            appContext,
+            applicationScope
+        )
     }
 
     // ── Use Cases ─────────────────────────────────────────────────

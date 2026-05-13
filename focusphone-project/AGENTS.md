@@ -9,7 +9,7 @@
 | Property | Value |
 |----------|-------|
 | **Package** | `app.focusphone` |
-| **Version** | alfa 1.0.3 |
+| **Version** | 1.0.4 |
 | **Language** | Kotlin |
 | **Min SDK** | 24 |
 | **Target / Compile SDK** | 36 |
@@ -138,6 +138,7 @@ app/src/main/java/app/focusphone/
 - Release builds use ProGuard (`proguard-rules.pro`) with `isMinifyEnabled = true` and `isShrinkResources = true`.
 - Room uses `kapt` (legacy annotation processor) because AGP 9.2.1 is used.
 - The project defines a fixed `org.gradle.java.home` pointing to `C:/Program Files/Android/openjdk/jdk-21.0.8`.
+- Release signing config is conditional: set `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, and `RELEASE_KEY_PASSWORD` in `gradle.properties` (or as project properties) to enable release signing. Without these properties, the release build uses no signing config and can still be assembled for local testing.
 
 ---
 
@@ -160,6 +161,7 @@ app/src/main/java/app/focusphone/
 ### Dependency Injection
 - Do **not** introduce Hilt/Dagger without first resolving AGP 9.x compatibility.
 - Register new singletons in `AppContainer` and expose factory methods on ViewModels (`companion object { fun factory(app: FocusPhoneApp): ViewModelProvider.Factory }`).
+- `AppContainer` now receives an `applicationScope: CoroutineScope` for long-running background tasks such as data migrations.
 
 ### UI Patterns
 - Always apply window insets manually (`ViewCompat.setOnApplyWindowInsetsListener`) for edge-to-edge layouts.
@@ -174,10 +176,10 @@ app/src/main/java/app/focusphone/
 
 | Type | Location | Runner |
 |------|----------|--------|
-| Unit tests | `app/src/test/java/dev/rezzt/` | JVM (JUnit 4) |
+| Unit tests | `app/src/test/java/app/focusphone/` | JVM (JUnit 4) |
 | Instrumented | `app/src/androidTest/java/dev/rezzt/` | AndroidJUnit4 |
 
-**Important:** The test package name is `dev.rezzt`, which does **not** match the application package (`app.focusphone`). The instrumented test asserts `assertEquals("dev.rezzt", appContext.packageName)`, which is currently out of sync with the real app.
+**Note:** New unit tests are placed under the application package (`app.focusphone`). Legacy instrumented tests remain in `dev.rezzt` and should be migrated.
 
 ### Recommended Testing Approach
 - Unit-test Use Cases and Repository logic with mocked repositories.
@@ -213,15 +215,12 @@ The home screen (`HomeActivity`) displays only text labels for favourite apps. I
 | Permission | Reason |
 |------------|--------|
 | `QUERY_ALL_PACKAGES` | List all installed apps for the app drawer and selector. |
-| `PACKAGE_USAGE_STATS` | Potentially reserved for future usage analytics (currently ignored by lint). |
-| `RECEIVE_BOOT_COMPLETED` | Reserved for future boot-time scheduler (not currently used). |
-| `NFC` | Reserved for future feature. |
-| `READ_CONTACTS` | Reserved for future feature. |
+<!-- Only QUERY_ALL_PACKAGES remains; unused permissions removed for Play Store compliance -->
 
 ### Detox Password Behavior
-- The detox password is stored in **plain text** in SharedPreferences (`focusphone_profile`).
+- The detox password is hashed with **SHA-256** before storage in SharedPreferences (`focusphone_profile`).
 - After 4 incorrect password attempts, detox is **force-disabled** for safety and the password is cleared.
-- There is no encryption layer over SharedPreferences.
+- The `focusphone_profile` SharedPreferences file is excluded from cloud backup via `data_extraction_rules.xml`.
 
 ### Custom Theme Colors
 - Custom hex colors are parsed at runtime with `Color.parseColor()`. Invalid values fall back to safe defaults (`#181818` / `#FAFAFA`).

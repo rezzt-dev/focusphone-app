@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import app.focusphone.R
@@ -60,24 +62,38 @@ class OnboardingActivity : BaseActivity() {
     private fun setupDots() {
         val dp8 = (8 * resources.displayMetrics.density).toInt()
         val dp6 = (6 * resources.displayMetrics.density).toInt()
-        pages.forEach { _ ->
+        val primaryColor = resolveColorAttr(android.R.attr.textColorPrimary)
+        val secondaryColor = resolveColorAttr(android.R.attr.textColorSecondary)
+
+        pages.forEachIndexed { index, _ ->
             val dot = View(this).apply {
                 val lp = ViewGroup.MarginLayoutParams(dp8, dp8)
                 lp.marginEnd = dp6
                 layoutParams = lp
                 setBackgroundResource(R.drawable.bg_dot_inactive)
+                backgroundTintList = android.content.res.ColorStateList.valueOf(secondaryColor)
+                contentDescription = getString(R.string.onboarding_step_counter, index + 1, pages.size)
             }
             binding.dotsContainer.addView(dot)
         }
-        updateDots(0)
+        updateDots(0, primaryColor, secondaryColor)
     }
 
-    private fun updateDots(currentPage: Int) {
+    private fun updateDots(currentPage: Int, primaryColor: Int, secondaryColor: Int) {
         for (i in 0 until binding.dotsContainer.childCount) {
-            binding.dotsContainer.getChildAt(i).setBackgroundResource(
-                if (i == currentPage) R.drawable.bg_dot_active else R.drawable.bg_dot_inactive
-            )
+            val dot = binding.dotsContainer.getChildAt(i)
+            if (i == currentPage) {
+                dot.setBackgroundResource(R.drawable.bg_dot_active)
+                dot.backgroundTintList = android.content.res.ColorStateList.valueOf(primaryColor)
+            } else {
+                dot.setBackgroundResource(R.drawable.bg_dot_inactive)
+                dot.backgroundTintList = android.content.res.ColorStateList.valueOf(secondaryColor)
+            }
         }
+        // Announce page change for TalkBack
+        binding.dotsContainer.announceForAccessibility(
+            getString(R.string.onboarding_step_counter, currentPage + 1, pages.size)
+        )
     }
 
     private fun setupButtons() {
@@ -90,10 +106,18 @@ class OnboardingActivity : BaseActivity() {
     }
 
     private fun updateUi(position: Int) {
-        updateDots(position)
+        val primaryColor = resolveColorAttr(android.R.attr.textColorPrimary)
+        val secondaryColor = resolveColorAttr(android.R.attr.textColorSecondary)
+        updateDots(position, primaryColor, secondaryColor)
         val isLast = position == pages.lastIndex
         binding.btnNext.text = getString(if (isLast) R.string.onboarding_get_started else R.string.onboarding_next)
         binding.btnSkip.visibility = if (isLast) View.INVISIBLE else View.VISIBLE
+    }
+
+    private fun resolveColorAttr(attrId: Int): Int {
+        val typedValue = android.util.TypedValue()
+        theme.resolveAttribute(attrId, typedValue, true)
+        return typedValue.data
     }
 
     private fun onPageAction(page: OnboardingPage) {

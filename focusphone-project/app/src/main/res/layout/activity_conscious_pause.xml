@@ -46,7 +46,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:letterSpacing="0.12"
                 android:textColor="?attr/android:textColorSecondary"
-                android:textSize="11dp"
+                android:textSize="11sp"
                 android:textAllCaps="true"
                 tools:text="inhala…" />
 

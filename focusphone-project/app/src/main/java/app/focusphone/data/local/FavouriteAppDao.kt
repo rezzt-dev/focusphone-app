@@ -16,6 +16,12 @@ interface FavouriteAppDao {
     @Query("SELECT * FROM favourite_apps ORDER BY sortOrder ASC")
     suspend fun getAll(): List<FavouriteApp>
 
+    @Query("SELECT COUNT(*) FROM favourite_apps")
+    suspend fun count(): Int
+
+    @Query("SELECT EXISTS(SELECT 1 FROM favourite_apps WHERE packageName = :packageName)")
+    suspend fun exists(packageName: String): Boolean
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(app: FavouriteApp)
 
@@ -39,5 +45,17 @@ interface FavouriteAppDao {
     suspend fun replaceAllOrdered(apps: List<FavouriteApp>) {
         deleteAll()
         insertAll(apps)
+    }
+
+    /**
+     * Atomic insert that assigns the next available sortOrder.
+     * Uses REPLACE so duplicates are overwritten safely.
+     */
+    @Transaction
+    suspend fun insertIfNotExists(app: FavouriteApp) {
+        if (!exists(app.packageName)) {
+            val nextOrder = count()
+            insert(app.copy(sortOrder = nextOrder))
+        }
     }
 }

@@ -5,11 +5,8 @@
     <!-- ── Permissions ──────────────────────────────────────────────── -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
-    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
-        tools:ignore="ProtectedPermissions" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.NFC" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- Only QUERY_ALL_PACKAGES is required for launcher functionality -->
+    <!-- Play Store declaration form must be submitted for this permission -->
 
     <application
         android:name=".FocusPhoneApp"

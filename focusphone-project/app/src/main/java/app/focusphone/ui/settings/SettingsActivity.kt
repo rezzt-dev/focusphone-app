@@ -48,6 +48,27 @@ class SettingsActivity : BaseActivity() {
             startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
         }
         binding.tvVersion.text = getString(R.string.settings_version, BuildConfig.VERSION_NAME)
+
+        binding.tvVersion.setOnLongClickListener {
+            // Hidden privacy policy access via long-press on version row
+            try {
+                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW)
+                intent.setDataAndType(
+                    android.net.Uri.parse("file:///android_asset/privacy_policy.html"),
+                    "text/html"
+                )
+                startActivity(intent)
+            } catch (_: Exception) {
+                // Fallback to raw HTML display if no viewer available
+                val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("privacy policy")
+                    .setMessage("see privacy_policy.html in app assets.")
+                    .setPositiveButton("ok", null)
+                    .create()
+                dialog.show()
+            }
+            true
+        }
     }
 
     // ── Alignment ──────────────────────────────────────────────────
@@ -496,13 +517,13 @@ class SettingsActivity : BaseActivity() {
                 btnPrev.visibility = View.INVISIBLE
             } else {
                 btnPrev.visibility = View.VISIBLE
-                btnPrev.text = "←"
+                btnPrev.text = getString(R.string.tutorial_arrow_prev)
             }
 
             if (currentIndex == slides.size - 1) {
-                btnNext.text = "✓"
+                btnNext.text = getString(R.string.tutorial_arrow_finish)
             } else {
-                btnNext.text = "→"
+                btnNext.text = getString(R.string.tutorial_arrow_next)
             }
 
             layoutDots.removeAllViews()

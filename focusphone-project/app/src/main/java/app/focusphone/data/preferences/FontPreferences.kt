@@ -69,8 +69,8 @@ object FontPreferences {
 
     fun getClockSize(context: Context): Float {
         val size = prefs(context).getInt(KEY_CLOCK_SIZE, 50)
-        // map 0..100 to 0.7f..1.3f multiplier for a subtle but noticeable scale
-        return 0.7f + (size / 100f * 0.6f)
+        // map 0..100 to 0.6f..2.0f multiplier so max size is clearly larger
+        return 0.6f + (size / 100f * 1.4f)
     }
 
     fun getClockSizePercent(context: Context): Int {

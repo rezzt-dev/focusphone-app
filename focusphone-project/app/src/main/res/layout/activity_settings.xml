@@ -132,7 +132,7 @@
                     android:fontFamily="sans-serif"
                     android:textColor="?attr/android:textColorSecondary"
                     android:textSize="14sp"
-                    android:text="slate" />
+                    android:text="@string/settings_theme_slate" />
             </LinearLayout>
 
             <!-- Expandable "personalizar tema" panel -->
@@ -159,7 +159,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="personalizar tema"
+                        android:text="@string/settings_custom_theme"
                         android:textColor="?attr/android:textColorSecondary"
                         android:textSize="14sp"
                         android:fontFamily="sans-serif-light"
@@ -169,6 +169,7 @@
                         android:id="@+id/iv_custom_theme_toggle_indicator"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
+                        android:contentDescription="@string/cd_custom_theme_toggle"
                         android:src="@drawable/ic_chevron_down"
                         app:tint="?attr/android:textColorSecondary" />
                 </LinearLayout>
@@ -208,7 +209,7 @@
                             android:layout_width="128dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
-                            android:text="background color"
+                            android:text="@string/settings_custom_theme_bg"
                             android:textColor="?attr/android:textColorPrimary"
                             android:alpha="0.8"
                             android:textSize="14sp"
@@ -255,7 +256,7 @@
                             android:layout_width="128dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
-                            android:text="foreground color"
+                            android:text="@string/settings_custom_theme_fg"
                             android:textColor="?attr/android:textColorPrimary"
                             android:alpha="0.8"
                             android:textSize="14sp"
@@ -284,9 +285,9 @@
                         android:layout_gravity="end"
                         android:layout_marginTop="16dp"
                         android:minWidth="64dp"
-                        android:minHeight="36dp"
+                        android:minHeight="48dp"
                         android:gravity="center"
-                        android:text="apply"
+                        android:text="@string/settings_custom_theme_apply"
                         android:textColor="?attr/android:textColorPrimary"
                         android:textSize="14sp"
                         android:fontFamily="sans-serif-medium"
@@ -328,34 +329,37 @@
                     <ImageView
                         android:id="@+id/btn_align_left"
                         android:layout_width="72dp"
-                        android:layout_height="32dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="@string/cd_align_left"
                         android:scaleType="centerInside"
                         android:paddingTop="4dp"
                         android:paddingBottom="4dp"
                         android:src="@drawable/ic_align_left"
-                        app:tint="@color/color_segmented_text"
+                        app:tint="@color/selector_segmented_icon"
                         android:background="@drawable/bg_segmented_item" />
 
                     <ImageView
                         android:id="@+id/btn_align_center"
                         android:layout_width="72dp"
-                        android:layout_height="32dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="@string/cd_align_center"
                         android:scaleType="centerInside"
                         android:paddingTop="4dp"
                         android:paddingBottom="4dp"
                         android:src="@drawable/ic_align_center"
-                        app:tint="@color/color_segmented_text"
+                        app:tint="@color/selector_segmented_icon"
                         android:background="@drawable/bg_segmented_item" />
 
                     <ImageView
                         android:id="@+id/btn_align_right"
                         android:layout_width="72dp"
-                        android:layout_height="32dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="@string/cd_align_right"
                         android:scaleType="centerInside"
                         android:paddingTop="4dp"
                         android:paddingBottom="4dp"
                         android:src="@drawable/ic_align_right"
-                        app:tint="@color/color_segmented_text"
+                        app:tint="@color/selector_segmented_icon"
                         android:background="@drawable/bg_segmented_item" />
                 </LinearLayout>
             </LinearLayout>
@@ -398,8 +402,8 @@
                     android:id="@+id/switch_hide_status_bar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="@color/color_switch_thumb"
-                    app:trackTint="@color/color_switch_track" />
+                    app:thumbTint="?attr/android:textColorPrimary"
+                    app:trackTint="?attr/android:textColorSecondary" />
             </LinearLayout>
 
             <!-- Section divider -->
@@ -555,8 +559,8 @@
                     android:id="@+id/switch_conscious_pause"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="@color/color_switch_thumb"
-                    app:trackTint="@color/color_switch_track" />
+                    app:thumbTint="?attr/android:textColorPrimary"
+                    app:trackTint="?attr/android:textColorSecondary" />
             </LinearLayout>
 
             <!-- Conscious Pause Duration (Slider) -->
@@ -707,7 +711,7 @@
                     android:fontFamily="sans-serif"
                     android:textColor="?attr/android:textColorSecondary"
                     android:textSize="20sp"
-                    android:text="›" />
+                    android:text="@string/settings_chevron" />
             </LinearLayout>
 
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
@@ -759,7 +763,7 @@
                     android:fontFamily="sans-serif"
                     android:textColor="?attr/android:textColorSecondary"
                     android:textSize="20sp"
-                    android:text="›" />
+                    android:text="@string/settings_chevron" />
             </LinearLayout>
 
             <View android:layout_width="match_parent" android:layout_height="0.5dp"

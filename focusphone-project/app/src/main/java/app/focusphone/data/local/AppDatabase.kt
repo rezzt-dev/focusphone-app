@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import app.focusphone.data.model.FavouriteApp
+import app.focusphone.BuildConfig
 
 @Database(entities = [FavouriteApp::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
@@ -16,12 +17,15 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
+                val builder = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "focusphone_database"
                 )
-                .build()
+                if (BuildConfig.DEBUG) {
+                    builder.fallbackToDestructiveMigration(true)
+                }
+                val instance = builder.build()
                 INSTANCE = instance
                 instance
             }

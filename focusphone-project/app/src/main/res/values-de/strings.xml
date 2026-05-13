@@ -71,7 +71,7 @@
     <string name="onboarding_step2_body">um focusphone als startbildschirm zu nutzen, lege es als standard-launcher in den systemeinstellungen fest.</string>
     <string name="onboarding_step2_action">als standard festlegen</string>
     <string name="onboarding_step3_title">wähle deine apps.</string>
-    <string name="onboarding_step3_body">wähle bis zu 6 apps, die du wirklich brauchst. du kannst sie jederzeit ändern.</string>
+    <string name="onboarding_step3_body">wähle bis zu 10 apps, die du wirklich brauchst. du kannst sie jederzeit ändern.</string>
     <string name="onboarding_step3_action">apps auswählen</string>
 
     <string name="error_app_not_found">app konnte nicht geöffnet werden</string>

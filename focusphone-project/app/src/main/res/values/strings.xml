@@ -11,6 +11,7 @@
     <string name="home_long_press_hint">hold an app to remove it from your list</string>
     <string name="home_no_apps">no apps selected.\ntap the menu to add apps.</string>
     <string name="home_menu_desc">open menu</string>
+    <string name="search_empty_state">no apps found</string>
 
     <!-- All apps screen -->
     <string name="allapps_title">all apps</string>
@@ -60,6 +61,11 @@
     <string name="settings_privacy_policy">privacy policy</string>
     <string name="settings_open_source">open source licences</string>
     <string name="settings_back">back</string>
+    <string name="settings_custom_theme">custom theme</string>
+    <string name="settings_custom_theme_bg">background color</string>
+    <string name="settings_custom_theme_fg">foreground color</string>
+    <string name="settings_custom_theme_apply">apply</string>
+    <string name="settings_chevron">›</string>
 
     <!-- Settings: Language -->
     <string name="settings_section_language">language</string>
@@ -74,19 +80,27 @@
     <string name="onboarding_skip">skip</string>
     <string name="onboarding_next">next</string>
     <string name="onboarding_get_started">get started</string>
+    <string name="onboarding_step_counter">page %1$d of %2$d</string>
     <string name="onboarding_step1_title">welcome.</string>
     <string name="onboarding_step1_body">focusphone turns your Android into a distraction-free tool. just the apps you need, nothing else.</string>
     <string name="onboarding_step2_title">set as launcher.</string>
     <string name="onboarding_step2_body">to make focusphone your home screen, set it as the default launcher in your system settings.</string>
     <string name="onboarding_step2_action">set as default</string>
     <string name="onboarding_step3_title">pick your apps.</string>
-    <string name="onboarding_step3_body">choose up to 6 apps you truly need. you can change them anytime from the home screen.</string>
+    <string name="onboarding_step3_body">choose up to 10 apps you truly need. you can change them anytime from the home screen.</string>
     <string name="onboarding_step3_action">select apps</string>
 
     <!-- Errors / General -->
     <string name="error_app_not_found">could not open app</string>
     <string name="cd_back_button">go back</string>
     <string name="cd_remove_app">remove %1$s from home</string>
+    <string name="cd_select_indicator">toggle favourite</string>
+    <string name="cd_custom_theme_toggle">toggle custom theme panel</string>
+    <string name="cd_language_toggle">toggle language selection</string>
+    <string name="cd_align_left">align left</string>
+    <string name="cd_align_center">align center</string>
+    <string name="cd_align_right">align right</string>
+    <string name="cd_analog_clock">analog clock</string>
     <string name="customize_name_title">customize name</string>
     <string name="customize_name_message">write a custom name for %1$s:</string>
     <string name="action_save">save</string>
@@ -140,6 +154,10 @@
     <string name="detox_blocked_title">detox active</string>
     <string name="detox_blocked_desc">you are in detox mode. take a moment to reconnect with the real world.</string>
     <string name="detox_remaining_time">remaining: %1$s</string>
+    <string name="detox_label">detox</string>
+    <string name="tutorial_arrow_prev">←</string>
+    <string name="tutorial_arrow_next">→</string>
+    <string name="tutorial_arrow_finish">✓</string>
 
     <!-- Settings Sections -->
     <string name="settings_section_tutorial">tutorial</string>

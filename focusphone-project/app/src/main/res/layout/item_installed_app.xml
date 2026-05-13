@@ -15,14 +15,6 @@
     android:paddingEnd="@dimen/spacing_l"
     android:paddingBottom="@dimen/spacing_l">
 
-    <!-- App icon (hidden for minimalist aesthetic) -->
-    <ImageView
-        android:id="@+id/iv_app_icon"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:contentDescription="@null"
-        android:visibility="gone" />
-
     <!-- App name: regular weight for legibility -->
     <TextView
         android:id="@+id/tv_app_name"
@@ -42,7 +34,7 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginStart="16dp"
-        android:contentDescription="@null"
+        android:contentDescription="@string/cd_select_indicator"
         android:scaleType="centerInside"
         android:src="@drawable/ic_add"
         app:tint="?attr/android:textColorPrimary" />
