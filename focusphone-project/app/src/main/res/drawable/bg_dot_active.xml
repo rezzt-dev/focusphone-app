@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Active dot: white circle (adapts visually to each theme background) -->
+<!-- Active dot: theme-aware primary text color -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
-    <solid android:color="#FFFFFFFF" />
+    <solid android:color="?attr/android:textColorPrimary" />
     <size android:width="8dp" android:height="8dp" />
 </shape>

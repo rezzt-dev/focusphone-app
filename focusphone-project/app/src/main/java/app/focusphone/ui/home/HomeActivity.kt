@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.graphics.Color
 import android.provider.AlarmClock
+import android.util.TypedValue
 import android.provider.Settings
 import android.view.GestureDetector
 import android.view.Gravity
@@ -118,6 +119,7 @@ class HomeActivity : BaseActivity() {
             // Some OEMs restrict ACTION_TIME_TICK
         }
         applyClockType()
+        applyClockScale()
         updateClock()
         verifyInstalledApps()
         ProfilePreferences.expireDetoxIfNeeded(this)
@@ -258,11 +260,6 @@ class HomeActivity : BaseActivity() {
         binding.clockTypeWords  .visibility = if (type == ClockType.WORDS)   View.VISIBLE else View.GONE
         binding.clockTypeAnalog .visibility = if (type == ClockType.ANALOG)  View.VISIBLE else View.GONE
 
-        // Ajustar centrado si el reloj está oculto y aplicar escala
-        val scale = FontPreferences.getClockSize(this)
-        binding.clockContainer.scaleX = scale
-        binding.clockContainer.scaleY = scale
-
         val constraintSet = androidx.constraintlayout.widget.ConstraintSet()
         constraintSet.clone(binding.rootHome)
         if (isHidden) {
@@ -285,6 +282,33 @@ class HomeActivity : BaseActivity() {
 
 
     // ── Clock update (called every minute) ────────────────────────
+
+    private fun applyClockScale() {
+        val scale = FontPreferences.getClockSize(this)
+
+        // Digital
+        binding.tvTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, 56f * scale)
+        binding.tvDate.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * scale)
+
+        // Stacked
+        binding.tvStackedH.setTextSize(TypedValue.COMPLEX_UNIT_SP, 76f * scale)
+        binding.tvStackedM.setTextSize(TypedValue.COMPLEX_UNIT_SP, 76f * scale)
+        binding.tvStackedDate.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * scale)
+
+        // Words
+        binding.tvWordsTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34f * scale)
+        binding.tvWordsDate.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * scale)
+
+        // Analog date
+        binding.tvAnalogDate.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * scale)
+
+        // Analog view height (base 140dp scaled)
+        val analogParams = binding.viewAnalog.layoutParams
+        analogParams.height = (140f * resources.displayMetrics.density * scale).toInt()
+        binding.viewAnalog.layoutParams = analogParams
+
+        binding.clockContainer.requestLayout()
+    }
 
     private fun updateClock() {
         val now  = Date()
