@@ -25,12 +25,14 @@ class SettingsActivity : BaseActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
     private val inflater by lazy { LayoutInflater.from(this) }
+    private var activeDialog: android.app.Dialog? = null
+    private var bgTextWatcher: android.text.TextWatcher? = null
+    private var fgTextWatcher: android.text.TextWatcher? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         setupInsets()
         binding.btnBack.setOnClickListener { finish() }
         setupThemeSelector()
@@ -144,11 +146,11 @@ class SettingsActivity : BaseActivity() {
 
     private fun showThemeSelectionDialog() {
         val view = layoutInflater.inflate(R.layout.dialog_theme_select, null)
-        val dialog = android.app.AlertDialog.Builder(this)
+        activeDialog = android.app.AlertDialog.Builder(this)
             .setView(view)
             .create()
 
-        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        activeDialog?.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
 
         // Programmatically generate Custom circle with border
         val customColor = ThemePreferences.getCustomBackgroundColor(this)
@@ -162,26 +164,26 @@ class SettingsActivity : BaseActivity() {
 
         view.findViewById<View>(R.id.btn_theme_off_white).setOnClickListener {
             applyTheme(ThemePreferences.THEME_OFF_WHITE)
-            dialog.dismiss()
+            activeDialog?.dismiss()
         }
         view.findViewById<View>(R.id.btn_theme_slate).setOnClickListener {
             applyTheme(ThemePreferences.THEME_SLATE)
-            dialog.dismiss()
+            activeDialog?.dismiss()
         }
         view.findViewById<View>(R.id.btn_theme_warm_beige).setOnClickListener {
             applyTheme(ThemePreferences.THEME_WARM_BEIGE)
-            dialog.dismiss()
+            activeDialog?.dismiss()
         }
         view.findViewById<View>(R.id.btn_theme_navy).setOnClickListener {
             applyTheme(ThemePreferences.THEME_NAVY)
-            dialog.dismiss()
+            activeDialog?.dismiss()
         }
         view.findViewById<View>(R.id.btn_theme_custom).setOnClickListener {
             applyTheme(ThemePreferences.THEME_CUSTOM)
-            dialog.dismiss()
+            activeDialog?.dismiss()
         }
 
-        dialog.show()
+        activeDialog?.show()
     }
 
     private fun setupCustomThemePanel() {
@@ -204,7 +206,7 @@ class SettingsActivity : BaseActivity() {
         } catch (e: Exception) {}
 
         // Listen for background hex changes to update circle live and enforce '#'
-        binding.etCustomBgColor.addTextChangedListener(object : android.text.TextWatcher {
+        bgTextWatcher = object : android.text.TextWatcher {
             private var isUpdating = false
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
@@ -231,10 +233,11 @@ class SettingsActivity : BaseActivity() {
                     } catch (e: Exception) {}
                 }
             }
-        })
+        }
+        binding.etCustomBgColor.addTextChangedListener(bgTextWatcher!!)
 
         // Listen for foreground hex changes to update circle live and enforce '#'
-        binding.etCustomFgColor.addTextChangedListener(object : android.text.TextWatcher {
+        fgTextWatcher = object : android.text.TextWatcher {
             private var isUpdating = false
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
@@ -261,7 +264,8 @@ class SettingsActivity : BaseActivity() {
                     } catch (e: Exception) {}
                 }
             }
-        })
+        }
+        binding.etCustomFgColor.addTextChangedListener(fgTextWatcher!!)
 
         // Expand/collapse logic
         binding.btnToggleCustomTheme.setOnClickListener {
@@ -441,11 +445,11 @@ class SettingsActivity : BaseActivity() {
 
     private fun showTutorialDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_tutorial_carousel, null)
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+        activeDialog = androidx.appcompat.app.AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
 
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        activeDialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         val tvCounter = dialogView.findViewById<TextView>(R.id.tv_slide_counter)
         val ivIcon = dialogView.findViewById<android.widget.ImageView>(R.id.iv_tutorial_icon)
@@ -538,12 +542,19 @@ class SettingsActivity : BaseActivity() {
                 currentIndex++
                 updateSlide()
             } else {
-                dialog.dismiss()
+                activeDialog?.dismiss()
             }
         }
 
         updateSlide()
-        dialog.show()
+        activeDialog?.show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        activeDialog?.dismiss()
+        bgTextWatcher?.let { binding.etCustomBgColor.removeTextChangedListener(it) }
+        fgTextWatcher?.let { binding.etCustomFgColor.removeTextChangedListener(it) }
     }
 
     private fun dp(value: Int): Int =

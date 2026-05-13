@@ -141,11 +141,13 @@ abstract class BaseActivity : AppCompatActivity() {
     protected fun applyStatusBarVisibility() {
         val hideStatusBar = ThemePreferences.isStatusBarHidden(this)
         val controller = WindowCompat.getInsetsController(window, window.decorView)
-        if (hideStatusBar) {
-            controller.hide(androidx.core.view.WindowInsetsCompat.Type.statusBars())
-            controller.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        } else {
-            controller.show(androidx.core.view.WindowInsetsCompat.Type.statusBars())
+        controller?.let {
+            if (hideStatusBar) {
+                it.hide(androidx.core.view.WindowInsetsCompat.Type.statusBars())
+                it.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            } else {
+                it.show(androidx.core.view.WindowInsetsCompat.Type.statusBars())
+            }
         }
     }
 }

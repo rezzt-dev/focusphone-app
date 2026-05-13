@@ -38,7 +38,7 @@ class AppSelectViewModel(
     fun loadApps() {
         viewModelScope.launch {
             _isLoading.value = true
-            _allApps.value   = getInstalledApps()
+            _allApps.value   = try { getInstalledApps() } catch (_: Exception) { emptyList() }
             applyFilter()
             _isLoading.value = false
         }
@@ -51,7 +51,7 @@ class AppSelectViewModel(
 
     fun onToggle(app: AppInfo) {
         viewModelScope.launch {
-            val result = toggleFavourite(app.packageName, app.label)
+            val result = try { toggleFavourite(app.packageName, app.label) } catch (_: Exception) { return@launch }
             when (result) {
                 is ToggleResult.Added -> {
                     _allApps.update { list ->

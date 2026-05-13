@@ -68,18 +68,14 @@ class FavouriteAppRepositoryImpl(
     }
 
     override suspend fun removeFavourite(packageName: String) {
-        dao.delete(packageName)
-        val remaining = dao.getAll()
-            .mapIndexed { index, app -> app.copy(sortOrder = index) }
-        dao.insertAll(remaining)
+        dao.deleteAndReorder(packageName)
     }
 
     override suspend fun isFavourite(packageName: String): Boolean =
         dao.getAll().any { it.packageName == packageName }
 
     override suspend fun replaceAll(apps: List<FavouriteApp>) {
-        dao.deleteAll()
         val ordered = apps.mapIndexed { index, app -> app.copy(sortOrder = index) }
-        dao.insertAll(ordered)
+        dao.replaceAllOrdered(ordered)
     }
 }

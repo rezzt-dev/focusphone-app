@@ -42,6 +42,7 @@ import app.focusphone.ui.base.BaseActivity
 import app.focusphone.ui.home.adapter.FavouriteAppsAdapter
 import app.focusphone.ui.onboarding.OnboardingActivity
 import app.focusphone.ui.settings.SettingsActivity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -92,13 +93,18 @@ class HomeActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        androidx.core.content.ContextCompat.registerReceiver(
-            this, clockReceiver, IntentFilter(Intent.ACTION_TIME_TICK),
-            androidx.core.content.ContextCompat.RECEIVER_EXPORTED
-        )
+        try {
+            androidx.core.content.ContextCompat.registerReceiver(
+                this, clockReceiver, IntentFilter(Intent.ACTION_TIME_TICK),
+                androidx.core.content.ContextCompat.RECEIVER_EXPORTED
+            )
+        } catch (_: SecurityException) {
+            // Some OEMs restrict ACTION_TIME_TICK
+        }
         applyClockType()
         updateClock()
         verifyInstalledApps()
+        ProfilePreferences.expireDetoxIfNeeded(this)
         updateProfileLabel()
         
         val gravity = when (app.focusphone.data.preferences.ThemePreferences.getAlignment(this)) {
@@ -111,16 +117,15 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun verifyInstalledApps() {
-        val currentApps = adapter.currentList
+        val currentApps = adapter.currentList.toList() // snapshot
         if (currentApps.isEmpty()) return
-        
+
         lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             val pm = packageManager
             currentApps.forEach { app ->
                 try {
                     pm.getPackageInfo(app.packageName, 0)
                 } catch (e: android.content.pm.PackageManager.NameNotFoundException) {
-                    // App was uninstalled, remove it from favourites
                     viewModel.removeFavourite(app.packageName, app.label)
                 }
             }
@@ -129,7 +134,8 @@ class HomeActivity : BaseActivity() {
 
     override fun onPause() {
         super.onPause()
-        unregisterReceiver(clockReceiver)
+        try { unregisterReceiver(clockReceiver) } catch (_: IllegalArgumentException) { }
+        hintToastJob?.cancel()
     }
 
     @Deprecated("Deprecated in Java")
@@ -623,13 +629,17 @@ class HomeActivity : BaseActivity() {
 
     // ── Long-press hint ────────────────────────────────────────────
 
+    private var hintToastJob: kotlinx.coroutines.Job? = null
+
     private fun showLongPressHintIfNeeded() {
         val prefs = getSharedPreferences("focusphone_ui", MODE_PRIVATE)
         if (!prefs.getBoolean("hint_long_press_shown", false)) {
-            binding.rootHome.postDelayed({
-                Toast.makeText(this, R.string.home_long_press_hint, Toast.LENGTH_LONG).show()
+            hintToastJob = lifecycleScope.launch {
+                delay(1500)
+                if (isFinishing || isDestroyed) return@launch
+                Toast.makeText(this@HomeActivity, R.string.home_long_press_hint, Toast.LENGTH_LONG).show()
                 prefs.edit().putBoolean("hint_long_press_shown", true).apply()
-            }, 1500)
+            }
         }
     }
 
@@ -656,19 +666,17 @@ class HomeActivity : BaseActivity() {
                                 }
                             }
                             
-                            // Si ya tiene altura, calcular inmediatamente
                             if (binding.appsContainer.height > 0) {
                                 calculateHeight()
+                            } else {
+                                binding.appsContainer.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+                                    override fun onLayoutChange(v: View?, left: Int, top: Int, right: Int, bottom: Int,
+                                                                oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
+                                        binding.appsContainer.removeOnLayoutChangeListener(this)
+                                        calculateHeight()
+                                    }
+                                })
                             }
-                            
-                            // Asegurar el cálculo si el layout cambia
-                            binding.appsContainer.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
-                                override fun onLayoutChange(v: View?, left: Int, top: Int, right: Int, bottom: Int,
-                                                            oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
-                                    binding.appsContainer.removeOnLayoutChangeListener(this)
-                                    calculateHeight()
-                                }
-                            })
                         }
                     }
                 }

@@ -18,6 +18,7 @@ import app.focusphone.ui.base.BaseActivity
 class OnboardingActivity : BaseActivity() {
 
     private lateinit var binding: ActivityOnboardingBinding
+    private var pageChangeCallback: androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback? = null
 
     private val pages = listOf(
         OnboardingPage.Welcome,
@@ -29,6 +30,7 @@ class OnboardingActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityOnboardingBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupInsets()
         setupViewPager()
         setupDots()
         setupButtons()
@@ -36,9 +38,23 @@ class OnboardingActivity : BaseActivity() {
 
     private fun setupViewPager() {
         binding.vpOnboarding.adapter = OnboardingPagerAdapter(pages, ::onPageAction)
-        binding.vpOnboarding.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) = updateUi(position)
-        })
+        }
+        binding.vpOnboarding.registerOnPageChangeCallback(pageChangeCallback!!)
+    }
+
+    private fun setupInsets() {
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            binding.root.setPadding(0, bars.top, 0, bars.bottom)
+            insets
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        pageChangeCallback?.let { binding.vpOnboarding.unregisterOnPageChangeCallback(it) }
     }
 
     private fun setupDots() {
