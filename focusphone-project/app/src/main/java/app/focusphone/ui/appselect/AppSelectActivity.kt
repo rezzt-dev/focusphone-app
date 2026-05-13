@@ -23,6 +23,8 @@ import kotlinx.coroutines.launch
 class AppSelectActivity : BaseActivity() {
 
     private lateinit var binding: ActivityAppSelectBinding
+    private var activeDialog: androidx.appcompat.app.AlertDialog? = null
+    private var searchTextWatcher: android.text.TextWatcher? = null
 
     private val viewModel: AppSelectViewModel by viewModels {
         AppSelectViewModel.factory(application as FocusPhoneApp)
@@ -76,7 +78,7 @@ class AppSelectActivity : BaseActivity() {
                 })
             }
             
-            com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AppSelectActivity)
+            activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AppSelectActivity)
                 .setTitle(R.string.customize_name_title)
                 .setMessage(getString(R.string.customize_name_message, app.label))
                 .setView(container)
@@ -96,7 +98,8 @@ class AppSelectActivity : BaseActivity() {
                     viewModel.loadApps()
                 }
                 .setNegativeButton(R.string.action_cancel, null)
-                .show()
+                .create()
+            activeDialog?.show()
         } catch (e: Exception) {
             e.printStackTrace()
             val input = android.widget.EditText(this@AppSelectActivity).apply {
@@ -115,7 +118,7 @@ class AppSelectActivity : BaseActivity() {
                     bottomMargin = dp(8)
                 })
             }
-            com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AppSelectActivity)
+            activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AppSelectActivity)
                 .setTitle("personalizar nombre")
                 .setMessage("escribe un nombre personalizado para ${app.label}:")
                 .setView(container)
@@ -130,7 +133,8 @@ class AppSelectActivity : BaseActivity() {
                     viewModel.loadApps()
                 }
                 .setNegativeButton("cancelar", null)
-                .show()
+                .create()
+            activeDialog?.show()
         }
     }
 
@@ -147,11 +151,18 @@ class AppSelectActivity : BaseActivity() {
         observeEvents()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        activeDialog?.dismiss()
+        searchTextWatcher?.let { binding.etSearch.removeTextChangedListener(it) }
+    }
+
     private fun setupInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             binding.header.setPadding(0, bars.top + dp(16), 0, 0)
             binding.btnDone.setPadding(0, 0, 0, bars.bottom)
+            binding.rvApps.setPadding(0, 0, 0, bars.bottom)
             insets
         }
     }
@@ -162,13 +173,14 @@ class AppSelectActivity : BaseActivity() {
     }
 
     private fun setupSearch() {
-        binding.etSearch.addTextChangedListener(object : TextWatcher {
+        searchTextWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun afterTextChanged(s: Editable?) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 viewModel.onSearchQuery(s?.toString() ?: "")
             }
-        })
+        }
+        binding.etSearch.addTextChangedListener(searchTextWatcher!!)
     }
 
     private fun observeState() {

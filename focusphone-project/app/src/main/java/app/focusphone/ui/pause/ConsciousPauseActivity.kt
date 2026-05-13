@@ -20,11 +20,13 @@ class ConsciousPauseActivity : BaseActivity() {
     private lateinit var binding: ActivityConsciousPauseBinding
     private var countdownJob: Job? = null
     private var scaleAnimator: AnimatorSet? = null
+    private var remainingSeconds: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityConsciousPauseBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupInsets()
 
         val appLabel = intent.getStringExtra("app_label") ?: "app"
         binding.tvMindfulQuestion.text = getString(R.string.pause_mindful_question, appLabel.lowercase())
@@ -34,7 +36,21 @@ class ConsciousPauseActivity : BaseActivity() {
         }
 
         startBreathingAnimation()
+        remainingSeconds = savedInstanceState?.getInt(KEY_REMAINING, -1) ?: -1
         startCountdown()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_REMAINING, remainingSeconds)
+    }
+
+    private fun setupInsets() {
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            binding.root.setPadding(0, bars.top, 0, bars.bottom)
+            insets
+        }
     }
 
     private fun startBreathingAnimation() {
@@ -57,8 +73,9 @@ class ConsciousPauseActivity : BaseActivity() {
 
     private fun startCountdown() {
         countdownJob = lifecycleScope.launch {
-            var remaining = ConsciousPausePreferences.getDuration(this@ConsciousPauseActivity)
+            var remaining = if (remainingSeconds > 0) remainingSeconds else ConsciousPausePreferences.getDuration(this@ConsciousPauseActivity)
             while (remaining > 0) {
+                remainingSeconds = remaining
                 binding.tvCountdown.text = remaining.toString()
 
                 // Breathe-synchronized visual guidance (4-second total cycle: 2s inhale, 2s exhale)
@@ -93,6 +110,10 @@ class ConsciousPauseActivity : BaseActivity() {
         }
         finish()
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+    }
+
+    companion object {
+        private const val KEY_REMAINING = "remaining_seconds"
     }
 
     override fun onDestroy() {

@@ -34,10 +34,14 @@ class HomeViewModel(
     val events: SharedFlow<HomeEvent> = _events.asSharedFlow()
 
     fun removeFavourite(packageName: String, label: String) {
-        viewModelScope.launch { toggleFavourite(packageName, label) }
+        viewModelScope.launch {
+            try { toggleFavourite(packageName, label) } catch (_: Exception) { }
+        }
     }
     fun onAppsReordered(newOrder: List<FavouriteApp>) {
-        viewModelScope.launch { updateAppsOrder(newOrder) }
+        viewModelScope.launch {
+            try { updateAppsOrder(newOrder) } catch (_: Exception) { }
+        }
     }
 
     // ── Factory ───────────────────────────────────────────────────

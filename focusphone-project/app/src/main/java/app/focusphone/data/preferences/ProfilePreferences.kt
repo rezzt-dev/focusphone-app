@@ -42,16 +42,22 @@ object ProfilePreferences {
 
     /**
      * Checks if the Detox profile is currently active and the timer hasn't expired.
-     * Reverts automatically to normal if the timer has expired.
+     * Does NOT mutate state; call [expireDetoxIfNeeded] from a lifecycle owner to enforce expiration.
      */
     fun isDetoxActive(context: Context): Boolean {
         if (getProfile(context) != PROFILE_DETOX) return false
         val remaining = getDetoxEndTime(context) - System.currentTimeMillis()
-        if (remaining <= 0) {
+        return remaining > 0
+    }
+
+    /**
+     * Reverts Detox to Normal if the timer has expired.
+     * Should be called once from a lifecycle-aware location (e.g. HomeActivity.onResume).
+     */
+    fun expireDetoxIfNeeded(context: Context) {
+        if (getProfile(context) == PROFILE_DETOX && getDetoxEndTime(context) - System.currentTimeMillis() <= 0) {
             setProfile(context, PROFILE_NORMAL)
-            return false
         }
-        return true
     }
 
     private const val KEY_BLOCKED_APPS = "blocked_apps"

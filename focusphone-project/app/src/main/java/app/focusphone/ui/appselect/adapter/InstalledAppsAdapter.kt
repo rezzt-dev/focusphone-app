@@ -18,15 +18,17 @@ class InstalledAppsAdapter(
         val binding = ItemInstalledAppBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
-        return ViewHolder(binding)
+        return ViewHolder(binding, onToggle, onLongToggle)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    inner class ViewHolder(
-        private val binding: ItemInstalledAppBinding
+    class ViewHolder(
+        private val binding: ItemInstalledAppBinding,
+        private val onToggle: (AppInfo) -> Unit,
+        private val onLongToggle: ((AppInfo) -> Unit)?
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(app: AppInfo) {
@@ -34,7 +36,7 @@ class InstalledAppsAdapter(
             val resId = if (app.isFavourite) R.drawable.ic_check else R.drawable.ic_add
             binding.ivSelectIndicator.setImageResource(resId)
             binding.ivSelectIndicator.alpha = if (app.isFavourite) 1.0f else 0.4f
-            
+
             binding.root.setOnClickListener { onToggle(app) }
             binding.root.setOnLongClickListener {
                 onLongToggle?.invoke(app)

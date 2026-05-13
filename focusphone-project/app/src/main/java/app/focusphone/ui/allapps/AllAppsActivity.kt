@@ -57,7 +57,7 @@ class AllAppsViewModel(
   fun load() {
     viewModelScope.launch {
       isLoading.value = true
-      _allApps.value  = getInstalledApps()
+      _allApps.value  = try { getInstalledApps() } catch (_: Exception) { emptyList() }
       applyFilter()
       isLoading.value = false
     }
@@ -87,6 +87,8 @@ class AllAppsActivity : BaseActivity() {
 
   private lateinit var binding: ActivityAllAppsBinding
   private val viewModel: AllAppsViewModel by viewModels { AllAppsViewModel.factory(application as FocusPhoneApp) }
+  private var activeDialog: androidx.appcompat.app.AlertDialog? = null
+  private var searchTextWatcher: TextWatcher? = null
 
   private val adapter = AllAppsAdapter(
     onTap = { app ->
@@ -156,7 +158,7 @@ class AllAppsActivity : BaseActivity() {
         })
       }
 
-      com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AllAppsActivity)
+      activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AllAppsActivity)
         .setTitle(R.string.customize_name_title)
         .setMessage(getString(R.string.customize_name_message, app.label))
         .setView(container)
@@ -176,7 +178,8 @@ class AllAppsActivity : BaseActivity() {
           viewModel.load()
         }
         .setNegativeButton(R.string.action_cancel, null)
-        .show()
+        .create()
+      activeDialog?.show()
     } catch (e: Exception) {
       e.printStackTrace()
       val input = android.widget.EditText(this@AllAppsActivity).apply {
@@ -195,7 +198,7 @@ class AllAppsActivity : BaseActivity() {
           bottomMargin = dp(8)
         })
       }
-      com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AllAppsActivity)
+      activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AllAppsActivity)
         .setTitle("personalizar nombre")
         .setMessage("escribe un nombre personalizado para ${app.label}:")
         .setView(container)
@@ -210,7 +213,8 @@ class AllAppsActivity : BaseActivity() {
           viewModel.load()
         }
         .setNegativeButton("cancelar", null)
-        .show()
+        .create()
+      activeDialog?.show()
     }
   }
 
@@ -226,7 +230,7 @@ class AllAppsActivity : BaseActivity() {
       blockActionText
     )
 
-    com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+    activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
       .setTitle(app.label.lowercase())
       .setItems(options) { _, which ->
         when (which) {
@@ -246,7 +250,8 @@ class AllAppsActivity : BaseActivity() {
           }
         }
       }
-      .show()
+      .create()
+    activeDialog?.show()
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -257,13 +262,14 @@ class AllAppsActivity : BaseActivity() {
     binding.rvApps.layoutManager = LinearLayoutManager(this)
     binding.rvApps.adapter = adapter
     binding.btnClose.setOnClickListener { finish() }
-    binding.etSearch.addTextChangedListener(object : TextWatcher {
+    searchTextWatcher = object : TextWatcher {
       override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
       override fun afterTextChanged(s: Editable?) = Unit
       override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         viewModel.onQuery(s?.toString() ?: "")
       }
-    })
+    }
+    binding.etSearch.addTextChangedListener(searchTextWatcher!!)
     lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.filteredApps.collect { adapter.submitList(it) }
@@ -271,11 +277,18 @@ class AllAppsActivity : BaseActivity() {
     }
   }
 
+  override fun onDestroy() {
+    super.onDestroy()
+    activeDialog?.dismiss()
+    searchTextWatcher?.let { binding.etSearch.removeTextChangedListener(it) }
+  }
+
   private fun setupInsets() {
     ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
       val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
       binding.header.setPadding(0, bars.top + dp(12), 0, 0)
       binding.btnClose.setPadding(0, 0, 0, bars.bottom)
+      binding.rvApps.setPadding(0, 0, 0, bars.bottom)
       insets
     }
   }

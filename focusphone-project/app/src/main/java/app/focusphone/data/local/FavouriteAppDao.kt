@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import app.focusphone.data.model.FavouriteApp
 import kotlinx.coroutines.flow.Flow
 
@@ -26,4 +27,17 @@ interface FavouriteAppDao {
 
     @Query("DELETE FROM favourite_apps")
     suspend fun deleteAll()
+
+    @Transaction
+    suspend fun deleteAndReorder(packageName: String) {
+        delete(packageName)
+        val remaining = getAll().mapIndexed { index, app -> app.copy(sortOrder = index) }
+        insertAll(remaining)
+    }
+
+    @Transaction
+    suspend fun replaceAllOrdered(apps: List<FavouriteApp>) {
+        deleteAll()
+        insertAll(apps)
+    }
 }

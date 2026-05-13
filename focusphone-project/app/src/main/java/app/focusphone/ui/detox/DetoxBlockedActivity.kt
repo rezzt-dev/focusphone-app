@@ -29,9 +29,17 @@ class DetoxBlockedActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDetoxBlockedBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        setupInsets()
         setupPulsingAnimation()
         startCountdownTimer()
+    }
+
+    private fun setupInsets() {
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            binding.root.setPadding(0, bars.top, 0, bars.bottom)
+            insets
+        }
     }
 
     private fun setupPulsingAnimation() {
