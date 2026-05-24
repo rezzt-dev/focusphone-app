@@ -21,6 +21,7 @@
     <string name="menu_open_app">open</string>
     <string name="menu_remove_app">remove from list</string>
     <string name="menu_app_info">app info</string>
+    <string name="menu_uninstall_app">uninstall</string>
 
     <!-- App select screen -->
     <string name="appselect_title">select your apps</string>
@@ -189,6 +190,7 @@
     <string name="allapps_dialog_rename">rename</string>
     <string name="allapps_dialog_block">block in work/detox</string>
     <string name="allapps_dialog_unblock">allow in work/detox</string>
+    <string name="allapps_dialog_uninstall">uninstall</string>
     <string name="allapps_toast_blocked">%1$s blocked</string>
     <string name="allapps_toast_unblocked">%1$s allowed</string>
 </resources>

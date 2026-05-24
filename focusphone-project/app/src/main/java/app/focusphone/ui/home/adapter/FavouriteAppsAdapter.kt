@@ -94,7 +94,7 @@ class FavouriteAppsAdapter(
 
         fun bind(app: FavouriteApp) {
             val context = binding.root.context
-            binding.tvAppName.text     = app.label.lowercase()
+            binding.tvAppName.text     = app.label
             binding.tvAppName.typeface = typeface
             binding.tvAppName.gravity  = textAlignment
 

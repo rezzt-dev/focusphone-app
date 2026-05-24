@@ -32,7 +32,7 @@ class InstalledAppsAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(app: AppInfo) {
-            binding.tvAppName.text = app.label.lowercase()
+            binding.tvAppName.text = app.label
             val resId = if (app.isFavourite) R.drawable.ic_check else R.drawable.ic_add
             binding.ivSelectIndicator.setImageResource(resId)
             binding.ivSelectIndicator.alpha = if (app.isFavourite) 1.0f else 0.4f

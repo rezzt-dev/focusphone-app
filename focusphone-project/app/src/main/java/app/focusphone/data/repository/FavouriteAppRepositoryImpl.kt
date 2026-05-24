@@ -6,6 +6,7 @@ import app.focusphone.data.local.FavouriteAppDao
 import app.focusphone.data.model.FavouriteApp
 import app.focusphone.data.preferences.CustomAppLabelsPreferences
 import app.focusphone.domain.repository.FavouriteAppRepository
+import app.focusphone.domain.util.normalizeAppName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -34,7 +35,7 @@ class FavouriteAppRepositoryImpl(
                             val cols = row.split("|")
                             FavouriteApp(
                                 packageName = cols[0],
-                                label       = cols.getOrElse(1) { cols[0] },
+                                label       = cols.getOrElse(1) { cols[0] }.normalizeAppName(),
                                 sortOrder   = cols.getOrElse(2) { "$index" }.toIntOrNull() ?: index
                             )
                         }
@@ -51,14 +52,14 @@ class FavouriteAppRepositoryImpl(
         combine(dao.observeAll(), customLabels.labelsFlow) { list, labels ->
             list.map { app ->
                 val custom = labels[app.packageName]
-                if (custom != null) app.copy(label = custom) else app
+                if (custom != null) app.copy(label = custom.normalizeAppName()) else app
             }
         }
 
     override suspend fun getFavourites(): List<FavouriteApp> =
         dao.getAll().map { app ->
             val custom = customLabels.getCustomLabel(app.packageName)
-            if (custom != null) app.copy(label = custom) else app
+            if (custom != null) app.copy(label = custom.normalizeAppName()) else app
         }
 
     override suspend fun addFavourite(app: FavouriteApp) {

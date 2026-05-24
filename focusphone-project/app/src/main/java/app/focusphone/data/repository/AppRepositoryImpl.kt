@@ -7,6 +7,7 @@ import android.content.pm.ResolveInfo
 import android.os.Build
 import app.focusphone.domain.model.AppInfo
 import app.focusphone.domain.repository.AppRepository
+import app.focusphone.domain.util.normalizeAppName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -42,17 +43,17 @@ class AppRepositoryImpl(
             val custom = customLabels.getCustomLabel(pkg)
             AppInfo(
                 packageName = pkg,
-                label       = custom ?: info.loadLabel(pm).toString(),
+                label       = (custom ?: info.loadLabel(pm).toString()).normalizeAppName(),
                 icon        = null
             )
-        }.sortedBy { it.label.lowercase() }
+        }.sortedBy { it.label }
 
         cachedApps = result
         cacheTimestamp = now
         result
     }
 
-    fun invalidateCache() {
+    override fun invalidateCache() {
         cachedApps = null
         cacheTimestamp = 0L
     }

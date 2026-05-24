@@ -87,7 +87,7 @@ class AppSelectViewModel(
     private fun applyFilter() {
         val q = _query.value.trim().lowercase()
         _filtered.value = if (q.isEmpty()) _allApps.value
-        else _allApps.value.filter { it.label.lowercase().contains(q) }
+        else _allApps.value.filter { it.label.contains(q) }
     }
 
     // ── Factory ───────────────────────────────────────────────────

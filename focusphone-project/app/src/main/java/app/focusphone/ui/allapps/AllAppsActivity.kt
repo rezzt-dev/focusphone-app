@@ -1,6 +1,7 @@
 package app.focusphone.ui.allapps
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -8,6 +9,7 @@ import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
@@ -33,6 +35,7 @@ import app.focusphone.databinding.ActivityAllAppsBinding
 import app.focusphone.databinding.ItemAllAppBinding
 import app.focusphone.domain.model.AppInfo
 import app.focusphone.domain.usecase.GetInstalledAppsUseCase
+import app.focusphone.domain.util.normalizeAppName
 import app.focusphone.ui.base.BaseActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -79,7 +82,7 @@ class AllAppsViewModel(
   private fun applyFilter() {
     val q = _query.value.trim().lowercase()
     _filtered.value = if (q.isEmpty()) _allApps.value
-    else _allApps.value.filter { it.label.lowercase().contains(q) }
+    else _allApps.value.filter { it.label.contains(q) }
   }
 
   companion object {
@@ -100,6 +103,7 @@ class AllAppsActivity : BaseActivity() {
   private val viewModel: AllAppsViewModel by viewModels { AllAppsViewModel.factory(application as FocusPhoneApp) }
   private var activeDialog: androidx.appcompat.app.AlertDialog? = null
   private var searchTextWatcher: TextWatcher? = null
+  private var pendingRefresh = false
 
   private val adapter = AllAppsAdapter(
     onTap = { app ->
@@ -173,7 +177,7 @@ class AllAppsActivity : BaseActivity() {
       .setMessage(getString(R.string.customize_name_message, app.label))
       .setView(container)
       .setPositiveButton(R.string.action_save) { _, _ ->
-        val newLabel = input.text.toString().trim()
+        val newLabel = input.text.toString().trim().normalizeAppName()
         val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
         if (newLabel.isEmpty()) {
           prefs.setCustomLabel(app.packageName, null)
@@ -201,11 +205,12 @@ class AllAppsActivity : BaseActivity() {
     }
     val options = arrayOf(
       getString(R.string.allapps_dialog_rename),
-      blockActionText
+      blockActionText,
+      getString(R.string.allapps_dialog_uninstall)
     )
 
     activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-      .setTitle(app.label.lowercase())
+      .setTitle(app.label)
       .setItems(options) { _, which ->
         when (which) {
           0 -> showRenameDialog(app)
@@ -218,9 +223,36 @@ class AllAppsActivity : BaseActivity() {
             }
             Toast.makeText(
               this,
-              getString(toastFormat, app.label.lowercase()),
+              getString(toastFormat, app.label),
               Toast.LENGTH_SHORT
             ).show()
+          }
+          2 -> {
+            Log.d("FocusPhone", "AllApps uninstall clicked for ${app.packageName}")
+            (application as FocusPhoneApp).container.appRepository.invalidateCache()
+            pendingRefresh = true
+
+            val uri = Uri.fromParts("package", app.packageName, null)
+            Toast.makeText(this@AllAppsActivity, "uninstalling ${app.label}...", Toast.LENGTH_SHORT).show()
+            try {
+              startActivity(
+                Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
+                  data = uri
+                  addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+              )
+            } catch (_: Exception) {
+              try {
+                startActivity(
+                  Intent(Intent.ACTION_DELETE).apply {
+                    data = uri
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                  }
+                )
+              } catch (e: Exception) {
+                Toast.makeText(this@AllAppsActivity, "could not open uninstall dialog: ${e.message}", Toast.LENGTH_LONG).show()
+              }
+            }
           }
         }
       }
@@ -253,6 +285,14 @@ class AllAppsActivity : BaseActivity() {
             binding.rvApps.visibility = if (empty) View.GONE else View.VISIBLE
         }
       }
+    }
+  }
+
+  override fun onResume() {
+    super.onResume()
+    if (pendingRefresh) {
+      pendingRefresh = false
+      viewModel.load()
     }
   }
 
@@ -289,7 +329,7 @@ class AllAppsAdapter(
   inner class VH(private val b: ItemAllAppBinding) : RecyclerView.ViewHolder(b.root) {
     fun bind(app: AppInfo) {
       val context = b.root.context
-      b.tvName.text = app.label.lowercase()
+      b.tvName.text = app.label
 
       val activeTheme = ThemePreferences.getTheme(context)
       if (activeTheme == ThemePreferences.THEME_CUSTOM) {

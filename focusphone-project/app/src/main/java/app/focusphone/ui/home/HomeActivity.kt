@@ -6,11 +6,13 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Typeface
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.graphics.Color
 import android.provider.AlarmClock
 import android.util.TypedValue
 import android.provider.Settings
+import android.util.Log
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
@@ -67,6 +69,7 @@ class HomeActivity : BaseActivity() {
 
     private var lastAppliedClockType: ClockType? = null
     private var lastVerifyTime = 0L
+    private var pendingVerify = false
 
     private val clockReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) = updateClock()
@@ -121,7 +124,12 @@ class HomeActivity : BaseActivity() {
         applyClockType()
         applyClockScale()
         updateClock()
-        verifyInstalledApps()
+        if (pendingVerify) {
+            pendingVerify = false
+            verifyInstalledApps(force = true)
+        } else {
+            verifyInstalledApps()
+        }
         ProfilePreferences.expireDetoxIfNeeded(this)
         updateProfileLabel()
         
@@ -142,20 +150,29 @@ class HomeActivity : BaseActivity() {
         populateCalendar()
     }
 
-    private fun verifyInstalledApps() {
+    private fun verifyInstalledApps(force: Boolean = false) {
         val currentApps = adapter.currentList.toList() // snapshot
         if (currentApps.isEmpty()) return
 
         val now = System.currentTimeMillis()
-        if (now - lastVerifyTime < 60 * 60 * 1000L) return
+        if (!force && now - lastVerifyTime < 60 * 60 * 1000L) return
         lastVerifyTime = now
 
         lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             val pm = packageManager
             currentApps.forEach { app ->
-                try {
-                    pm.getPackageInfo(app.packageName, 0)
+                val exists = try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        pm.getPackageInfo(app.packageName, android.content.pm.PackageManager.PackageInfoFlags.of(0L))
+                    } else {
+                        @Suppress("DEPRECATION")
+                        pm.getPackageInfo(app.packageName, 0)
+                    }
+                    true
                 } catch (e: android.content.pm.PackageManager.NameNotFoundException) {
+                    false
+                }
+                if (!exists) {
                     viewModel.removeFavourite(app.packageName, app.label)
                 }
             }
@@ -767,12 +784,39 @@ class HomeActivity : BaseActivity() {
         popup.menuInflater.inflate(R.menu.menu_app_context, popup.menu)
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                R.id.action_open     -> launchApp(app)
-                R.id.action_remove   -> viewModel.removeFavourite(app.packageName, app.label)
-                R.id.action_app_info -> startActivity(
+                R.id.action_open       -> launchApp(app)
+                R.id.action_remove     -> viewModel.removeFavourite(app.packageName, app.label)
+                R.id.action_app_info   -> startActivity(
                     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                         .apply { data = Uri.fromParts("package", app.packageName, null) }
                 )
+                R.id.action_uninstall  -> {
+                    Log.d("FocusPhone", "Home uninstall clicked for ${app.packageName}")
+                    (application as FocusPhoneApp).container.appRepository.invalidateCache()
+                    pendingVerify = true // force verify on next resume
+
+                    val uri = Uri.fromParts("package", app.packageName, null)
+                    Toast.makeText(this@HomeActivity, "uninstalling ${app.label}...", Toast.LENGTH_SHORT).show()
+                    try {
+                        startActivity(
+                            Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
+                                data = uri
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                        )
+                    } catch (_: Exception) {
+                        try {
+                            startActivity(
+                                Intent(Intent.ACTION_DELETE).apply {
+                                    data = uri
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                            )
+                        } catch (e: Exception) {
+                            Toast.makeText(this@HomeActivity, "could not open uninstall dialog: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
             }; true
         }
         popup.show()

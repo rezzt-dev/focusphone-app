@@ -18,6 +18,7 @@ import app.focusphone.databinding.ActivityAppSelectBinding
 import app.focusphone.ui.appselect.adapter.InstalledAppsAdapter
 import app.focusphone.ui.base.BaseActivity
 import app.focusphone.domain.model.AppInfo
+import app.focusphone.domain.util.normalizeAppName
 import android.view.ViewGroup
 import kotlinx.coroutines.launch
 
@@ -83,7 +84,7 @@ class AppSelectActivity : BaseActivity() {
             .setMessage(getString(R.string.customize_name_message, app.label))
             .setView(container)
             .setPositiveButton(R.string.action_save) { _, _ ->
-                val newLabel = input.text.toString().trim()
+                val newLabel = input.text.toString().trim().normalizeAppName()
                 val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
                 if (newLabel.isEmpty()) {
                     prefs.setCustomLabel(app.packageName, null)
@@ -113,6 +114,12 @@ class AppSelectActivity : BaseActivity() {
         binding.btnDone.setOnClickListener { finish() }
         observeState()
         observeEvents()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (application as FocusPhoneApp).container.appRepository.invalidateCache()
+        viewModel.loadApps()
     }
 
     override fun onDestroy() {
