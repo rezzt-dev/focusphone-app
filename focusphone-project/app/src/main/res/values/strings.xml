@@ -41,6 +41,7 @@
     <string name="settings_theme_warm_beige">warm beige</string>
     <string name="settings_theme_navy">navy</string>
     <string name="settings_theme_custom">custom</string>
+    <string name="settings_theme_auto">auto</string>
 
     <string name="settings_alignment">alignment</string>
     <string name="settings_alignment_left">left</string>
@@ -111,6 +112,11 @@
     <string name="cd_align_center">align center</string>
     <string name="cd_align_right">align right</string>
     <string name="cd_analog_clock">analog clock</string>
+    <string name="cd_app_item">open %1$s</string>
+    <string name="cd_today_indicator">today, %1$d</string>
+    <string name="cd_day_indicator">day %1$d</string>
+    <string name="cd_home_indicator">home page indicator</string>
+    <string name="cd_menu_indicator">menu page indicator</string>
     <string name="customize_name_title">customize name</string>
     <string name="customize_name_message">write a custom name for %1$s:</string>
     <string name="action_save">save</string>
@@ -179,6 +185,8 @@
     <string name="settings_section_tutorial">tutorial</string>
     <string name="settings_tutorial_title">interactive tutorial</string>
     <string name="settings_tutorial_desc">learn how to use 100% of focusphone features</string>
+    <string name="settings_onboarding_title">restart onboarding</string>
+    <string name="settings_onboarding_desc">revisit the initial setup guide</string>
 
     <!-- Tutorial Slides -->
     <string name="tutorial_slide_1_title">minimalism &amp; home</string>
@@ -203,11 +211,41 @@
 
     <!-- Custom App Blocking -->
     <string name="allapps_dialog_rename">rename</string>
-    <string name="allapps_dialog_block">block in work/detox</string>
-    <string name="allapps_dialog_unblock">allow in work/detox</string>
+    <string name="allapps_dialog_block">block in work mode</string>
+    <string name="allapps_dialog_unblock">allow in work mode</string>
     <string name="allapps_dialog_uninstall">uninstall</string>
     <string name="allapps_toast_blocked">%1$s blocked</string>
     <string name="allapps_toast_unblocked">%1$s allowed</string>
+    <string name="allapps_toast_keywords_saved">keywords saved</string>
+
+    <!-- Work Profile -->
+    <string name="settings_section_work_profile">work profile</string>
+    <string name="settings_work_keywords_title">work mode keywords</string>
+    <string name="settings_work_keywords_desc">apps matching these keywords are blocked in work mode</string>
+    <string name="settings_work_keywords_hint">one keyword per line\ne.g. instagram\nfacebook</string>
+    <string name="cd_work_keywords_toggle">toggle work keywords panel</string>
+
+    <!-- Gestures -->
+    <string name="settings_section_gestures">gestures</string>
+    <string name="settings_swipe_down_title">swipe down for notifications</string>
+    <string name="settings_swipe_down_desc">pull down on the home screen to open the notification shade</string>
+
+    <!-- Notifications -->
+    <string name="settings_section_notifications">notifications</string>
+    <string name="settings_notification_badges_title">notification badges</string>
+    <string name="settings_notification_badges_desc">show unread counts next to app names</string>
+    <string name="settings_notification_badges_active">active</string>
+    <string name="settings_notification_badges_inactive">inactive</string>
+
+    <!-- Widget -->
+    <string name="settings_section_widget">widget</string>
+    <string name="settings_widget_title">home widget</string>
+    <string name="settings_widget_desc">add a system widget to your home screen</string>
+    <string name="settings_widget_add">add widget</string>
+    <string name="settings_widget_remove">remove widget</string>
+    <string name="settings_widget_none">none</string>
+    <string name="settings_widget_remove_confirm">remove the current widget from your home screen?</string>
+    <string name="widget_config_title">select widget</string>
 
     <!-- Permissions -->
     <string name="settings_section_permissions">permissions</string>

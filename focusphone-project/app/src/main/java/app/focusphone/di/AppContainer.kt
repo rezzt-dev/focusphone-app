@@ -15,9 +15,14 @@ import kotlinx.coroutines.CoroutineScope
  * Replaces Hilt for Phase 1 — avoids AGP 9.x annotation-processing compatibility issues.
  * All singletons are lazily initialised once.
  *
- * TODO Phase 2: migrate to Hilt once compatible version is available for AGP 9.x.
+ * Repositories can be injected via the constructor for instrumented tests.
  */
-class AppContainer(context: Context, private val applicationScope: CoroutineScope) {
+class AppContainer(
+    context: Context,
+    private val applicationScope: CoroutineScope,
+    appRepositoryOverride: AppRepository? = null,
+    favouriteAppRepositoryOverride: FavouriteAppRepository? = null
+) {
 
     private val appContext: Context = context.applicationContext
 
@@ -33,18 +38,16 @@ class AppContainer(context: Context, private val applicationScope: CoroutineScop
 
     // ── Repositories ──────────────────────────────────────────────
 
-    val appRepository: AppRepository by lazy {
-        AppRepositoryImpl(appContext, customAppLabelsPreferences)
-    }
+    val appRepository: AppRepository = appRepositoryOverride
+        ?: AppRepositoryImpl(appContext, customAppLabelsPreferences)
 
-    val favouriteAppRepository: FavouriteAppRepository by lazy {
-        FavouriteAppRepositoryImpl(
+    val favouriteAppRepository: FavouriteAppRepository = favouriteAppRepositoryOverride
+        ?: FavouriteAppRepositoryImpl(
             database.favouriteAppDao(),
             customAppLabelsPreferences,
             appContext,
             applicationScope
         )
-    }
 
     // ── Use Cases ─────────────────────────────────────────────────
 
@@ -62,5 +65,9 @@ class AppContainer(context: Context, private val applicationScope: CoroutineScop
 
     val updateAppsOrderUseCase: app.focusphone.domain.usecase.UpdateAppsOrderUseCase by lazy {
         app.focusphone.domain.usecase.UpdateAppsOrderUseCase(favouriteAppRepository)
+    }
+
+    val getAppShortcutsUseCase: app.focusphone.domain.usecase.GetAppShortcutsUseCase by lazy {
+        app.focusphone.domain.usecase.GetAppShortcutsUseCase(appContext)
     }
 }

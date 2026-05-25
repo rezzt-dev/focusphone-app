@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
+    <uses-permission android:name="android.permission.BIND_APPWIDGET" />
     <!-- QUERY_ALL_PACKAGES is required for launcher functionality -->
     <!-- REQUEST_DELETE_PACKAGES is required since Android 9 for uninstall intents -->
     <!-- Play Store declaration form must be submitted for QUERY_ALL_PACKAGES -->
@@ -75,6 +77,12 @@
             android:name=".ui.settings.PermissionsActivity"
             android:exported="false" />
 
+        <!-- ── Widget Configuration Activity ──────────────────────── -->
+        <activity
+            android:name=".ui.widget.WidgetConfigActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|keyboardHidden"
+            android:exported="false" />
+
         <!-- ── Accessibility Service (system-level app blocking) ────── -->
         <service
             android:name=".service.FocusAccessibilityService"
@@ -86,6 +94,16 @@
             <meta-data
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- ── Notification Listener Service (badge counts) ───────────── -->
+        <service
+            android:name=".service.FocusNotificationService"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
         </service>
 
     </application>

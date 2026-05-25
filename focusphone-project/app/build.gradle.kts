@@ -18,7 +18,7 @@ android {
         versionCode   = 2
         versionName   = "1.0.4"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "app.focusphone.TestRunner"
     }
 
     signingConfigs {
@@ -86,8 +86,18 @@ dependencies {
     implementation(libs.room.ktx)
     "kapt"(libs.room.compiler)
 
-    // Testing
+    // Testing — JVM unit tests
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.turbine)
+
+    // Testing — Instrumented tests
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.espresso.contrib)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
 }

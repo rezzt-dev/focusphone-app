@@ -177,6 +177,20 @@
 
         </FrameLayout>
 
+        <!-- Widget container ───────────────────────────────────────────── -->
+        <FrameLayout
+            android:id="@+id/widget_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/clock_container" />
+
         <!-- App container ──────────────────────────────────────────────── -->
         <FrameLayout
             android:id="@+id/apps_container"
@@ -187,7 +201,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/clock_container">
+            app:layout_constraintTop_toBottomOf="@id/widget_container">
 
             <!-- App list -->
             <androidx.recyclerview.widget.RecyclerView

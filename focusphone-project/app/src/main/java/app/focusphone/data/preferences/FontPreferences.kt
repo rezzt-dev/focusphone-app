@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.core.content.res.ResourcesCompat
 import app.focusphone.domain.model.AppFont
 import app.focusphone.domain.model.ClockType
@@ -40,7 +41,8 @@ object FontPreferences {
                     try {
                         ResourcesCompat.getFont(context, resId)
                             ?: Typeface.create("sans-serif", Typeface.BOLD)
-                    } catch (_: Exception) {
+                    } catch (e: Exception) {
+                        Log.w("FontPreferences", "Failed to load font resource $resId, falling back to sans-serif", e)
                         Typeface.create("sans-serif", Typeface.BOLD)
                     }
                 } else {
@@ -63,7 +65,8 @@ object FontPreferences {
                 if (resId != null) {
                     try {
                         ResourcesCompat.getFont(context, resId)
-                    } catch (_: Exception) {
+                    } catch (e: Exception) {
+                        Log.w("FontPreferences", "Failed to resolve downloadable font $resId", e)
                         null
                     }
                 } else null
@@ -93,6 +96,7 @@ object FontPreferences {
                 mainHandler.post { callback(typeface) }
             }
             override fun onFontRetrievalFailed(reason: Int) {
+                Log.w("FontPreferences", "Downloadable font retrieval failed, reason=$reason")
                 mainHandler.post { callback(Typeface.create("sans-serif", Typeface.BOLD)) }
             }
         }, mainHandler)

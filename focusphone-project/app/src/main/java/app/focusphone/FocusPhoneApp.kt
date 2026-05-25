@@ -12,10 +12,10 @@ import kotlinx.coroutines.SupervisorJob
  * Holds the [AppContainer] which acts as the manual dependency graph.
  * Hilt/Dagger will replace this in Phase 2 once AGP compatibility is resolved.
  */
-class FocusPhoneApp : Application() {
+open class FocusPhoneApp : Application() {
 
     /** Lazily initialized dependency container — single source of truth for all singletons. */
-    val container: AppContainer by lazy { AppContainer(this, applicationScope) }
+    open val container: AppContainer by lazy { AppContainer(this, applicationScope) }
 
     /** Application-wide coroutine scope for data migrations and background tasks. */
     val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)

@@ -1,6 +1,8 @@
 package app.focusphone.data.preferences
 
 import android.content.Context
+import android.content.res.Configuration
+import android.util.Log
 import androidx.annotation.StyleRes
 import app.focusphone.R
 
@@ -21,6 +23,7 @@ object ThemePreferences {
     const val THEME_WARM_BEIGE = "warm_beige"
     const val THEME_NAVY       = "navy"
     const val THEME_CUSTOM     = "custom"
+    const val THEME_AUTO       = "auto"
 
     private const val KEY_CUSTOM_BG = "custom_bg_color"
     private const val KEY_CUSTOM_FG = "custom_fg_color"
@@ -35,6 +38,23 @@ object ThemePreferences {
 
     fun setTheme(context: Context, theme: String) =
         prefs(context).edit().putString(KEY_THEME, theme).apply()
+
+    /**
+     * Resolves the effective theme identifier.
+     * If the user selected [THEME_AUTO], returns a concrete theme based on the
+     * current system night mode: [THEME_SLATE] for dark, [THEME_OFF_WHITE] for light.
+     */
+    fun getEffectiveTheme(context: Context): String {
+        val theme = getTheme(context)
+        if (theme != THEME_AUTO) return theme
+
+        val nightMode = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        return if (nightMode == Configuration.UI_MODE_NIGHT_YES) {
+            THEME_SLATE
+        } else {
+            THEME_OFF_WHITE
+        }
+    }
 
     fun getCustomBackgroundColorHex(context: Context): String =
         prefs(context).getString(KEY_CUSTOM_BG, "#181818") ?: "#181818"
@@ -53,6 +73,7 @@ object ThemePreferences {
         return try {
             android.graphics.Color.parseColor(hex)
         } catch (e: Exception) {
+            Log.w("ThemePreferences", "Invalid custom background hex '$hex', falling back to default")
             android.graphics.Color.parseColor("#181818")
         }
     }
@@ -62,6 +83,7 @@ object ThemePreferences {
         return try {
             android.graphics.Color.parseColor(hex)
         } catch (e: Exception) {
+            Log.w("ThemePreferences", "Invalid custom foreground hex '$hex', falling back to default")
             android.graphics.Color.parseColor("#FAFAFA")
         }
     }
@@ -74,6 +96,10 @@ object ThemePreferences {
         THEME_NAVY       -> R.style.Theme_FocusPhone_Navy
         else             -> R.style.Theme_FocusPhone_Slate
     }
+
+    @StyleRes
+    fun resolveStyleRes(context: Context): Int =
+        resolveStyleRes(getEffectiveTheme(context))
 
     // ── Alignment ──────────────────────────────────────────────────
     
@@ -95,6 +121,9 @@ object ThemePreferences {
 
     fun markOnboardingComplete(context: Context) =
         prefs(context).edit().putBoolean(KEY_ONBOARDING, true).apply()
+
+    fun clearOnboardingComplete(context: Context) =
+        prefs(context).edit().putBoolean(KEY_ONBOARDING, false).apply()
 
     // ── Status Bar ────────────────────────────────────────────────
 

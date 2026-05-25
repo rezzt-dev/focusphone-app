@@ -3,7 +3,7 @@ package app.focusphone.domain.usecase
 import app.focusphone.data.model.FavouriteApp
 import app.focusphone.data.repository.FakeFavouriteAppRepository
 import app.focusphone.domain.model.ToggleResult
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -21,14 +21,14 @@ class ToggleFavouriteAppUseCaseTest {
     }
 
     @Test
-    fun `adds app when not favourite and below limit`() = runBlocking {
+    fun `adds app when not favourite and below limit`() = runTest {
         val result = useCase("com.example.app", "example")
         assertTrue(result is ToggleResult.Added)
         assertEquals(1, repository.getFavourites().size)
     }
 
     @Test
-    fun `removes app when already favourite`() = runBlocking {
+    fun `removes app when already favourite`() = runTest {
         useCase("com.example.app", "example")
         val result = useCase("com.example.app", "example")
         assertTrue(result is ToggleResult.Removed)
@@ -36,7 +36,7 @@ class ToggleFavouriteAppUseCaseTest {
     }
 
     @Test
-    fun `returns LimitReached when max favourites exceeded`() = runBlocking {
+    fun `returns LimitReached when max favourites exceeded`() = runTest {
         repeat(ToggleFavouriteAppUseCase.MAX_FAVOURITES) {
             useCase("com.example.app$it", "app$it")
         }
@@ -46,7 +46,7 @@ class ToggleFavouriteAppUseCaseTest {
     }
 
     @Test
-    fun `does not exceed limit with rapid toggles`() = runBlocking {
+    fun `does not exceed limit with rapid toggles`() = runTest {
         // Simulate race-like rapid toggles by pre-filling to limit
         repeat(ToggleFavouriteAppUseCase.MAX_FAVOURITES) {
             repository.addFavourite(FavouriteApp("com.app$it", "app$it", it))

@@ -30,7 +30,7 @@ The project is a single-module Android application (`:app`) with no library modu
 
 ### Data & Storage
 - **Room 2.8.4** — stores the user's favourite apps (`favourite_apps` table).
-- **SharedPreferences** — stores all user settings (theme, font, profiles, detox timer, conscious pause, custom app labels). Synchronous access is intentional so themes can be applied before `setContentView`.
+- **SharedPreferences** — stores all user settings (theme, font, profiles, detox timer, conscious pause, custom app labels, work keywords). Synchronous access is intentional so themes can be applied before `setContentView`.
 
 ### Architecture Patterns
 - **Manual Dependency Injection** via `AppContainer` in `FocusPhoneApp`. Hilt is intentionally avoided in "Phase 1" due to AGP 9.x annotation-processing compatibility issues.
@@ -108,7 +108,7 @@ app/src/main/java/app/focusphone/
 - `res/values/strings.xml` — primary English strings (all lowercase, minimalist tone).
 - Localized strings in `values-es`, `values-fr`, `values-de`, `values-en-rGB`.
 - `res/values/themes.xml` — 4 built-in themes + `Base.Theme.FocusPhone` + custom widget/dialog styles.
-- `res/values-night/themes.xml` — night variants.
+- `res/values-night/themes.xml` — intentionally empty; day/night is handled manually via `THEME_AUTO` resolving to explicit themes.
 - `res/drawable/` — custom shapes, theme preview circles, tutorial icons.
 - `res/anim/fp_fade_in.xml` & `fp_fade_out.xml` — used by `BaseActivity` for consistent Activity transitions.
 
@@ -162,6 +162,7 @@ app/src/main/java/app/focusphone/
 - Do **not** introduce Hilt/Dagger without first resolving AGP 9.x compatibility.
 - Register new singletons in `AppContainer` and expose factory methods on ViewModels (`companion object { fun factory(app: FocusPhoneApp): ViewModelProvider.Factory }`).
 - `AppContainer` now receives an `applicationScope: CoroutineScope` for long-running background tasks such as data migrations.
+- `AppContainer` accepts optional `appRepositoryOverride` and `favouriteAppRepositoryOverride` constructor parameters to enable fake repository injection in instrumented tests.
 
 ### UI Patterns
 - Always apply window insets manually (`ViewCompat.setOnApplyWindowInsetsListener`) for edge-to-edge layouts.
@@ -172,19 +173,22 @@ app/src/main/java/app/focusphone/
 
 ## Testing Strategy
 
-> **Current state:** Testing is minimal. There is only a placeholder unit test and a placeholder instrumented test.
+| Type | Location | Runner | Libraries |
+|------|----------|--------|-----------|
+| Unit tests | `app/src/test/java/app/focusphone/` | JVM (JUnit 4) | MockK, Robolectric, Turbine, kotlinx-coroutines-test |
+| Instrumented | `app/src/androidTest/java/app/focusphone/` | AndroidJUnit4 via `TestRunner` | Espresso, ActivityScenario |
 
-| Type | Location | Runner |
-|------|----------|--------|
-| Unit tests | `app/src/test/java/app/focusphone/` | JVM (JUnit 4) |
-| Instrumented | `app/src/androidTest/java/dev/rezzt/` | AndroidJUnit4 |
+**Note:** Legacy placeholder tests remain in `dev.rezzt` and should be removed in a future cleanup.
 
-**Note:** New unit tests are placed under the application package (`app.focusphone`). Legacy instrumented tests remain in `dev.rezzt` and should be migrated.
+### Test Infrastructure
+- `FakeFavouriteAppRepository` — in-memory fake for unit tests.
+- `FakeAppRepository` — returns a fixed app list for instrumented tests.
+- `TestFocusPhoneApp` / `TestRunner` — custom application and runner that allow repository substitution before Activities launch.
+- `AppContainer` supports constructor injection of fake repositories.
 
-### Recommended Testing Approach
-- Unit-test Use Cases and Repository logic with mocked repositories.
-- UI tests for critical flows: onboarding, app selection, profile switching, detox password verification.
-- Because the app queries all installed packages, instrumented tests should run on a device/emulator with a predictable app set.
+### Coverage (Fase 2)
+- **Unit:** `ProfilePreferences` (pure blocking logic, detox expiration, SHA-256→PBKDF2), `ThemePreferences` (theme resolution, auto day/night, hex fallback), `ToggleFavouriteAppUseCase`, `UpdateAppsOrderUseCase`, `FuzzyMatcher`.
+- **Instrumented:** Onboarding flow (3 steps), app selection (10-app limit), profile switching (Normal ↔ Work), detox password verification & lockout (4 failed attempts).
 
 ---
 
@@ -201,10 +205,13 @@ The home screen (`HomeActivity`) displays only text labels for favourite apps. I
 
 ### 4. Profile-Based Blocking
 - **Normal**: no blocking.
-- **Work**: blocks manually blocked apps + apps matching a hardcoded keyword list (`DISTRACTING_KEYWORDS`).
+- **Work**: blocks manually blocked apps + apps matching user-configurable keywords (`ProfilePreferences.getWorkKeywords()`). Defaults are pre-populated from the former hardcoded list; users can edit them in Settings.
 - **Detox**: blocks **all** apps except FocusPhone itself. Requires a password (min 4 chars) to exit early. Auto-reverts to Normal when the timer expires.
 
-### 5. Migration from SharedPreferences to Room
+### 5. Auto Day/Night Theme
+`ThemePreferences.THEME_AUTO` resolves dynamically to `THEME_SLATE` (dark) when the system is in night mode, or `THEME_OFF_WHITE` (light) otherwise. `BaseActivity` tracks the *effective* resolved theme so that `onResume()` detects system day/night changes automatically.
+
+### 6. Migration from SharedPreferences to Room
 `FavouriteAppRepositoryImpl` contains a `migrateFromSharedPreferences()` method that runs once on init, converting the old pipe-delimited string format into Room entities and then deleting the old key.
 
 ---

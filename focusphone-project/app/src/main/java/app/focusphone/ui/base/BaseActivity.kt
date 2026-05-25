@@ -3,6 +3,7 @@ package app.focusphone.ui.base
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -30,7 +31,9 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun attachBaseContext(newBase: android.content.Context) {
         val config = android.content.res.Configuration(newBase.resources.configuration)
-        config.fontScale = FontPreferences.getFontScale(newBase)
+        val systemFontScale = newBase.resources.configuration.fontScale
+        val userMultiplier = FontPreferences.getFontScale(newBase)
+        config.fontScale = (systemFontScale * userMultiplier).coerceIn(0.5f, 2.0f)
         val context = newBase.createConfigurationContext(config)
         super.attachBaseContext(context)
     }
@@ -68,9 +71,9 @@ abstract class BaseActivity : AppCompatActivity() {
     // ── Theme ──────────────────────────────────────────────────────
 
     private fun applyTheme() {
-        val theme = ThemePreferences.getTheme(this)
+        val theme = ThemePreferences.getEffectiveTheme(this)
         currentTheme = theme
-        if (theme == ThemePreferences.THEME_CUSTOM) {
+        if (ThemePreferences.getTheme(this) == ThemePreferences.THEME_CUSTOM) {
             customBgColor = ThemePreferences.getCustomBackgroundColor(this)
             customFgColor = ThemePreferences.getCustomForegroundColor(this)
         }
@@ -109,7 +112,10 @@ abstract class BaseActivity : AppCompatActivity() {
                 }
                 is ViewGroup -> {
                     // Apply background to layout containers, skipping themed preview views
-                    val viewId = try { resources.getResourceEntryName(view.id) } catch (_: Exception) { "" }
+                    val viewId = try { resources.getResourceEntryName(view.id) } catch (e: Exception) {
+                        Log.w("BaseActivity", "Failed to resolve resource entry name for view id ${view.id}", e)
+                        ""
+                    }
                     val skip = viewId.startsWith("card_theme") ||
                             viewId.startsWith("view_theme") ||
                             viewId.contains("preview") ||
@@ -167,12 +173,12 @@ abstract class BaseActivity : AppCompatActivity() {
         applyStatusBarVisibility()
 
         // System-wide dynamic theme, font scale or font family change detection on resume
-        val activeTheme = ThemePreferences.getTheme(this)
+        val activeTheme = ThemePreferences.getEffectiveTheme(this)
         val activeFontScale = FontPreferences.getFontScale(this)
         val activeFontFamily = FontPreferences.getFont(this).key
         if (activeTheme != currentTheme || activeFontScale != currentFontScale || activeFontFamily != currentFontFamily) {
             recreate()
-        } else if (activeTheme == ThemePreferences.THEME_CUSTOM) {
+        } else if (ThemePreferences.getTheme(this) == ThemePreferences.THEME_CUSTOM) {
             val bg = ThemePreferences.getCustomBackgroundColor(this)
             val fg = ThemePreferences.getCustomForegroundColor(this)
             if (bg != customBgColor || fg != customFgColor) {

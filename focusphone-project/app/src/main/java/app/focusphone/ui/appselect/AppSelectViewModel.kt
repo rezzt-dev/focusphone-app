@@ -1,5 +1,6 @@
 package app.focusphone.ui.appselect
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -8,6 +9,7 @@ import app.focusphone.domain.model.AppInfo
 import app.focusphone.domain.model.ToggleResult
 import app.focusphone.domain.usecase.GetInstalledAppsUseCase
 import app.focusphone.domain.usecase.ToggleFavouriteAppUseCase
+import app.focusphone.domain.util.FuzzyMatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -42,7 +44,10 @@ class AppSelectViewModel(
     fun loadApps() {
         viewModelScope.launch {
             _isLoading.value = true
-            _allApps.value   = try { getInstalledApps() } catch (_: Exception) { emptyList() }
+            _allApps.value   = try { getInstalledApps() } catch (e: Exception) {
+                Log.e("AppSelectViewModel", "Failed to load installed apps", e)
+                emptyList()
+            }
             applyFilter()
             _isLoading.value = false
         }
@@ -59,7 +64,10 @@ class AppSelectViewModel(
 
     fun onToggle(app: AppInfo) {
         viewModelScope.launch {
-            val result = try { toggleFavourite(app.packageName, app.label) } catch (_: Exception) { return@launch }
+            val result = try { toggleFavourite(app.packageName, app.label) } catch (e: Exception) {
+                Log.e("AppSelectViewModel", "Failed to toggle favourite for ${app.packageName}", e)
+                return@launch
+            }
             when (result) {
                 is ToggleResult.Added -> {
                     _allApps.update { list ->
@@ -85,9 +93,9 @@ class AppSelectViewModel(
     fun maxApps(): Int = ToggleFavouriteAppUseCase.MAX_FAVOURITES
 
     private fun applyFilter() {
-        val q = _query.value.trim().lowercase()
+        val q = _query.value.trim()
         _filtered.value = if (q.isEmpty()) _allApps.value
-        else _allApps.value.filter { it.label.contains(q) }
+        else _allApps.value.filter { FuzzyMatcher.matches(q, it.label) }
     }
 
     // ── Factory ───────────────────────────────────────────────────

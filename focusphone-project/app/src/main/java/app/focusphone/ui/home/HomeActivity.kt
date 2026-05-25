@@ -1,18 +1,21 @@
 package app.focusphone.ui.home
 
+import android.appwidget.AppWidgetHost
+import android.appwidget.AppWidgetHostView
+import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.graphics.Color
 import android.provider.AlarmClock
-import android.util.TypedValue
 import android.provider.Settings
 import android.util.Log
+import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
@@ -38,7 +41,10 @@ import app.focusphone.data.model.FavouriteApp
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.ConsciousPausePreferences
+import app.focusphone.data.preferences.NotificationBadgePreferences
 import app.focusphone.data.preferences.ProfilePreferences
+import app.focusphone.data.preferences.GesturePreferences
+import app.focusphone.data.preferences.WidgetPreferences
 import app.focusphone.ui.pause.ConsciousPauseActivity
 import app.focusphone.ui.detox.DetoxBlockedActivity
 import app.focusphone.databinding.ActivityHomeBinding
@@ -50,8 +56,10 @@ import app.focusphone.ui.base.BaseActivity
 import app.focusphone.ui.home.adapter.FavouriteAppsAdapter
 import app.focusphone.ui.onboarding.OnboardingActivity
 import app.focusphone.ui.settings.SettingsActivity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -61,6 +69,11 @@ class HomeActivity : BaseActivity() {
 
     private lateinit var binding: ActivityHomeBinding
     private lateinit var gestureDetector: GestureDetector
+
+    private var appWidgetHost: AppWidgetHost? = null
+    private var appWidgetManager: AppWidgetManager? = null
+    private var widgetHostView: AppWidgetHostView? = null
+    private var lastRestoredWidgetId: Int = WidgetPreferences.INVALID_WIDGET_ID
 
     private val viewModel: HomeViewModel by viewModels {
         HomeViewModel.factory(application as FocusPhoneApp)
@@ -96,12 +109,17 @@ class HomeActivity : BaseActivity() {
         setupDrawerMenu()
         setupGestureDetector()
         setupDrawerPushEffect()
+        setupGestureExclusion()
         showLongPressHintIfNeeded()
         observeFavourites()
         setupBackPress()
+        initWidgetHost()
+        restoreWidget()
 
         binding.indicatorContainer.visibility = View.INVISIBLE
         binding.indicatorContainer.alpha = 0f
+        binding.indicatorHome.contentDescription = getString(R.string.cd_home_indicator)
+        binding.indicatorMenu.contentDescription = getString(R.string.cd_menu_indicator)
     }
 
     private fun setupBackPress() {
@@ -122,8 +140,9 @@ class HomeActivity : BaseActivity() {
                 this, clockReceiver, IntentFilter(Intent.ACTION_TIME_TICK),
                 androidx.core.content.ContextCompat.RECEIVER_EXPORTED
             )
-        } catch (_: SecurityException) {
+        } catch (e: SecurityException) {
             // Some OEMs restrict ACTION_TIME_TICK
+            Log.w("HomeActivity", "Cannot register ACTION_TIME_TICK receiver", e)
         }
         applyClockType()
         applyClockScale()
@@ -136,7 +155,9 @@ class HomeActivity : BaseActivity() {
         }
         ProfilePreferences.expireDetoxIfNeeded(this)
         updateProfileLabel()
+        restoreWidget()
         adapter.updateTypeface(FontPreferences.getTypeface(this))
+        adapter.updateBadgeCounts(NotificationBadgePreferences.getAllBadgeCounts(this))
 
         val gravity = when (app.focusphone.data.preferences.ThemePreferences.getAlignment(this)) {
             app.focusphone.data.preferences.ThemePreferences.ALIGN_LEFT -> android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
@@ -153,6 +174,7 @@ class HomeActivity : BaseActivity() {
         emptyParams.gravity = emptyGravity
         binding.tvEmpty.layoutParams = emptyParams
         populateCalendar()
+        updateGestureExclusionRects()
     }
 
     private fun verifyInstalledApps(force: Boolean = false) {
@@ -184,12 +206,32 @@ class HomeActivity : BaseActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        appWidgetHost?.startListening()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        appWidgetHost?.stopListening()
+    }
+
     override fun onPause() {
         super.onPause()
-        try { unregisterReceiver(clockReceiver) } catch (_: IllegalArgumentException) { }
+        try { unregisterReceiver(clockReceiver) } catch (e: IllegalArgumentException) {
+            Log.w("HomeActivity", "Clock receiver was not registered", e)
+        }
         hintToastJob?.cancel()
         hideRunnable?.let { binding.indicatorContainer.removeCallbacks(it) }
         binding.indicatorContainer.animate().cancel()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        widgetHostView?.let { binding.widgetContainer.removeView(it) }
+        widgetHostView = null
+        appWidgetHost = null
+        appWidgetManager = null
     }
 
 
@@ -226,22 +268,41 @@ class HomeActivity : BaseActivity() {
                 velocityX: Float,
                 velocityY: Float
             ): Boolean {
-                if (e1 != null) {
-                    val diffX = e1.x - e2.x
-                    val diffY = e1.y - e2.y
-                    if (kotlin.math.abs(diffX) > kotlin.math.abs(diffY)) {
-                        if (kotlin.math.abs(diffX) > SWIPE_THRESHOLD && kotlin.math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                            if (diffX > 0) {
-                                // Swipe Left
-                                binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.END)
-                                return true
-                            }
-                        }
+                if (e1 == null) return false
+                val diffX = e1.x - e2.x
+                val diffY = e1.y - e2.y
+
+                return when {
+                    // Horizontal swipe (left) — open drawer
+                    kotlin.math.abs(diffX) > kotlin.math.abs(diffY) -> {
+                        if (kotlin.math.abs(diffX) > SWIPE_THRESHOLD &&
+                            kotlin.math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD &&
+                            diffX > 0
+                        ) {
+                            binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.END)
+                            true
+                        } else false
                     }
+                    // Vertical swipe (down) — expand notifications
+                    diffY < -SWIPE_THRESHOLD && kotlin.math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD -> {
+                        expandNotificationsPanel()
+                        true
+                    }
+                    else -> false
                 }
-                return false
             }
         })
+    }
+
+    private fun expandNotificationsPanel() {
+        if (!GesturePreferences.isSwipeDownEnabled(this)) return
+        try {
+            val statusBarService = getSystemService(Context.STATUS_BAR_SERVICE)
+            val method = statusBarService?.javaClass?.getMethod("expandNotificationsPanel")
+            method?.invoke(statusBarService)
+        } catch (e: Exception) {
+            Log.w("HomeActivity", "Failed to expand notification panel", e)
+        }
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
@@ -255,9 +316,12 @@ class HomeActivity : BaseActivity() {
         val action = View.OnClickListener {
             haptic(it)
             try { startActivity(Intent(AlarmClock.ACTION_SHOW_ALARMS)) }
-            catch (_: Exception) {
+            catch (e: Exception) {
+                Log.w("HomeActivity", "Cannot open alarm app via ACTION_SHOW_ALARMS", e)
                 try { startActivity(Intent(AlarmClock.ACTION_SET_ALARM)) }
-                catch (_: Exception) { }
+                catch (e2: Exception) {
+                    Log.w("HomeActivity", "Cannot open alarm app via ACTION_SET_ALARM", e2)
+                }
             }
         }
         listOf(
@@ -273,23 +337,49 @@ class HomeActivity : BaseActivity() {
 
     private fun applyClockType() {
         val type = FontPreferences.getClockType(this)
-        if (type == lastAppliedClockType) return
-        lastAppliedClockType = type
-
         val isHidden = type == ClockType.HIDDEN
 
-        binding.clockContainer.visibility   = if (isHidden) View.GONE else View.VISIBLE
-        binding.clockTypeDigital.visibility = if (type == ClockType.DIGITAL) View.VISIBLE else View.GONE
-        binding.clockTypeStacked.visibility = if (type == ClockType.STACKED) View.VISIBLE else View.GONE
-        binding.clockTypeWords  .visibility = if (type == ClockType.WORDS)   View.VISIBLE else View.GONE
-        binding.clockTypeAnalog .visibility = if (type == ClockType.ANALOG)  View.VISIBLE else View.GONE
+        // Only mutate clock sub-views when the type actually changed
+        if (type != lastAppliedClockType) {
+            lastAppliedClockType = type
 
+            binding.clockContainer.visibility   = if (isHidden) View.GONE else View.VISIBLE
+            binding.clockTypeDigital.visibility = if (type == ClockType.DIGITAL) View.VISIBLE else View.GONE
+            binding.clockTypeStacked.visibility = if (type == ClockType.STACKED) View.VISIBLE else View.GONE
+            binding.clockTypeWords  .visibility = if (type == ClockType.WORDS)   View.VISIBLE else View.GONE
+            binding.clockTypeAnalog .visibility = if (type == ClockType.ANALOG)  View.VISIBLE else View.GONE
+        }
+
+        // Constraints are always refreshed because widget visibility may change
+        // independently of the clock type.
         val constraintSet = androidx.constraintlayout.widget.ConstraintSet()
         constraintSet.clone(binding.rootHome)
-        if (isHidden) {
-            constraintSet.connect(R.id.apps_container, androidx.constraintlayout.widget.ConstraintSet.TOP, androidx.constraintlayout.widget.ConstraintSet.PARENT_ID, androidx.constraintlayout.widget.ConstraintSet.TOP)
-        } else {
-            constraintSet.connect(R.id.apps_container, androidx.constraintlayout.widget.ConstraintSet.TOP, R.id.clock_container, androidx.constraintlayout.widget.ConstraintSet.BOTTOM)
+        val hasWidget = binding.widgetContainer.visibility == View.VISIBLE
+        when {
+            hasWidget -> {
+                constraintSet.connect(
+                    R.id.apps_container,
+                    androidx.constraintlayout.widget.ConstraintSet.TOP,
+                    R.id.widget_container,
+                    androidx.constraintlayout.widget.ConstraintSet.BOTTOM
+                )
+            }
+            isHidden -> {
+                constraintSet.connect(
+                    R.id.apps_container,
+                    androidx.constraintlayout.widget.ConstraintSet.TOP,
+                    androidx.constraintlayout.widget.ConstraintSet.PARENT_ID,
+                    androidx.constraintlayout.widget.ConstraintSet.TOP
+                )
+            }
+            else -> {
+                constraintSet.connect(
+                    R.id.apps_container,
+                    androidx.constraintlayout.widget.ConstraintSet.TOP,
+                    R.id.clock_container,
+                    androidx.constraintlayout.widget.ConstraintSet.BOTTOM
+                )
+            }
         }
         constraintSet.applyTo(binding.rootHome)
 
@@ -824,14 +914,37 @@ class HomeActivity : BaseActivity() {
             startActivity(intent)
         } else {
             try { startActivity(launchIntent) }
-            catch (_: Exception) { Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show() }
+            catch (e: Exception) {
+                Log.e("HomeActivity", "Failed to launch app ${app.packageName}", e)
+                Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     private fun showAppContextMenu(app: FavouriteApp): Boolean {
         haptic(binding.rvFavouriteApps)
+        lifecycleScope.launch {
+            val shortcuts = withContext(Dispatchers.IO) {
+                (application as FocusPhoneApp).container.getAppShortcutsUseCase(app.packageName)
+            }
+            showAppContextMenuWithShortcuts(app, shortcuts)
+        }
+        return true
+    }
+
+    private fun showAppContextMenuWithShortcuts(
+        app: FavouriteApp,
+        shortcuts: List<app.focusphone.domain.model.AppShortcut>
+    ) {
         val popup = PopupMenu(this, binding.rvFavouriteApps, Gravity.CENTER)
         popup.menuInflater.inflate(R.menu.menu_app_context, popup.menu)
+
+        // Append dynamic shortcuts as additional menu items
+        shortcuts.forEachIndexed { index, shortcut ->
+            val itemId = MENU_ID_SHORTCUT_BASE + index
+            popup.menu.add(android.view.Menu.NONE, itemId, android.view.Menu.NONE, shortcut.shortLabel)
+        }
+
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_open       -> launchApp(app)
@@ -855,22 +968,34 @@ class HomeActivity : BaseActivity() {
                                 data = uri
                             }
                         )
-                    } catch (_: Exception) {
+                    } catch (e: Exception) {
+                        Log.w("HomeActivity", "ACTION_UNINSTALL_PACKAGE failed for ${app.packageName}", e)
                         try {
                             startActivity(
                                 Intent(Intent.ACTION_DELETE).apply {
                                     data = uri
                                 }
                             )
-                        } catch (_: Exception) {
+                        } catch (e2: Exception) {
+                            Log.e("HomeActivity", "ACTION_DELETE also failed for ${app.packageName}", e2)
                             Toast.makeText(this@HomeActivity, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
                         }
                     }
                 }
-            }; true
+                else -> {
+                    // Shortcut item
+                    val shortcutIndex = item.itemId - MENU_ID_SHORTCUT_BASE
+                    if (shortcutIndex in shortcuts.indices) {
+                        val launched = (application as FocusPhoneApp).container.getAppShortcutsUseCase.launchShortcut(shortcuts[shortcutIndex])
+                        if (!launched) {
+                            Toast.makeText(this@HomeActivity, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+            true
         }
         popup.show()
-        return true
     }
 
     // ── Helpers ────────────────────────────────────────────────────
@@ -961,13 +1086,16 @@ class HomeActivity : BaseActivity() {
                         dayTextView.setTextColor(bgValue.data)
                         dayTextView.setBackgroundResource(R.drawable.shape_current_day)
                         dayTextView.typeface = android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.BOLD)
+                        dayTextView.contentDescription = getString(R.string.cd_today_indicator, dayCounter)
                     } else {
                         dayTextView.setTextColor(colorSecondary)
                         dayTextView.setTypeface(null, android.graphics.Typeface.NORMAL)
+                        dayTextView.contentDescription = getString(R.string.cd_day_indicator, dayCounter)
                     }
                     dayCounter++
                 } else {
                     dayTextView.text = ""
+                    dayTextView.contentDescription = ""
                 }
                 cell.addView(dayTextView)
                 weekRow.addView(cell)
@@ -975,6 +1103,91 @@ class HomeActivity : BaseActivity() {
             binding.calendarGrid.addView(weekRow)
         }
         applyFontFamilyToView(binding.calendarGrid)
+    }
+
+    // ── Gesture exclusion (Android 10+ back gesture conflict) ───────
+
+    private fun setupGestureExclusion() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+        binding.drawerLayout.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            updateGestureExclusionRects()
+        }
+    }
+
+    private fun updateGestureExclusionRects() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+        val width = binding.drawerLayout.width
+        val height = binding.drawerLayout.height
+        if (width == 0 || height == 0) return
+        // Reserve a 40 dp strip on the right edge for the drawer swipe
+        val exclusionWidth = dp(40)
+        val rect = android.graphics.Rect(width - exclusionWidth, 0, width, height)
+        ViewCompat.setSystemGestureExclusionRects(binding.drawerLayout, listOf(rect))
+    }
+
+    // ── Widget Host ────────────────────────────────────────────────
+
+    private fun initWidgetHost() {
+        appWidgetManager = AppWidgetManager.getInstance(this)
+        appWidgetHost = AppWidgetHost(this, WIDGET_HOST_ID)
+    }
+
+    /**
+     * Restores the system widget (if any) into [binding.widgetContainer].
+     *
+     * This method is intentionally lightweight on repeated calls: if the same
+     * widget ID is already inflated, it skips recreation to avoid visual flicker.
+     * If the provider was uninstalled, the preference is cleared automatically.
+     */
+    private fun restoreWidget() {
+        val widgetId = WidgetPreferences.getWidgetId(this)
+        val enabled = WidgetPreferences.isWidgetEnabled(this)
+
+        // Nothing configured — ensure container is hidden
+        if (!enabled || widgetId == WidgetPreferences.INVALID_WIDGET_ID) {
+            if (binding.widgetContainer.visibility != View.GONE) {
+                widgetHostView?.let { binding.widgetContainer.removeView(it) }
+                widgetHostView = null
+                lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
+                binding.widgetContainer.visibility = View.GONE
+                applyClockType()
+            }
+            return
+        }
+
+        // Same widget already restored — nothing to do
+        if (widgetId == lastRestoredWidgetId && widgetHostView != null) {
+            return
+        }
+
+        val info = appWidgetManager?.getAppWidgetInfo(widgetId)
+        if (info == null) {
+            // Provider was uninstalled or disabled — clear the stale preference
+            WidgetPreferences.clearWidget(this)
+            widgetHostView?.let { binding.widgetContainer.removeView(it) }
+            widgetHostView = null
+            lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
+            binding.widgetContainer.visibility = View.GONE
+            applyClockType()
+            return
+        }
+
+        // Remove previous widget before adding the new one
+        widgetHostView?.let { binding.widgetContainer.removeView(it) }
+
+        val host = appWidgetHost ?: return
+        val hostView = host.createView(this, widgetId, info)
+        widgetHostView = hostView
+        lastRestoredWidgetId = widgetId
+
+        binding.widgetContainer.addView(hostView)
+        binding.widgetContainer.visibility = View.VISIBLE
+        applyClockType()
+    }
+
+    companion object {
+        private const val MENU_ID_SHORTCUT_BASE = 10_000
+        private const val WIDGET_HOST_ID = 1024
     }
 
     private fun haptic(view: View) = view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)

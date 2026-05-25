@@ -1,29 +1,36 @@
 package app.focusphone.ui.settings
 
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.LocaleListCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import app.focusphone.BuildConfig
 import app.focusphone.R
-import android.graphics.Typeface
-import androidx.core.content.res.ResourcesCompat
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.ConsciousPausePreferences
+import app.focusphone.data.preferences.ProfilePreferences
+import app.focusphone.data.preferences.GesturePreferences
+import app.focusphone.data.preferences.WidgetPreferences
+import app.focusphone.ui.widget.WidgetConfigActivity
 import app.focusphone.databinding.ActivitySettingsBinding
 import app.focusphone.databinding.ItemSettingsClockTypeBinding
 import app.focusphone.databinding.ItemSettingsFontBinding
 import app.focusphone.domain.model.AppFont
 import app.focusphone.domain.model.ClockType
 import app.focusphone.service.FocusAccessibilityService
+import app.focusphone.service.FocusNotificationService
 import app.focusphone.ui.base.BaseActivity
 
 class SettingsActivity : BaseActivity() {
@@ -33,6 +40,7 @@ class SettingsActivity : BaseActivity() {
     private var activeDialog: android.app.Dialog? = null
     private var bgTextWatcher: android.text.TextWatcher? = null
     private var fgTextWatcher: android.text.TextWatcher? = null
+    private var workKeywordsTextWatcher: android.text.TextWatcher? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,8 +58,13 @@ class SettingsActivity : BaseActivity() {
         setupConsciousPause()
         setupLanguageSelector()
         setupTutorial()
+        setupOnboarding()
         setupAccessibilityService()
+        setupNotificationBadges()
+        setupWorkKeywords()
         setupPermissions()
+        setupSwipeDownToggle()
+        setupWidgetSettings()
         binding.itemSetDefaultLauncher.setOnClickListener {
             startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
         }
@@ -130,6 +143,7 @@ class SettingsActivity : BaseActivity() {
             ThemePreferences.THEME_WARM_BEIGE -> getString(R.string.settings_theme_warm_beige)
             ThemePreferences.THEME_NAVY -> getString(R.string.settings_theme_navy)
             ThemePreferences.THEME_CUSTOM -> getString(R.string.settings_theme_custom)
+            ThemePreferences.THEME_AUTO -> getString(R.string.settings_theme_auto)
             else -> getString(R.string.settings_theme_slate)
         }
         binding.tvActiveThemeName.text = themeName.lowercase()
@@ -140,6 +154,7 @@ class SettingsActivity : BaseActivity() {
             ThemePreferences.THEME_WARM_BEIGE -> R.drawable.bg_theme_card_warm_beige
             ThemePreferences.THEME_NAVY -> R.drawable.bg_theme_card_navy
             ThemePreferences.THEME_CUSTOM -> R.drawable.bg_theme_card_slate
+            ThemePreferences.THEME_AUTO -> R.drawable.bg_theme_card_slate
             else -> R.drawable.bg_theme_card_slate
         }
         if (theme == ThemePreferences.THEME_CUSTOM) {
@@ -190,6 +205,10 @@ class SettingsActivity : BaseActivity() {
         }
         view.findViewById<View>(R.id.btn_theme_navy).setOnClickListener {
             applyTheme(ThemePreferences.THEME_NAVY)
+            activeDialog?.dismiss()
+        }
+        view.findViewById<View>(R.id.btn_theme_auto).setOnClickListener {
+            applyTheme(ThemePreferences.THEME_AUTO)
             activeDialog?.dismiss()
         }
         view.findViewById<View>(R.id.btn_theme_custom).setOnClickListener {
@@ -392,8 +411,8 @@ class SettingsActivity : BaseActivity() {
                         ResourcesCompat.getFont(this, resId)?.let {
                             item.tvFontSample.typeface = it
                         }
-                    } catch (_: Exception) {
-                        // Ignore font loading errors
+                    } catch (e: Exception) {
+                        Log.w("SettingsActivity", "Failed to load font preview for resId=$resId", e)
                     }
                 }
             }
@@ -539,11 +558,28 @@ class SettingsActivity : BaseActivity() {
         }
     }
 
+    private fun setupOnboarding() {
+        binding.itemOnboarding.setOnClickListener {
+            ThemePreferences.clearOnboardingComplete(this)
+            startActivity(Intent(this, app.focusphone.ui.onboarding.OnboardingActivity::class.java))
+        }
+    }
+
     // ── Accessibility Service ──────────────────────────────────────
 
     private fun setupPermissions() {
         binding.itemPermissions.setOnClickListener {
             startActivity(Intent(this, PermissionsActivity::class.java))
+        }
+    }
+
+    // ── Swipe Down Notifications Toggle ────────────────────────────
+
+    private fun setupSwipeDownToggle() {
+        val isEnabled = GesturePreferences.isSwipeDownEnabled(this)
+        binding.switchSwipeDownNotifications.isChecked = isEnabled
+        binding.switchSwipeDownNotifications.setOnCheckedChangeListener { _, checked ->
+            GesturePreferences.setSwipeDownEnabled(this, checked)
         }
     }
 
@@ -560,9 +596,32 @@ class SettingsActivity : BaseActivity() {
         )
     }
 
+    private fun setupNotificationBadges() {
+        binding.itemNotificationBadges.setOnClickListener {
+            FocusNotificationService.openNotificationSettings(this)
+        }
+    }
+
+    private fun updateNotificationBadgesStatus() {
+        val isActive = FocusNotificationService.isEnabled(this)
+        binding.tvNotificationBadgesStatus.text = getString(
+            if (isActive) R.string.settings_notification_badges_active else R.string.settings_notification_badges_inactive
+        )
+    }
+
     override fun onResume() {
         super.onResume()
         updateAccessibilityStatus()
+        updateNotificationBadgesStatus()
+        updateWidgetStatus()
+    }
+
+    @Suppress("DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CONFIG_WIDGET && resultCode == RESULT_OK) {
+            updateWidgetStatus()
+        }
     }
 
     private fun showTutorialDialog() {
@@ -675,10 +734,36 @@ class SettingsActivity : BaseActivity() {
         activeDialog?.show()
     }
 
+    // ── Work Keywords ────────────────────────────────────────────
+
+    private fun setupWorkKeywords() {
+        val currentKeywords = ProfilePreferences.getWorkKeywords(this)
+        binding.etWorkKeywords.setText(currentKeywords.joinToString("\n"))
+
+        binding.btnToggleWorkKeywords.setOnClickListener {
+            val isVisible = binding.layoutWorkKeywordsPanel.visibility == View.VISIBLE
+            if (isVisible) {
+                binding.layoutWorkKeywordsPanel.visibility = View.GONE
+                binding.ivWorkKeywordsToggleIndicator.setImageResource(R.drawable.ic_chevron_down)
+            } else {
+                binding.layoutWorkKeywordsPanel.visibility = View.VISIBLE
+                binding.ivWorkKeywordsToggleIndicator.setImageResource(R.drawable.ic_chevron_up)
+            }
+        }
+
+        binding.btnSaveWorkKeywords.setOnClickListener {
+            val raw = binding.etWorkKeywords.text.toString()
+            val keywords = raw.split("\n").map { it.trim().lowercase() }.filter { it.isNotBlank() }.toSet()
+            ProfilePreferences.setWorkKeywords(this, keywords)
+            Toast.makeText(this, R.string.allapps_toast_keywords_saved, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onDestroy() {
         activeDialog?.dismiss()
         bgTextWatcher?.let { binding.etCustomBgColor.removeTextChangedListener(it) }
         fgTextWatcher?.let { binding.etCustomFgColor.removeTextChangedListener(it) }
+        workKeywordsTextWatcher?.let { binding.etWorkKeywords.removeTextChangedListener(it) }
         super.onDestroy()
     }
 
@@ -689,7 +774,8 @@ class SettingsActivity : BaseActivity() {
     private fun showPrivacyPolicyDialog() {
         val htmlText = try {
             assets.open("privacy_policy.html").bufferedReader().use { it.readText() }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.w("SettingsActivity", "Failed to load privacy_policy.html from assets", e)
             null
         }
 
@@ -720,6 +806,46 @@ class SettingsActivity : BaseActivity() {
             .setPositiveButton(R.string.action_ok, null)
             .create()
         activeDialog?.show()
+    }
+
+    // ── Widget Settings ────────────────────────────────────────────
+
+    private fun setupWidgetSettings() {
+        binding.itemWidget.setOnClickListener {
+            if (WidgetPreferences.isWidgetEnabled(this)) {
+                showRemoveWidgetDialog()
+            } else {
+                startActivityForResult(
+                    Intent(this, WidgetConfigActivity::class.java),
+                    REQUEST_CONFIG_WIDGET
+                )
+            }
+        }
+        updateWidgetStatus()
+    }
+
+    private fun updateWidgetStatus() {
+        val hasWidget = WidgetPreferences.isWidgetEnabled(this)
+        binding.tvWidgetStatus.text = getString(
+            if (hasWidget) R.string.settings_widget_remove else R.string.settings_widget_none
+        )
+    }
+
+    private fun showRemoveWidgetDialog() {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.settings_widget_title)
+            .setMessage(R.string.settings_widget_remove_confirm)
+            .setPositiveButton(R.string.settings_widget_remove) { _, _ ->
+                WidgetPreferences.clearWidget(this)
+                updateWidgetStatus()
+            }
+            .setNegativeButton(R.string.action_cancel, null)
+            .show()
+            .let { styleMaterialDialog(it) }
+    }
+
+    companion object {
+        private const val REQUEST_CONFIG_WIDGET = 3001
     }
 
     private fun dp(value: Int): Int =

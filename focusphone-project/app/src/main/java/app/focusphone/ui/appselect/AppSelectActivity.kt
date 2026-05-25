@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -61,14 +62,16 @@ class AppSelectActivity : BaseActivity() {
                                     data = uri
                                 }
                             )
-                        } catch (_: Exception) {
+                        } catch (e: Exception) {
+                            Log.w("AppSelectActivity", "ACTION_UNINSTALL_PACKAGE failed for ${app.packageName}", e)
                             try {
                                 startActivity(
                                     Intent(Intent.ACTION_DELETE).apply {
                                         data = uri
                                     }
                                 )
-                            } catch (_: Exception) {
+                            } catch (e2: Exception) {
+                                Log.e("AppSelectActivity", "ACTION_DELETE also failed for ${app.packageName}", e2)
                                 Toast.makeText(this@AppSelectActivity, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
                             }
                         }
