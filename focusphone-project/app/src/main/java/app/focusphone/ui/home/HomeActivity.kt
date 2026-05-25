@@ -664,13 +664,15 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun showAccessibilityEnableDialog(onEnable: () -> Unit, onContinue: () -> Unit) {
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle(R.string.detox_accessibility_title)
             .setMessage(R.string.detox_accessibility_desc)
             .setPositiveButton(R.string.detox_accessibility_enable) { _, _ -> onEnable() }
             .setNegativeButton(R.string.detox_accessibility_continue) { _, _ -> onContinue() }
             .setCancelable(true)
-            .show()
+            .create()
+        dialog.show()
+        styleMaterialDialog(dialog)
     }
 
     private fun showDetoxCustomTimeDialog() {
@@ -851,7 +853,6 @@ class HomeActivity : BaseActivity() {
                         startActivity(
                             Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
                                 data = uri
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             }
                         )
                     } catch (_: Exception) {
@@ -859,7 +860,6 @@ class HomeActivity : BaseActivity() {
                             startActivity(
                                 Intent(Intent.ACTION_DELETE).apply {
                                     data = uri
-                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 }
                             )
                         } catch (_: Exception) {

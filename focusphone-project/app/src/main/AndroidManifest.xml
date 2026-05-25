@@ -5,8 +5,10 @@
     <!-- ── Permissions ──────────────────────────────────────────────── -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
-    <!-- Only QUERY_ALL_PACKAGES is required for launcher functionality -->
-    <!-- Play Store declaration form must be submitted for this permission -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <!-- QUERY_ALL_PACKAGES is required for launcher functionality -->
+    <!-- REQUEST_DELETE_PACKAGES is required since Android 9 for uninstall intents -->
+    <!-- Play Store declaration form must be submitted for QUERY_ALL_PACKAGES -->
 
     <application
         android:name=".FocusPhoneApp"
@@ -67,6 +69,11 @@
             android:name=".ui.detox.DetoxBlockedActivity"
             android:exported="false"
             android:launchMode="singleTop" />
+
+        <!-- ── Permissions Activity ───────────────────────────────── -->
+        <activity
+            android:name=".ui.settings.PermissionsActivity"
+            android:exported="false" />
 
         <!-- ── Accessibility Service (system-level app blocking) ────── -->
         <service

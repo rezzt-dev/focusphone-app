@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import app.focusphone.R
@@ -192,6 +193,59 @@ abstract class BaseActivity : AppCompatActivity() {
                 it.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             } else {
                 it.show(androidx.core.view.WindowInsetsCompat.Type.statusBars())
+            }
+        }
+    }
+
+    /**
+     * Applies FocusPhone styling (typeface and custom-theme colours) to a
+     * MaterialAlertDialog after it has been shown.
+     */
+    protected fun styleMaterialDialog(dialog: AlertDialog?) {
+        dialog ?: return
+        val root = dialog.window?.decorView ?: return
+
+        // Apply custom typeface to every TextView inside the dialog
+        val typeface = FontPreferences.getTypefaceOrNull(this)
+        val stack = ArrayDeque<View>()
+        stack.add(root)
+        while (stack.isNotEmpty()) {
+            val view = stack.removeFirst()
+            if (view is TextView) {
+                typeface?.let { view.typeface = it }
+            }
+            if (view is ViewGroup) {
+                for (i in 0 until view.childCount) {
+                    stack.addLast(view.getChildAt(i))
+                }
+            }
+        }
+
+        // For custom themes, force background and text colours so the dialog
+        // matches the rest of the UI.
+        if (ThemePreferences.getTheme(this) == ThemePreferences.THEME_CUSTOM) {
+            val bgColor = ThemePreferences.getCustomBackgroundColor(this)
+            val fgColor = ThemePreferences.getCustomForegroundColor(this)
+
+            val bg = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = 28f * resources.displayMetrics.density
+                setColor(bgColor)
+            }
+            dialog.window?.setBackgroundDrawable(bg)
+
+            val colourStack = ArrayDeque<View>()
+            colourStack.add(root)
+            while (colourStack.isNotEmpty()) {
+                val view = colourStack.removeFirst()
+                if (view is TextView) {
+                    view.setTextColor(fgColor)
+                }
+                if (view is ViewGroup) {
+                    for (i in 0 until view.childCount) {
+                        colourStack.addLast(view.getChildAt(i))
+                    }
+                }
             }
         }
     }

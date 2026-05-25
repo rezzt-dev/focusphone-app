@@ -1,5 +1,7 @@
 package app.focusphone.ui.appselect
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -34,8 +36,49 @@ class AppSelectActivity : BaseActivity() {
 
     private val adapter = InstalledAppsAdapter(
         onToggle = { app -> viewModel.onToggle(app) },
-        onLongToggle = { app -> showRenameDialog(app) }
+        onLongToggle = { app -> showAppOptionsDialog(app) }
     )
+
+    private fun showAppOptionsDialog(app: AppInfo) {
+        val options = arrayOf(
+            getString(R.string.allapps_dialog_rename),
+            getString(R.string.allapps_dialog_uninstall)
+        )
+
+        activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle(app.label)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> showRenameDialog(app)
+                    1 -> {
+                        (application as FocusPhoneApp).container.appRepository.invalidateCache()
+
+                        val uri = Uri.fromParts("package", app.packageName, null)
+                        Toast.makeText(this@AppSelectActivity, R.string.uninstall_progress, Toast.LENGTH_SHORT).show()
+                        try {
+                            startActivity(
+                                Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
+                                    data = uri
+                                }
+                            )
+                        } catch (_: Exception) {
+                            try {
+                                startActivity(
+                                    Intent(Intent.ACTION_DELETE).apply {
+                                        data = uri
+                                    }
+                                )
+                            } catch (_: Exception) {
+                                Toast.makeText(this@AppSelectActivity, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                }
+            }
+            .create()
+        activeDialog?.show()
+        styleMaterialDialog(activeDialog)
+    }
 
     private fun showRenameDialog(app: AppInfo) {
         val input = android.widget.EditText(this@AppSelectActivity).apply {
@@ -102,6 +145,7 @@ class AppSelectActivity : BaseActivity() {
             .setNegativeButton(R.string.action_cancel, null)
             .create()
         activeDialog?.show()
+        styleMaterialDialog(activeDialog)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -197,6 +197,7 @@ class AllAppsActivity : BaseActivity() {
       .setNegativeButton(R.string.action_cancel, null)
       .create()
     activeDialog?.show()
+    styleMaterialDialog(activeDialog)
   }
 
   private fun showAppOptionsDialog(app: AppInfo) {
@@ -243,7 +244,6 @@ class AllAppsActivity : BaseActivity() {
               startActivity(
                 Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
                   data = uri
-                  addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
               )
             } catch (_: Exception) {
@@ -251,7 +251,6 @@ class AllAppsActivity : BaseActivity() {
                 startActivity(
                   Intent(Intent.ACTION_DELETE).apply {
                     data = uri
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                   }
                 )
               } catch (_: Exception) {
@@ -263,6 +262,7 @@ class AllAppsActivity : BaseActivity() {
       }
       .create()
     activeDialog?.show()
+    styleMaterialDialog(activeDialog)
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {

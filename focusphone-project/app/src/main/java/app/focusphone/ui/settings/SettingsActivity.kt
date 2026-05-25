@@ -51,6 +51,7 @@ class SettingsActivity : BaseActivity() {
         setupLanguageSelector()
         setupTutorial()
         setupAccessibilityService()
+        setupPermissions()
         binding.itemSetDefaultLauncher.setOnClickListener {
             startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
         }
@@ -539,6 +540,12 @@ class SettingsActivity : BaseActivity() {
     }
 
     // ── Accessibility Service ──────────────────────────────────────
+
+    private fun setupPermissions() {
+        binding.itemPermissions.setOnClickListener {
+            startActivity(Intent(this, PermissionsActivity::class.java))
+        }
+    }
 
     private fun setupAccessibilityService() {
         binding.itemAccessibilityService.setOnClickListener {

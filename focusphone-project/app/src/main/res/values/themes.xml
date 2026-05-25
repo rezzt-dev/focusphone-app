@@ -128,15 +128,9 @@
 
     <!-- Custom Material AlertDialog styling -->
     <style name="FocusPhone.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <!-- Dialog card styling -->
-        <item name="colorSurface">?attr/colorSurface</item>
-        <item name="colorOnSurface">?attr/android:textColorPrimary</item>
-        <item name="colorOnSurfaceVariant">?attr/android:textColorSecondary</item>
-        
         <!-- Text styling -->
         <item name="materialAlertDialogTitleTextStyle">@style/FocusPhone.DialogTitleTextStyle</item>
         <item name="materialAlertDialogBodyTextStyle">@style/FocusPhone.DialogBodyTextStyle</item>
-        
         <!-- Button styling -->
         <item name="buttonBarPositiveButtonStyle">@style/FocusPhone.DialogButton</item>
         <item name="buttonBarNegativeButtonStyle">@style/FocusPhone.DialogButton</item>
