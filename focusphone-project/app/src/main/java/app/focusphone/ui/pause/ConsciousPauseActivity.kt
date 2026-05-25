@@ -139,8 +139,8 @@ class ConsciousPauseActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         countdownJob?.cancel()
         scaleAnimator?.cancel()
+        super.onDestroy()
     }
 }

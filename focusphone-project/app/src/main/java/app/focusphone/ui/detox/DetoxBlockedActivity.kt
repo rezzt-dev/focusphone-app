@@ -6,6 +6,7 @@ import android.animation.ValueAnimator
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
+import android.view.WindowManager
 import app.focusphone.R
 import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.databinding.ActivityDetoxBlockedBinding
@@ -24,6 +25,7 @@ class DetoxBlockedActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         binding = ActivityDetoxBlockedBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupInsets()

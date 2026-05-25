@@ -31,12 +31,16 @@ class FavouriteAppRepositoryImpl(
                 try {
                     val apps = raw.split("\n")
                         .filter { it.isNotBlank() }
-                        .mapIndexed { index, row ->
+                        .mapNotNull { row ->
                             val cols = row.split("|")
+                            val packageName = cols.getOrNull(0)?.trim() ?: return@mapNotNull null
+                            // Validate minimal package name shape
+                            if (packageName.isEmpty() || !packageName.contains(".")) return@mapNotNull null
+                            if (packageName.length > 255) return@mapNotNull null
                             FavouriteApp(
-                                packageName = cols[0],
-                                label       = cols.getOrElse(1) { cols[0] }.normalizeAppName(),
-                                sortOrder   = cols.getOrElse(2) { "$index" }.toIntOrNull() ?: index
+                                packageName = packageName,
+                                label       = cols.getOrElse(1) { packageName }.normalizeAppName(),
+                                sortOrder   = cols.getOrElse(2) { "0" }.toIntOrNull() ?: 0
                             )
                         }
                     dao.insertAll(apps)
@@ -52,18 +56,20 @@ class FavouriteAppRepositoryImpl(
         combine(dao.observeAll(), customLabels.labelsFlow) { list, labels ->
             list.map { app ->
                 val custom = labels[app.packageName]
-                if (custom != null) app.copy(label = custom.normalizeAppName()) else app
+                if (custom != null) app.copy(label = custom.normalizeAppName())
+                else app.copy(label = app.label.normalizeAppName())
             }
         }
 
     override suspend fun getFavourites(): List<FavouriteApp> =
         dao.getAll().map { app ->
             val custom = customLabels.getCustomLabel(app.packageName)
-            if (custom != null) app.copy(label = custom.normalizeAppName()) else app
+            if (custom != null) app.copy(label = custom.normalizeAppName())
+            else app.copy(label = app.label.normalizeAppName())
         }
 
     override suspend fun addFavourite(app: FavouriteApp) {
-        dao.insertIfNotExists(app)
+        dao.insertIfNotExists(app.copy(label = app.label.normalizeAppName()))
     }
 
     override suspend fun removeFavourite(packageName: String) {

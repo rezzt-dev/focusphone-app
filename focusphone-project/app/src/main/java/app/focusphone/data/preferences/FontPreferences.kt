@@ -26,19 +26,63 @@ object FontPreferences {
         prefs(context).edit().putString(KEY_FONT, font.key).apply()
 
     /**
+     * Returns the [Typeface] for the currently selected font synchronously.
+     * For downloadable fonts this relies on the preloaded-font cache.
+     * Falls back to sans-serif if the font is not yet available.
+     */
+    fun getTypeface(context: Context): Typeface {
+        val font = getFont(context)
+        return when (font) {
+            AppFont.SYSTEM -> Typeface.create("sans-serif", Typeface.BOLD)
+            else -> {
+                val resId = font.fontResId
+                if (resId != null) {
+                    try {
+                        ResourcesCompat.getFont(context, resId)
+                            ?: Typeface.create("sans-serif", Typeface.BOLD)
+                    } catch (_: Exception) {
+                        Typeface.create("sans-serif", Typeface.BOLD)
+                    }
+                } else {
+                    Typeface.create("sans-serif", Typeface.BOLD)
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the selected downloadable [Typeface], or **null** for the system font.
+     * Useful when the caller wants to reset to the theme default for SYSTEM.
+     */
+    fun getTypefaceOrNull(context: Context): Typeface? {
+        val font = getFont(context)
+        return when (font) {
+            AppFont.SYSTEM -> null
+            else -> {
+                val resId = font.fontResId
+                if (resId != null) {
+                    try {
+                        ResourcesCompat.getFont(context, resId)
+                    } catch (_: Exception) {
+                        null
+                    }
+                } else null
+            }
+        }
+    }
+
+    /**
      * Resolves the selected [AppFont] asynchronously.
      * Callback is always invoked on the **main thread**.
-     * For system fonts (no download needed) it fires synchronously.
+     * For system fonts it fires synchronously.
      * For downloadable fonts it triggers an auto-download if not cached.
      */
     fun resolveTypeface(context: Context, callback: (Typeface) -> Unit) {
         val font = getFont(context)
         val mainHandler = Handler(Looper.getMainLooper())
 
-        // System fonts — instant, no download
         when (font) {
             AppFont.SYSTEM -> { callback(Typeface.create("sans-serif", Typeface.BOLD)); return }
-            AppFont.ARIAL  -> { callback(Typeface.SANS_SERIF); return }
             else -> { /* downloadable — fall through */ }
         }
 
@@ -49,7 +93,6 @@ object FontPreferences {
                 mainHandler.post { callback(typeface) }
             }
             override fun onFontRetrievalFailed(reason: Int) {
-                // Font unavailable (no internet / Play Services). Fall back gracefully.
                 mainHandler.post { callback(Typeface.create("sans-serif", Typeface.BOLD)) }
             }
         }, mainHandler)
@@ -69,7 +112,6 @@ object FontPreferences {
 
     fun getClockSize(context: Context): Float {
         val size = prefs(context).getInt(KEY_CLOCK_SIZE, 50)
-        // map 0..100 to 0.6f..2.0f multiplier so max size is clearly larger
         return 0.6f + (size / 100f * 1.4f)
     }
 
@@ -83,7 +125,7 @@ object FontPreferences {
     // ── Font Size Scale ───────────────────────────────────────────
 
     fun getFontSizePt(context: Context): Int {
-        return prefs(context).getInt("font_size_pt", 14) // default is 14pt
+        return prefs(context).getInt("font_size_pt", 14)
     }
 
     fun setFontSizePt(context: Context, size: Int) {

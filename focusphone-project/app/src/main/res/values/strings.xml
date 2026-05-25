@@ -40,12 +40,18 @@
     <string name="settings_theme_slate">slate</string>
     <string name="settings_theme_warm_beige">warm beige</string>
     <string name="settings_theme_navy">navy</string>
+    <string name="settings_theme_custom">custom</string>
 
     <string name="settings_alignment">alignment</string>
     <string name="settings_alignment_left">left</string>
     <string name="settings_alignment_center">center</string>
     <string name="settings_alignment_right">right</string>
 
+    <string name="settings_section_security">security</string>
+    <string name="settings_accessibility_title">system blocking</string>
+    <string name="settings_accessibility_desc">enable accessibility service for real app blocking</string>
+    <string name="settings_accessibility_active">active</string>
+    <string name="settings_accessibility_inactive">inactive</string>
     <string name="settings_section_launcher">launcher</string>
     <string name="settings_set_default">set as default launcher</string>
     <string name="settings_set_default_desc">tap to open system settings</string>
@@ -57,6 +63,7 @@
     <string name="settings_clock_bold">bold</string>
     <string name="settings_section_font">font</string>
     <string name="settings_font_label">launcher font</string>
+    <string name="font_select_title">select font</string>
     <string name="settings_section_about">about</string>
     <string name="settings_version">version %1$s</string>
     <string name="settings_privacy_policy">privacy policy</string>
@@ -93,6 +100,8 @@
 
     <!-- Errors / General -->
     <string name="error_app_not_found">could not open app</string>
+    <string name="error_uninstall_failed">could not open uninstall dialog</string>
+    <string name="uninstall_progress">uninstalling app…</string>
     <string name="cd_back_button">go back</string>
     <string name="cd_remove_app">remove %1$s from home</string>
     <string name="cd_select_indicator">toggle favourite</string>
@@ -107,6 +116,8 @@
     <string name="action_save">save</string>
     <string name="action_reset">reset</string>
     <string name="action_cancel">cancel</string>
+    <string name="action_ok">ok</string>
+    <string name="settings_privacy_policy_fallback">see privacy_policy.html in app assets.</string>
     <string name="settings_clock_size">clock size</string>
     <string name="settings_text_size">text size</string>
     <string name="settings_text_size_pt">text size: %1$dpt</string>
@@ -156,6 +167,10 @@
     <string name="detox_blocked_desc">you are in detox mode. take a moment to reconnect with the real world.</string>
     <string name="detox_remaining_time">remaining: %1$s</string>
     <string name="detox_label">detox</string>
+    <string name="detox_accessibility_title">enable system blocking</string>
+    <string name="detox_accessibility_desc">for detox to block apps launched from notifications or recents, please enable the focusphone accessibility service.</string>
+    <string name="detox_accessibility_enable">enable</string>
+    <string name="detox_accessibility_continue">continue anyway</string>
     <string name="tutorial_arrow_prev">←</string>
     <string name="tutorial_arrow_next">→</string>
     <string name="tutorial_arrow_finish">✓</string>

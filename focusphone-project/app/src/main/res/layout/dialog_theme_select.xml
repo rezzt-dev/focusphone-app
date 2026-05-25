@@ -213,7 +213,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
-            android:text="custom"
+            android:text="@string/settings_theme_custom"
             android:textColor="?attr/android:textColorPrimary"
             android:textSize="17sp" />
     </LinearLayout>

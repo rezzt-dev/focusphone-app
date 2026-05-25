@@ -1,6 +1,7 @@
 package app.focusphone.ui.base
 
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,7 @@ abstract class BaseActivity : AppCompatActivity() {
     private var customBgColor: Int? = null
     private var customFgColor: Int? = null
     private var currentFontScale: Float? = null
+    private var currentFontFamily: String? = null
 
     override fun attachBaseContext(newBase: android.content.Context) {
         val config = android.content.res.Configuration(newBase.resources.configuration)
@@ -34,9 +36,20 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         currentFontScale = FontPreferences.getFontScale(this)
+        currentFontFamily = FontPreferences.getFont(this).key
         applyTheme()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+    }
+
+    override fun setContentView(view: android.view.View?) {
+        super.setContentView(view)
+        applyFontFamily()
+    }
+
+    override fun setContentView(layoutResID: Int) {
+        super.setContentView(layoutResID)
+        applyFontFamily()
     }
 
     override fun startActivity(intent: Intent) {
@@ -111,6 +124,37 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
+    // ── Font family ────────────────────────────────────────────────
+
+    /** Apply the currently selected font family to every [TextView] under [android.R.id.content]. */
+    protected fun applyFontFamily() {
+        val content = findViewById<View>(android.R.id.content) ?: return
+        val tf = FontPreferences.getTypefaceOrNull(this)
+        applyTypefaceToViewTree(content, tf)
+    }
+
+    /** Apply the currently selected font family to every [TextView] under [root]. */
+    protected fun applyFontFamilyToView(root: View) {
+        val tf = FontPreferences.getTypefaceOrNull(this)
+        applyTypefaceToViewTree(root, tf)
+    }
+
+    private fun applyTypefaceToViewTree(root: View, typeface: Typeface?) {
+        val stack = ArrayDeque<View>()
+        stack.add(root)
+        while (stack.isNotEmpty()) {
+            val view = stack.removeFirst()
+            if (view is TextView) {
+                view.typeface = typeface
+            }
+            if (view is ViewGroup && view !is androidx.appcompat.widget.Toolbar) {
+                for (i in 0 until view.childCount) {
+                    stack.addLast(view.getChildAt(i))
+                }
+            }
+        }
+    }
+
     // ── Edge-to-edge ───────────────────────────────────────────────
 
     private fun enableEdgeToEdge() {
@@ -121,10 +165,11 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onResume()
         applyStatusBarVisibility()
 
-        // System-wide dynamic theme or font scale change detection on resume
+        // System-wide dynamic theme, font scale or font family change detection on resume
         val activeTheme = ThemePreferences.getTheme(this)
         val activeFontScale = FontPreferences.getFontScale(this)
-        if (activeTheme != currentTheme || activeFontScale != currentFontScale) {
+        val activeFontFamily = FontPreferences.getFont(this).key
+        if (activeTheme != currentTheme || activeFontScale != currentFontScale || activeFontFamily != currentFontFamily) {
             recreate()
         } else if (activeTheme == ThemePreferences.THEME_CUSTOM) {
             val bg = ThemePreferences.getCustomBackgroundColor(this)
@@ -133,6 +178,9 @@ abstract class BaseActivity : AppCompatActivity() {
                 recreate()
             }
         }
+
+        // Re-apply font family to catch dynamically created views (e.g. calendars, dialogs)
+        applyFontFamily()
     }
 
     protected fun applyStatusBarVisibility() {

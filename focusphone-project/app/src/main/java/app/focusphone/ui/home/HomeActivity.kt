@@ -18,6 +18,7 @@ import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
+import android.view.WindowManager
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -29,6 +30,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import app.focusphone.BuildConfig
 import app.focusphone.FocusPhoneApp
 import app.focusphone.R
 import app.focusphone.data.model.FavouriteApp
@@ -40,6 +43,7 @@ import app.focusphone.ui.pause.ConsciousPauseActivity
 import app.focusphone.ui.detox.DetoxBlockedActivity
 import app.focusphone.databinding.ActivityHomeBinding
 import app.focusphone.domain.model.ClockType
+import app.focusphone.service.FocusAccessibilityService
 import app.focusphone.ui.allapps.AllAppsActivity
 import app.focusphone.ui.appselect.AppSelectActivity
 import app.focusphone.ui.base.BaseActivity
@@ -132,7 +136,8 @@ class HomeActivity : BaseActivity() {
         }
         ProfilePreferences.expireDetoxIfNeeded(this)
         updateProfileLabel()
-        
+        adapter.updateTypeface(FontPreferences.getTypeface(this))
+
         val gravity = when (app.focusphone.data.preferences.ThemePreferences.getAlignment(this)) {
             app.focusphone.data.preferences.ThemePreferences.ALIGN_LEFT -> android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
             app.focusphone.data.preferences.ThemePreferences.ALIGN_RIGHT -> android.view.Gravity.END or android.view.Gravity.CENTER_VERTICAL
@@ -183,6 +188,8 @@ class HomeActivity : BaseActivity() {
         super.onPause()
         try { unregisterReceiver(clockReceiver) } catch (_: IllegalArgumentException) { }
         hintToastJob?.cancel()
+        hideRunnable?.let { binding.indicatorContainer.removeCallbacks(it) }
+        binding.indicatorContainer.animate().cancel()
     }
 
 
@@ -391,6 +398,7 @@ class HomeActivity : BaseActivity() {
                 ): Boolean {
                     val from = viewHolder.bindingAdapterPosition
                     val to = target.bindingAdapterPosition
+                    if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) return false
                     adapter.moveItem(from, to)
                     adapter.notifyItemMoved(from, to)
                     return true
@@ -511,6 +519,7 @@ class HomeActivity : BaseActivity() {
 
     private fun showProfileSelectionDialog() {
         val view = layoutInflater.inflate(R.layout.dialog_profile_select, null)
+        applyFontFamilyToView(view)
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(view)
             .create()
@@ -551,11 +560,15 @@ class HomeActivity : BaseActivity() {
 
     private fun showDetoxVerifyPasswordDialog(onSuccess: () -> Unit) {
         val view = layoutInflater.inflate(R.layout.dialog_detox_password_verify, null)
+        applyFontFamilyToView(view)
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(view)
             .create()
 
-        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        dialog.window?.apply {
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+            addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
 
         val etPassword = view.findViewById<android.widget.EditText>(R.id.et_detox_password_verify)
 
@@ -563,28 +576,40 @@ class HomeActivity : BaseActivity() {
             dialog.dismiss()
         }
 
-        var incorrectAttempts = 0
-
         view.findViewById<View>(R.id.btn_ok).setOnClickListener {
+            if (ProfilePreferences.isPasswordLockedOut(this)) {
+                Toast.makeText(this, getString(R.string.detox_force_disabled), Toast.LENGTH_LONG).show()
+                ProfilePreferences.setDetoxPassword(this, null)
+                ProfilePreferences.setDetoxEndTime(this, 0L)
+                ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_NORMAL)
+                ProfilePreferences.clearFailedAttempts(this)
+                onSuccess()
+                dialog.dismiss()
+                return@setOnClickListener
+            }
+
             val entered = etPassword.text.toString()
             if (ProfilePreferences.verifyDetoxPassword(this, entered)) {
+                ProfilePreferences.clearFailedAttempts(this)
                 ProfilePreferences.setDetoxPassword(this, null)
                 onSuccess()
                 dialog.dismiss()
             } else {
-                incorrectAttempts++
-                if (incorrectAttempts >= 4) {
+                val attempts = ProfilePreferences.getFailedAttempts(this)
+                if (attempts >= 4) {
                     ProfilePreferences.setDetoxPassword(this, null)
                     ProfilePreferences.setDetoxEndTime(this, 0L)
+                    ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_NORMAL)
+                    ProfilePreferences.clearFailedAttempts(this)
                     onSuccess()
                     dialog.dismiss()
-                    android.widget.Toast.makeText(
+                    Toast.makeText(
                         this,
                         getString(R.string.detox_force_disabled),
-                        android.widget.Toast.LENGTH_LONG
+                        Toast.LENGTH_LONG
                     ).show()
                 } else {
-                    android.widget.Toast.makeText(this, getString(R.string.error_incorrect_password), android.widget.Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.error_incorrect_password), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -594,6 +619,7 @@ class HomeActivity : BaseActivity() {
 
     private fun showDetoxDurationDialog() {
         val view = layoutInflater.inflate(R.layout.dialog_detox_duration_select, null)
+        applyFontFamilyToView(view)
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(view)
             .create()
@@ -607,22 +633,28 @@ class HomeActivity : BaseActivity() {
             120 * 60 * 1000L
         )
 
-        view.findViewById<View>(R.id.btn_duration_15m).setOnClickListener {
-            dialog.dismiss()
-            showDetoxSetPasswordDialog(durationMs[0]) {}
+        fun onDurationSelected(duration: Long) {
+            if (FocusAccessibilityService.isEnabled(this)) {
+                dialog.dismiss()
+                showDetoxSetPasswordDialog(duration) {}
+            } else {
+                showAccessibilityEnableDialog(
+                    onEnable = {
+                        dialog.dismiss()
+                        FocusAccessibilityService.openAccessibilitySettings(this)
+                    },
+                    onContinue = {
+                        dialog.dismiss()
+                        showDetoxSetPasswordDialog(duration) {}
+                    }
+                )
+            }
         }
-        view.findViewById<View>(R.id.btn_duration_30m).setOnClickListener {
-            dialog.dismiss()
-            showDetoxSetPasswordDialog(durationMs[1]) {}
-        }
-        view.findViewById<View>(R.id.btn_duration_1h).setOnClickListener {
-            dialog.dismiss()
-            showDetoxSetPasswordDialog(durationMs[2]) {}
-        }
-        view.findViewById<View>(R.id.btn_duration_2h).setOnClickListener {
-            dialog.dismiss()
-            showDetoxSetPasswordDialog(durationMs[3]) {}
-        }
+
+        view.findViewById<View>(R.id.btn_duration_15m).setOnClickListener { onDurationSelected(durationMs[0]) }
+        view.findViewById<View>(R.id.btn_duration_30m).setOnClickListener { onDurationSelected(durationMs[1]) }
+        view.findViewById<View>(R.id.btn_duration_1h).setOnClickListener { onDurationSelected(durationMs[2]) }
+        view.findViewById<View>(R.id.btn_duration_2h).setOnClickListener { onDurationSelected(durationMs[3]) }
         view.findViewById<View>(R.id.btn_duration_custom).setOnClickListener {
             dialog.dismiss()
             showDetoxCustomTimeDialog()
@@ -631,8 +663,19 @@ class HomeActivity : BaseActivity() {
         dialog.show()
     }
 
+    private fun showAccessibilityEnableDialog(onEnable: () -> Unit, onContinue: () -> Unit) {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.detox_accessibility_title)
+            .setMessage(R.string.detox_accessibility_desc)
+            .setPositiveButton(R.string.detox_accessibility_enable) { _, _ -> onEnable() }
+            .setNegativeButton(R.string.detox_accessibility_continue) { _, _ -> onContinue() }
+            .setCancelable(true)
+            .show()
+    }
+
     private fun showDetoxCustomTimeDialog() {
         val view = layoutInflater.inflate(R.layout.dialog_detox_custom_time, null)
+        applyFontFamilyToView(view)
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(view)
             .create()
@@ -650,11 +693,11 @@ class HomeActivity : BaseActivity() {
             val hours = etHours.text.toString().toLongOrNull() ?: 0L
             val minutes = etMinutes.text.toString().toLongOrNull() ?: 0L
             val totalMinutes = hours * 60 + minutes
-            if (totalMinutes > 0) {
+            if (totalMinutes in 1..(24 * 60)) {
                 dialog.dismiss()
                 showDetoxSetPasswordDialog(totalMinutes * 60 * 1000L) {}
             } else {
-                android.widget.Toast.makeText(this, getString(R.string.error_invalid_duration), android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.error_invalid_duration), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -663,11 +706,15 @@ class HomeActivity : BaseActivity() {
 
     private fun showDetoxSetPasswordDialog(durationMs: Long, onSet: () -> Unit) {
         val view = layoutInflater.inflate(R.layout.dialog_detox_password_set, null)
+        applyFontFamilyToView(view)
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(view)
             .create()
 
-        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        dialog.window?.apply {
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+            addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
 
         val etPassword = view.findViewById<android.widget.EditText>(R.id.et_detox_password)
 
@@ -682,12 +729,13 @@ class HomeActivity : BaseActivity() {
                 val endTime = System.currentTimeMillis() + durationMs
                 ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_DETOX)
                 ProfilePreferences.setDetoxEndTime(this, endTime)
+                ProfilePreferences.clearFailedAttempts(this)
                 updateProfileLabel()
                 binding.drawerLayout.closeDrawers()
                 dialog.dismiss()
                 onSet()
             } else {
-                android.widget.Toast.makeText(this, getString(R.string.error_min_characters), android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.error_min_characters), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -791,12 +839,14 @@ class HomeActivity : BaseActivity() {
                         .apply { data = Uri.fromParts("package", app.packageName, null) }
                 )
                 R.id.action_uninstall  -> {
-                    Log.d("FocusPhone", "Home uninstall clicked for ${app.packageName}")
+                    if (BuildConfig.DEBUG) {
+                        Log.d("FocusPhone", "Home uninstall clicked for ${app.packageName}")
+                    }
                     (application as FocusPhoneApp).container.appRepository.invalidateCache()
                     pendingVerify = true // force verify on next resume
 
                     val uri = Uri.fromParts("package", app.packageName, null)
-                    Toast.makeText(this@HomeActivity, "uninstalling ${app.label}...", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@HomeActivity, R.string.uninstall_progress, Toast.LENGTH_SHORT).show()
                     try {
                         startActivity(
                             Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
@@ -812,8 +862,8 @@ class HomeActivity : BaseActivity() {
                                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 }
                             )
-                        } catch (e: Exception) {
-                            Toast.makeText(this@HomeActivity, "could not open uninstall dialog: ${e.message}", Toast.LENGTH_LONG).show()
+                        } catch (_: Exception) {
+                            Toast.makeText(this@HomeActivity, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -847,7 +897,7 @@ class HomeActivity : BaseActivity() {
             Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY
         )
         dayViews.forEachIndexed { index, textView ->
-            textView.text = weekdays[calDayIndices[index]]?.take(1)?.uppercase(Locale.getDefault()) ?: ""
+            textView.text = weekdays[calDayIndices[index]]?.take(1)?.lowercase(Locale.getDefault()) ?: ""
         }
 
         // Set to first day of month to calculate starting weekday offset
@@ -897,10 +947,9 @@ class HomeActivity : BaseActivity() {
                         dp(32)
                     ).apply {
                         gravity = android.view.Gravity.CENTER
-                        topMargin = dp(6)
-                        bottomMargin = dp(6)
                     }
                     gravity = android.view.Gravity.CENTER
+                    includeFontPadding = false
                     setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14f)
                 }
                 
@@ -925,6 +974,7 @@ class HomeActivity : BaseActivity() {
             }
             binding.calendarGrid.addView(weekRow)
         }
+        applyFontFamilyToView(binding.calendarGrid)
     }
 
     private fun haptic(view: View) = view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)

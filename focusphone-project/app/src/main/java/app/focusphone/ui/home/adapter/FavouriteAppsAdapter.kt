@@ -40,10 +40,16 @@ class FavouriteAppsAdapter(
 
     /** Swap two items visually during drag-and-drop. Tracks state internally. */
     fun moveItem(fromPosition: Int, toPosition: Int) {
+        if (fromPosition < 0 || toPosition < 0) return
         val current = tempReorderList ?: currentList.toMutableList()
         val item = current.removeAt(fromPosition)
         current.add(toPosition, item)
         tempReorderList = current
+    }
+
+    override fun submitList(list: List<FavouriteApp>?) {
+        tempReorderList = null
+        super.submitList(list)
     }
 
     /** Returns the final reordered list and resets the temporary state. */

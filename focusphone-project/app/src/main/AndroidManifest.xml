@@ -10,9 +10,7 @@
 
     <application
         android:name=".FocusPhoneApp"
-        android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
+        android:allowBackup="false"
         android:icon="@mipmap/icon_alfa_version_round"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/icon_alfa_version_round"
@@ -69,6 +67,19 @@
             android:name=".ui.detox.DetoxBlockedActivity"
             android:exported="false"
             android:launchMode="singleTop" />
+
+        <!-- ── Accessibility Service (system-level app blocking) ────── -->
+        <service
+            android:name=".service.FocusAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
 
     </application>
 

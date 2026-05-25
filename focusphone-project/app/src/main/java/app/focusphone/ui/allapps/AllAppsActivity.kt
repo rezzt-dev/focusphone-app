@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import app.focusphone.BuildConfig
 import app.focusphone.FocusPhoneApp
 import app.focusphone.R
 import app.focusphone.data.preferences.ConsciousPausePreferences
@@ -55,7 +56,8 @@ class AllAppsViewModel(
   private val _query    = MutableStateFlow("")
 
   val filteredApps: StateFlow<List<AppInfo>> = _filtered.asStateFlow()
-  val isLoading = MutableStateFlow(true)
+  private val _isLoading = MutableStateFlow(true)
+  val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
   private var searchJob: Job? = null
 
@@ -63,10 +65,10 @@ class AllAppsViewModel(
 
   fun load() {
     viewModelScope.launch {
-      isLoading.value = true
+      _isLoading.value = true
       _allApps.value  = try { getInstalledApps() } catch (_: Exception) { emptyList() }
       applyFilter()
-      isLoading.value = false
+      _isLoading.value = false
     }
   }
 
@@ -135,6 +137,7 @@ class AllAppsActivity : BaseActivity() {
       setText(app.label)
       setSelection(text.length)
       setSingleLine()
+      filters = arrayOf(android.text.InputFilter.LengthFilter(50))
 
       val gd = android.graphics.drawable.GradientDrawable().apply {
         shape = android.graphics.drawable.GradientDrawable.RECTANGLE
@@ -228,12 +231,14 @@ class AllAppsActivity : BaseActivity() {
             ).show()
           }
           2 -> {
-            Log.d("FocusPhone", "AllApps uninstall clicked for ${app.packageName}")
+            if (BuildConfig.DEBUG) {
+              Log.d("FocusPhone", "AllApps uninstall clicked for ${app.packageName}")
+            }
             (application as FocusPhoneApp).container.appRepository.invalidateCache()
             pendingRefresh = true
 
             val uri = Uri.fromParts("package", app.packageName, null)
-            Toast.makeText(this@AllAppsActivity, "uninstalling ${app.label}...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@AllAppsActivity, R.string.uninstall_progress, Toast.LENGTH_SHORT).show()
             try {
               startActivity(
                 Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
@@ -249,8 +254,8 @@ class AllAppsActivity : BaseActivity() {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                   }
                 )
-              } catch (e: Exception) {
-                Toast.makeText(this@AllAppsActivity, "could not open uninstall dialog: ${e.message}", Toast.LENGTH_LONG).show()
+              } catch (_: Exception) {
+                Toast.makeText(this@AllAppsActivity, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
               }
             }
           }
@@ -297,9 +302,9 @@ class AllAppsActivity : BaseActivity() {
   }
 
   override fun onDestroy() {
-    super.onDestroy()
     activeDialog?.dismiss()
     searchTextWatcher?.let { binding.etSearch.removeTextChangedListener(it) }
+    super.onDestroy()
   }
 
   private fun setupInsets() {

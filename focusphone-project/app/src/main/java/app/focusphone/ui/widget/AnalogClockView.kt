@@ -67,7 +67,7 @@ class AnalogClockView @JvmOverloads constructor(
 
     private fun updateContentDescription() {
         val displayHour = if (hours % 12 == 0) 12 else hours % 12
-        val amPm = if (hours >= 12) "PM" else "AM"
+        val amPm = if (hours >= 12) "pm" else "am"
         val desc = String.format("%02d:%02d %s", displayHour, minutes, amPm)
         ViewCompat.setStateDescription(this, desc)
         contentDescription = desc

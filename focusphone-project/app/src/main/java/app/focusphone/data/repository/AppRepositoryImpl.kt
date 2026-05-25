@@ -43,7 +43,7 @@ class AppRepositoryImpl(
             val custom = customLabels.getCustomLabel(pkg)
             AppInfo(
                 packageName = pkg,
-                label       = (custom ?: info.loadLabel(pm).toString()).normalizeAppName(),
+                label       = (custom ?: info.loadLabel(pm)?.toString() ?: pkg).normalizeAppName(),
                 icon        = null
             )
         }.sortedBy { it.label }

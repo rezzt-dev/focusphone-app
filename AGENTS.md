@@ -215,15 +215,24 @@ The home screen (`HomeActivity`) displays only text labels for favourite apps. I
 | Permission | Reason |
 |------------|--------|
 | `QUERY_ALL_PACKAGES` | List all installed apps for the app drawer and selector. |
+| `BIND_ACCESSIBILITY_SERVICE` | Declared on `FocusAccessibilityService` to intercept app launches system-wide when Detox/Work profiles are active. |
 <!-- Only QUERY_ALL_PACKAGES remains; unused permissions removed for Play Store compliance -->
 
 ### Detox Password Behavior
-- The detox password is hashed with **SHA-256** before storage in SharedPreferences (`focusphone_profile`).
-- After 4 incorrect password attempts, detox is **force-disabled** for safety and the password is cleared.
-- The `focusphone_profile` SharedPreferences file is excluded from cloud backup via `data_extraction_rules.xml`.
+- The detox password is hashed with **PBKDF2-HMAC-SHA256** (100 000 iterations, 128-bit random salt) before storage. Legacy SHA-256 hashes (no salt) are detected and transparently upgraded on successful verification.
+- After 4 incorrect password attempts within a 30-minute sliding window, detox is **force-disabled** for safety and the password is cleared. The attempt counter is persisted across UI sessions.
+- `DetoxBlockedActivity` and password dialogs set `FLAG_SECURE` to prevent screenshots/screen recording while the user is entering credentials or viewing the block screen.
+- All values in `focusphone_profile` and `focusphone_custom_labels` are encrypted at rest with **AES-256/GCM** via Android Keystore (`SecureStorageHelper`).
+
+### System-Level Blocking (`FocusAccessibilityService`)
+- An optional `AccessibilityService` (`FocusAccessibilityService`) intercepts `TYPE_WINDOW_STATE_CHANGED` events. When a blocked app is launched from outside FocusPhone (notifications, recents, voice assistants), the service immediately launches `DetoxBlockedActivity` on top, closing the bypass vector that existed when the process was killed.
+- The service is **not** enabled by default; the user is prompted to activate it when starting a Detox session.
+
+### Backup Policy
+- `android:allowBackup="false"` is set globally to prevent `adb backup` and cloud backup from leaking user metadata (favourite apps, themes, custom labels, profile state).
 
 ### Custom Theme Colors
-- Custom hex colors are parsed at runtime with `Color.parseColor()`. Invalid values fall back to safe defaults (`#181818` / `#FAFAFA`).
+- Custom hex colors are validated with a strict regex (`^#[0-9A-Fa-f]{6}$`) before parsing. Invalid values fall back to safe defaults (`#181818` / `#FAFAFA`).
 
 ---
 

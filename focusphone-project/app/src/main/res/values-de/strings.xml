@@ -32,6 +32,7 @@
     <string name="settings_theme_slate">schiefer</string>
     <string name="settings_theme_warm_beige">warmes beige</string>
     <string name="settings_theme_navy">marineblau</string>
+    <string name="settings_theme_custom">benutzerdefiniert</string>
 
     <string name="settings_alignment">ausrichtung</string>
     <string name="settings_alignment_left">links</string>
@@ -45,6 +46,7 @@
     <string name="settings_text_size_pt">textgröße: %1$dpt</string>
     <string name="settings_section_font">schriftart</string>
     <string name="settings_font_label">launcher-schriftart</string>
+    <string name="font_select_title">schriftart auswählen</string>
     <string name="settings_section_launcher">launcher</string>
     <string name="settings_set_default">als standard-launcher festlegen</string>
     <string name="settings_set_default_desc">systemeinstellungen öffnen</string>

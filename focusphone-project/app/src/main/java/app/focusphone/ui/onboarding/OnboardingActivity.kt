@@ -55,8 +55,8 @@ class OnboardingActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         pageChangeCallback?.let { binding.vpOnboarding.unregisterOnPageChangeCallback(it) }
+        super.onDestroy()
     }
 
     private fun setupDots() {

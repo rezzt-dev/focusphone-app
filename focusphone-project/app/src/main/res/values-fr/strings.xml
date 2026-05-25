@@ -32,6 +32,7 @@
     <string name="settings_theme_slate">ardoise</string>
     <string name="settings_theme_warm_beige">beige chaud</string>
     <string name="settings_theme_navy">bleu marine</string>
+    <string name="settings_theme_custom">personnalisé</string>
     
     <string name="settings_alignment">alignement</string>
     <string name="settings_alignment_left">gauche</string>
@@ -45,6 +46,7 @@
     <string name="settings_text_size_pt">taille du texte : %1$dpt</string>
     <string name="settings_section_font">police</string>
     <string name="settings_font_label">police du launcher</string>
+    <string name="font_select_title">sélectionner la police</string>
     <string name="settings_section_launcher">launcher</string>
     <string name="settings_set_default">définir comme launcher</string>
     <string name="settings_set_default_desc">ouvrir les réglages système</string>

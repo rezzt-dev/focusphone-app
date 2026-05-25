@@ -19,3 +19,16 @@
 
 # Custom views and widgets
 -keep class app.focusphone.ui.widget.** { *; }
+
+# Security classes — must not be obfuscated for auditability and Keystore stability
+-keep class app.focusphone.data.preferences.ProfilePreferences { *; }
+-keep class app.focusphone.security.SecureStorageHelper { *; }
+-keep class app.focusphone.service.FocusAccessibilityService { *; }
+
+# Strip debug logs in release builds; keep errors and warnings
+-assumenosideeffects class android.util.Log {
+    public static boolean isLoggable(java.lang.String, int);
+    public static int v(...);
+    public static int i(...);
+    public static int d(...);
+}

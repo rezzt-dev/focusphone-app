@@ -42,6 +42,7 @@ class AppSelectActivity : BaseActivity() {
             setText(app.label)
             setSelection(text.length)
             setSingleLine()
+            filters = arrayOf(android.text.InputFilter.LengthFilter(50))
 
             val gd = android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.RECTANGLE
@@ -123,9 +124,9 @@ class AppSelectActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         activeDialog?.dismiss()
         searchTextWatcher?.let { binding.etSearch.removeTextChangedListener(it) }
+        super.onDestroy()
     }
 
     private fun setupInsets() {

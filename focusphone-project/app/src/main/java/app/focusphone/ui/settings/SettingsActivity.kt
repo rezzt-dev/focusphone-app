@@ -13,12 +13,17 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import app.focusphone.BuildConfig
 import app.focusphone.R
+import android.graphics.Typeface
+import androidx.core.content.res.ResourcesCompat
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.ConsciousPausePreferences
 import app.focusphone.databinding.ActivitySettingsBinding
 import app.focusphone.databinding.ItemSettingsClockTypeBinding
+import app.focusphone.databinding.ItemSettingsFontBinding
+import app.focusphone.domain.model.AppFont
 import app.focusphone.domain.model.ClockType
+import app.focusphone.service.FocusAccessibilityService
 import app.focusphone.ui.base.BaseActivity
 
 class SettingsActivity : BaseActivity() {
@@ -40,33 +45,19 @@ class SettingsActivity : BaseActivity() {
         setupClockTypeSelector()
         setupClockSizeSlider()
         setupTextSizeSlider()
+        setupFontSelector()
         setupStatusBarToggle()
         setupConsciousPause()
         setupLanguageSelector()
         setupTutorial()
+        setupAccessibilityService()
         binding.itemSetDefaultLauncher.setOnClickListener {
             startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
         }
         binding.tvVersion.text = getString(R.string.settings_version, BuildConfig.VERSION_NAME)
 
         binding.tvVersion.setOnLongClickListener {
-            // Hidden privacy policy access via long-press on version row
-            try {
-                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW)
-                intent.setDataAndType(
-                    android.net.Uri.parse("file:///android_asset/privacy_policy.html"),
-                    "text/html"
-                )
-                startActivity(intent)
-            } catch (_: Exception) {
-                // Fallback to raw HTML display if no viewer available
-                val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle("privacy policy")
-                    .setMessage("see privacy_policy.html in app assets.")
-                    .setPositiveButton("ok", null)
-                    .create()
-                dialog.show()
-            }
+            showPrivacyPolicyDialog()
             true
         }
     }
@@ -137,7 +128,7 @@ class SettingsActivity : BaseActivity() {
             ThemePreferences.THEME_SLATE -> getString(R.string.settings_theme_slate)
             ThemePreferences.THEME_WARM_BEIGE -> getString(R.string.settings_theme_warm_beige)
             ThemePreferences.THEME_NAVY -> getString(R.string.settings_theme_navy)
-            ThemePreferences.THEME_CUSTOM -> "custom"
+            ThemePreferences.THEME_CUSTOM -> getString(R.string.settings_theme_custom)
             else -> getString(R.string.settings_theme_slate)
         }
         binding.tvActiveThemeName.text = themeName.lowercase()
@@ -167,6 +158,7 @@ class SettingsActivity : BaseActivity() {
 
     private fun showThemeSelectionDialog() {
         val view = layoutInflater.inflate(R.layout.dialog_theme_select, null)
+        applyFontFamilyToView(view)
         activeDialog = android.app.AlertDialog.Builder(this)
             .setView(view)
             .create()
@@ -305,7 +297,7 @@ class SettingsActivity : BaseActivity() {
             val bgHex = binding.etCustomBgColor.text.toString().trim()
             val fgHex = binding.etCustomFgColor.text.toString().trim()
 
-            if (bgHex.length == 7 && bgHex.startsWith("#") && fgHex.length == 7 && fgHex.startsWith("#")) {
+            if (isValidHexColor(bgHex) && isValidHexColor(fgHex)) {
                 ThemePreferences.setCustomBackgroundColorHex(this, bgHex)
                 ThemePreferences.setCustomForegroundColorHex(this, fgHex)
                 applyTheme(ThemePreferences.THEME_CUSTOM)
@@ -337,7 +329,7 @@ class SettingsActivity : BaseActivity() {
 
     private fun setupClockSizeSlider() {
         val current = FontPreferences.getClockSizePercent(this)
-        binding.sliderClockSize.value = current.toFloat()
+        binding.sliderClockSize.value = current.toFloat().coerceIn(0f, 100f)
         binding.sliderClockSize.addOnChangeListener { _, value, _ ->
             FontPreferences.setClockSizePercent(this, value.toInt())
         }
@@ -345,7 +337,7 @@ class SettingsActivity : BaseActivity() {
 
     private fun setupTextSizeSlider() {
         val current = FontPreferences.getFontSizePt(this)
-        binding.sliderTextSize.value = current.toFloat()
+        binding.sliderTextSize.value = current.toFloat().coerceIn(8f, 24f)
         updateTextSizeLabel(current)
         binding.sliderTextSize.addOnChangeListener { _, value, _ ->
             val size = value.toInt()
@@ -356,6 +348,88 @@ class SettingsActivity : BaseActivity() {
 
     private fun updateTextSizeLabel(size: Int) {
         binding.tvTextSizeLabel.text = getString(R.string.settings_text_size_pt, size)
+    }
+
+    // ── Font selector ──────────────────────────────────────────────
+
+    private fun setupFontSelector() {
+        updateFontRowUI()
+        binding.btnToggleFont.setOnClickListener {
+            showFontSelectionDialog()
+        }
+    }
+
+    private fun updateFontRowUI() {
+        val current = FontPreferences.getFont(this)
+        binding.tvActiveFontName.text = current.displayName.lowercase()
+    }
+
+    private fun showFontSelectionDialog() {
+        val current = FontPreferences.getFont(this)
+        val view = layoutInflater.inflate(R.layout.dialog_font_select, null)
+        applyFontFamilyToView(view)
+        activeDialog = android.app.AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+
+        activeDialog?.window?.setBackgroundDrawable(
+            android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+
+        val container = view.findViewById<LinearLayout>(R.id.font_options_container)
+        container.removeAllViews()
+
+        AppFont.entries.forEachIndexed { index, font ->
+            val item = ItemSettingsFontBinding.inflate(inflater, container, false)
+            item.tvFontName.text = font.displayName.lowercase()
+            item.tvFontSample.text = "focusphone"
+
+            if (font == AppFont.SYSTEM) {
+                item.tvFontSample.typeface = Typeface.create("sans-serif", Typeface.BOLD)
+            } else {
+                font.fontResId?.let { resId ->
+                    try {
+                        ResourcesCompat.getFont(this, resId)?.let {
+                            item.tvFontSample.typeface = it
+                        }
+                    } catch (_: Exception) {
+                        // Ignore font loading errors
+                    }
+                }
+            }
+
+            val isActive = font == current
+            item.tvCheck.visibility = if (isActive) View.VISIBLE else View.INVISIBLE
+            item.root.alpha = if (isActive) 1f else 0.6f
+
+            item.root.setOnClickListener {
+                if (FontPreferences.getFont(this) != font) {
+                    FontPreferences.setFont(this, font)
+                    activeDialog?.dismiss()
+                    recreate()
+                }
+            }
+
+            container.addView(item.root)
+
+            // Add divider between items
+            if (index < AppFont.entries.size - 1) {
+                val divider = View(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        (1 * resources.displayMetrics.density).toInt()
+                    ).apply {
+                        marginStart = (16 * resources.displayMetrics.density).toInt()
+                        marginEnd = (16 * resources.displayMetrics.density).toInt()
+                    }
+                    setBackgroundColor(
+                        resources.getColor(android.R.color.darker_gray, theme))
+                    alpha = 0.1f
+                }
+                container.addView(divider)
+            }
+        }
+
+        activeDialog?.show()
     }
 
     private fun setupStatusBarToggle() {
@@ -437,7 +511,7 @@ class SettingsActivity : BaseActivity() {
         binding.switchConsciousPause.isChecked = isEnabled
         
         val currentDuration = ConsciousPausePreferences.getDuration(this)
-        binding.sliderConsciousPauseDuration.value = currentDuration.toFloat()
+        binding.sliderConsciousPauseDuration.value = currentDuration.toFloat().coerceIn(3f, 10f)
         updateDurationLabel(currentDuration)
         
         binding.sliderConsciousPauseDuration.isEnabled = isEnabled
@@ -464,8 +538,29 @@ class SettingsActivity : BaseActivity() {
         }
     }
 
+    // ── Accessibility Service ──────────────────────────────────────
+
+    private fun setupAccessibilityService() {
+        binding.itemAccessibilityService.setOnClickListener {
+            FocusAccessibilityService.openAccessibilitySettings(this)
+        }
+    }
+
+    private fun updateAccessibilityStatus() {
+        val isActive = FocusAccessibilityService.isEnabled(this)
+        binding.tvAccessibilityStatus.text = getString(
+            if (isActive) R.string.settings_accessibility_active else R.string.settings_accessibility_inactive
+        )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateAccessibilityStatus()
+    }
+
     private fun showTutorialDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_tutorial_carousel, null)
+        applyFontFamilyToView(dialogView)
         activeDialog = androidx.appcompat.app.AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
@@ -545,7 +640,9 @@ class SettingsActivity : BaseActivity() {
                     dot.backgroundTintList = android.content.res.ColorStateList.valueOf(primaryColor)
                 } else {
                     dot.setBackgroundResource(R.drawable.bg_dot_inactive)
-                    dot.backgroundTintList = android.content.res.ColorStateList.valueOf(secondaryColor).withAlpha(76)
+                    dot.backgroundTintList = android.content.res.ColorStateList.valueOf(
+                        (secondaryColor and 0x00FFFFFF) or (76 shl 24)
+                    )
                 }
                 layoutDots.addView(dot)
             }
@@ -572,10 +669,50 @@ class SettingsActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         activeDialog?.dismiss()
         bgTextWatcher?.let { binding.etCustomBgColor.removeTextChangedListener(it) }
         fgTextWatcher?.let { binding.etCustomFgColor.removeTextChangedListener(it) }
+        super.onDestroy()
+    }
+
+    private fun isValidHexColor(hex: String): Boolean {
+        return hex.matches(Regex("^#[0-9A-Fa-f]{6}$"))
+    }
+
+    private fun showPrivacyPolicyDialog() {
+        val htmlText = try {
+            assets.open("privacy_policy.html").bufferedReader().use { it.readText() }
+        } catch (_: Exception) {
+            null
+        }
+
+        val scrollView = android.widget.ScrollView(this).apply {
+            setPadding(dp(24), dp(16), dp(24), dp(16))
+        }
+        val font = FontPreferences.getTypefaceOrNull(this)
+        val textView = android.widget.TextView(this).apply {
+            typeface = font
+            if (htmlText != null) {
+                text = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    android.text.Html.fromHtml(htmlText, android.text.Html.FROM_HTML_MODE_LEGACY)
+                } else {
+                    @Suppress("DEPRECATION")
+                    android.text.Html.fromHtml(htmlText)
+                }
+            } else {
+                text = getString(R.string.settings_privacy_policy_fallback)
+            }
+            textSize = 14f
+            setLineSpacing(1.2f, 1.2f)
+        }
+        scrollView.addView(textView)
+
+        activeDialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.settings_privacy_policy)
+            .setView(scrollView)
+            .setPositiveButton(R.string.action_ok, null)
+            .create()
+        activeDialog?.show()
     }
 
     private fun dp(value: Int): Int =
