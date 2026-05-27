@@ -30,12 +30,17 @@ abstract class BaseActivity : AppCompatActivity() {
     private var currentFontFamily: String? = null
 
     override fun attachBaseContext(newBase: android.content.Context) {
-        val config = android.content.res.Configuration(newBase.resources.configuration)
-        val systemFontScale = newBase.resources.configuration.fontScale
-        val userMultiplier = FontPreferences.getFontScale(newBase)
-        config.fontScale = (systemFontScale * userMultiplier).coerceIn(0.5f, 2.0f)
-        val context = newBase.createConfigurationContext(config)
-        super.attachBaseContext(context)
+        try {
+            val config = android.content.res.Configuration(newBase.resources.configuration)
+            val systemFontScale = newBase.resources.configuration.fontScale
+            val userMultiplier = FontPreferences.getFontScale(newBase)
+            config.fontScale = (systemFontScale * userMultiplier).coerceIn(0.5f, 2.0f)
+            val context = newBase.createConfigurationContext(config)
+            super.attachBaseContext(context)
+        } catch (e: Exception) {
+            Log.e("BaseActivity", "Failed to apply font scale configuration", e)
+            super.attachBaseContext(newBase)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

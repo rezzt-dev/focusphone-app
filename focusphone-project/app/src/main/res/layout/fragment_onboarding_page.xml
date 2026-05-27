@@ -18,7 +18,7 @@
         android:gravity="start"
         android:letterSpacing="-0.01"
         android:lineSpacingMultiplier="1.1"
-        android:textColor="?attr/android:textColorPrimary"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="@dimen/text_onboarding_title"
         tools:text="welcome." />
 
@@ -31,7 +31,7 @@
         android:gravity="start"
         android:letterSpacing="0.02"
         android:lineSpacingMultiplier="1.6"
-        android:textColor="?attr/android:textColorSecondary"
+        android:textColor="?android:attr/textColorSecondary"
         android:textSize="@dimen/text_onboarding_body"
         tools:text="focusphone turns your Android into a distraction-free tool." />
 
@@ -45,7 +45,7 @@
         android:letterSpacing="0.06"
         android:padding="@dimen/spacing_l"
         android:textAllCaps="false"
-        android:textColor="?attr/android:textColorPrimary"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="15sp"
         android:visibility="gone"
         tools:text="Set as default" />

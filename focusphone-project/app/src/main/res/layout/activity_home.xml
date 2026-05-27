@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/android:colorBackground">
+    android:background="?android:attr/colorBackground">
 
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
@@ -48,7 +48,7 @@
                     android:fontFamily="sans-serif"
                     android:includeFontPadding="false"
                     android:letterSpacing="-0.03"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="56sp"
                     tools:text="09:41" />
 
@@ -59,7 +59,7 @@
                     android:layout_marginTop="6dp"
                     android:fontFamily="sans-serif"
                     android:letterSpacing="0.04"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="16sp"
                     tools:text="Tuesday, 5 May" />
             </LinearLayout>
@@ -81,7 +81,7 @@
                     android:includeFontPadding="false"
                     android:letterSpacing="-0.04"
                     android:lineSpacingMultiplier="0.85"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="76sp"
                     tools:text="09" />
 
@@ -93,7 +93,7 @@
                     android:includeFontPadding="false"
                     android:letterSpacing="-0.04"
                     android:lineSpacingMultiplier="0.85"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="76sp"
                     tools:text="41" />
 
@@ -104,7 +104,7 @@
                     android:layout_marginTop="8dp"
                     android:fontFamily="sans-serif"
                     android:letterSpacing="0.04"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="16sp"
                     tools:text="Tuesday, 5 May" />
             </LinearLayout>
@@ -127,7 +127,7 @@
                     android:fontFamily="sans-serif"
                     android:gravity="center"
                     android:lineSpacingMultiplier="1.1"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="34sp"
                     tools:text="nine\nforty-one" />
 
@@ -139,7 +139,7 @@
                     android:fontFamily="sans-serif"
                     android:letterSpacing="0.04"
                     android:gravity="center"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="16sp"
                     tools:text="tuesday, 5 may" />
             </LinearLayout>
@@ -170,7 +170,7 @@
                     android:layout_marginBottom="8dp"
                     android:fontFamily="sans-serif"
                     android:letterSpacing="0.04"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="16sp"
                     tools:text="Tuesday, 5 May" />
             </LinearLayout>
@@ -226,7 +226,7 @@
                 android:paddingEnd="44dp"
                 android:paddingTop="24dp"
                 android:text="@string/home_no_apps"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="22sp"
                 android:visibility="gone" />
 
@@ -240,7 +240,7 @@
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:background="?attr/android:colorBackground"
+        android:background="?android:attr/colorBackground"
         android:orientation="vertical"
         android:padding="32dp">
 
@@ -262,7 +262,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
-                android:textColor="?attr/android:textColorPrimary"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="20sp"
                 android:letterSpacing="0.05"
                 android:layout_marginBottom="20dp"
@@ -276,13 +276,13 @@
                 android:weightSum="7"
                 android:layout_marginBottom="12dp">
 
-                <TextView android:id="@+id/tv_day_0" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="l" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:id="@+id/tv_day_1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="m" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:id="@+id/tv_day_2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="m" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:id="@+id/tv_day_3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="j" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:id="@+id/tv_day_4" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="v" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:id="@+id/tv_day_5" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="s" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:id="@+id/tv_day_6" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="d" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_0" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="l" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="m" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="m" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="j" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_4" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="v" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_5" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="s" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_6" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="d" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
             </LinearLayout>
 
             <!-- Days Grid -->
@@ -315,7 +315,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="@string/home_settings"
-                android:textColor="?attr/android:textColorPrimary"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="26sp" />
 
             <!-- "todas las apps" -->
@@ -330,7 +330,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="@string/home_all_apps"
-                android:textColor="?attr/android:textColorPrimary"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="26sp" />
 
             <!-- "editar apps" -->
@@ -345,7 +345,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="@string/home_edit_apps"
-                android:textColor="?attr/android:textColorPrimary"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="26sp" />
 
             <!-- "perfil: libre" -->
@@ -359,7 +359,7 @@
                 android:gravity="start|center_vertical"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:textColor="?attr/android:textColorPrimary"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="26sp"
                 tools:text="perfil: libre" />
 

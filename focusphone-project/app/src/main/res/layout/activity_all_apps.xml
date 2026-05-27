@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/android:colorBackground">
+    android:background="?android:attr/colorBackground">
 
     <!-- Header (title + search) — top padding applied via insets in code -->
     <LinearLayout
@@ -28,7 +28,7 @@
             android:letterSpacing="0.08"
             android:paddingBottom="12dp"
             android:text="@string/allapps_title"
-            android:textColor="?attr/android:textColorPrimary"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="17sp" />
 
         <!-- Search -->
@@ -43,8 +43,8 @@
             android:importantForAutofill="no"
             android:inputType="text"
             android:maxLines="1"
-            android:textColor="?attr/android:textColorPrimary"
-            android:textColorHint="?attr/android:textColorSecondary"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textColorHint="?android:attr/textColorSecondary"
             android:textSize="15sp"
             android:letterSpacing="0.02" />
     </LinearLayout>
@@ -71,7 +71,7 @@
         android:fontFamily="sans-serif-light"
         android:gravity="center"
         android:text="@string/search_empty_state"
-        android:textColor="?attr/android:textColorSecondary"
+        android:textColor="?android:attr/textColorSecondary"
         android:textSize="15sp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/btn_close"
@@ -93,7 +93,7 @@
         android:gravity="center"
         android:text="@string/allapps_close"
         android:textAllCaps="false"
-        android:textColor="?attr/android:textColorSecondary"
+        android:textColor="?android:attr/textColorSecondary"
         android:textSize="15sp"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"

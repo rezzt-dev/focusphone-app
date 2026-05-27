@@ -24,7 +24,7 @@
         android:layout_weight="1"
         android:fontFamily="sans-serif-light"
         android:letterSpacing="0.02"
-        android:textColor="?attr/android:textColorPrimary"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="17sp"
         tools:text="messages" />
 
@@ -37,6 +37,6 @@
         android:contentDescription="@string/cd_select_indicator"
         android:scaleType="centerInside"
         android:src="@drawable/ic_add"
-        app:tint="?attr/android:textColorPrimary" />
+        app:tint="?android:attr/textColorPrimary" />
 
 </LinearLayout>

@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/android:colorBackground"
+    android:background="?android:attr/colorBackground"
     android:keepScreenOn="true">
 
     <!-- ── Center Detox Circle ────────────────────────────────── -->
@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
                 android:includeFontPadding="false"
-                android:textColor="?attr/android:textColorPrimary"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="38sp"
                 tools:text="14:59" />
 
@@ -45,7 +45,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:letterSpacing="0.12"
                 android:text="@string/detox_label"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp"
                 android:textAllCaps="true" />
 
@@ -62,7 +62,7 @@
         android:fontFamily="sans-serif"
         android:letterSpacing="0.04"
         android:text="@string/detox_blocked_title"
-        android:textColor="?attr/android:textColorPrimary"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="22sp"
         app:layout_constraintBottom_toTopOf="@id/tv_detox_desc"
         app:layout_constraintEnd_toEndOf="parent"
@@ -81,7 +81,7 @@
         android:gravity="center"
         android:lineSpacingMultiplier="1.3"
         android:text="@string/detox_blocked_desc"
-        android:textColor="?attr/android:textColorSecondary"
+        android:textColor="?android:attr/textColorSecondary"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

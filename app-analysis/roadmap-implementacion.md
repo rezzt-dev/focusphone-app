@@ -16,6 +16,7 @@
 ---
 
 ## FASE 1: Fundamentos de Accesibilidad y UX Rápida
+
 **Tiempo estimado total: 3–4 días**  
 **Riesgo de ruptura: BAJO**  
 **Valor para el usuario: ALTO**
@@ -23,6 +24,7 @@
 Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmente usuarios con necesidades de accesibilidad) y son cambios localizados, fáciles de testear.
 
 ### 1.1 Corrección del escalado de fuente del sistema (Crítico accesibilidad)
+
 - **Problema:** `BaseActivity.attachBaseContext()` fuerza `config.fontScale = FontPreferences.getFontScale(newBase)`, **anulando** por completo el ajuste de accesibilidad del sistema Android. Un usuario con `fontScale=1.3` en el sistema ve `1.0` a menos que toque el slider de la app.
 - **Solución:** El slider de la app debe actuar como **multiplicador relativo** al `fontScale` del sistema, no como valor absoluto.
   - `FontPreferences.getFontScale(context)` → `getFontScaleMultiplier(context)` (default 1.0f).
@@ -33,6 +35,7 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 - **Tiempo:** 4–6 horas.
 
 ### 1.2 Completar Content Descriptions faltantes
+
 - **Problema:** Faltan `android:contentDescription` en: items de apps en `FavouriteAppsAdapter`/`AllAppsAdapter`, días del calendario generados dinámicamente, botón hamburguesa (drawer), indicadores de página.
 - **Solución:**
   - Añadir `contentDescription` programático en adapters: `"${app.label}, open app"`.
@@ -42,6 +45,7 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 - **Tiempo:** 3–4 horas.
 
 ### 1.3 Relanzar Onboarding desde Settings
+
 - **Problema:** El usuario no puede volver a ver el flujo original de onboarding (Welcome → Set Launcher → Pick Apps) tras completarlo una vez.
 - **Solución:**
   - Añadir en `SettingsActivity` un nuevo item "restart onboarding" que:
@@ -52,6 +56,7 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 - **Tiempo:** 2–3 horas.
 
 ### 1.4 Mejorar manejo de errores silenciados (Crítico estabilidad)
+
 - **Problema:** Múltiples `catch (_: Exception)` que devuelven `emptyList()`, ocultan crashes y hacen debugging imposible.
 - **Solución (no invasiva):**
   - En `AppSelectViewModel.kt:45` y `AllAppsViewModel.kt:69`: reemplazar `catch (_: Exception) { emptyList() }` por logging estructurado vía `android.util.Log` en debug, y en release devolver `emptyList()` pero con un evento de error expuesto al UI (opcional: un `SharedFlow<String>` para toast de error).
@@ -60,6 +65,7 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 - **Tiempo:** 3–4 horas.
 
 ### 1.5 Búsqueda difusa básica (Fuzzy Search)
+
 - **Problema:** La búsqueda es `String.contains()` exacto. Buscar "fbook" no encuentra "facebook".
 - **Solución:** Implementar un algoritmo de **Levenshtein distance** ligero o un **scoring por subsecuencia** (subsequence match con bonus por consecutividad) para los filtros de `AppSelectViewModel` y `AllAppsViewModel`.
   - Algoritmo recomendado: **Fuzzy matching por subsecuencia** (no requiere librerías externas, ~40 líneas de Kotlin puro). Puntuación: +1 por carácter coincidente, +3 por carácter consecutivo. Umbral mínimo para mostrar resultado.
@@ -71,11 +77,13 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 ---
 
 ## FASE 2: Robustez, Testing y Perfil Work Configurable
+
 **Tiempo estimado total: 5–7 días**  
 **Riesgo de ruptura: MEDIO**  
 **Valor para el usuario: ALTO**
 
 ### 2.1 Suite de tests unitarios para lógica crítica
+
 - **Cobertura objetivo:**
   - `ProfilePreferences`: `isAppBlocked()` con los 3 perfiles, expiración de detox, lógica de intentos fallidos, migración legacy SHA-256 → PBKDF2.
   - `FuzzyMatcher`: todos los casos de matching y no-matching.
@@ -86,6 +94,7 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 - **Tiempo:** 2 días.
 
 ### 2.2 Tests instrumentados para flujos críticos
+
 - **Flujos a testear:**
   - Onboarding completo (3 pasos).
   - Selección de apps favoritas, toggle, límite de 10.
@@ -96,6 +105,7 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 - **Tiempo:** 2–3 días.
 
 ### 2.3 Perfil Work con keywords configurables por usuario
+
 - **Problema:** `DISTRACTING_KEYWORDS` es una lista hardcodeada en `ProfilePreferences.kt`. El usuario no puede añadir/quitar keywords ni apps manualmente para Work.
 - **Solución:**
   - Añadir a `ProfilePreferences`:
@@ -110,6 +120,7 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 - **Tiempo:** 2–3 días.
 
 ### 2.4 Modo automático día/noche (Auto Theme)
+
 - **Problema:** El usuario debe cambiar tema manualmente. No hay adaptación al tema del sistema.
 - **Solución:**
   - Nuevo valor `THEME_AUTO` en `ThemePreferences`.
@@ -122,11 +133,13 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 ---
 
 ## FASE 3: Features de Paridad con Launcher Nativo
+
 **Tiempo estimado total: 7–10 días**  
 **Riesgo de ruptura: MEDIO-ALTO**  
 **Valor para el usuario: MEDIO-ALTO**
 
 ### 3.1 App Shortcuts (Android 7.1+ / API 25+)
+
 - **Problema:** Long-press en apps favoritas solo muestra menú propio (open, remove, info, uninstall). No muestra los shortcuts dinámicos/pinned del sistema.
 - **Solución:**
   - Usar `ShortcutManager` para obtener shortcuts de una app: `getShortcuts()` requiere `android.permission.READ_SHORTCUTS` o `LauncherApps.getShortcuts()` (más apropiado para launchers).
@@ -139,6 +152,7 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 - **Tiempo:** 2–3 días.
 
 ### 3.2 Badges de Notificación (Notification Dots / Count)
+
 - **Problema:** No hay acceso al estado de notificaciones, ni badges visuales.
 - **Solución:**
   - Implementar un `NotificationListenerService` para recibir eventos de notificación del sistema (`NotificationListenerService`).
@@ -152,6 +166,7 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 - **Tiempo:** 3–4 días.
 
 ### 3.3 Gestos de navegación sin conflicto (Android 10+)
+
 - **Problema:** El swipe left desde el borde derecho para abrir el drawer puede entrar en conflicto con el back gesture del sistema.
 - **Solución:**
   - Implementar `setSystemGestureExclusionRects()` en `HomeActivity` para reservar una zona del borde derecho (ej. 40dp desde la derecha, altura completa) para el drawer swipe.
@@ -162,11 +177,13 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 ---
 
 ## FASE 4: Features Avanzadas (Mayor Complejidad)
+
 **Tiempo estimado total: 10–15 días**  
 **Riesgo de ruptura: ALTO**  
 **Valor para el usuario: MEDIO (alto para ciertos segmentos)**
 
 ### 4.1 Widgets del Sistema (AppWidgets)
+
 - **Problema:** No hay soporte para widgets. Es una barrera de adopción para usuarios que dependen de widgets de calendario, clima, etc.
 - **Solución:**
   - Implementar `AppWidgetHost` y `AppWidgetHostView` en una Activity de configuración dedicada (`WidgetConfigActivity`).
@@ -182,6 +199,7 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 - **Tiempo:** 5–7 días.
 
 ### 4.2 Panel de notificaciones accesible por gesture
+
 - **Problema:** No hay acceso programático al shade de notificaciones.
 - **Solución:**
   - Swipe down en el área superior del home para expandir notificaciones vía `StatusBarManager.expandNotificationsPanel()` (requiere permiso `EXPAND_STATUS_BAR`, disponible desde API 16, o reflection como fallback).
@@ -228,6 +246,7 @@ Esta fase corrige problemas que afectan a usuarios reales hoy mismo (especialmen
 ## Checklist de Entrega por Fase
 
 Antes de declarar una fase terminada:
+
 - [ ] `./gradlew :app:assembleDebug` compila sin warnings críticos.
 - [ ] `./gradlew :app:testDebugUnitTest` pasa al 100%.
 - [ ] Se ha probado rotación de pantalla en las Activities modificadas.

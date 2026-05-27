@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/android:colorBackground">
+    android:background="?android:attr/colorBackground">
 
     <!-- ── Toolbar ─────────────────────────────────────────────── -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -29,7 +29,7 @@
             android:paddingStart="20dp"
             android:paddingEnd="12dp"
             android:text="@string/settings_back"
-            android:textColor="?attr/android:textColorSecondary"
+            android:textColor="?android:attr/textColorSecondary"
             android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -41,7 +41,7 @@
             android:fontFamily="sans-serif"
             android:letterSpacing="0.04"
             android:text="@string/permissions_title"
-            android:textColor="?attr/android:textColorPrimary"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -55,7 +55,7 @@
         android:layout_width="0dp"
         android:layout_height="0.5dp"
         android:alpha="0.12"
-        android:background="?attr/android:textColorPrimary"
+        android:background="?android:attr/textColorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
@@ -90,7 +90,7 @@
                 android:paddingBottom="12dp"
                 android:text="@string/settings_section_permissions"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <!-- Query All Packages -->
@@ -120,7 +120,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif"
                             android:textSize="16sp"
-                            android:textColor="?attr/android:textColorPrimary"
+                            android:textColor="?android:attr/textColorPrimary"
                             android:text="@string/permissions_query_all_packages_title" />
 
                         <TextView
@@ -129,7 +129,7 @@
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif"
                             android:textSize="13sp"
-                            android:textColor="?attr/android:textColorSecondary"
+                            android:textColor="?android:attr/textColorSecondary"
                             android:text="@string/permissions_query_all_packages_desc" />
                     </LinearLayout>
 
@@ -138,7 +138,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -156,13 +156,13 @@
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
                     android:text="@string/permissions_go_to_settings"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="14sp" />
             </LinearLayout>
 
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
+                android:alpha="0.12" android:background="?android:attr/textColorPrimary" />
 
             <!-- Accessibility Service -->
             <LinearLayout
@@ -191,7 +191,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif"
                             android:textSize="16sp"
-                            android:textColor="?attr/android:textColorPrimary"
+                            android:textColor="?android:attr/textColorPrimary"
                             android:text="@string/permissions_accessibility_title" />
 
                         <TextView
@@ -200,7 +200,7 @@
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif"
                             android:textSize="13sp"
-                            android:textColor="?attr/android:textColorSecondary"
+                            android:textColor="?android:attr/textColorSecondary"
                             android:text="@string/permissions_accessibility_desc" />
                     </LinearLayout>
 
@@ -209,7 +209,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -227,13 +227,13 @@
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
                     android:text="@string/permissions_go_to_settings"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="14sp" />
             </LinearLayout>
 
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
+                android:alpha="0.12" android:background="?android:attr/textColorPrimary" />
 
             <!-- Default Launcher -->
             <LinearLayout
@@ -262,7 +262,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif"
                             android:textSize="16sp"
-                            android:textColor="?attr/android:textColorPrimary"
+                            android:textColor="?android:attr/textColorPrimary"
                             android:text="@string/permissions_launcher_title" />
 
                         <TextView
@@ -271,7 +271,7 @@
                             android:layout_marginTop="2dp"
                             android:fontFamily="sans-serif"
                             android:textSize="13sp"
-                            android:textColor="?attr/android:textColorSecondary"
+                            android:textColor="?android:attr/textColorSecondary"
                             android:text="@string/permissions_launcher_desc" />
                     </LinearLayout>
 
@@ -280,7 +280,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -298,7 +298,7 @@
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
                     android:text="@string/permissions_go_to_settings"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="14sp" />
             </LinearLayout>
 

@@ -282,7 +282,14 @@ object ProfilePreferences {
     // ── Secure storage primitives ──────────────────────────────────
 
     private fun getEncryptedString(context: Context, key: String, default: String?): String? {
-        val encrypted = prefs(context).getString(key, null) ?: return default
+        val encrypted = try {
+            prefs(context).getString(key, null)
+        } catch (e: ClassCastException) {
+            // Legacy value stored as a different primitive type (e.g. Long or Set).
+            // Remove the stale key so the next write persists in the correct format.
+            prefs(context).edit().remove(key).apply()
+            null
+        } ?: return default
         return SecureStorageHelper.decrypt(context, encrypted) ?: default
     }
 

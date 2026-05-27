@@ -4,6 +4,7 @@ import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import android.util.Log
 import java.nio.ByteBuffer
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -30,12 +31,14 @@ object SecureStorageHelper {
     private const val AES_GCM_NOPADDING = "AES/GCM/NoPadding"
     private const val GCM_TAG_LENGTH_BITS = 128
     private const val GCM_IV_LENGTH_BYTES = 12
+    private const val TAG = "SecureStorageHelper"
 
     /** Encrypt [plainText]; returns Base64-encoded IV+ciphertext or null on failure. */
     fun encrypt(context: Context, plainText: String): String? {
         return try {
+            val key = getOrCreateKey() ?: return null
             val cipher = Cipher.getInstance(AES_GCM_NOPADDING)
-            cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
+            cipher.init(Cipher.ENCRYPT_MODE, key)
             val iv = cipher.iv
             val cipherBytes = cipher.doFinal(plainText.toByteArray(Charsets.UTF_8))
             val combined = ByteBuffer.allocate(iv.size + cipherBytes.size)
@@ -57,32 +60,38 @@ object SecureStorageHelper {
             val iv = combined.copyOfRange(0, GCM_IV_LENGTH_BYTES)
             val cipherBytes = combined.copyOfRange(GCM_IV_LENGTH_BYTES, combined.size)
 
+            val key = getOrCreateKey() ?: return null
             val cipher = Cipher.getInstance(AES_GCM_NOPADDING)
-            cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), GCMParameterSpec(GCM_TAG_LENGTH_BITS, iv))
+            cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(GCM_TAG_LENGTH_BITS, iv))
             String(cipher.doFinal(cipherBytes), Charsets.UTF_8)
         } catch (e: Exception) {
             null
         }
     }
 
-    private fun getOrCreateKey(): SecretKey {
-        val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
-        val entry = keyStore.getEntry(KEY_ALIAS, null) as? KeyStore.SecretKeyEntry
-        if (entry != null) {
-            return entry.secretKey
-        }
+    private fun getOrCreateKey(): SecretKey? {
+        return try {
+            val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
+            val entry = keyStore.getEntry(KEY_ALIAS, null) as? KeyStore.SecretKeyEntry
+            if (entry != null) {
+                return entry.secretKey
+            }
 
-        val keyGen = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
-        val spec = KeyGenParameterSpec.Builder(
-            KEY_ALIAS,
-            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-        )
-            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-            .setKeySize(256)
-            .setRandomizedEncryptionRequired(true)
-            .build()
-        keyGen.init(spec)
-        return keyGen.generateKey()
+            val keyGen = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
+            val spec = KeyGenParameterSpec.Builder(
+                KEY_ALIAS,
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+            )
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setKeySize(256)
+                .setRandomizedEncryptionRequired(true)
+                .build()
+            keyGen.init(spec)
+            keyGen.generateKey()
+        } catch (e: Exception) {
+            Log.e(TAG, "Keystore key creation/retrieval failed", e)
+            null
+        }
     }
 }

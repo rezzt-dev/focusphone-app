@@ -1,8 +1,6 @@
 package app.focusphone.ui.home
 
-import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
-import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -70,8 +68,6 @@ class HomeActivity : BaseActivity() {
     private lateinit var binding: ActivityHomeBinding
     private lateinit var gestureDetector: GestureDetector
 
-    private var appWidgetHost: AppWidgetHost? = null
-    private var appWidgetManager: AppWidgetManager? = null
     private var widgetHostView: AppWidgetHostView? = null
     private var lastRestoredWidgetId: Int = WidgetPreferences.INVALID_WIDGET_ID
 
@@ -113,8 +109,6 @@ class HomeActivity : BaseActivity() {
         showLongPressHintIfNeeded()
         observeFavourites()
         setupBackPress()
-        initWidgetHost()
-        restoreWidget()
 
         binding.indicatorContainer.visibility = View.INVISIBLE
         binding.indicatorContainer.alpha = 0f
@@ -136,12 +130,14 @@ class HomeActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         try {
-            androidx.core.content.ContextCompat.registerReceiver(
-                this, clockReceiver, IntentFilter(Intent.ACTION_TIME_TICK),
-                androidx.core.content.ContextCompat.RECEIVER_EXPORTED
-            )
-        } catch (e: SecurityException) {
-            // Some OEMs restrict ACTION_TIME_TICK
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(clockReceiver, IntentFilter(Intent.ACTION_TIME_TICK), Context.RECEIVER_EXPORTED)
+            } else {
+                @Suppress("UNSAFE_CAST")
+                registerReceiver(clockReceiver, IntentFilter(Intent.ACTION_TIME_TICK))
+            }
+        } catch (e: Exception) {
+            // Some OEMs restrict ACTION_TIME_TICK; also IllegalArgumentException on old devices
             Log.w("HomeActivity", "Cannot register ACTION_TIME_TICK receiver", e)
         }
         applyClockType()
@@ -208,12 +204,13 @@ class HomeActivity : BaseActivity() {
 
     override fun onStart() {
         super.onStart()
-        appWidgetHost?.startListening()
+        app.focusphone.ui.widget.AppWidgetHostManager.getInstance(this).startListening()
+        restoreWidget()
     }
 
     override fun onStop() {
         super.onStop()
-        appWidgetHost?.stopListening()
+        app.focusphone.ui.widget.AppWidgetHostManager.getInstance(this).stopListening()
     }
 
     override fun onPause() {
@@ -230,8 +227,6 @@ class HomeActivity : BaseActivity() {
         super.onDestroy()
         widgetHostView?.let { binding.widgetContainer.removeView(it) }
         widgetHostView = null
-        appWidgetHost = null
-        appWidgetManager = null
     }
 
 
@@ -1127,11 +1122,6 @@ class HomeActivity : BaseActivity() {
 
     // ── Widget Host ────────────────────────────────────────────────
 
-    private fun initWidgetHost() {
-        appWidgetManager = AppWidgetManager.getInstance(this)
-        appWidgetHost = AppWidgetHost(this, WIDGET_HOST_ID)
-    }
-
     /**
      * Restores the system widget (if any) into [binding.widgetContainer].
      *
@@ -1142,6 +1132,7 @@ class HomeActivity : BaseActivity() {
     private fun restoreWidget() {
         val widgetId = WidgetPreferences.getWidgetId(this)
         val enabled = WidgetPreferences.isWidgetEnabled(this)
+        val hostManager = app.focusphone.ui.widget.AppWidgetHostManager.getInstance(this)
 
         // Nothing configured — ensure container is hidden
         if (!enabled || widgetId == WidgetPreferences.INVALID_WIDGET_ID) {
@@ -1160,7 +1151,7 @@ class HomeActivity : BaseActivity() {
             return
         }
 
-        val info = appWidgetManager?.getAppWidgetInfo(widgetId)
+        val info = hostManager.getAppWidgetInfo(widgetId)
         if (info == null) {
             // Provider was uninstalled or disabled — clear the stale preference
             WidgetPreferences.clearWidget(this)
@@ -1175,8 +1166,14 @@ class HomeActivity : BaseActivity() {
         // Remove previous widget before adding the new one
         widgetHostView?.let { binding.widgetContainer.removeView(it) }
 
-        val host = appWidgetHost ?: return
-        val hostView = host.createView(this, widgetId, info)
+        val hostView = hostManager.createView(this, widgetId, info)
+        if (hostView == null) {
+            // Failed to bind widget view — clear preference to avoid repeated crashes
+            WidgetPreferences.clearWidget(this)
+            binding.widgetContainer.visibility = View.GONE
+            applyClockType()
+            return
+        }
         widgetHostView = hostView
         lastRestoredWidgetId = widgetId
 
@@ -1187,7 +1184,6 @@ class HomeActivity : BaseActivity() {
 
     companion object {
         private const val MENU_ID_SHORTCUT_BASE = 10_000
-        private const val WIDGET_HOST_ID = 1024
     }
 
     private fun haptic(view: View) = view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)

@@ -1,6 +1,5 @@
 package app.focusphone.ui.widget
 
-import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
@@ -13,7 +12,7 @@ import app.focusphone.ui.base.BaseActivity
 /**
  * Activity that hosts the system widget-picker flow.
  *
- * 1. Allocates a temporary widget ID via [AppWidgetHost].
+ * 1. Allocates a temporary widget ID via the shared [AppWidgetHostManager].
  * 2. Launches [AppWidgetManager.ACTION_APPWIDGET_PICK].
  * 3. If the chosen widget requires configuration, forwards to its
  *    [AppWidgetManager.ACTION_APPWIDGET_CONFIGURE] activity.
@@ -22,8 +21,6 @@ import app.focusphone.ui.base.BaseActivity
  */
 class WidgetConfigActivity : BaseActivity() {
 
-    private lateinit var appWidgetManager: AppWidgetManager
-    private lateinit var appWidgetHost: AppWidgetHost
     private var allocatedWidgetId: Int = INVALID_WIDGET_ID
 
     // ── Lifecycle ──────────────────────────────────────────────────
@@ -33,10 +30,7 @@ class WidgetConfigActivity : BaseActivity() {
         // Inflate a minimal layout so the window is valid while the picker dialog is shown.
         setContentView(R.layout.activity_widget_config)
 
-        appWidgetManager = AppWidgetManager.getInstance(this)
-        appWidgetHost = AppWidgetHost(this, WIDGET_HOST_ID)
-
-        allocatedWidgetId = appWidgetHost.allocateAppWidgetId()
+        allocatedWidgetId = AppWidgetHostManager.getInstance(this).allocateAppWidgetId()
         launchWidgetPicker(allocatedWidgetId)
     }
 
@@ -77,7 +71,7 @@ class WidgetConfigActivity : BaseActivity() {
             return
         }
 
-        val appWidgetInfo = appWidgetManager.getAppWidgetInfo(widgetId)
+        val appWidgetInfo = AppWidgetHostManager.getInstance(this).getAppWidgetInfo(widgetId)
 
         if (appWidgetInfo?.configure != null) {
             // Widget requires configuration — forward to its config activity
@@ -121,11 +115,7 @@ class WidgetConfigActivity : BaseActivity() {
 
     private fun releaseAndFinish() {
         if (allocatedWidgetId != INVALID_WIDGET_ID) {
-            try {
-                appWidgetHost.deleteAppWidgetId(allocatedWidgetId)
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to delete allocated widget ID", e)
-            }
+            AppWidgetHostManager.getInstance(this).deleteAppWidgetId(allocatedWidgetId)
             allocatedWidgetId = INVALID_WIDGET_ID
         }
         setResult(RESULT_CANCELED)
@@ -136,7 +126,6 @@ class WidgetConfigActivity : BaseActivity() {
 
     companion object {
         private const val TAG = "WidgetConfigActivity"
-        private const val WIDGET_HOST_ID = 1024
         private const val REQUEST_PICK_WIDGET = 1001
         private const val REQUEST_CONFIGURE_WIDGET = 1002
         private const val INVALID_WIDGET_ID = -1

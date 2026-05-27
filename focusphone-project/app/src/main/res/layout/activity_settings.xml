@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/android:colorBackground">
+    android:background="?android:attr/colorBackground">
 
     <!-- ── Toolbar ─────────────────────────────────────────────── -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -29,7 +29,7 @@
             android:paddingStart="20dp"
             android:paddingEnd="12dp"
             android:text="@string/settings_back"
-            android:textColor="?attr/android:textColorSecondary"
+            android:textColor="?android:attr/textColorSecondary"
             android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -41,7 +41,7 @@
             android:fontFamily="sans-serif"
             android:letterSpacing="0.04"
             android:text="@string/settings_title"
-            android:textColor="?attr/android:textColorPrimary"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -55,7 +55,7 @@
         android:layout_width="0dp"
         android:layout_height="0.5dp"
         android:alpha="0.12"
-        android:background="?attr/android:textColorPrimary"
+        android:background="?android:attr/textColorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
@@ -90,7 +90,7 @@
                 android:paddingBottom="12dp"
                 android:text="@string/settings_section_appearance"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <!-- Theme Dialog Selector Row -->
@@ -114,7 +114,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-medium"
                     android:text="@string/settings_theme_label"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="15sp" />
 
                 <!-- Preview Circle of Current Theme -->
@@ -130,7 +130,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="14sp"
                     android:text="@string/settings_theme_slate" />
             </LinearLayout>
@@ -160,7 +160,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/settings_custom_theme"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:textSize="14sp"
                         android:fontFamily="sans-serif-light"
                         android:letterSpacing="0.04" />
@@ -171,7 +171,7 @@
                         android:layout_height="24dp"
                         android:contentDescription="@string/cd_custom_theme_toggle"
                         android:src="@drawable/ic_chevron_down"
-                        app:tint="?attr/android:textColorSecondary" />
+                        app:tint="?android:attr/textColorSecondary" />
                 </LinearLayout>
 
                 <!-- Collapsible body -->
@@ -210,7 +210,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
                             android:text="@string/settings_custom_theme_bg"
-                            android:textColor="?attr/android:textColorPrimary"
+                            android:textColor="?android:attr/textColorPrimary"
                             android:alpha="0.8"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif" />
@@ -222,8 +222,8 @@
                             android:fontFamily="sans-serif-medium"
                             android:hint="#181818"
                             android:maxLength="7"
-                            android:textColor="?attr/android:textColorPrimary"
-                            android:textColorHint="?attr/android:textColorSecondary"
+                            android:textColor="?android:attr/textColorPrimary"
+                            android:textColorHint="?android:attr/textColorSecondary"
                             android:textSize="15sp"
                             android:letterSpacing="0.04"
                             android:inputType="textCapCharacters"
@@ -257,7 +257,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
                             android:text="@string/settings_custom_theme_fg"
-                            android:textColor="?attr/android:textColorPrimary"
+                            android:textColor="?android:attr/textColorPrimary"
                             android:alpha="0.8"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif" />
@@ -269,8 +269,8 @@
                             android:fontFamily="sans-serif-medium"
                             android:hint="#fafafa"
                             android:maxLength="7"
-                            android:textColor="?attr/android:textColorPrimary"
-                            android:textColorHint="?attr/android:textColorSecondary"
+                            android:textColor="?android:attr/textColorPrimary"
+                            android:textColorHint="?android:attr/textColorSecondary"
                             android:textSize="15sp"
                             android:letterSpacing="0.04"
                             android:inputType="textCapCharacters"
@@ -288,7 +288,7 @@
                         android:minHeight="48dp"
                         android:gravity="center"
                         android:text="@string/settings_custom_theme_apply"
-                        android:textColor="?attr/android:textColorPrimary"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="14sp"
                         android:fontFamily="sans-serif-medium"
                         android:background="?attr/selectableItemBackground"
@@ -312,7 +312,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/settings_alignment"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textAllCaps="true"
                     android:letterSpacing="0.14"
                     android:textSize="11sp"
@@ -384,7 +384,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_hide_status_bar"
-                        android:textColor="?attr/android:textColorPrimary"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="16sp"
                         android:fontFamily="sans-serif" />
 
@@ -393,7 +393,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="@string/settings_hide_status_bar_desc"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:textSize="13sp"
                         android:fontFamily="sans-serif" />
                 </LinearLayout>
@@ -402,8 +402,8 @@
                     android:id="@+id/switch_hide_status_bar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="?attr/android:textColorPrimary"
-                    app:trackTint="?attr/android:textColorSecondary" />
+                    app:thumbTint="?android:attr/textColorPrimary"
+                    app:trackTint="?android:attr/textColorSecondary" />
             </LinearLayout>
 
             <!-- Font Selector -->
@@ -418,7 +418,7 @@
                 android:paddingBottom="8dp"
                 android:text="@string/settings_section_font"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <LinearLayout
@@ -441,7 +441,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-medium"
                     android:text="@string/settings_font_label"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="15sp" />
 
                 <TextView
@@ -449,7 +449,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="14sp" />
             </LinearLayout>
 
@@ -457,7 +457,7 @@
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
                 android:layout_marginTop="20dp" android:layout_marginBottom="0dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
+                android:alpha="0.12" android:background="?android:attr/textColorPrimary" />
 
             <!-- ═══ CLOCK TYPE ══════════════════════════════════════ -->
             <TextView
@@ -471,7 +471,7 @@
                 android:paddingBottom="12dp"
                 android:text="@string/settings_section_clock"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <!-- Clock type tiles: inflated programmatically into this container -->
@@ -496,7 +496,7 @@
                 android:paddingBottom="4dp"
                 android:text="@string/settings_clock_size"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <com.google.android.material.slider.Slider
@@ -512,9 +512,9 @@
                 app:trackHeight="4dp"
                 app:tickVisible="false"
                 app:haloColor="?attr/colorControlHighlight"
-                app:thumbColor="?attr/android:textColorPrimary"
-                app:trackColorActive="?attr/android:textColorPrimary"
-                app:trackColorInactive="?attr/android:textColorSecondary" />
+                app:thumbColor="?android:attr/textColorPrimary"
+                app:trackColorActive="?android:attr/textColorPrimary"
+                app:trackColorInactive="?android:attr/textColorSecondary" />
 
             <!-- Text Size Slider -->
             <TextView
@@ -529,7 +529,7 @@
                 android:paddingBottom="4dp"
                 android:text="@string/settings_text_size"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <com.google.android.material.slider.Slider
@@ -545,14 +545,14 @@
                 app:trackHeight="4dp"
                 app:tickVisible="false"
                 app:haloColor="?attr/colorControlHighlight"
-                app:thumbColor="?attr/android:textColorPrimary"
-                app:trackColorActive="?attr/android:textColorPrimary"
-                app:trackColorInactive="?attr/android:textColorSecondary" />
+                app:thumbColor="?android:attr/textColorPrimary"
+                app:trackColorActive="?android:attr/textColorPrimary"
+                app:trackColorInactive="?android:attr/textColorSecondary" />
 
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
                 android:layout_marginTop="20dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
+                android:alpha="0.12" android:background="?android:attr/textColorPrimary" />
 
             <!-- ═══ CONSCIOUS PAUSE ═════════════════════════════════ -->
             <TextView
@@ -566,7 +566,7 @@
                 android:paddingBottom="12dp"
                 android:text="@string/settings_section_conscious_pause"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <!-- Conscious Pause Toggle -->
@@ -588,7 +588,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_conscious_pause_title"
-                        android:textColor="?attr/android:textColorPrimary"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="16sp"
                         android:fontFamily="sans-serif" />
 
@@ -597,7 +597,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="@string/settings_conscious_pause_desc"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:textSize="13sp"
                         android:fontFamily="sans-serif" />
                 </LinearLayout>
@@ -606,8 +606,8 @@
                     android:id="@+id/switch_conscious_pause"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="?attr/android:textColorPrimary"
-                    app:trackTint="?attr/android:textColorSecondary" />
+                    app:thumbTint="?android:attr/textColorPrimary"
+                    app:trackTint="?android:attr/textColorSecondary" />
             </LinearLayout>
 
             <!-- Conscious Pause Duration (Slider) -->
@@ -623,7 +623,7 @@
                 android:paddingBottom="4dp"
                 android:text="@string/settings_conscious_pause_duration"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <com.google.android.material.slider.Slider
@@ -639,14 +639,14 @@
                 app:trackHeight="4dp"
                 app:tickVisible="false"
                 app:haloColor="?attr/colorControlHighlight"
-                app:thumbColor="?attr/android:textColorPrimary"
-                app:trackColorActive="?attr/android:textColorPrimary"
-                app:trackColorInactive="?attr/android:textColorSecondary" />
+                app:thumbColor="?android:attr/textColorPrimary"
+                app:trackColorActive="?android:attr/textColorPrimary"
+                app:trackColorInactive="?android:attr/textColorSecondary" />
 
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
                 android:layout_marginTop="20dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
+                android:alpha="0.12" android:background="?android:attr/textColorPrimary" />
 
 
             <!-- ═══ LANGUAGE ═══════════════════════════════════════ -->
@@ -661,7 +661,7 @@
                 android:paddingBottom="8dp"
                 android:text="@string/settings_section_language"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <!-- Language Dropdown Toggle Button -->
@@ -685,7 +685,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-medium"
                     android:text="@string/settings_language_system"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="15sp" />
 
                 <ImageView
@@ -693,7 +693,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_chevron_down"
-                    app:tint="?attr/android:textColorSecondary" />
+                    app:tint="?android:attr/textColorSecondary" />
             </LinearLayout>
 
             <!-- Language items: inflated programmatically, collapsed by default -->
@@ -709,7 +709,7 @@
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
                 android:layout_marginTop="20dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
+                android:alpha="0.12" android:background="?android:attr/textColorPrimary" />
 
             <!-- ═══ TUTORIAL ════════════════════════════════════════ -->
             <TextView
@@ -723,7 +723,7 @@
                 android:paddingBottom="4dp"
                 android:text="@string/settings_section_tutorial"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <LinearLayout
@@ -745,18 +745,18 @@
                     android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="16sp"
-                        android:textColor="?attr/android:textColorPrimary"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:text="@string/settings_tutorial_title" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="13sp"
                         android:layout_marginTop="2dp"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:text="@string/settings_tutorial_desc" />
                 </LinearLayout>
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="20sp"
                     android:text="@string/settings_chevron" />
             </LinearLayout>
@@ -780,25 +780,25 @@
                     android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="16sp"
-                        android:textColor="?attr/android:textColorPrimary"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:text="@string/settings_onboarding_title" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="13sp"
                         android:layout_marginTop="2dp"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:text="@string/settings_onboarding_desc" />
                 </LinearLayout>
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="20sp"
                     android:text="@string/settings_chevron" />
             </LinearLayout>
 
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
+                android:alpha="0.12" android:background="?android:attr/textColorPrimary" />
 
             <!-- ═══ PERMISSIONS ═══════════════════════════════════════ -->
             <TextView
@@ -812,7 +812,7 @@
                 android:paddingBottom="4dp"
                 android:text="@string/settings_section_permissions"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <LinearLayout
@@ -834,25 +834,25 @@
                     android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="16sp"
-                        android:textColor="?attr/android:textColorPrimary"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:text="@string/settings_permissions_title" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="13sp"
                         android:layout_marginTop="2dp"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:text="@string/settings_permissions_desc" />
                 </LinearLayout>
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="20sp"
                     android:text="@string/settings_chevron" />
             </LinearLayout>
 
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
+                android:alpha="0.12" android:background="?android:attr/textColorPrimary" />
 
             <!-- ═══ SECURITY ════════════════════════════════════════ -->
             <TextView
@@ -866,7 +866,7 @@
                 android:paddingBottom="4dp"
                 android:text="@string/settings_section_security"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <LinearLayout
@@ -888,12 +888,12 @@
                     android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="16sp"
-                        android:textColor="?attr/android:textColorPrimary"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:text="@string/settings_accessibility_title" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="13sp"
                         android:layout_marginTop="2dp"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:text="@string/settings_accessibility_desc" />
                 </LinearLayout>
 
@@ -902,20 +902,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="14sp"
                     android:layout_marginEnd="8dp" />
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="20sp"
                     android:text="@string/settings_chevron" />
             </LinearLayout>
 
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
+                android:alpha="0.12" android:background="?android:attr/textColorPrimary" />
 
             <!-- ═══ WORK PROFILE ════════════════════════════════════ -->
             <TextView
@@ -929,7 +929,7 @@
                 android:paddingBottom="4dp"
                 android:text="@string/settings_section_work_profile"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <!-- Work Keywords Expandable Row -->
@@ -961,7 +961,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/settings_work_keywords_title"
-                            android:textColor="?attr/android:textColorPrimary"
+                            android:textColor="?android:attr/textColorPrimary"
                             android:textSize="15sp"
                             android:fontFamily="sans-serif-medium" />
 
@@ -970,7 +970,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/settings_work_keywords_desc"
-                            android:textColor="?attr/android:textColorSecondary"
+                            android:textColor="?android:attr/textColorSecondary"
                             android:textSize="13sp"
                             android:fontFamily="sans-serif" />
                     </LinearLayout>
@@ -981,7 +981,7 @@
                         android:layout_height="24dp"
                         android:contentDescription="@string/cd_work_keywords_toggle"
                         android:src="@drawable/ic_chevron_down"
-                        app:tint="?attr/android:textColorSecondary" />
+                        app:tint="?android:attr/textColorSecondary" />
                 </LinearLayout>
 
                 <!-- Collapsible body -->
@@ -1006,8 +1006,8 @@
                         android:inputType="textMultiLine|textNoSuggestions"
                         android:lineSpacingMultiplier="1.4"
                         android:padding="12dp"
-                        android:textColor="?attr/android:textColorPrimary"
-                        android:textColorHint="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textColorHint="?android:attr/textColorSecondary"
                         android:textSize="14sp" />
 
                     <TextView
@@ -1020,7 +1020,7 @@
                         android:minHeight="48dp"
                         android:gravity="center"
                         android:text="@string/action_save"
-                        android:textColor="?attr/android:textColorPrimary"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="14sp"
                         android:fontFamily="sans-serif-medium"
                         android:background="?attr/selectableItemBackground"
@@ -1032,7 +1032,7 @@
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
                 android:layout_marginTop="20dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
+                android:alpha="0.12" android:background="?android:attr/textColorPrimary" />
 
             <!-- ═══ NOTIFICATIONS ═══════════════════════════════════ -->
             <TextView
@@ -1046,7 +1046,7 @@
                 android:paddingBottom="4dp"
                 android:text="@string/settings_section_notifications"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <LinearLayout
@@ -1068,12 +1068,12 @@
                     android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="16sp"
-                        android:textColor="?attr/android:textColorPrimary"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:text="@string/settings_notification_badges_title" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="13sp"
                         android:layout_marginTop="2dp"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:text="@string/settings_notification_badges_desc" />
                 </LinearLayout>
 
@@ -1082,20 +1082,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="14sp"
                     android:layout_marginEnd="8dp" />
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="20sp"
                     android:text="@string/settings_chevron" />
             </LinearLayout>
 
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
+                android:alpha="0.12" android:background="?android:attr/textColorPrimary" />
 
             <!-- ═══ LAUNCHER ════════════════════════════════════════ -->
             <TextView
@@ -1109,7 +1109,7 @@
                 android:paddingBottom="4dp"
                 android:text="@string/settings_section_launcher"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <LinearLayout
@@ -1129,18 +1129,18 @@
                     android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="16sp"
-                        android:textColor="?attr/android:textColorPrimary"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:text="@string/settings_set_default" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="13sp"
                         android:layout_marginTop="2dp"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:text="@string/settings_set_default_desc" />
                 </LinearLayout>
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="20sp"
                     android:text="@string/settings_chevron" />
             </LinearLayout>
@@ -1165,7 +1165,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_swipe_down_title"
-                        android:textColor="?attr/android:textColorPrimary"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="16sp"
                         android:fontFamily="sans-serif" />
 
@@ -1174,7 +1174,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="@string/settings_swipe_down_desc"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:textSize="13sp"
                         android:fontFamily="sans-serif" />
                 </LinearLayout>
@@ -1183,8 +1183,8 @@
                     android:id="@+id/switch_swipe_down_notifications"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:thumbTint="?attr/android:textColorPrimary"
-                    app:trackTint="?attr/android:textColorSecondary" />
+                    app:thumbTint="?android:attr/textColorPrimary"
+                    app:trackTint="?android:attr/textColorSecondary" />
             </LinearLayout>
 
             <!-- Home Widget Row -->
@@ -1208,12 +1208,12 @@
                     android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="16sp"
-                        android:textColor="?attr/android:textColorPrimary"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:text="@string/settings_widget_title" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="sans-serif" android:textSize="13sp"
                         android:layout_marginTop="2dp"
-                        android:textColor="?attr/android:textColorSecondary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:text="@string/settings_widget_desc" />
                 </LinearLayout>
 
@@ -1222,20 +1222,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="14sp"
                     android:layout_marginEnd="8dp" />
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="20sp"
                     android:text="@string/settings_chevron" />
             </LinearLayout>
 
             <View android:layout_width="match_parent" android:layout_height="0.5dp"
                 android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
+                android:alpha="0.12" android:background="?android:attr/textColorPrimary" />
 
             <!-- ═══ ABOUT ════════════════════════════════════════════ -->
             <TextView
@@ -1249,7 +1249,7 @@
                 android:paddingBottom="4dp"
                 android:text="@string/settings_section_about"
                 android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="11sp" />
 
             <TextView
@@ -1261,7 +1261,7 @@
                 android:paddingTop="12dp"
                 android:paddingEnd="24dp"
                 android:paddingBottom="16dp"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="14sp" />
 
         </LinearLayout>

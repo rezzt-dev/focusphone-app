@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-medium"
         android:text="@string/detox_custom_title"
-        android:textColor="?attr/android:textColorPrimary"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="20sp"
         android:layout_marginBottom="16dp" />
 
@@ -30,8 +30,8 @@
             android:layout_weight="1"
             android:hint="@string/detox_custom_hours"
             android:inputType="number"
-            android:textColor="?attr/android:textColorPrimary"
-            android:textColorHint="?attr/android:textColorSecondary"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textColorHint="?android:attr/textColorSecondary"
             android:background="@android:color/transparent"
             android:textSize="18sp"
             android:gravity="center"
@@ -41,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=":"
-            android:textColor="?attr/android:textColorPrimary"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="24sp" />
 
         <EditText
@@ -51,8 +51,8 @@
             android:layout_weight="1"
             android:hint="@string/detox_custom_minutes"
             android:inputType="number"
-            android:textColor="?attr/android:textColorPrimary"
-            android:textColorHint="?attr/android:textColorSecondary"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textColorHint="?android:attr/textColorSecondary"
             android:background="@android:color/transparent"
             android:textSize="18sp"
             android:gravity="center"
@@ -70,7 +70,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/detox_btn_cancel"
-            android:textColor="?attr/android:textColorSecondary"
+            android:textColor="?android:attr/textColorSecondary"
             android:textSize="15sp"
             android:clickable="true"
             android:focusable="true"
@@ -83,7 +83,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/detox_btn_done"
-            android:textColor="?attr/android:textColorPrimary"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="15sp"
             android:clickable="true"
             android:focusable="true"
