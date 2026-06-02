@@ -3,6 +3,7 @@ package app.focusphone.ui.detox
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
+import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
@@ -11,6 +12,7 @@ import app.focusphone.R
 import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.databinding.ActivityDetoxBlockedBinding
 import app.focusphone.ui.base.BaseActivity
+import app.focusphone.ui.home.HomeActivity
 import java.util.Locale
 
 /**
@@ -32,6 +34,10 @@ class DetoxBlockedActivity : BaseActivity() {
         applyDetoxCircleTint()
         setupPulsingAnimation()
         startCountdownTimer()
+
+        binding.btnBack.setOnClickListener {
+            navigateHome()
+        }
     }
 
     private fun applyDetoxCircleTint() {
@@ -92,6 +98,14 @@ class DetoxBlockedActivity : BaseActivity() {
         } else {
             String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
         }
+    }
+
+    private fun navigateHome() {
+        val intent = Intent(this, HomeActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        startActivity(intent)
+        finish()
     }
 
     override fun onDestroy() {

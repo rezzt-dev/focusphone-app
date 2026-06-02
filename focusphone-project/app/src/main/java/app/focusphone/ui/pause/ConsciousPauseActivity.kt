@@ -12,6 +12,7 @@ import app.focusphone.R
 import app.focusphone.data.preferences.ConsciousPausePreferences
 import app.focusphone.databinding.ActivityConsciousPauseBinding
 import app.focusphone.ui.base.BaseActivity
+import app.focusphone.ui.home.HomeActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -33,8 +34,8 @@ class ConsciousPauseActivity : BaseActivity() {
         val appLabel = intent.getStringExtra("app_label") ?: "app"
         binding.tvMindfulQuestion.text = getString(R.string.pause_mindful_question, appLabel.lowercase())
 
-        binding.btnCancel.setOnClickListener {
-            finish()
+        binding.btnBack.setOnClickListener {
+            navigateHome()
         }
 
         applyBreathingCircleTint()
@@ -76,13 +77,15 @@ class ConsciousPauseActivity : BaseActivity() {
     }
 
     private fun startBreathingAnimation() {
-        val animX = ObjectAnimator.ofFloat(binding.viewBreathingCircle, "scaleX", 0.9f, 1.15f).apply {
-            duration = 2000
+        // Subtle, calm breathing scale — kept well within layout bounds
+        // so clipChildren is never visually noticeable.
+        val animX = ObjectAnimator.ofFloat(binding.viewBreathingCircle, "scaleX", 0.92f, 1.08f).apply {
+            duration = 2500
             repeatMode = ValueAnimator.REVERSE
             repeatCount = ValueAnimator.INFINITE
         }
-        val animY = ObjectAnimator.ofFloat(binding.viewBreathingCircle, "scaleY", 0.9f, 1.15f).apply {
-            duration = 2000
+        val animY = ObjectAnimator.ofFloat(binding.viewBreathingCircle, "scaleY", 0.92f, 1.08f).apply {
+            duration = 2500
             repeatMode = ValueAnimator.REVERSE
             repeatCount = ValueAnimator.INFINITE
         }
@@ -130,6 +133,14 @@ class ConsciousPauseActivity : BaseActivity() {
                 Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
             }
         }
+        finish()
+    }
+
+    private fun navigateHome() {
+        val intent = Intent(this, HomeActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        startActivity(intent)
         finish()
     }
 

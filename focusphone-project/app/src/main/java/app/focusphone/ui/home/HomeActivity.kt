@@ -42,7 +42,10 @@ import app.focusphone.data.preferences.ConsciousPausePreferences
 import app.focusphone.data.preferences.NotificationBadgePreferences
 import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.data.preferences.GesturePreferences
+import app.focusphone.data.preferences.NotificationPanelPreferences
 import app.focusphone.data.preferences.WidgetPreferences
+import app.focusphone.data.repository.NotificationRepository
+import app.focusphone.ui.home.adapter.NotificationsAdapter
 import app.focusphone.ui.pause.ConsciousPauseActivity
 import app.focusphone.ui.detox.DetoxBlockedActivity
 import app.focusphone.databinding.ActivityHomeBinding
@@ -80,6 +83,8 @@ class HomeActivity : BaseActivity() {
         onAppLongClick = ::showAppContextMenu
     )
 
+    private val notificationsAdapter = NotificationsAdapter()
+
     private var lastAppliedClockType: ClockType? = null
     private var lastVerifyTime = 0L
     private var pendingVerify = false
@@ -108,6 +113,7 @@ class HomeActivity : BaseActivity() {
         setupGestureExclusion()
         showLongPressHintIfNeeded()
         observeFavourites()
+        setupNotificationPanel()
         setupBackPress()
 
         binding.indicatorContainer.visibility = View.INVISIBLE
@@ -152,6 +158,7 @@ class HomeActivity : BaseActivity() {
         ProfilePreferences.expireDetoxIfNeeded(this)
         updateProfileLabel()
         restoreWidget()
+        setupNotificationPanel()
         adapter.updateTypeface(FontPreferences.getTypeface(this))
         adapter.updateBadgeCounts(NotificationBadgePreferences.getAllBadgeCounts(this))
 
@@ -244,6 +251,7 @@ class HomeActivity : BaseActivity() {
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             binding.clockContainer.setPadding(0, bars.top + dp(8), 0, 0)
             binding.drawerMenu.setPadding(dp(32), bars.top + dp(32), dp(32), bars.bottom + dp(32))
+            binding.drawerNotifications.setPadding(dp(32), bars.top + dp(32), dp(32), bars.bottom + dp(32))
             binding.indicatorContainer.setPadding(0, 0, 0, bars.bottom)
             binding.appsContainer.setPadding(0, 0, 0, bars.bottom)
             insets
@@ -254,8 +262,8 @@ class HomeActivity : BaseActivity() {
 
     private fun setupGestureDetector() {
         gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            private val SWIPE_THRESHOLD = 100
-            private val SWIPE_VELOCITY_THRESHOLD = 100
+            private val SWIPE_THRESHOLD = 120
+            private val SWIPE_VELOCITY_THRESHOLD = 150
 
             override fun onFling(
                 e1: MotionEvent?,
@@ -267,18 +275,34 @@ class HomeActivity : BaseActivity() {
                 val diffX = e1.x - e2.x
                 val diffY = e1.y - e2.y
 
+                // If any drawer is already open, do not allow fling to open the opposite one.
+                // The user must close the current drawer (tap outside or back) before switching.
+                val isAnyDrawerOpen = binding.drawerLayout.isDrawerOpen(androidx.core.view.GravityCompat.START) ||
+                        binding.drawerLayout.isDrawerOpen(androidx.core.view.GravityCompat.END)
+                if (isAnyDrawerOpen) return false
+
                 return when {
-                    // Horizontal swipe (left) — open drawer
+                    // Horizontal swipe
                     kotlin.math.abs(diffX) > kotlin.math.abs(diffY) -> {
                         if (kotlin.math.abs(diffX) > SWIPE_THRESHOLD &&
-                            kotlin.math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD &&
-                            diffX > 0
+                            kotlin.math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD
                         ) {
-                            binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.END)
-                            true
+                            when {
+                                // Swipe left (finger moving left) — open right menu drawer
+                                diffX > 0 -> {
+                                    binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.END)
+                                    true
+                                }
+                                // Swipe right (finger moving right) — open left notification drawer
+                                diffX < 0 && NotificationPanelPreferences.isEnabled(this@HomeActivity) -> {
+                                    binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
+                                    true
+                                }
+                                else -> false
+                            }
                         } else false
                     }
-                    // Vertical swipe (down) — expand notifications
+                    // Vertical swipe (down) — expand system notifications
                     diffY < -SWIPE_THRESHOLD && kotlin.math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD -> {
                         expandNotificationsPanel()
                         true
@@ -510,27 +534,58 @@ class HomeActivity : BaseActivity() {
     // ── Drawer Menu ────────────────────────────────────────────────
 
     private fun setupDrawerPushEffect() {
-        // Force the drawer to take up the full screen width so text centers perfectly
-        val params = binding.drawerMenu.layoutParams as androidx.drawerlayout.widget.DrawerLayout.LayoutParams
-        params.width = resources.displayMetrics.widthPixels
-        binding.drawerMenu.layoutParams = params
+        // Force both drawers to take up the full screen width so text centers perfectly
+        val menuParams = binding.drawerMenu.layoutParams as androidx.drawerlayout.widget.DrawerLayout.LayoutParams
+        menuParams.width = resources.displayMetrics.widthPixels
+        binding.drawerMenu.layoutParams = menuParams
+
+        val notifParams = binding.drawerNotifications.layoutParams as androidx.drawerlayout.widget.DrawerLayout.LayoutParams
+        notifParams.width = resources.displayMetrics.widthPixels
+        binding.drawerNotifications.layoutParams = notifParams
 
         binding.drawerLayout.setScrimColor(Color.TRANSPARENT)
         binding.drawerLayout.drawerElevation = 0f
-        
+
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                // Translate the main content left as the drawer slides in from the right
-                val moveFactor = -(drawerView.width * slideOffset)
+                val isLeftDrawer = (drawerView.layoutParams as androidx.drawerlayout.widget.DrawerLayout.LayoutParams).gravity == androidx.core.view.GravityCompat.START
+                val moveFactor = if (isLeftDrawer) {
+                    drawerView.width * slideOffset // push content to the right
+                } else {
+                    -(drawerView.width * slideOffset) // push content to the left
+                }
                 binding.rootHome.translationX = moveFactor
-                updateIndicators(slideOffset)
+                updateIndicators(slideOffset, isLeftDrawer)
                 if (slideOffset > 0f) {
                     showIndicatorsWithTimeout()
                 }
             }
 
-            override fun onDrawerOpened(drawerView: View) {}
-            override fun onDrawerClosed(drawerView: View) {}
+            override fun onDrawerOpened(drawerView: View) {
+                val isLeftDrawer = (drawerView.layoutParams as androidx.drawerlayout.widget.DrawerLayout.LayoutParams).gravity == androidx.core.view.GravityCompat.START
+                // Lock the opposite drawer so the user cannot slide directly to it
+                if (isLeftDrawer) {
+                    binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, androidx.core.view.GravityCompat.END)
+                } else {
+                    binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, androidx.core.view.GravityCompat.START)
+                }
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                // Reset to home indicator when any drawer is fully closed
+                binding.indicatorNotifications.setBackgroundResource(R.drawable.shape_indicator_outline)
+                binding.indicatorHome.setBackgroundResource(R.drawable.shape_indicator_filled)
+                binding.indicatorMenu.setBackgroundResource(R.drawable.shape_indicator_outline)
+
+                // Restore original lock modes: left follows preference, right is always unlocked
+                val panelEnabled = NotificationPanelPreferences.isEnabled(this@HomeActivity)
+                binding.drawerLayout.setDrawerLockMode(
+                    if (panelEnabled) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
+                    androidx.core.view.GravityCompat.START
+                )
+                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, androidx.core.view.GravityCompat.END)
+            }
+
             override fun onDrawerStateChanged(newState: Int) {}
         })
     }
@@ -564,13 +619,26 @@ class HomeActivity : BaseActivity() {
         binding.indicatorContainer.postDelayed(hideRunnable, 2000)
     }
 
-    private fun updateIndicators(slideOffset: Float) {
-        if (slideOffset > 0.5f) {
-            binding.indicatorHome.setBackgroundResource(R.drawable.shape_indicator_outline)
-            binding.indicatorMenu.setBackgroundResource(R.drawable.shape_indicator_filled)
-        } else {
-            binding.indicatorHome.setBackgroundResource(R.drawable.shape_indicator_filled)
-            binding.indicatorMenu.setBackgroundResource(R.drawable.shape_indicator_outline)
+    private fun updateIndicators(slideOffset: Float, isLeftDrawer: Boolean) {
+        when {
+            isLeftDrawer && slideOffset > 0.5f -> {
+                // Notifications panel is open
+                binding.indicatorNotifications.setBackgroundResource(R.drawable.shape_indicator_filled)
+                binding.indicatorHome.setBackgroundResource(R.drawable.shape_indicator_outline)
+                binding.indicatorMenu.setBackgroundResource(R.drawable.shape_indicator_outline)
+            }
+            !isLeftDrawer && slideOffset > 0.5f -> {
+                // Menu drawer is open
+                binding.indicatorNotifications.setBackgroundResource(R.drawable.shape_indicator_outline)
+                binding.indicatorHome.setBackgroundResource(R.drawable.shape_indicator_outline)
+                binding.indicatorMenu.setBackgroundResource(R.drawable.shape_indicator_filled)
+            }
+            else -> {
+                // Home (or transitioning)
+                binding.indicatorNotifications.setBackgroundResource(R.drawable.shape_indicator_outline)
+                binding.indicatorHome.setBackgroundResource(R.drawable.shape_indicator_filled)
+                binding.indicatorMenu.setBackgroundResource(R.drawable.shape_indicator_outline)
+            }
         }
     }
 
@@ -886,6 +954,42 @@ class HomeActivity : BaseActivity() {
         }
     }
 
+    // ── Notification Panel ─────────────────────────────────────────
+
+    private fun setupNotificationPanel() {
+        val enabled = NotificationPanelPreferences.isEnabled(this)
+        if (enabled) {
+            binding.drawerLayout.setDrawerLockMode(
+                DrawerLayout.LOCK_MODE_UNLOCKED,
+                androidx.core.view.GravityCompat.START
+            )
+        } else {
+            binding.drawerLayout.setDrawerLockMode(
+                DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
+                androidx.core.view.GravityCompat.START
+            )
+        }
+
+        binding.rvNotifications.layoutManager = LinearLayoutManager(this)
+        binding.rvNotifications.adapter = notificationsAdapter
+        binding.rvNotifications.itemAnimator = null
+
+        binding.indicatorNotifications.contentDescription = getString(R.string.cd_notification_indicator)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                NotificationRepository.notifications.collect { notifications ->
+                    if (enabled) {
+                        val empty = notifications.isEmpty()
+                        binding.tvNotificationsEmpty.visibility = if (empty) View.VISIBLE else View.GONE
+                        binding.rvNotifications.visibility = if (empty) View.GONE else View.VISIBLE
+                        notificationsAdapter.submitList(notifications)
+                    }
+                }
+            }
+        }
+    }
+
     // ── Navigation ─────────────────────────────────────────────────
 
     private fun openAllApps()   = startActivity(Intent(this, AllAppsActivity::class.java))
@@ -1114,10 +1218,18 @@ class HomeActivity : BaseActivity() {
         val width = binding.drawerLayout.width
         val height = binding.drawerLayout.height
         if (width == 0 || height == 0) return
-        // Reserve a 40 dp strip on the right edge for the drawer swipe
         val exclusionWidth = dp(40)
-        val rect = android.graphics.Rect(width - exclusionWidth, 0, width, height)
-        ViewCompat.setSystemGestureExclusionRects(binding.drawerLayout, listOf(rect))
+        val rects = mutableListOf<android.graphics.Rect>()
+
+        // Right edge for menu drawer
+        rects.add(android.graphics.Rect(width - exclusionWidth, 0, width, height))
+
+        // Left edge for notification drawer (only when enabled)
+        if (NotificationPanelPreferences.isEnabled(this)) {
+            rects.add(android.graphics.Rect(0, 0, exclusionWidth, height))
+        }
+
+        ViewCompat.setSystemGestureExclusionRects(binding.drawerLayout, rects)
     }
 
     // ── Widget Host ────────────────────────────────────────────────

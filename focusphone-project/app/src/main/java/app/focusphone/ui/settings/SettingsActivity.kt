@@ -22,6 +22,7 @@ import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.ConsciousPausePreferences
 import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.data.preferences.GesturePreferences
+import app.focusphone.data.preferences.NotificationPanelPreferences
 import app.focusphone.data.preferences.WidgetPreferences
 import app.focusphone.ui.widget.WidgetConfigActivity
 import app.focusphone.databinding.ActivitySettingsBinding
@@ -64,6 +65,7 @@ class SettingsActivity : BaseActivity() {
         setupWorkKeywords()
         setupPermissions()
         setupSwipeDownToggle()
+        setupNotificationPanelToggle()
         setupWidgetSettings()
         binding.itemSetDefaultLauncher.setOnClickListener {
             startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
@@ -335,7 +337,14 @@ class SettingsActivity : BaseActivity() {
         ClockType.entries.forEach { type ->
             val item = ItemSettingsClockTypeBinding.inflate(inflater, binding.clockTypeContainer, false)
             item.tvPreview.text = type.previewLabel
-            item.tvLabel.text   = type.displayName.lowercase()
+            val labelRes = when (type) {
+                ClockType.DIGITAL -> R.string.settings_clock_digital
+                ClockType.STACKED -> R.string.settings_clock_stacked
+                ClockType.WORDS   -> R.string.settings_clock_words
+                ClockType.ANALOG  -> R.string.settings_clock_analog
+                ClockType.HIDDEN  -> R.string.settings_clock_hidden
+            }
+            item.tvLabel.text = getString(labelRes).lowercase()
             item.root.alpha     = if (type == current) 1f else 0.6f
             item.root.setOnClickListener {
                 FontPreferences.setClockType(this, type)
@@ -381,7 +390,14 @@ class SettingsActivity : BaseActivity() {
 
     private fun updateFontRowUI() {
         val current = FontPreferences.getFont(this)
-        binding.tvActiveFontName.text = current.displayName.lowercase()
+        binding.tvActiveFontName.text = getFontDisplayName(current).lowercase()
+    }
+
+    private fun getFontDisplayName(font: AppFont): String {
+        return when (font) {
+            AppFont.SYSTEM -> getString(R.string.settings_font_system)
+            else -> font.displayName
+        }
     }
 
     private fun showFontSelectionDialog() {
@@ -400,7 +416,7 @@ class SettingsActivity : BaseActivity() {
 
         AppFont.entries.forEachIndexed { index, font ->
             val item = ItemSettingsFontBinding.inflate(inflater, container, false)
-            item.tvFontName.text = font.displayName.lowercase()
+            item.tvFontName.text = getFontDisplayName(font).lowercase()
             item.tvFontSample.text = "focusphone"
 
             if (font == AppFont.SYSTEM) {
@@ -474,6 +490,21 @@ class SettingsActivity : BaseActivity() {
         LangOption("de",    R.string.settings_language_de),
     )
 
+    private fun isSystemLocaleSupported(): Boolean {
+        val systemLang = resources.configuration.locales.get(0).language
+        return languages.any {
+            it.tag.isNotEmpty() && it.tag.startsWith(systemLang, ignoreCase = true)
+        }
+    }
+
+    private fun getLanguageLabel(lang: LangOption): String {
+        return if (lang.tag.isEmpty() && !isSystemLocaleSupported()) {
+            getString(R.string.settings_language_system_unsupported)
+        } else {
+            getString(lang.labelResId)
+        }
+    }
+
     private fun setupLanguageSelector() {
         val currentTag = AppCompatDelegate.getApplicationLocales()
             .toLanguageTags().ifEmpty { "" }
@@ -483,7 +514,7 @@ class SettingsActivity : BaseActivity() {
         val activeOption = languages.firstOrNull {
             it.tag.equals(currentTag, ignoreCase = true) || (it.tag.isEmpty() && currentTag.isEmpty())
         } ?: languages.first()
-        binding.tvActiveLanguageLabel.text = getString(activeOption.labelResId).lowercase()
+        binding.tvActiveLanguageLabel.text = getLanguageLabel(activeOption).lowercase()
 
         // Setup drop-down toggle interaction
         binding.btnToggleLanguage.setOnClickListener {
@@ -502,7 +533,7 @@ class SettingsActivity : BaseActivity() {
                 (lang.tag.isEmpty() && currentTag.isEmpty())
 
             val row = TextView(this).apply {
-                text = getString(lang.labelResId).lowercase()
+                text = getLanguageLabel(lang).lowercase()
                 textSize = 15f
                 setTextColor(
                     if (isActive) getColor(android.R.color.white)
@@ -580,6 +611,14 @@ class SettingsActivity : BaseActivity() {
         binding.switchSwipeDownNotifications.isChecked = isEnabled
         binding.switchSwipeDownNotifications.setOnCheckedChangeListener { _, checked ->
             GesturePreferences.setSwipeDownEnabled(this, checked)
+        }
+    }
+
+    private fun setupNotificationPanelToggle() {
+        val isEnabled = NotificationPanelPreferences.isEnabled(this)
+        binding.switchNotificationPanel.isChecked = isEnabled
+        binding.switchNotificationPanel.setOnCheckedChangeListener { _, checked ->
+            NotificationPanelPreferences.setEnabled(this, checked)
         }
     }
 

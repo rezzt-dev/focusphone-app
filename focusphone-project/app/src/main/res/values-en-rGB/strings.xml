@@ -4,4 +4,11 @@
     <string name="settings_open_source">open source licences</string>
     <string name="settings_language_en_gb">english (uk)</string>
     <string name="onboarding_step1_body">focusphone turns your android into a distraction-free tool. just the apps you need, nothing else.</string>
+
+    <!-- Notification Panel -->
+    <string name="settings_notification_panel_title">enable notification panel</string>
+    <string name="settings_notification_panel_desc">swipe right on the home screen to view notifications</string>
+    <string name="notification_panel_title">notifications</string>
+    <string name="notification_empty">no notifications</string>
+    <string name="cd_notification_indicator">notification page indicator</string>
 </resources>

@@ -6,26 +6,34 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import app.focusphone.data.preferences.NotificationBadgePreferences
+import app.focusphone.data.repository.NotificationItem
+import app.focusphone.data.repository.NotificationRepository
 
 /**
- * Notification listener that maintains per-app badge counts.
+ * Notification listener that maintains per-app badge counts and an in-memory
+ * list of active notifications for the notification panel.
  *
- * Privacy guarantee: only the package name and count are stored.
- * Notification titles, text, or icons are never persisted.
+ * Privacy guarantee: badge counts are persisted. Notification content (title,
+ * text) is kept only in RAM and is never written to disk.
  */
 class FocusNotificationService : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        refreshCounts()
+        refresh()
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        refreshCounts()
+        refresh()
     }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
+        refresh()
+    }
+
+    private fun refresh() {
         refreshCounts()
+        refreshNotifications()
     }
 
     private fun refreshCounts() {
@@ -39,6 +47,38 @@ class FocusNotificationService : NotificationListenerService() {
             NotificationBadgePreferences.setBadgeCounts(this, counts)
         } catch (e: Exception) {
             Log.w(TAG, "Failed to refresh notification counts", e)
+        }
+    }
+
+    private fun refreshNotifications() {
+        try {
+            val active = activeNotifications ?: emptyArray()
+            val pm = packageManager
+            val items = active.map { sbn ->
+                val extras = sbn.notification.extras
+                val title = extras.getString("android.title")
+                    ?: extras.getCharSequence("android.title")?.toString()
+                val text = extras.getCharSequence("android.text")?.toString()
+                    ?: extras.getCharSequence("android.bigText")?.toString()
+
+                val appName = try {
+                    pm.getApplicationLabel(pm.getApplicationInfo(sbn.packageName, 0)).toString()
+                } catch (e: Exception) {
+                    sbn.packageName
+                }
+
+                NotificationItem(
+                    key = sbn.key,
+                    packageName = sbn.packageName,
+                    appName = appName,
+                    title = title,
+                    text = text,
+                    postTime = sbn.postTime
+                )
+            }
+            NotificationRepository.update(items)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to refresh notification list", e)
         }
     }
 

@@ -62,9 +62,15 @@
     <string name="settings_clock_light">light</string>
     <string name="settings_clock_regular">regular</string>
     <string name="settings_clock_bold">bold</string>
+    <string name="settings_clock_digital">digital</string>
+    <string name="settings_clock_stacked">stacked</string>
+    <string name="settings_clock_words">words</string>
+    <string name="settings_clock_analog">analog</string>
+    <string name="settings_clock_hidden">hidden</string>
     <string name="settings_section_font">font</string>
     <string name="settings_font_label">launcher font</string>
     <string name="font_select_title">select font</string>
+    <string name="settings_font_system">system</string>
     <string name="settings_section_about">about</string>
     <string name="settings_version">version %1$s</string>
     <string name="settings_privacy_policy">privacy policy</string>
@@ -79,6 +85,7 @@
     <!-- Settings: Language -->
     <string name="settings_section_language">language</string>
     <string name="settings_language_system">system default</string>
+    <string name="settings_language_system_unsupported">system (english us)</string>
     <string name="settings_language_es">español</string>
     <string name="settings_language_en_us">english (us)</string>
     <string name="settings_language_en_gb">english (uk)</string>
@@ -122,6 +129,7 @@
     <string name="action_save">save</string>
     <string name="action_reset">reset</string>
     <string name="action_cancel">cancel</string>
+    <string name="nav_back">back</string>
     <string name="action_ok">ok</string>
     <string name="settings_privacy_policy_fallback">see privacy_policy.html in app assets.</string>
     <string name="settings_clock_size">clock size</string>
@@ -229,6 +237,13 @@
     <string name="settings_section_gestures">gestures</string>
     <string name="settings_swipe_down_title">swipe down for notifications</string>
     <string name="settings_swipe_down_desc">pull down on the home screen to open the notification shade</string>
+
+    <!-- Notification Panel -->
+    <string name="settings_notification_panel_title">enable notification panel</string>
+    <string name="settings_notification_panel_desc">swipe right on the home screen to view notifications</string>
+    <string name="notification_panel_title">notifications</string>
+    <string name="notification_empty">no notifications</string>
+    <string name="cd_notification_indicator">notification page indicator</string>
 
     <!-- Notifications -->
     <string name="settings_section_notifications">notifications</string>

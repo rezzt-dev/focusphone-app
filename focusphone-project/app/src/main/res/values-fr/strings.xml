@@ -47,6 +47,7 @@
     <string name="settings_section_font">police</string>
     <string name="settings_font_label">police du launcher</string>
     <string name="font_select_title">sélectionner la police</string>
+    <string name="settings_font_system">système</string>
     <string name="settings_section_launcher">launcher</string>
     <string name="settings_set_default">définir comme launcher</string>
     <string name="settings_set_default_desc">ouvrir les réglages système</string>
@@ -55,6 +56,7 @@
     <string name="settings_privacy_policy">politique de confidentialité</string>
     <string name="settings_open_source">licences open source</string>
     <string name="settings_back">retour</string>
+    <string name="nav_back">retour</string>
 
     <string name="settings_section_language">langue</string>
     <string name="settings_language_system">par défaut du système</string>
@@ -121,4 +123,172 @@
     <string name="tutorial_btn_next">suivant</string>
     <string name="tutorial_btn_back">retour</string>
     <string name="tutorial_btn_finish">terminer</string>
+
+    <!-- Panneau de notifications -->
+    <string name="settings_notification_panel_title">activer le panneau de notifications</string>
+    <string name="settings_notification_panel_desc">balayez vers la droite sur l\'écran d\'accueil pour voir les notifications</string>
+    <string name="notification_panel_title">notifications</string>
+    <string name="notification_empty">aucune notification</string>
+    <string name="cd_notification_indicator">indicateur de page notifications</string>
+
+    <!-- Misc -->
+    <string name="action_cancel">annuler</string>
+    <string name="action_ok">ok</string>
+    <string name="action_reset">réinitialiser</string>
+    <string name="action_save">enregistrer</string>
+    <string name="allapps_dialog_rename">renommer</string>
+    <string name="allapps_dialog_block">bloquer en mode travail</string>
+    <string name="allapps_dialog_unblock">autoriser en mode travail</string>
+    <string name="allapps_dialog_uninstall">désinstaller</string>
+    <string name="allapps_toast_blocked">%1$s bloquée</string>
+    <string name="allapps_toast_keywords_saved">mots-clés enregistrés</string>
+    <string name="allapps_toast_unblocked">%1$s autorisée</string>
+    <string name="search_empty_state">aucune app trouvée</string>
+    <string name="uninstall_progress">désinstallation de l\'app…</string>
+    <string name="error_uninstall_failed">impossible d\'ouvrir la boîte de désinstallation</string>
+    <string name="menu_uninstall_app">désinstaller</string>
+    <string name="settings_chevron">›</string>
+
+    <!-- Onboarding counter -->
+    <string name="onboarding_step_counter">page %1$d sur %2$d</string>
+
+    <!-- Settings: Onboarding -->
+    <string name="settings_onboarding_title">redémarrer l\'onboarding</string>
+    <string name="settings_onboarding_desc">revoir le guide de configuration initial</string>
+
+    <!-- Settings: Security -->
+    <string name="settings_section_security">sécurité</string>
+    <string name="settings_accessibility_title">blocage système</string>
+    <string name="settings_accessibility_desc">activez le service d\'accessibilité pour un vrai blocage d\'apps</string>
+    <string name="settings_accessibility_active">actif</string>
+    <string name="settings_accessibility_inactive">inactif</string>
+
+    <!-- Settings: Work Profile -->
+    <string name="settings_section_work_profile">profil de travail</string>
+    <string name="settings_work_keywords_title">mots-clés mode travail</string>
+    <string name="settings_work_keywords_desc">les apps correspondant à ces mots-clés sont bloquées en mode travail</string>
+    <string name="settings_work_keywords_hint">un mot-clé par ligne\nex: instagram\nfacebook</string>
+    <string name="cd_work_keywords_toggle">afficher/masquer le panneau de mots-clés</string>
+
+    <!-- Settings: Notifications -->
+    <string name="settings_section_notifications">notifications</string>
+    <string name="settings_notification_badges_title">badges de notification</string>
+    <string name="settings_notification_badges_desc">affiche le nombre de non lus à côté du nom de l\'app</string>
+    <string name="settings_notification_badges_active">actif</string>
+    <string name="settings_notification_badges_inactive">inactif</string>
+
+    <!-- Settings: Gestures -->
+    <string name="settings_section_gestures">gestes</string>
+    <string name="settings_swipe_down_title">glisser vers le bas pour les notifications</string>
+    <string name="settings_swipe_down_desc">glissez vers le bas sur l\'écran d\'accueil pour ouvrir le panneau de notifications</string>
+
+    <!-- Settings: Widget -->
+    <string name="settings_section_widget">widget</string>
+    <string name="settings_widget_title">widget d\'accueil</string>
+    <string name="settings_widget_desc">ajoutez un widget système à votre écran d\'accueil</string>
+    <string name="settings_widget_add">ajouter un widget</string>
+    <string name="settings_widget_remove">retirer le widget</string>
+    <string name="settings_widget_none">aucun</string>
+    <string name="settings_widget_remove_confirm">retirer le widget actuel de l\'écran d\'accueil ?</string>
+    <string name="widget_config_title">sélectionner le widget</string>
+
+    <!-- Settings: Permissions -->
+    <string name="settings_section_permissions">permissions</string>
+    <string name="settings_permissions_title">permissions de l\'app</string>
+    <string name="settings_permissions_desc">consultez et activez les permissions système requises</string>
+    <string name="permissions_title">permissions</string>
+    <string name="permissions_query_all_packages_title">interroger toutes les apps</string>
+    <string name="permissions_query_all_packages_desc">requis pour lister les apps installées</string>
+    <string name="permissions_accessibility_title">service d\'accessibilité</string>
+    <string name="permissions_accessibility_desc">requis pour le blocage d\'apps au niveau système</string>
+    <string name="permissions_launcher_title">launcher par défaut</string>
+    <string name="permissions_launcher_desc">requis pour remplacer l\'écran d\'accueil</string>
+    <string name="permissions_status_granted">accordée</string>
+    <string name="permissions_status_denied">refusée</string>
+    <string name="permissions_status_active">actif</string>
+    <string name="permissions_status_inactive">inactif</string>
+    <string name="permissions_go_to_settings">ouvrir les réglages</string>
+
+    <!-- Settings: Theme -->
+    <string name="settings_theme_auto">automatique</string>
+    <string name="theme_select_title">sélectionner le thème</string>
+    <string name="settings_custom_theme">thème personnalisé</string>
+    <string name="settings_custom_theme_bg">couleur d\'arrière-plan</string>
+    <string name="settings_custom_theme_fg">couleur de premier plan</string>
+    <string name="settings_custom_theme_apply">appliquer</string>
+
+    <!-- Settings: Clock -->
+    <string name="settings_clock_thin">fin</string>
+    <string name="settings_clock_light">léger</string>
+    <string name="settings_clock_regular">normal</string>
+    <string name="settings_clock_bold">gras</string>
+    <string name="settings_clock_digital">digital</string>
+    <string name="settings_clock_stacked">empile</string>
+    <string name="settings_clock_words">mots</string>
+    <string name="settings_clock_analog">analogique</string>
+    <string name="settings_clock_hidden">masque</string>
+
+    <!-- Settings: Status Bar -->
+    <string name="settings_hide_status_bar">masquer la barre de statut</string>
+    <string name="settings_hide_status_bar_desc">masque la barre supérieure pour un minimalisme maximal</string>
+
+    <!-- Contextual Profiles & Detox -->
+    <string name="home_profile_label">profil sélectionné : %1$s</string>
+    <string name="profile_normal">normal</string>
+    <string name="profile_work">travail</string>
+    <string name="profile_detox">detox</string>
+    <string name="profile_select_title">sélectionner le profil</string>
+    <string name="profile_detox_select_duration">durée du detox</string>
+    <string name="detox_duration_15m">15 minutes</string>
+    <string name="detox_duration_30m">30 minutes</string>
+    <string name="detox_duration_1h">1 heure</string>
+    <string name="detox_duration_2h">2 heures</string>
+    <string name="detox_blocked_title">detox actif</string>
+    <string name="detox_blocked_desc">vous êtes en mode detox. prenez un moment pour vous reconnecter au monde réel.</string>
+    <string name="detox_remaining_time">restant : %1$s</string>
+    <string name="detox_label">detox</string>
+    <string name="detox_accessibility_title">activer le blocage système</string>
+    <string name="detox_accessibility_desc">pour que detox bloque les apps lancées depuis les notifications ou les récents, activez le service d\'accessibilité focusphone.</string>
+    <string name="detox_accessibility_enable">activer</string>
+    <string name="detox_accessibility_continue">continuer quand même</string>
+
+    <!-- Conscious Pause -->
+    <string name="settings_section_conscious_pause">pause consciente</string>
+    <string name="settings_conscious_pause_desc">respirez profondément avant d\'ouvrir une app</string>
+    <string name="settings_conscious_pause_duration">durée de la pause : %1$d secondes</string>
+    <string name="settings_conscious_pause_title">activer la pause consciente</string>
+    <string name="pause_inhale">inspirez…</string>
+    <string name="pause_exhale">expirez…</string>
+    <string name="pause_hold">retenez…</string>
+    <string name="pause_mindful_question">êtes-vous sûr de vouloir ouvrir %1$s ?</string>
+    <string name="pause_cancel">annuler</string>
+
+    <!-- Tutorial Arrows -->
+    <string name="tutorial_arrow_prev">←</string>
+    <string name="tutorial_arrow_next">→</string>
+    <string name="tutorial_arrow_finish">✓</string>
+
+    <!-- Custom App Names -->
+    <string name="customize_name_title">personnaliser le nom</string>
+    <string name="customize_name_message">entrez un nom personnalisé pour %1$s :</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_align_left">aligner à gauche</string>
+    <string name="cd_align_center">aligner au centre</string>
+    <string name="cd_align_right">aligner à droite</string>
+    <string name="cd_analog_clock">horloge analogique</string>
+    <string name="cd_app_item">ouvrir %1$s</string>
+    <string name="cd_custom_theme_toggle">afficher/masquer le panneau de thème personnalisé</string>
+    <string name="cd_day_indicator">jour %1$d</string>
+    <string name="cd_home_indicator">indicateur de page d\'accueil</string>
+    <string name="cd_language_toggle">afficher/masquer la sélection de langue</string>
+    <string name="cd_menu_indicator">indicateur de page de menu</string>
+    <string name="cd_select_indicator">basculer le favori</string>
+    <string name="cd_today_indicator">aujourd\'hui, %1$d</string>
+
+    <!-- Privacy Policy Fallback -->
+    <string name="settings_privacy_policy_fallback">consultez privacy_policy.html dans les assets de l\'app.</string>
+
+    <!-- Language fallback -->
+    <string name="settings_language_system_unsupported">système (english us)</string>
 </resources>
