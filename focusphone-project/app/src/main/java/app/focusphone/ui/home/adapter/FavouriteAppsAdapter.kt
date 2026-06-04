@@ -37,14 +37,6 @@ class FavouriteAppsAdapter(
         notifyItemRangeChanged(0, itemCount, PAYLOAD_ALIGNMENT)
     }
 
-    /** Notification badge counts — call [updateBadgeCounts] whenever the listener service refreshes. */
-    private var badgeCounts: Map<String, Int> = emptyMap()
-
-    fun updateBadgeCounts(counts: Map<String, Int>) {
-        badgeCounts = counts
-        notifyItemRangeChanged(0, itemCount, PAYLOAD_BADGE)
-    }
-
     private var tempReorderList: MutableList<FavouriteApp>? = null
 
     /** Swap two items visually during drag-and-drop. Tracks state internally. */
@@ -87,7 +79,6 @@ class FavouriteAppsAdapter(
                 PAYLOAD_HEIGHT -> applyHeight(holder)
                 PAYLOAD_TYPEFACE -> holder.binding.tvAppName.typeface = typeface
                 PAYLOAD_ALIGNMENT -> holder.binding.tvAppName.gravity = textAlignment
-                PAYLOAD_BADGE -> applyBadge(holder, app)
             }
         }
     }
@@ -105,20 +96,13 @@ class FavouriteAppsAdapter(
         }
     }
 
-    private fun applyBadge(holder: ViewHolder, app: FavouriteApp) {
-        val count = badgeCounts[app.packageName] ?: 0
-        val label = if (count > 0) "${app.label} ($count)" else app.label
-        holder.binding.tvAppName.text = label
-        holder.binding.root.contentDescription = holder.binding.root.context.getString(R.string.cd_app_item, label)
-    }
-
     inner class ViewHolder(
         val binding: ItemFavouriteAppBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(app: FavouriteApp) {
             val context = binding.root.context
-            applyBadge(this, app)
+            binding.tvAppName.text = app.label
             binding.tvAppName.typeface = typeface
             binding.tvAppName.gravity  = textAlignment
 
@@ -132,7 +116,7 @@ class FavouriteAppsAdapter(
                 binding.tvAppName.setTextColor(typedValue.data)
             }
 
-            // contentDescription is already set by applyBadge to include the badge count
+            binding.root.contentDescription = binding.root.context.getString(R.string.cd_app_item, app.label)
             binding.root.setOnClickListener     { onAppClick(app) }
             binding.root.setOnLongClickListener { onAppLongClick(app) }
         }
@@ -149,6 +133,5 @@ class FavouriteAppsAdapter(
         private const val PAYLOAD_TYPEFACE = "typeface"
         private const val PAYLOAD_ALIGNMENT = "alignment"
         private const val PAYLOAD_HEIGHT = "height"
-        private const val PAYLOAD_BADGE = "badge"
     }
 }

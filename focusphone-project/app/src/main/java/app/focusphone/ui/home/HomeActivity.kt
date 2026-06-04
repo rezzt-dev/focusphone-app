@@ -1,11 +1,13 @@
 package app.focusphone.ui.home
 
 import android.appwidget.AppWidgetHostView
+import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
@@ -19,7 +21,9 @@ import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -39,11 +43,12 @@ import app.focusphone.data.model.FavouriteApp
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.ConsciousPausePreferences
-import app.focusphone.data.preferences.NotificationBadgePreferences
 import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.data.preferences.GesturePreferences
 import app.focusphone.data.preferences.NotificationPanelPreferences
+import app.focusphone.data.preferences.HomeLayoutPreferences
 import app.focusphone.data.preferences.WidgetPreferences
+import app.focusphone.data.preferences.TutorialPreferences
 import app.focusphone.data.repository.NotificationRepository
 import app.focusphone.ui.home.adapter.NotificationsAdapter
 import app.focusphone.ui.pause.ConsciousPauseActivity
@@ -51,12 +56,14 @@ import app.focusphone.ui.detox.DetoxBlockedActivity
 import app.focusphone.databinding.ActivityHomeBinding
 import app.focusphone.domain.model.ClockType
 import app.focusphone.service.FocusAccessibilityService
+import app.focusphone.service.FocusNotificationService
 import app.focusphone.ui.allapps.AllAppsActivity
 import app.focusphone.ui.appselect.AppSelectActivity
 import app.focusphone.ui.base.BaseActivity
 import app.focusphone.ui.home.adapter.FavouriteAppsAdapter
 import app.focusphone.ui.onboarding.OnboardingActivity
 import app.focusphone.ui.settings.SettingsActivity
+import app.focusphone.ui.tutorial.TutorialOverlayView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -75,7 +82,7 @@ class HomeActivity : BaseActivity() {
     private var lastRestoredWidgetId: Int = WidgetPreferences.INVALID_WIDGET_ID
 
     private val viewModel: HomeViewModel by viewModels {
-        HomeViewModel.factory(application as FocusPhoneApp)
+        HomeViewModel.factory(focusPhoneApp)
     }
 
     private val adapter = FavouriteAppsAdapter(
@@ -83,10 +90,14 @@ class HomeActivity : BaseActivity() {
         onAppLongClick = ::showAppContextMenu
     )
 
-    private val notificationsAdapter = NotificationsAdapter()
+    private val notificationsAdapter = NotificationsAdapter(
+        onClick = ::onNotificationClick,
+        onDismiss = ::dismissNotification
+    )
 
     private var lastAppliedClockType: ClockType? = null
     private var lastVerifyTime = 0L
+    private var appSpacingDecoration: RecyclerView.ItemDecoration? = null
     private var pendingVerify = false
 
     private val clockReceiver = object : BroadcastReceiver() {
@@ -158,9 +169,9 @@ class HomeActivity : BaseActivity() {
         ProfilePreferences.expireDetoxIfNeeded(this)
         updateProfileLabel()
         restoreWidget()
+        applyHomeLayout()
         setupNotificationPanel()
         adapter.updateTypeface(FontPreferences.getTypeface(this))
-        adapter.updateBadgeCounts(NotificationBadgePreferences.getAllBadgeCounts(this))
 
         val gravity = when (app.focusphone.data.preferences.ThemePreferences.getAlignment(this)) {
             app.focusphone.data.preferences.ThemePreferences.ALIGN_LEFT -> android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
@@ -178,6 +189,10 @@ class HomeActivity : BaseActivity() {
         binding.tvEmpty.layoutParams = emptyParams
         populateCalendar()
         updateGestureExclusionRects()
+        applyAppSpacing()
+
+        // Start contextual tutorial if onboarding is done but tutorial not yet completed
+        binding.root.post { maybeStartTutorial() }
     }
 
     private fun verifyInstalledApps(force: Boolean = false) {
@@ -249,11 +264,20 @@ class HomeActivity : BaseActivity() {
     private fun setupInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.clockContainer.setPadding(0, bars.top + dp(8), 0, 0)
+
+            // Apply system-bar padding to the main content container so every component
+            // (clock, widget, apps) is safe regardless of user-defined order.
+            binding.rootHome.setPadding(0, bars.top, 0, bars.bottom)
+
+            // Drawers need their own insets so they don't overlap status/nav bars.
             binding.drawerMenu.setPadding(dp(32), bars.top + dp(32), dp(32), bars.bottom + dp(32))
             binding.drawerNotifications.setPadding(dp(32), bars.top + dp(32), dp(32), bars.bottom + dp(32))
-            binding.indicatorContainer.setPadding(0, 0, 0, bars.bottom)
-            binding.appsContainer.setPadding(0, 0, 0, bars.bottom)
+
+            // Indicator container lives outside the DrawerLayout, so apply a dynamic bottom margin.
+            val indicatorParams = binding.indicatorContainer.layoutParams as android.widget.FrameLayout.LayoutParams
+            indicatorParams.bottomMargin = bars.bottom + dp(16)
+            binding.indicatorContainer.layoutParams = indicatorParams
+
             insets
         }
     }
@@ -369,39 +393,6 @@ class HomeActivity : BaseActivity() {
             binding.clockTypeAnalog .visibility = if (type == ClockType.ANALOG)  View.VISIBLE else View.GONE
         }
 
-        // Constraints are always refreshed because widget visibility may change
-        // independently of the clock type.
-        val constraintSet = androidx.constraintlayout.widget.ConstraintSet()
-        constraintSet.clone(binding.rootHome)
-        val hasWidget = binding.widgetContainer.visibility == View.VISIBLE
-        when {
-            hasWidget -> {
-                constraintSet.connect(
-                    R.id.apps_container,
-                    androidx.constraintlayout.widget.ConstraintSet.TOP,
-                    R.id.widget_container,
-                    androidx.constraintlayout.widget.ConstraintSet.BOTTOM
-                )
-            }
-            isHidden -> {
-                constraintSet.connect(
-                    R.id.apps_container,
-                    androidx.constraintlayout.widget.ConstraintSet.TOP,
-                    androidx.constraintlayout.widget.ConstraintSet.PARENT_ID,
-                    androidx.constraintlayout.widget.ConstraintSet.TOP
-                )
-            }
-            else -> {
-                constraintSet.connect(
-                    R.id.apps_container,
-                    androidx.constraintlayout.widget.ConstraintSet.TOP,
-                    R.id.clock_container,
-                    androidx.constraintlayout.widget.ConstraintSet.BOTTOM
-                )
-            }
-        }
-        constraintSet.applyTo(binding.rootHome)
-
         // Adjust gravity for the RecyclerView and Empty state
         val rvParams = binding.rvFavouriteApps.layoutParams as android.widget.FrameLayout.LayoutParams
         rvParams.gravity = android.view.Gravity.CENTER_VERTICAL
@@ -412,7 +403,101 @@ class HomeActivity : BaseActivity() {
         binding.tvEmpty.layoutParams = emptyParams
     }
 
+    // ── Home layout (order, visibility, sizes) ─────────────────────
 
+    private fun applyHomeLayout() {
+        val order = HomeLayoutPreferences.getOrder(this)
+        val clockEnabled = HomeLayoutPreferences.isClockEnabled(this)
+        val widgetEnabled = HomeLayoutPreferences.isWidgetEnabled(this)
+
+        // Determine final visibility for each container
+        val clockType = FontPreferences.getClockType(this)
+        val clockVisible = clockEnabled && clockType != ClockType.HIDDEN
+        val widgetVisible = widgetEnabled && WidgetPreferences.isWidgetEnabled(this)
+
+        // Remove children from root_home and re-add in desired order.
+        val root = binding.rootHome
+        val clockView = binding.clockContainer
+        val widgetView = binding.widgetContainer
+        val appsView = binding.appsContainer
+
+        root.removeAllViews()
+
+        for (component in order) {
+            when (component) {
+                HomeLayoutPreferences.Component.CLOCK -> {
+                    clockView.visibility = if (clockVisible) View.VISIBLE else View.GONE
+                    root.addView(clockView)
+                }
+                HomeLayoutPreferences.Component.WIDGET -> {
+                    widgetView.visibility = if (widgetVisible) View.VISIBLE else View.GONE
+                    root.addView(widgetView)
+                }
+                HomeLayoutPreferences.Component.APPS -> {
+                    appsView.visibility = View.VISIBLE
+                    root.addView(appsView)
+                }
+            }
+        }
+
+        adjustRootGravity()
+    }
+
+    /**
+     * Controls whether the home content behaves as a single centred block
+     * (grouped mode) or as independent layers (separated mode).
+     *
+     * Separated mode is triggered when:
+     *   - the user enabled "fixed clock at top" in settings, or
+     *   - the screen is empty (no apps and no widget).
+     *
+     * In separated mode the clock stays at the top with a safe margin and the
+     * app list occupies all remaining space, centring itself vertically inside
+     * that area.
+     */
+    private fun adjustRootGravity() {
+        val fixedTop = HomeLayoutPreferences.isClockFixedTop(this)
+        val noApps = binding.tvEmpty.visibility == View.VISIBLE
+        val noWidget = binding.widgetContainer.visibility != View.VISIBLE
+        val clockVisible = binding.clockContainer.visibility == View.VISIBLE
+
+        val isSeparatedMode = fixedTop || (clockVisible && noApps && noWidget)
+
+        val clockParams = binding.clockContainer.layoutParams as? LinearLayout.LayoutParams
+            ?: return
+        val widgetParams = binding.widgetContainer.layoutParams as? LinearLayout.LayoutParams
+            ?: return
+        val appsParams = binding.appsContainer.layoutParams as? LinearLayout.LayoutParams
+            ?: return
+
+        if (isSeparatedMode) {
+            // Clock (and widget) at top; apps fill the rest of the screen.
+            binding.rootHome.gravity = Gravity.CENTER_HORIZONTAL or Gravity.TOP
+            clockParams.topMargin = dp(24)
+            clockParams.bottomMargin = dp(8)
+            widgetParams.topMargin = dp(8)
+            widgetParams.bottomMargin = dp(8)
+            appsParams.height = 0
+            appsParams.weight = 1f
+            appsParams.topMargin = dp(8)
+            appsParams.bottomMargin = dp(8)
+        } else {
+            // Grouped mode: everything wraps and centres as a single block.
+            binding.rootHome.gravity = Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL
+            clockParams.topMargin = dp(8)
+            clockParams.bottomMargin = dp(8)
+            widgetParams.topMargin = dp(8)
+            widgetParams.bottomMargin = dp(8)
+            appsParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+            appsParams.weight = 0f
+            appsParams.topMargin = dp(8)
+            appsParams.bottomMargin = dp(8)
+        }
+
+        binding.clockContainer.layoutParams = clockParams
+        binding.widgetContainer.layoutParams = widgetParams
+        binding.appsContainer.layoutParams = appsParams
+    }
 
     // ── Clock update (called every minute) ────────────────────────
 
@@ -453,12 +538,12 @@ class HomeActivity : BaseActivity() {
 
         // Digital
         binding.tvTime.text = timeStr
-        binding.tvDate.text = dateStr
+        binding.tvDate.text = dateStr.lowercase(Locale.getDefault())
 
         // Stacked
         binding.tvStackedH   .text = String.format("%02d", h)
         binding.tvStackedM   .text = String.format("%02d", m)
-        binding.tvStackedDate.text = dateStr
+        binding.tvStackedDate.text = dateStr.lowercase(Locale.getDefault())
 
         // Words
         binding.tvWordsTime.text = formatTimeWords(h, m)
@@ -466,7 +551,7 @@ class HomeActivity : BaseActivity() {
 
         // Analog
         binding.viewAnalog   .setTime(h, m)
-        binding.tvAnalogDate .text = dateStr
+        binding.tvAnalogDate .text = dateStr.lowercase(Locale.getDefault())
     }
 
     // ── "nine forty-one" format ────────────────────────────────────
@@ -529,6 +614,43 @@ class HomeActivity : BaseActivity() {
             }
         )
         touchHelper.attachToRecyclerView(binding.rvFavouriteApps)
+        applyAppSpacing()
+    }
+
+    private fun applyAppSpacing() {
+        val spacingDp = HomeLayoutPreferences.getAppSpacingDp(this)
+        val spacingPx = dp(spacingDp)
+        val appCount = adapter.itemCount
+
+        if (appCount <= 1 || spacingPx <= 0) {
+            appSpacingDecoration?.let { binding.rvFavouriteApps.removeItemDecoration(it) }
+            appSpacingDecoration = null
+            return
+        }
+
+        // Calculate available vertical space for the apps section.
+        val rootHeight = binding.rootHome.height - binding.rootHome.paddingTop - binding.rootHome.paddingBottom
+        val clockHeight = if (binding.clockContainer.visibility == View.VISIBLE) binding.clockContainer.height else 0
+        val widgetHeight = if (binding.widgetContainer.visibility == View.VISIBLE) binding.widgetContainer.height else 0
+        val availableHeight = rootHeight - clockHeight - widgetHeight
+
+        // Estimate each item's natural height (wrap_content).
+        val estimatedItemHeight = if (binding.rvFavouriteApps.childCount > 0) {
+            binding.rvFavouriteApps.getChildAt(0).height
+        } else {
+            dp(56)
+        }
+
+        // Total spacing budget = available space minus natural item heights.
+        // Spacing is added *between* items (count - 1 gaps).
+        val maxTotalSpacing = (availableHeight - estimatedItemHeight * appCount).coerceAtLeast(0)
+        val maxSpacingPx = (maxTotalSpacing / (appCount - 1)).coerceAtLeast(0)
+        val finalSpacingPx = spacingPx.coerceIn(0, maxSpacingPx)
+
+        appSpacingDecoration?.let { binding.rvFavouriteApps.removeItemDecoration(it) }
+        val decoration = VerticalSpacingItemDecoration(finalSpacingPx)
+        appSpacingDecoration = decoration
+        binding.rvFavouriteApps.addItemDecoration(decoration)
     }
 
     // ── Drawer Menu ────────────────────────────────────────────────
@@ -573,9 +695,9 @@ class HomeActivity : BaseActivity() {
 
             override fun onDrawerClosed(drawerView: View) {
                 // Reset to home indicator when any drawer is fully closed
-                binding.indicatorNotifications.setBackgroundResource(R.drawable.shape_indicator_outline)
-                binding.indicatorHome.setBackgroundResource(R.drawable.shape_indicator_filled)
-                binding.indicatorMenu.setBackgroundResource(R.drawable.shape_indicator_outline)
+                setIndicatorBackground(binding.indicatorNotifications, filled = false)
+                setIndicatorBackground(binding.indicatorHome, filled = true)
+                setIndicatorBackground(binding.indicatorMenu, filled = false)
 
                 // Restore original lock modes: left follows preference, right is always unlocked
                 val panelEnabled = NotificationPanelPreferences.isEnabled(this@HomeActivity)
@@ -623,23 +745,51 @@ class HomeActivity : BaseActivity() {
         when {
             isLeftDrawer && slideOffset > 0.5f -> {
                 // Notifications panel is open
-                binding.indicatorNotifications.setBackgroundResource(R.drawable.shape_indicator_filled)
-                binding.indicatorHome.setBackgroundResource(R.drawable.shape_indicator_outline)
-                binding.indicatorMenu.setBackgroundResource(R.drawable.shape_indicator_outline)
+                setIndicatorBackground(binding.indicatorNotifications, filled = true)
+                setIndicatorBackground(binding.indicatorHome, filled = false)
+                setIndicatorBackground(binding.indicatorMenu, filled = false)
             }
             !isLeftDrawer && slideOffset > 0.5f -> {
                 // Menu drawer is open
-                binding.indicatorNotifications.setBackgroundResource(R.drawable.shape_indicator_outline)
-                binding.indicatorHome.setBackgroundResource(R.drawable.shape_indicator_outline)
-                binding.indicatorMenu.setBackgroundResource(R.drawable.shape_indicator_filled)
+                setIndicatorBackground(binding.indicatorNotifications, filled = false)
+                setIndicatorBackground(binding.indicatorHome, filled = false)
+                setIndicatorBackground(binding.indicatorMenu, filled = true)
             }
             else -> {
                 // Home (or transitioning)
-                binding.indicatorNotifications.setBackgroundResource(R.drawable.shape_indicator_outline)
-                binding.indicatorHome.setBackgroundResource(R.drawable.shape_indicator_filled)
-                binding.indicatorMenu.setBackgroundResource(R.drawable.shape_indicator_outline)
+                setIndicatorBackground(binding.indicatorNotifications, filled = false)
+                setIndicatorBackground(binding.indicatorHome, filled = true)
+                setIndicatorBackground(binding.indicatorMenu, filled = false)
             }
         }
+    }
+
+    /**
+     * Sets the page indicator background shape, adapting to the custom theme color
+     * when active. Built-in themes reuse the XML drawables directly.
+     */
+    private fun setIndicatorBackground(view: View, filled: Boolean) {
+        val isCustom = ThemePreferences.getTheme(this) == ThemePreferences.THEME_CUSTOM
+        if (!isCustom) {
+            view.setBackgroundResource(
+                if (filled) R.drawable.shape_indicator_filled
+                else R.drawable.shape_indicator_outline
+            )
+            return
+        }
+        val fgColor = ThemePreferences.getCustomForegroundColor(this)
+        val sizePx = dp(8)
+        val drawable = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setSize(sizePx, sizePx)
+            if (filled) {
+                setColor(fgColor)
+            } else {
+                setColor(Color.TRANSPARENT)
+                setStroke(dp(2), (fgColor and 0x00FFFFFF) or (0x8A shl 24))
+            }
+        }
+        view.background = drawable
     }
 
     private fun setupDrawerMenu() {
@@ -923,32 +1073,12 @@ class HomeActivity : BaseActivity() {
                     binding.tvEmpty.visibility         = if (empty) View.VISIBLE else View.GONE
                     binding.rvFavouriteApps.visibility = if (empty) View.GONE   else View.VISIBLE
 
-                    adapter.submitList(apps) {
-                        if (!empty) {
-                            val calculateHeight = {
-                                val totalHeight = binding.appsContainer.height
-                                if (totalHeight > 0) {
-                                    val padding = binding.appsContainer.paddingTop + binding.appsContainer.paddingBottom
-                                    val availableHeight = totalHeight - padding
-                                    val maxItemHeight = dp(80) 
-                                    val calculatedHeight = availableHeight / apps.size
-                                    adapter.itemHeight = calculatedHeight.coerceAtMost(maxItemHeight)
-                                }
-                            }
-                            
-                            if (binding.appsContainer.height > 0) {
-                                calculateHeight()
-                            } else {
-                                binding.appsContainer.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
-                                    override fun onLayoutChange(v: View?, left: Int, top: Int, right: Int, bottom: Int,
-                                                                oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
-                                        binding.appsContainer.removeOnLayoutChangeListener(this)
-                                        calculateHeight()
-                                    }
-                                })
-                            }
-                        }
-                    }
+                    // Let items use their natural height (wrap_content) so the whole
+                    // group (clock + apps) centres vertically inside root_home.
+                    adapter.itemHeight = ViewGroup.LayoutParams.WRAP_CONTENT
+                    adapter.submitList(apps)
+                    applyAppSpacing()
+                    adjustRootGravity()
                 }
             }
         }
@@ -958,6 +1088,7 @@ class HomeActivity : BaseActivity() {
 
     private fun setupNotificationPanel() {
         val enabled = NotificationPanelPreferences.isEnabled(this)
+        binding.indicatorNotifications.visibility = if (enabled) View.VISIBLE else View.GONE
         if (enabled) {
             binding.drawerLayout.setDrawerLockMode(
                 DrawerLayout.LOCK_MODE_UNLOCKED,
@@ -974,6 +1105,36 @@ class HomeActivity : BaseActivity() {
         binding.rvNotifications.adapter = notificationsAdapter
         binding.rvNotifications.itemAnimator = null
 
+        // Swipe right to dismiss individual notifications
+        val swipeHelper = androidx.recyclerview.widget.ItemTouchHelper(
+            object : androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback(
+                0,
+                androidx.recyclerview.widget.ItemTouchHelper.RIGHT
+            ) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean = false
+
+                override fun onSwiped(
+                    viewHolder: RecyclerView.ViewHolder,
+                    direction: Int
+                ) {
+                    val position = viewHolder.bindingAdapterPosition
+                    if (position != RecyclerView.NO_POSITION) {
+                        val key = notificationsAdapter.getItemKey(position)
+                        dismissNotification(key)
+                    }
+                }
+            }
+        )
+        swipeHelper.attachToRecyclerView(binding.rvNotifications)
+
+        binding.btnClearAllNotifications.setOnClickListener {
+            clearAllNotifications()
+        }
+
         binding.indicatorNotifications.contentDescription = getString(R.string.cd_notification_indicator)
 
         lifecycleScope.launch {
@@ -983,10 +1144,68 @@ class HomeActivity : BaseActivity() {
                         val empty = notifications.isEmpty()
                         binding.tvNotificationsEmpty.visibility = if (empty) View.VISIBLE else View.GONE
                         binding.rvNotifications.visibility = if (empty) View.GONE else View.VISIBLE
+                        binding.btnClearAllNotifications.visibility = if (empty) View.GONE else View.VISIBLE
                         notificationsAdapter.submitList(notifications)
                     }
                 }
             }
+        }
+    }
+
+    private fun dismissNotification(key: String) {
+        val intent = Intent(this, FocusNotificationService::class.java).apply {
+            action = FocusNotificationService.ACTION_DISMISS
+            putExtra(FocusNotificationService.EXTRA_KEY, key)
+        }
+        startService(intent)
+    }
+
+    private fun clearAllNotifications() {
+        val intent = Intent(this, FocusNotificationService::class.java).apply {
+            action = FocusNotificationService.ACTION_DISMISS_ALL
+        }
+        startService(intent)
+    }
+
+    private fun onNotificationClick(item: app.focusphone.data.repository.NotificationItem) {
+        binding.drawerLayout.closeDrawers()
+
+        if (ProfilePreferences.isAppBlocked(this, item.packageName)) {
+            startActivity(Intent(this, DetoxBlockedActivity::class.java))
+            return
+        }
+
+        val launchIntent = packageManager.getLaunchIntentForPackage(item.packageName)
+        if (launchIntent == null) {
+            Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (ConsciousPausePreferences.isEnabled(this)) {
+            val intent = Intent(this, ConsciousPauseActivity::class.java).apply {
+                putExtra("target_intent", launchIntent)
+                putExtra("app_label", item.appName)
+            }
+            startActivity(intent)
+            return
+        }
+
+        // No conscious pause — try the original notification content intent
+        // so the user lands directly in the relevant context (chat, email, etc.).
+        val contentIntent = FocusNotificationService.getPendingIntent(item.key)
+        if (contentIntent != null) {
+            try {
+                contentIntent.send()
+                return
+            } catch (e: Exception) {
+                Log.w("HomeActivity", "Failed to send content intent, falling back to launch intent", e)
+            }
+        }
+
+        try { startActivity(launchIntent) }
+        catch (e: Exception) {
+            Log.e("HomeActivity", "Failed to launch app ${item.packageName}", e)
+            Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -1024,7 +1243,7 @@ class HomeActivity : BaseActivity() {
         haptic(binding.rvFavouriteApps)
         lifecycleScope.launch {
             val shortcuts = withContext(Dispatchers.IO) {
-                (application as FocusPhoneApp).container.getAppShortcutsUseCase(app.packageName)
+                focusPhoneApp.container.getAppShortcutsUseCase(app.packageName)
             }
             showAppContextMenuWithShortcuts(app, shortcuts)
         }
@@ -1056,7 +1275,7 @@ class HomeActivity : BaseActivity() {
                     if (BuildConfig.DEBUG) {
                         Log.d("FocusPhone", "Home uninstall clicked for ${app.packageName}")
                     }
-                    (application as FocusPhoneApp).container.appRepository.invalidateCache()
+                    focusPhoneApp.container.appRepository.invalidateCache()
                     pendingVerify = true // force verify on next resume
 
                     val uri = Uri.fromParts("package", app.packageName, null)
@@ -1085,7 +1304,7 @@ class HomeActivity : BaseActivity() {
                     // Shortcut item
                     val shortcutIndex = item.itemId - MENU_ID_SHORTCUT_BASE
                     if (shortcutIndex in shortcuts.indices) {
-                        val launched = (application as FocusPhoneApp).container.getAppShortcutsUseCase.launchShortcut(shortcuts[shortcutIndex])
+                        val launched = focusPhoneApp.container.getAppShortcutsUseCase.launchShortcut(shortcuts[shortcutIndex])
                         if (!launched) {
                             Toast.makeText(this@HomeActivity, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
                         }
@@ -1180,10 +1399,22 @@ class HomeActivity : BaseActivity() {
                 if (cellIndex >= startOffset && dayCounter <= maxDays) {
                     dayTextView.text = dayCounter.toString()
                     if (dayCounter == currentDay) {
-                        val bgValue = android.util.TypedValue()
-                        theme.resolveAttribute(android.R.attr.colorBackground, bgValue, true)
-                        dayTextView.setTextColor(bgValue.data)
-                        dayTextView.setBackgroundResource(R.drawable.shape_current_day)
+                        val isCustom = ThemePreferences.getTheme(this) == ThemePreferences.THEME_CUSTOM
+                        if (isCustom) {
+                            val customFg = ThemePreferences.getCustomForegroundColor(this)
+                            val customBg = ThemePreferences.getCustomBackgroundColor(this)
+                            dayTextView.setTextColor(customBg)
+                            val circle = GradientDrawable().apply {
+                                shape = GradientDrawable.OVAL
+                                setColor(customFg)
+                            }
+                            dayTextView.background = circle
+                        } else {
+                            val bgValue = android.util.TypedValue()
+                            theme.resolveAttribute(android.R.attr.colorBackground, bgValue, true)
+                            dayTextView.setTextColor(bgValue.data)
+                            dayTextView.setBackgroundResource(R.drawable.shape_current_day)
+                        }
                         dayTextView.typeface = android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.BOLD)
                         dayTextView.contentDescription = getString(R.string.cd_today_indicator, dayCounter)
                     } else {
@@ -1264,9 +1495,8 @@ class HomeActivity : BaseActivity() {
         }
 
         val info = hostManager.getAppWidgetInfo(widgetId)
-        if (info == null) {
-            // Provider was uninstalled or disabled — clear the stale preference
-            WidgetPreferences.clearWidget(this)
+        if (info == null || info.provider == null) {
+            // Provider may be temporarily unavailable; don't clear preferences aggressively.
             widgetHostView?.let { binding.widgetContainer.removeView(it) }
             widgetHostView = null
             lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
@@ -1277,25 +1507,181 @@ class HomeActivity : BaseActivity() {
 
         // Remove previous widget before adding the new one
         widgetHostView?.let { binding.widgetContainer.removeView(it) }
+        widgetHostView = null
 
-        val hostView = hostManager.createView(this, widgetId, info)
-        if (hostView == null) {
-            // Failed to bind widget view — clear preference to avoid repeated crashes
-            WidgetPreferences.clearWidget(this)
-            binding.widgetContainer.visibility = View.GONE
-            applyClockType()
-            return
+        // Update widget options with current container size for best compatibility
+        try {
+            val appWidgetManager = AppWidgetManager.getInstance(this)
+            val options = android.os.Bundle().apply {
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, binding.widgetContainer.width)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, binding.widgetContainer.width)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, binding.widgetContainer.height)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, binding.widgetContainer.height)
+            }
+            appWidgetManager.updateAppWidgetOptions(widgetId, options)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to update widget options", e)
         }
+
+        var hostView = hostManager.createView(this, widgetId, info)
+        if (hostView == null) {
+            // Auto-repair: widgets saved before the explicit-bind fix may be unbound.
+            // Attempt to bind and retry once.
+            val repaired = hostManager.bindAppWidgetIdIfAllowed(widgetId, info.provider)
+            if (repaired) {
+                hostView = hostManager.createView(this, widgetId, info)
+            }
+            if (hostView == null) {
+                Log.w(TAG, "createView failed for widget id=$widgetId; provider may not be bound to this host")
+                // Do NOT clear preferences here — the binding may recover after a reboot.
+                binding.widgetContainer.visibility = View.GONE
+                applyClockType()
+                return
+            }
+        }
+
+        // Ensure the widget fills the available width and measures correctly
+        hostView.layoutParams = android.widget.FrameLayout.LayoutParams(
+            android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+            android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
+        )
+
         widgetHostView = hostView
         lastRestoredWidgetId = widgetId
 
-        binding.widgetContainer.addView(hostView)
-        binding.widgetContainer.visibility = View.VISIBLE
+        try {
+            binding.widgetContainer.addView(hostView)
+            binding.widgetContainer.visibility = View.VISIBLE
+        } catch (e: RuntimeException) {
+            Log.e(TAG, "Failed to add widget view to container", e)
+            widgetHostView = null
+            lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
+            binding.widgetContainer.visibility = View.GONE
+        }
         applyClockType()
     }
 
+    private class VerticalSpacingItemDecoration(
+        private val spacingPx: Int
+    ) : RecyclerView.ItemDecoration() {
+        override fun getItemOffsets(
+            outRect: android.graphics.Rect,
+            view: android.view.View,
+            parent: RecyclerView,
+            state: RecyclerView.State
+        ) {
+            val position = parent.getChildAdapterPosition(view)
+            if (position != RecyclerView.NO_POSITION && position < (parent.adapter?.itemCount ?: 0) - 1) {
+                outRect.bottom = spacingPx
+            }
+        }
+    }
+
+    // ── Contextual Tutorial ────────────────────────────────────────────────────────
+
+    private var isTutorialActive = false
+
+    private fun maybeStartTutorial() {
+        if (isTutorialActive) return
+        if (!ThemePreferences.isOnboardingComplete(this)) return
+        if (TutorialPreferences.isTutorialComplete(this)) return
+
+        val step = TutorialPreferences.getCurrentStep(this)
+        if (step >= TUTORIAL_STEPS.size) {
+            TutorialPreferences.markTutorialComplete(this)
+            return
+        }
+
+        isTutorialActive = true
+        showTutorialStep(step)
+    }
+
+    private fun showTutorialStep(step: Int) {
+        if (step >= TUTORIAL_STEPS.size) {
+            TutorialPreferences.markTutorialComplete(this)
+            isTutorialActive = false
+            return
+        }
+
+        val config = TUTORIAL_STEPS[step]
+        val targetView = config.viewProvider(this) ?: run {
+            // Skip step if target view is not available
+            TutorialPreferences.setCurrentStep(this, step + 1)
+            showTutorialStep(step + 1)
+            return
+        }
+
+        // For the profile step, open the menu drawer first and wait for animation
+        if (config.openMenuDrawer) {
+            binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.END)
+            binding.root.postDelayed({ showTutorialOverlay(step, config, targetView) }, 450)
+        } else {
+            showTutorialOverlay(step, config, targetView)
+        }
+    }
+
+    private fun showTutorialOverlay(step: Int, config: TutorialStepConfig, targetView: View) {
+        if (isFinishing || isDestroyed) return
+        val content = window.decorView.findViewById<ViewGroup>(android.R.id.content)
+        TutorialOverlayView.show(
+            activityContent = content,
+            targetView = targetView,
+            titleRes = config.titleRes,
+            descRes = config.descRes,
+            step = step,
+            totalSteps = TUTORIAL_STEPS.size,
+            onDismiss = {
+                if (config.openMenuDrawer) {
+                    binding.drawerLayout.closeDrawers()
+                }
+                TutorialPreferences.setCurrentStep(this, step + 1)
+                isTutorialActive = false
+                // Show next step after a short delay so the UI can settle
+                binding.root.postDelayed({ maybeStartTutorial() }, 400)
+            }
+        )
+    }
+
+    private data class TutorialStepConfig(
+        val titleRes: Int,
+        val descRes: Int,
+        val viewProvider: HomeActivity.() -> View?,
+        val openMenuDrawer: Boolean = false
+    )
+
+    private val TUTORIAL_STEPS = listOf(
+        TutorialStepConfig(
+            titleRes = R.string.tutorial_coach_home_title,
+            descRes = R.string.tutorial_coach_home_desc,
+            viewProvider = { binding.clockContainer }
+        ),
+        TutorialStepConfig(
+            titleRes = R.string.tutorial_coach_apps_title,
+            descRes = R.string.tutorial_coach_apps_desc,
+            viewProvider = {
+                if (adapter.itemCount > 0 && binding.rvFavouriteApps.childCount > 0) {
+                    binding.rvFavouriteApps.getChildAt(0)
+                } else {
+                    binding.tvEmpty
+                }
+            }
+        ),
+        TutorialStepConfig(
+            titleRes = R.string.tutorial_coach_menu_title,
+            descRes = R.string.tutorial_coach_menu_desc,
+            viewProvider = { binding.indicatorMenu }
+        ),
+        TutorialStepConfig(
+            titleRes = R.string.tutorial_coach_profile_title,
+            descRes = R.string.tutorial_coach_profile_desc,
+            viewProvider = { binding.tvMenuProfile },
+            openMenuDrawer = true
+        )
+    )
+
     companion object {
         private const val MENU_ID_SHORTCUT_BASE = 10_000
+        private const val TAG = "HomeActivity"
     }
 
     private fun haptic(view: View) = view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)

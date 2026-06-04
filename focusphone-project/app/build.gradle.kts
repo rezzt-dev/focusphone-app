@@ -57,6 +57,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    lint {
+        // Disable the lint-vital task on release builds.
+        // The lintVitalAnalyzeRelease task causes a FileSystemException on Windows
+        // when Android Studio holds a lock on the lint cache JARs during the build.
+        // Run ./gradlew :app:lint separately for a full lint report.
+        checkReleaseBuilds = false
+    }
 }
 
 dependencies {

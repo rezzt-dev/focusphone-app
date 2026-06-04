@@ -1,13 +1,16 @@
 package app.focusphone.ui.detox
 
-import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
-import android.animation.ValueAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import app.focusphone.R
 import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.databinding.ActivityDetoxBlockedBinding
@@ -18,11 +21,11 @@ import java.util.Locale
 /**
  * Full-screen digital detox block activity.
  * Displays a live countdown timer and blocks app access strictly.
+ * Offers a direct unlock path via password verification.
  */
 class DetoxBlockedActivity : BaseActivity() {
 
     private lateinit var binding: ActivityDetoxBlockedBinding
-    private var pulseAnimator: ObjectAnimator? = null
     private var countDownTimer: CountDownTimer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,37 +34,28 @@ class DetoxBlockedActivity : BaseActivity() {
         binding = ActivityDetoxBlockedBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupInsets()
-        applyDetoxCircleTint()
-        setupPulsingAnimation()
         startCountdownTimer()
 
         binding.btnBack.setOnClickListener {
             navigateHome()
         }
-    }
 
-    private fun applyDetoxCircleTint() {
-        val typedValue = android.util.TypedValue()
-        theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-        binding.viewDetoxCircle.backgroundTintList = android.content.res.ColorStateList.valueOf(typedValue.data)
+        binding.btnUnlock.setOnClickListener {
+            showUnlockDialog()
+        }
+
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                navigateHome()
+            }
+        })
     }
 
     private fun setupInsets() {
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
-            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             binding.root.setPadding(0, bars.top, 0, bars.bottom)
             insets
-        }
-    }
-
-    private fun setupPulsingAnimation() {
-        val scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1.0f, 1.03f)
-        val scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1.0f, 1.03f)
-        pulseAnimator = ObjectAnimator.ofPropertyValuesHolder(binding.viewDetoxCircle, scaleX, scaleY).apply {
-            duration = 3000
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.REVERSE
-            start()
         }
     }
 
@@ -108,8 +102,66 @@ class DetoxBlockedActivity : BaseActivity() {
         finish()
     }
 
+    private fun showUnlockDialog() {
+        val view = LayoutInflater.from(this).inflate(R.layout.dialog_detox_password_verify, null)
+        val dialog = AlertDialog.Builder(this)
+            .setView(view)
+            .create()
+
+        dialog.window?.apply {
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+            addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+
+        val etPassword = view.findViewById<EditText>(R.id.et_detox_password_verify)
+
+        view.findViewById<View>(R.id.btn_cancel).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        view.findViewById<View>(R.id.btn_ok).setOnClickListener {
+            if (ProfilePreferences.isPasswordLockedOut(this)) {
+                Toast.makeText(this, getString(R.string.detox_force_disabled), Toast.LENGTH_LONG).show()
+                ProfilePreferences.setDetoxPassword(this, null)
+                ProfilePreferences.setDetoxEndTime(this, 0L)
+                ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_NORMAL)
+                ProfilePreferences.clearFailedAttempts(this)
+                dialog.dismiss()
+                navigateHome()
+                return@setOnClickListener
+            }
+
+            val entered = etPassword.text.toString()
+            if (ProfilePreferences.verifyDetoxPassword(this, entered)) {
+                ProfilePreferences.clearFailedAttempts(this)
+                ProfilePreferences.setDetoxPassword(this, null)
+                ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_NORMAL)
+                dialog.dismiss()
+                navigateHome()
+            } else {
+                val attempts = ProfilePreferences.getFailedAttempts(this)
+                if (attempts >= 4) {
+                    ProfilePreferences.setDetoxPassword(this, null)
+                    ProfilePreferences.setDetoxEndTime(this, 0L)
+                    ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_NORMAL)
+                    ProfilePreferences.clearFailedAttempts(this)
+                    dialog.dismiss()
+                    Toast.makeText(
+                        this,
+                        getString(R.string.detox_force_disabled),
+                        Toast.LENGTH_LONG
+                    ).show()
+                    navigateHome()
+                } else {
+                    Toast.makeText(this, getString(R.string.error_incorrect_password), Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        dialog.show()
+    }
+
     override fun onDestroy() {
-        pulseAnimator?.cancel()
         countDownTimer?.cancel()
         super.onDestroy()
     }

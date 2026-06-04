@@ -1,20 +1,20 @@
 package app.focusphone.service
 
+import android.app.PendingIntent
 import android.content.Context
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import app.focusphone.data.preferences.NotificationBadgePreferences
 import app.focusphone.data.repository.NotificationItem
 import app.focusphone.data.repository.NotificationRepository
 
 /**
- * Notification listener that maintains per-app badge counts and an in-memory
- * list of active notifications for the notification panel.
+ * Notification listener that maintains an in-memory list of active
+ * notifications for the notification panel.
  *
- * Privacy guarantee: badge counts are persisted. Notification content (title,
- * text) is kept only in RAM and is never written to disk.
+ * Privacy guarantee: notification content (title, text) is kept only in RAM
+ * and is never written to disk.
  */
 class FocusNotificationService : NotificationListenerService() {
 
@@ -23,6 +23,7 @@ class FocusNotificationService : NotificationListenerService() {
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
+        sbn?.key?.let { removePendingIntent(it) }
         refresh()
     }
 
@@ -31,23 +32,23 @@ class FocusNotificationService : NotificationListenerService() {
         refresh()
     }
 
-    private fun refresh() {
-        refreshCounts()
-        refreshNotifications()
+    override fun onStartCommand(intent: android.content.Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            ACTION_DISMISS -> {
+                val key = intent.getStringExtra(EXTRA_KEY)
+                if (key != null) {
+                    try { cancelNotification(key) } catch (_: Exception) {}
+                }
+            }
+            ACTION_DISMISS_ALL -> {
+                try { cancelAllNotifications() } catch (_: Exception) {}
+            }
+        }
+        return START_NOT_STICKY
     }
 
-    private fun refreshCounts() {
-        try {
-            val active = activeNotifications ?: emptyArray()
-            val counts = mutableMapOf<String, Int>()
-            active.forEach { notification ->
-                val pkg = notification.packageName
-                counts[pkg] = (counts[pkg] ?: 0) + 1
-            }
-            NotificationBadgePreferences.setBadgeCounts(this, counts)
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to refresh notification counts", e)
-        }
+    private fun refresh() {
+        refreshNotifications()
     }
 
     private fun refreshNotifications() {
@@ -67,6 +68,8 @@ class FocusNotificationService : NotificationListenerService() {
                     sbn.packageName
                 }
 
+                storePendingIntent(sbn.key, sbn.notification.contentIntent)
+
                 NotificationItem(
                     key = sbn.key,
                     packageName = sbn.packageName,
@@ -85,6 +88,10 @@ class FocusNotificationService : NotificationListenerService() {
     companion object {
         private const val TAG = "FocusNotificationService"
 
+        const val ACTION_DISMISS = "app.focusphone.action.DISMISS_NOTIFICATION"
+        const val ACTION_DISMISS_ALL = "app.focusphone.action.DISMISS_ALL_NOTIFICATIONS"
+        const val EXTRA_KEY = "notification_key"
+
         /** Check whether the user has enabled this notification listener in system settings. */
         fun isEnabled(context: Context): Boolean {
             val flat = Settings.Secure.getString(
@@ -100,6 +107,28 @@ class FocusNotificationService : NotificationListenerService() {
                 addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(intent)
+        }
+
+        // ── PendingIntent cache for opening notifications directly ─────
+
+        private val pendingIntents = mutableMapOf<String, PendingIntent>()
+
+        fun storePendingIntent(key: String, intent: PendingIntent?) {
+            if (intent != null) {
+                pendingIntents[key] = intent
+            } else {
+                pendingIntents.remove(key)
+            }
+        }
+
+        fun getPendingIntent(key: String): PendingIntent? = pendingIntents[key]
+
+        fun removePendingIntent(key: String) {
+            pendingIntents.remove(key)
+        }
+
+        fun clearPendingIntents() {
+            pendingIntents.clear()
         }
     }
 }

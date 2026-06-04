@@ -28,7 +28,6 @@ import app.focusphone.BuildConfig
 import app.focusphone.FocusPhoneApp
 import app.focusphone.R
 import app.focusphone.data.preferences.ConsciousPausePreferences
-import app.focusphone.data.preferences.NotificationBadgePreferences
 import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.ui.pause.ConsciousPauseActivity
@@ -109,7 +108,7 @@ class AllAppsViewModel(
 class AllAppsActivity : BaseActivity() {
 
   private lateinit var binding: ActivityAllAppsBinding
-  private val viewModel: AllAppsViewModel by viewModels { AllAppsViewModel.factory(application as FocusPhoneApp) }
+  private val viewModel: AllAppsViewModel by viewModels { AllAppsViewModel.factory(focusPhoneApp) }
   private var activeDialog: androidx.appcompat.app.AlertDialog? = null
   private var searchTextWatcher: TextWatcher? = null
   private var pendingRefresh = false
@@ -191,7 +190,7 @@ class AllAppsActivity : BaseActivity() {
       .setView(container)
       .setPositiveButton(R.string.action_save) { _, _ ->
         val newLabel = input.text.toString().trim().normalizeAppName()
-        val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
+        val prefs = focusPhoneApp.container.customAppLabelsPreferences
         if (newLabel.isEmpty()) {
           prefs.setCustomLabel(app.packageName, null)
         } else {
@@ -200,7 +199,7 @@ class AllAppsActivity : BaseActivity() {
         viewModel.load()
       }
       .setNeutralButton(R.string.action_reset) { _, _ ->
-        val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
+        val prefs = focusPhoneApp.container.customAppLabelsPreferences
         prefs.setCustomLabel(app.packageName, null)
         viewModel.load()
       }
@@ -213,7 +212,7 @@ class AllAppsActivity : BaseActivity() {
   private fun showAppOptionsDialog(app: AppInfo) {
     lifecycleScope.launch {
       val shortcuts = withContext(Dispatchers.IO) {
-        (application as FocusPhoneApp).container.getAppShortcutsUseCase(app.packageName)
+        focusPhoneApp.container.getAppShortcutsUseCase(app.packageName)
       }
       showAppOptionsDialogWithShortcuts(app, shortcuts)
     }
@@ -259,7 +258,7 @@ class AllAppsActivity : BaseActivity() {
             if (BuildConfig.DEBUG) {
               Log.d("FocusPhone", "AllApps uninstall clicked for ${app.packageName}")
             }
-            (application as FocusPhoneApp).container.appRepository.invalidateCache()
+            focusPhoneApp.container.appRepository.invalidateCache()
             pendingRefresh = true
 
             val uri = Uri.fromParts("package", app.packageName, null)
@@ -287,7 +286,7 @@ class AllAppsActivity : BaseActivity() {
           else -> {
             val shortcutIndex = which - shortcutStartIndex
             if (shortcutIndex in shortcuts.indices) {
-              val launched = (application as FocusPhoneApp).container.getAppShortcutsUseCase.launchShortcut(shortcuts[shortcutIndex])
+              val launched = focusPhoneApp.container.getAppShortcutsUseCase.launchShortcut(shortcuts[shortcutIndex])
               if (!launched) {
                 Toast.makeText(this@AllAppsActivity, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
               }
@@ -330,7 +329,6 @@ class AllAppsActivity : BaseActivity() {
 
   override fun onResume() {
     super.onResume()
-    adapter.updateBadgeCounts(NotificationBadgePreferences.getAllBadgeCounts(this))
     if (pendingRefresh) {
       pendingRefresh = false
       viewModel.load()
@@ -363,13 +361,6 @@ class AllAppsAdapter(
   private val onLongTap: (AppInfo) -> Unit
 ) : ListAdapter<AppInfo, AllAppsAdapter.VH>(DIFF) {
 
-  private var badgeCounts: Map<String, Int> = emptyMap()
-
-  fun updateBadgeCounts(counts: Map<String, Int>) {
-    badgeCounts = counts
-    notifyItemRangeChanged(0, itemCount)
-  }
-
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
     VH(ItemAllAppBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
@@ -377,8 +368,7 @@ class AllAppsAdapter(
   inner class VH(private val b: ItemAllAppBinding) : RecyclerView.ViewHolder(b.root) {
     fun bind(app: AppInfo) {
       val context = b.root.context
-      val count = badgeCounts[app.packageName] ?: 0
-      b.tvName.text = if (count > 0) "${app.label} ($count)" else app.label
+      b.tvName.text = app.label
 
       val activeTheme = ThemePreferences.getTheme(context)
       if (activeTheme == ThemePreferences.THEME_CUSTOM) {

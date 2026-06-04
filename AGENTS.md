@@ -92,7 +92,17 @@ app/src/main/java/app/focusphone/
     ├── allapps/
     │   └── AllAppsActivity.kt    # Full app drawer with search + block/rename long-press menu
     ├── settings/
-    │   └── SettingsActivity.kt   # Theme, clock, font, language, conscious pause, tutorial
+    │   ├── SettingsActivity.kt            # Category menu that opens sub-screens
+    │   ├── SettingsSubActivity.kt         # Abstract base for second-level settings screens
+    │   ├── SettingsUiHelper.kt            # Reusable row inflaters (category, switch, value)
+    │   ├── AppearanceSettingsActivity.kt  # Theme, custom colours, font, text size, alignment, status bar
+    │   ├── HomeSettingsActivity.kt        # Clock type/size, app spacing, widget, home layout
+    │   ├── FocusSettingsActivity.kt       # Conscious pause and work-mode keywords
+    │   ├── NotificationSettingsActivity.kt# Badges, notification panel, swipe-down gesture
+    │   ├── SystemSettingsActivity.kt      # Permissions, accessibility, default launcher, language
+    │   ├── AboutSettingsActivity.kt       # Version, tutorial, onboarding, open-source licences
+    │   ├── HomeLayoutActivity.kt          # Reorder/resize home-screen components
+    │   └── PermissionsActivity.kt         # Required system permissions status
     ├── onboarding/
     │   └── OnboardingActivity.kt # 3-step ViewPager2 onboarding flow
     ├── pause/
@@ -248,8 +258,9 @@ The home screen (`HomeActivity`) displays only text labels for favourite apps. I
 ### Adding a New Setting
 1. Add preference keys to the appropriate `*Preferences.kt` object in `data.preferences`.
 2. Expose any repository/use-case changes needed.
-3. Wire UI in the relevant Activity (usually `SettingsActivity`).
+3. Choose the correct sub-Activity under `ui.settings` (e.g. `AppearanceSettingsActivity`, `FocusSettingsActivity`) and wire the UI there using the reusable helpers in `SettingsUiHelper.kt`.
 4. If the setting affects the theme or font scale, ensure `BaseActivity.onResume()` detects the change and calls `recreate()`.
+5. Only add a new top-level category in `SettingsActivity` if the setting introduces a completely new domain; otherwise keep it inside an existing sub-screen.
 
 ### Adding a New Activity
 1. Extend `BaseActivity`.

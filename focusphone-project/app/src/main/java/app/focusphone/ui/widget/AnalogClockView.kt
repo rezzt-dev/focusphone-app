@@ -6,14 +6,15 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.view.ViewCompat
+import app.focusphone.data.preferences.ThemePreferences
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 
 /**
- * Minimal analog clock drawn on Canvas.
- * Design: thin hour/minute hands, small hour-mark dots, no second hand.
- * Colors adapt to the current theme via [android.R.attr.textColorPrimary] and secondary.
+ * Modern minimalist analog clock drawn on Canvas.
+ * Design: outer bezel, 12 radial ticks, balanced hands with tails, hollow pivot cap.
+ * Colors adapt dynamically to custom/built-in themes.
  */
 class AnalogClockView @JvmOverloads constructor(
     context: Context,
@@ -26,6 +27,13 @@ class AnalogClockView @JvmOverloads constructor(
 
     // ── Paints ─────────────────────────────────────────────────────
 
+    private val paintBezel = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+    }
+    private val paintTick = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+    }
     private val paintHourHand = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style    = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
@@ -34,26 +42,47 @@ class AnalogClockView @JvmOverloads constructor(
         style    = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
     }
-    private val paintDot = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val paintCenterOuter = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
-    private val paintCenter = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val paintCenterInner = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
 
-    // ── Theme colours (resolved once in onAttachedToWindow) ────────
+    // ── Theme colors ────────────────────────────────────────────────
 
     private var colorPrimary   = 0xFF1A1A1A.toInt()
     private var colorSecondary = 0xFF888888.toInt()
+    private var bgColor        = 0xFFFAFAFA.toInt()
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        val ta1 = context.obtainStyledAttributes(intArrayOf(android.R.attr.textColorPrimary))
-        colorPrimary = ta1.getColor(0, colorPrimary)
-        ta1.recycle()
-        val ta2 = context.obtainStyledAttributes(intArrayOf(android.R.attr.textColorSecondary))
-        colorSecondary = ta2.getColor(0, colorSecondary)
-        ta2.recycle()
+        updateColors()
+    }
+
+    /**
+     * Resolves the primary/secondary/background colors dynamically
+     * depending on the active theme, supporting custom theme values.
+     */
+    fun updateColors() {
+        val theme = ThemePreferences.getTheme(context)
+        if (theme == ThemePreferences.THEME_CUSTOM) {
+            colorPrimary = ThemePreferences.getCustomForegroundColor(context)
+            colorSecondary = (colorPrimary and 0x00FFFFFF) or (0x8A shl 24) // ~54% opacity secondary
+            bgColor = ThemePreferences.getCustomBackgroundColor(context)
+        } else {
+            val themeAttrs = intArrayOf(
+                android.R.attr.textColorPrimary,
+                android.R.attr.textColorSecondary,
+                android.R.attr.colorBackground
+            )
+            val ta = context.obtainStyledAttributes(themeAttrs)
+            colorPrimary = ta.getColor(0, 0xFF1A1A1A.toInt())
+            colorSecondary = ta.getColor(1, 0xFF888888.toInt())
+            bgColor = ta.getColor(2, 0xFFFAFAFA.toInt())
+            ta.recycle()
+        }
+        invalidate()
     }
 
     // ── Public API ─────────────────────────────────────────────────
@@ -80,41 +109,61 @@ class AnalogClockView @JvmOverloads constructor(
         val cy     = height / 2f
         val radius = min(cx, cy) * 0.88f
 
-        // Hour-mark dots (12 tiny dots at each hour position)
-        paintDot.color = colorSecondary
-        val dotR = radius * 0.028f
+        val density = resources.displayMetrics.density
+
+        // 1. Thin outer bezel ring
+        paintBezel.color = (colorSecondary and 0x00FFFFFF) or (0x4D shl 24) // ~30% opacity
+        paintBezel.strokeWidth = 1.5f * density
+        canvas.drawCircle(cx, cy, radius * 0.94f, paintBezel)
+
+        // 2. 12 Radial tick marks
+        val tickMajorWidth = 2.5f * density
+        val tickMinorWidth = 1.2f * density
         for (i in 0..11) {
             val rad = Math.toRadians(i * 30.0 - 90.0).toFloat()
-            val x = cx + (radius * 0.86f * cos(rad))
-            val y = cy + (radius * 0.86f * sin(rad))
-            canvas.drawCircle(x, y, dotR, paintDot)
+            val isMajor = (i % 3 == 0)
+            val startDist = if (isMajor) radius * 0.80f else radius * 0.86f
+            val endDist = radius * 0.90f
+
+            val x1 = cx + startDist * cos(rad)
+            val y1 = cy + startDist * sin(rad)
+            val x2 = cx + endDist * cos(rad)
+            val y2 = cy + endDist * sin(rad)
+
+            paintTick.color = if (isMajor) colorPrimary else (colorSecondary and 0x00FFFFFF) or (0x99 shl 24) // ~60% opacity
+            paintTick.strokeWidth = if (isMajor) tickMajorWidth else tickMinorWidth
+            canvas.drawLine(x1, y1, x2, y2, paintTick)
         }
 
-        // Hour hand
+        // 3. Hour hand with balanced tail
         val hourRad = Math.toRadians((hours % 12 + minutes / 60.0) * 30.0 - 90.0).toFloat()
         paintHourHand.color       = colorPrimary
-        paintHourHand.strokeWidth = radius * 0.055f
+        paintHourHand.strokeWidth = radius * 0.05f
         canvas.drawLine(
-            cx, cy,
-            cx + radius * 0.50f * cos(hourRad),
-            cy + radius * 0.50f * sin(hourRad),
+            cx - radius * 0.12f * cos(hourRad),
+            cy - radius * 0.12f * sin(hourRad),
+            cx + radius * 0.52f * cos(hourRad),
+            cy + radius * 0.52f * sin(hourRad),
             paintHourHand
         )
 
-        // Minute hand
+        // 4. Minute hand with balanced tail
         val minRad = Math.toRadians(minutes * 6.0 - 90.0).toFloat()
         paintMinuteHand.color       = colorPrimary
-        paintMinuteHand.strokeWidth = radius * 0.035f
+        paintMinuteHand.strokeWidth = radius * 0.03f
         canvas.drawLine(
-            cx, cy,
-            cx + radius * 0.72f * cos(minRad),
-            cy + radius * 0.72f * sin(minRad),
+            cx - radius * 0.12f * cos(minRad),
+            cy - radius * 0.12f * sin(minRad),
+            cx + radius * 0.74f * cos(minRad),
+            cy + radius * 0.74f * sin(minRad),
             paintMinuteHand
         )
 
-        // Center pivot dot
-        paintCenter.color = colorPrimary
-        canvas.drawCircle(cx, cy, radius * 0.038f, paintCenter)
+        // 5. Hollow center pivot cap
+        paintCenterOuter.color = colorPrimary
+        canvas.drawCircle(cx, cy, radius * 0.052f, paintCenterOuter)
+        paintCenterInner.color = bgColor
+        canvas.drawCircle(cx, cy, radius * 0.026f, paintCenterInner)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

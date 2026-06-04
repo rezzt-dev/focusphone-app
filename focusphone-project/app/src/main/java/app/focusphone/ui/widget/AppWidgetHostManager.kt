@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
+import android.content.ComponentName
 import android.content.Context
 import android.util.Log
 
@@ -75,6 +76,21 @@ class AppWidgetHostManager private constructor(context: Context) {
             appWidgetHost.deleteAppWidgetId(widgetId)
         } catch (e: RuntimeException) {
             Log.e(TAG, "AppWidgetHost.deleteAppWidgetId($widgetId) failed", e)
+        }
+    }
+
+    /**
+     * Attempts to bind [widgetId] to [provider].
+     *
+     * Returns `true` if the bind succeeded (or was already bound). Returns `false` if the user
+     * must explicitly grant permission via [AppWidgetManager.ACTION_APPWIDGET_BIND].
+     */
+    fun bindAppWidgetIdIfAllowed(widgetId: Int, provider: ComponentName): Boolean {
+        return try {
+            appWidgetManager.bindAppWidgetIdIfAllowed(widgetId, provider)
+        } catch (e: RuntimeException) {
+            Log.e(TAG, "bindAppWidgetIdIfAllowed($widgetId, $provider) failed", e)
+            false
         }
     }
 

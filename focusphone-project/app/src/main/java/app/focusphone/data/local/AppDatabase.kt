@@ -22,9 +22,9 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "focusphone_database"
                 )
-                if (BuildConfig.DEBUG) {
-                    builder.fallbackToDestructiveMigration(true)
-                }
+                // Favourite apps can be re-selected by the user, so destructive migration
+                // is acceptable in both debug and release during early development.
+                builder.fallbackToDestructiveMigration(true)
                 val instance = builder.build()
                 INSTANCE = instance
                 instance

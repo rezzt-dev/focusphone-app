@@ -1,18 +1,23 @@
 package app.focusphone.ui.base
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import app.focusphone.FocusPhoneApp
 import app.focusphone.R
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
+import app.focusphone.ui.widget.AnalogClockView
 
 /**
  * Base class for all FocusPhone activities.
@@ -23,6 +28,14 @@ import app.focusphone.data.preferences.ThemePreferences
  *  - Apply consistent fade transitions on every Activity launch.
  */
 abstract class BaseActivity : AppCompatActivity() {
+
+    /**
+     * Safe accessor for the [FocusPhoneApp] application instance.
+     * Throws a clear error message if the application is not a FocusPhoneApp.
+     */
+    protected val focusPhoneApp: FocusPhoneApp
+        get() = application as? FocusPhoneApp
+            ?: error("Application must extend FocusPhoneApp")
     private var currentTheme: String? = null
     private var customBgColor: Int? = null
     private var customFgColor: Int? = null
@@ -102,34 +115,101 @@ abstract class BaseActivity : AppCompatActivity() {
         val contentFrame = findViewById<View>(android.R.id.content)
         contentFrame?.setBackgroundColor(bgColor)
 
-        // Iteratively (non-recursively) style all views to avoid deep-call overhead
+        contentFrame?.let { colorizeViewTree(it, bgColor, fgColor, applyBackgrounds = true) }
+    }
+
+    protected fun colorizeViewTree(root: View, bgColor: Int, fgColor: Int, applyBackgrounds: Boolean) {
+        val themeAttrs = intArrayOf(
+            android.R.attr.textColorPrimary,
+            android.R.attr.textColorSecondary,
+            android.R.attr.colorBackground
+        )
+        val ta = obtainStyledAttributes(themeAttrs)
+        val basePrimary = ta.getColor(0, 0)
+        val baseSecondary = ta.getColor(1, 0)
+        val baseBg = ta.getColor(2, 0)
+        ta.recycle()
+
         val stack = ArrayDeque<View>()
-        contentFrame?.let { stack.add(it) }
+        stack.add(root)
         while (stack.isNotEmpty()) {
             val view = stack.removeFirst()
+
             when (view) {
                 is TextView -> {
-                    view.setTextColor(fgColor)
+                    val currentColor = view.currentTextColor
+                    when (currentColor) {
+                        baseSecondary -> view.setTextColor((fgColor and 0x00FFFFFF) or (0x8A shl 24))
+                        baseBg -> view.setTextColor(bgColor)
+                        else -> view.setTextColor(fgColor)
+                    }
                     if (view is android.widget.EditText) {
-                        // Subtle placeholder tint based on custom foreground color
-                        view.setHintTextColor((fgColor and 0x00FFFFFF) or 0x66000000)
+                        view.setHintTextColor((fgColor and 0x00FFFFFF) or (0x66 shl 24))
                     }
                 }
-                is ViewGroup -> {
-                    // Apply background to layout containers, skipping themed preview views
-                    val viewId = try { resources.getResourceEntryName(view.id) } catch (e: Exception) {
-                        Log.w("BaseActivity", "Failed to resolve resource entry name for view id ${view.id}", e)
-                        ""
+                is ImageView -> {
+                    val tintList = view.imageTintList
+                    if (tintList != null) {
+                        val currentTint = tintList.getColorForState(intArrayOf(), basePrimary)
+                        when (currentTint) {
+                            baseSecondary -> view.imageTintList = ColorStateList.valueOf((fgColor and 0x00FFFFFF) or (0x8A shl 24))
+                            else -> view.imageTintList = ColorStateList.valueOf(fgColor)
+                        }
                     }
-                    val skip = viewId.startsWith("card_theme") ||
-                            viewId.startsWith("view_theme") ||
-                            viewId.contains("preview") ||
-                            viewId.contains("segmented")
-                    if (!skip && view.id != android.R.id.content) {
-                        view.setBackgroundColor(bgColor)
-                    }
-                    for (i in 0 until view.childCount) {
-                        stack.addLast(view.getChildAt(i))
+                }
+                is com.google.android.material.materialswitch.MaterialSwitch -> {
+                    val thumbStates = arrayOf(
+                        intArrayOf(android.R.attr.state_checked),
+                        intArrayOf(-android.R.attr.state_checked)
+                    )
+                    val thumbColors = intArrayOf(
+                        fgColor,
+                        (fgColor and 0x00FFFFFF) or (0x8A shl 24)
+                    )
+                    view.thumbTintList = ColorStateList(thumbStates, thumbColors)
+
+                    val trackStates = arrayOf(
+                        intArrayOf(android.R.attr.state_checked),
+                        intArrayOf(-android.R.attr.state_checked)
+                    )
+                    val trackColors = intArrayOf(
+                        (fgColor and 0x00FFFFFF) or (0x7C shl 24),
+                        (fgColor and 0x00FFFFFF) or (0x28 shl 24)
+                    )
+                    view.trackTintList = ColorStateList(trackStates, trackColors)
+                }
+                is com.google.android.material.slider.Slider -> {
+                    view.thumbTintList = ColorStateList.valueOf(fgColor)
+                    view.trackActiveTintList = ColorStateList.valueOf(fgColor)
+                    view.trackInactiveTintList = ColorStateList.valueOf((fgColor and 0x00FFFFFF) or (0x3C shl 24))
+                    // haloColor is private in BaseSlider; halo tint is controlled by colorControlHighlight
+                }
+                is AnalogClockView -> {
+                    view.updateColors()
+                }
+            }
+
+            if (view is ViewGroup) {
+                val viewId = try { resources.getResourceEntryName(view.id) } catch (e: Exception) { "" }
+                val skipBg = viewId.startsWith("card_theme") ||
+                        viewId.startsWith("view_theme") ||
+                        viewId.contains("preview") ||
+                        viewId.contains("segmented") ||
+                        view === root
+
+                if (applyBackgrounds && !skipBg && view.id != android.R.id.content) {
+                    view.setBackgroundColor(bgColor)
+                }
+                for (i in 0 until view.childCount) {
+                    stack.addLast(view.getChildAt(i))
+                }
+            } else {
+                // Leaf view background styling (e.g. dividers)
+                val background = view.background
+                if (background is android.graphics.drawable.ColorDrawable) {
+                    val currentColor = background.color
+                    if (currentColor == basePrimary || currentColor == baseSecondary) {
+                        view.setBackgroundColor((fgColor and 0x00FFFFFF) or (0x1F shl 24))
                     }
                 }
             }
@@ -238,26 +318,14 @@ abstract class BaseActivity : AppCompatActivity() {
             val bgColor = ThemePreferences.getCustomBackgroundColor(this)
             val fgColor = ThemePreferences.getCustomForegroundColor(this)
 
-            val bg = android.graphics.drawable.GradientDrawable().apply {
-                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+            val bg = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
                 cornerRadius = 28f * resources.displayMetrics.density
                 setColor(bgColor)
             }
             dialog.window?.setBackgroundDrawable(bg)
 
-            val colourStack = ArrayDeque<View>()
-            colourStack.add(root)
-            while (colourStack.isNotEmpty()) {
-                val view = colourStack.removeFirst()
-                if (view is TextView) {
-                    view.setTextColor(fgColor)
-                }
-                if (view is ViewGroup) {
-                    for (i in 0 until view.childCount) {
-                        colourStack.addLast(view.getChildAt(i))
-                    }
-                }
-            }
+            colorizeViewTree(root, bgColor, fgColor, applyBackgrounds = false)
         }
     }
 }

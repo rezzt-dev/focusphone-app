@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/apps_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:paddingTop="24dp"
+    android:paddingBottom="24dp">
+
+    <!-- App list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_apps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        tools:listitem="@layout/item_favourite_app" />
+
+    <!-- Empty state -->
+    <TextView
+        android:id="@+id/tv_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:fontFamily="sans-serif"
+        android:gravity="start"
+        android:lineSpacingMultiplier="1.7"
+        android:paddingStart="44dp"
+        android:paddingEnd="44dp"
+        android:paddingTop="24dp"
+        android:text="@string/home_no_apps"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="22sp"
+        android:visibility="gone" />
+
+</FrameLayout>

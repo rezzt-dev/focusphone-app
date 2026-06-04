@@ -18,12 +18,26 @@ import app.focusphone.ui.detox.DetoxBlockedActivity
  *
  * This closes the bypass vector where a user kills FocusPhone and launches
  * apps from notifications, recents, or voice assistants.
+ *
+ * To avoid ANRs caused by reading AES-256/GCM encrypted SharedPreferences on every
+ * accessibility event, the blocking state is cached in memory and refreshed every
+ * [CACHE_TTL_MS].
  */
 class FocusAccessibilityService : AccessibilityService() {
 
+    /**
+     * In-memory cache of the blocking state to avoid reading encrypted SharedPreferences
+     * (AES-256/GCM via Android Keystore) on every accessibility event.
+     */
+    private var cachedBlockedApps: Set<String> = emptySet()
+    private var cachedWorkKeywords: Set<String> = emptySet()
+    private var cachedIsDetoxActive = false
+    private var cachedProfile = ""
+    private var lastCacheUpdate = 0L
+
     override fun onServiceConnected() {
         super.onServiceConnected()
-        // Service is ready; no additional configuration required at runtime.
+        refreshCache()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
@@ -35,21 +49,52 @@ class FocusAccessibilityService : AccessibilityService() {
         // Never block FocusPhone itself.
         if (ownPackage) return
 
-        // Only act when a blocking profile is active to minimize battery impact.
-        if (!ProfilePreferences.isDetoxActive(this) && ProfilePreferences.getProfile(this) != ProfilePreferences.PROFILE_WORK) {
+        refreshCacheIfNeeded()
+
+        // Normal profile never blocks.
+        if (cachedProfile == ProfilePreferences.PROFILE_NORMAL) return
+
+        // Detox blocks everything except FocusPhone.
+        if (cachedIsDetoxActive) {
+            launchBlockScreen()
             return
         }
 
-        if (ProfilePreferences.isAppBlocked(this, packageName)) {
-            val intent = Intent(this, DetoxBlockedActivity::class.java).apply {
-                addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK or
+        // Work profile blocks manually blocked apps and apps matching keywords.
+        if (cachedProfile == ProfilePreferences.PROFILE_WORK) {
+            val pkgLower = packageName.lowercase()
+            val blockedByKeyword = cachedWorkKeywords.any { pkgLower.contains(it) }
+            if (cachedBlockedApps.contains(packageName) || blockedByKeyword) {
+                launchBlockScreen()
+            }
+        }
+    }
+
+    private fun launchBlockScreen() {
+        val intent = Intent(this, DetoxBlockedActivity::class.java).apply {
+            addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or
                     Intent.FLAG_ACTIVITY_CLEAR_TOP or
                     Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-                )
-            }
-            startActivity(intent)
+            )
         }
+        startActivity(intent)
+    }
+
+    /** Refreshes the in-memory cache if the TTL has expired. */
+    private fun refreshCacheIfNeeded() {
+        val now = System.currentTimeMillis()
+        if (now - lastCacheUpdate < CACHE_TTL_MS) return
+        refreshCache()
+    }
+
+    /** Force-refreshes the cache by reading encrypted preferences once. */
+    private fun refreshCache() {
+        lastCacheUpdate = System.currentTimeMillis()
+        cachedIsDetoxActive = ProfilePreferences.isDetoxActive(this)
+        cachedProfile = ProfilePreferences.getProfile(this)
+        cachedBlockedApps = ProfilePreferences.getBlockedApps(this)
+        cachedWorkKeywords = ProfilePreferences.getWorkKeywords(this)
     }
 
     override fun onInterrupt() {
@@ -57,6 +102,8 @@ class FocusAccessibilityService : AccessibilityService() {
     }
 
     companion object {
+
+        private const val CACHE_TTL_MS = 3000L
 
         /**
          * Returns whether this accessibility service is currently enabled by the user.

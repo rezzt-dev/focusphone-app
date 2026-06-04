@@ -32,7 +32,7 @@ class AppSelectActivity : BaseActivity() {
     private var searchTextWatcher: android.text.TextWatcher? = null
 
     private val viewModel: AppSelectViewModel by viewModels {
-        AppSelectViewModel.factory(application as FocusPhoneApp)
+        AppSelectViewModel.factory(focusPhoneApp)
     }
 
     private val adapter = InstalledAppsAdapter(
@@ -52,7 +52,7 @@ class AppSelectActivity : BaseActivity() {
                 when (which) {
                     0 -> showRenameDialog(app)
                     1 -> {
-                        (application as FocusPhoneApp).container.appRepository.invalidateCache()
+                        focusPhoneApp.container.appRepository.invalidateCache()
 
                         val uri = Uri.fromParts("package", app.packageName, null)
                         Toast.makeText(this@AppSelectActivity, R.string.uninstall_progress, Toast.LENGTH_SHORT).show()
@@ -132,7 +132,7 @@ class AppSelectActivity : BaseActivity() {
             .setView(container)
             .setPositiveButton(R.string.action_save) { _, _ ->
                 val newLabel = input.text.toString().trim().normalizeAppName()
-                val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
+                val prefs = focusPhoneApp.container.customAppLabelsPreferences
                 if (newLabel.isEmpty()) {
                     prefs.setCustomLabel(app.packageName, null)
                 } else {
@@ -141,7 +141,7 @@ class AppSelectActivity : BaseActivity() {
                 viewModel.loadApps()
             }
             .setNeutralButton(R.string.action_reset) { _, _ ->
-                val prefs = (application as FocusPhoneApp).container.customAppLabelsPreferences
+                val prefs = focusPhoneApp.container.customAppLabelsPreferences
                 prefs.setCustomLabel(app.packageName, null)
                 viewModel.loadApps()
             }
@@ -166,7 +166,7 @@ class AppSelectActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        (application as FocusPhoneApp).container.appRepository.invalidateCache()
+        focusPhoneApp.container.appRepository.invalidateCache()
         viewModel.loadApps()
     }
 

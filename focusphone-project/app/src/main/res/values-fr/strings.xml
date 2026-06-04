@@ -56,6 +56,7 @@
     <string name="settings_privacy_policy">politique de confidentialité</string>
     <string name="settings_open_source">licences open source</string>
     <string name="settings_back">retour</string>
+    <string name="settings_developed_by">développé par rezzt.dev</string>
     <string name="nav_back">retour</string>
 
     <string name="settings_section_language">langue</string>
@@ -77,6 +78,48 @@
     <string name="onboarding_step3_title">choisissez vos apps.</string>
     <string name="onboarding_step3_body">sélectionnez jusqu\'à 10 apps dont vous avez vraiment besoin. vous pouvez les modifier à tout moment.</string>
     <string name="onboarding_step3_action">sélectionner les apps</string>
+    <string name="onboarding_back">retour</string>
+
+    <!-- Enhanced Onboarding -->
+    <string name="onboarding_step_welcome_title">bienvenue sur focusphone.</string>
+    <string name="onboarding_step_welcome_body">votre espace numérique, simplifié. nous croyons que votre téléphone doit vous servir, pas vous distraire.</string>
+    <string name="onboarding_step_welcome_tagline">moins de bruit. plus de focus.</string>
+    <string name="onboarding_step_philosophy_title">l\'idée est simple.</string>
+    <string name="onboarding_step_philosophy_body">seulement les apps dont vous avez vraiment besoin. pas d\'icônes qui crient pour attirer l\'attention. pas de scrolls infinis. juste du calme.</string>
+    <string name="onboarding_step_launcher_title">définissez comme launcher par défaut.</string>
+    <string name="onboarding_step_launcher_body">pour vivre pleinement l\'expérience focusphone, faites-en votre écran d\'accueil. touchez ci-dessous pour ouvrir les réglages système.</string>
+    <string name="onboarding_step_launcher_action">ouvrir les réglages du launcher</string>
+    <string name="onboarding_step_launcher_verified">launcher configuré correctement.</string>
+    <string name="onboarding_step_launcher_not_verified">pas encore défini par défaut.</string>
+    <string name="onboarding_step_apps_title">choisissez vos essentielles.</string>
+    <string name="onboarding_step_apps_body">sélectionnez jusqu\'à 10 apps qui comptent vraiment. tout le reste reste hors de vue, mais accessible.</string>
+    <string name="onboarding_step_apps_action">sélectionner les apps</string>
+    <string name="onboarding_step_profiles_title">des profils pour chaque moment.</string>
+    <string name="onboarding_step_profiles_body">normal pour tout. travail pour bloquer les distractions. detox pour un silence numérique complet.</string>
+    <string name="onboarding_step_customize_title">faites-le vôtre.</string>
+    <string name="onboarding_step_customize_body">choisissez un thème et un style d\'horloge qui vous correspondent. vous pourrez toujours changer plus tard.</string>
+    <string name="onboarding_step_complete_title">vous êtes prêt.</string>
+    <string name="onboarding_step_complete_body">votre écran d\'accueil calme et focalisé vous attend. souvenez-vous : glissez à gauche pour le menu, à droite pour les notifications.</string>
+    <string name="onboarding_step_complete_action">entrer dans focusphone</string>
+
+    <!-- Tutorial Coach Marks -->
+    <string name="tutorial_coach_home_title">votre foyer tranquille</string>
+    <string name="tutorial_coach_home_desc">c\'est votre nouvel écran d\'accueil. juste l\'heure, la date et vos apps choisies. pas d\'icônes, pas de bruit.</string>
+    <string name="tutorial_coach_menu_title">le menu</string>
+    <string name="tutorial_coach_menu_desc">glissez vers la gauche pour ouvrir le menu. d\'ici vous pouvez accéder à toutes les apps, aux réglages et changer de profil.</string>
+    <string name="tutorial_coach_apps_title">ajouter des apps</string>
+    <string name="tutorial_coach_apps_desc">touchez "sélectionner les apps" pour choisir jusqu\'à 10 favoris. maintenez une app pour la retirer.</string>
+    <string name="tutorial_coach_profile_title">profils contextuels</string>
+    <string name="tutorial_coach_profile_desc">touchez votre nom de profil pour changer de mode. travail bloque les distractions. detox bloque tout.</string>
+    <string name="tutorial_coach_block_title">bloquer des apps</string>
+    <string name="tutorial_coach_block_desc">dans la liste de toutes les apps, maintenez-en une pour bloquer son accès en mode travail ou detox.</string>
+    <string name="tutorial_coach_rename_title">renommer des apps</string>
+    <string name="tutorial_coach_rename_desc">maintenez n\'importe quelle app et choisissez renommer pour lui donner un nom propre et minimaliste.</string>
+    <string name="tutorial_coach_detox_title">mode detox</string>
+    <string name="tutorial_coach_detox_desc">lancez une session detox quand vous avez besoin d\'un focus total. définissez une durée et un mot de passe pour tenir bon.</string>
+    <string name="tutorial_coach_customize_title">personnalisation avancée</string>
+    <string name="tutorial_coach_customize_desc">explorez les réglages pour changer les thèmes, polices, styles d\'horloge, alignement et bien plus.</string>
+    <string name="tutorial_coach_got_it">compris</string>
 
     <string name="error_app_not_found">impossible d\'ouvrir l\'app</string>
     <string name="cd_back_button">retour</string>
@@ -153,6 +196,9 @@
     <string name="onboarding_step_counter">page %1$d sur %2$d</string>
 
     <!-- Settings: Onboarding -->
+    <string name="settings_tutorial_restart_title">redémarrer le tutoriel</string>
+    <string name="settings_tutorial_restart_desc">revivre le guide contextuel interactif</string>
+    <string name="settings_restart_tutorial_confirm">cela redémarrera le tutoriel interactif. continuer ?</string>
     <string name="settings_onboarding_title">redémarrer l\'onboarding</string>
     <string name="settings_onboarding_desc">revoir le guide de configuration initial</string>
 
@@ -172,10 +218,10 @@
 
     <!-- Settings: Notifications -->
     <string name="settings_section_notifications">notifications</string>
-    <string name="settings_notification_badges_title">badges de notification</string>
-    <string name="settings_notification_badges_desc">affiche le nombre de non lus à côté du nom de l\'app</string>
-    <string name="settings_notification_badges_active">actif</string>
-    <string name="settings_notification_badges_inactive">inactif</string>
+    <string name="settings_notification_access_title">accès aux notifications</string>
+    <string name="settings_notification_access_desc">autoriser focusphone à lire les notifications système</string>
+    <string name="settings_notification_access_active">actif</string>
+    <string name="settings_notification_access_inactive">inactif</string>
 
     <!-- Settings: Gestures -->
     <string name="settings_section_gestures">gestes</string>
@@ -291,4 +337,6 @@
 
     <!-- Language fallback -->
     <string name="settings_language_system_unsupported">système (english us)</string>
+    <string name="settings_clock_fixed_top">horloge fixee en haut</string>
+    <string name="settings_clock_fixed_top_desc">garder l horloge en haut au lieu de centree avec les apps</string>
 </resources>

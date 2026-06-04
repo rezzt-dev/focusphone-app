@@ -1,8 +1,5 @@
 package app.focusphone.ui.pause
 
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -17,13 +14,16 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * Conscious pause screen.
+ * Displays a calm countdown before launching the target app,
+ * giving the user a moment to reflect.
+ */
 class ConsciousPauseActivity : BaseActivity() {
 
     private lateinit var binding: ActivityConsciousPauseBinding
     private var countdownJob: Job? = null
-    private var scaleAnimator: AnimatorSet? = null
     private var remainingSeconds: Int = -1
-    private var wasAnimating: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,14 +38,7 @@ class ConsciousPauseActivity : BaseActivity() {
             navigateHome()
         }
 
-        applyBreathingCircleTint()
-
         remainingSeconds = savedInstanceState?.getInt(KEY_REMAINING, -1) ?: -1
-        wasAnimating = savedInstanceState?.getBoolean(KEY_WAS_ANIMATING, true) ?: true
-
-        if (wasAnimating) {
-            startBreathingAnimation()
-        }
         startCountdown()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -59,13 +52,6 @@ class ConsciousPauseActivity : BaseActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(KEY_REMAINING, remainingSeconds)
-        outState.putBoolean(KEY_WAS_ANIMATING, scaleAnimator?.isRunning == true)
-    }
-
-    private fun applyBreathingCircleTint() {
-        val typedValue = android.util.TypedValue()
-        theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-        binding.viewBreathingCircle.backgroundTintList = android.content.res.ColorStateList.valueOf(typedValue.data)
     }
 
     private fun setupInsets() {
@@ -76,26 +62,6 @@ class ConsciousPauseActivity : BaseActivity() {
         }
     }
 
-    private fun startBreathingAnimation() {
-        // Subtle, calm breathing scale — kept well within layout bounds
-        // so clipChildren is never visually noticeable.
-        val animX = ObjectAnimator.ofFloat(binding.viewBreathingCircle, "scaleX", 0.92f, 1.08f).apply {
-            duration = 2500
-            repeatMode = ValueAnimator.REVERSE
-            repeatCount = ValueAnimator.INFINITE
-        }
-        val animY = ObjectAnimator.ofFloat(binding.viewBreathingCircle, "scaleY", 0.92f, 1.08f).apply {
-            duration = 2500
-            repeatMode = ValueAnimator.REVERSE
-            repeatCount = ValueAnimator.INFINITE
-        }
-
-        scaleAnimator = AnimatorSet().apply {
-            playTogether(animX, animY)
-            start()
-        }
-    }
-
     private fun startCountdown() {
         countdownJob = lifecycleScope.launch {
             var remaining = if (remainingSeconds > 0) remainingSeconds else ConsciousPausePreferences.getDuration(this@ConsciousPauseActivity)
@@ -103,7 +69,6 @@ class ConsciousPauseActivity : BaseActivity() {
                 remainingSeconds = remaining
                 binding.tvCountdown.text = remaining.toString()
 
-                // Breathe-synchronized visual guidance (4-second total cycle: 2s inhale, 2s exhale)
                 val stateText = when (remaining % 4) {
                     0, 3 -> getString(R.string.pause_inhale)
                     else -> getString(R.string.pause_exhale)
@@ -146,12 +111,10 @@ class ConsciousPauseActivity : BaseActivity() {
 
     companion object {
         private const val KEY_REMAINING = "remaining_seconds"
-        private const val KEY_WAS_ANIMATING = "was_animating"
     }
 
     override fun onDestroy() {
         countdownJob?.cancel()
-        scaleAnimator?.cancel()
         super.onDestroy()
     }
 }

@@ -72,14 +72,45 @@
             android:exported="false"
             android:launchMode="singleTop" />
 
+        <!-- ── Home Layout Activity ───────────────────────────────── -->
+        <activity
+            android:name=".ui.settings.HomeLayoutActivity"
+            android:exported="false" />
+
         <!-- ── Permissions Activity ───────────────────────────────── -->
         <activity
             android:name=".ui.settings.PermissionsActivity"
             android:exported="false" />
 
-        <!-- ── Widget Configuration Activity ──────────────────────── -->
+        <!-- ── Settings Sub-Activities ──────────────────────────────── -->
+        <activity
+            android:name=".ui.settings.AppearanceSettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.settings.HomeSettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.settings.FocusSettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.settings.NotificationSettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.settings.SystemSettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.settings.AboutSettingsActivity"
+            android:exported="false" />
+
+        <!-- ── Widget Configuration Activity (legacy, kept for compatibility) ── -->
         <activity
             android:name=".ui.widget.WidgetConfigActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|keyboardHidden"
+            android:exported="false" />
+
+        <!-- ── Widget Picker Activity ─────────────────────────────── -->
+        <activity
+            android:name=".ui.widget.WidgetPickerActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|keyboardHidden"
             android:exported="false" />
 

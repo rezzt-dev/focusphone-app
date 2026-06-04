@@ -37,6 +37,7 @@ class InstalledAppsAdapter(
             binding.ivSelectIndicator.setImageResource(resId)
             binding.ivSelectIndicator.alpha = if (app.isFavourite) 1.0f else 0.4f
 
+            binding.root.contentDescription = app.label
             binding.root.setOnClickListener { onToggle(app) }
             binding.root.setOnLongClickListener {
                 onLongToggle?.invoke(app)

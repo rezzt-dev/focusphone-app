@@ -13,10 +13,12 @@
         android:layout_height="match_parent">
 
     <!-- MAIN CONTENT -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/root_home"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
 
         <!--
             CLOCK CONTAINER — fills top 38% of screen.
@@ -25,13 +27,10 @@
         -->
         <FrameLayout
             android:id="@+id/clock_container"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            android:layout_marginBottom="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
 
             <!-- ── TYPE 1: Digital (HH:mm + date) ─────────────────── -->
             <LinearLayout
@@ -180,28 +179,21 @@
         <!-- Widget container ───────────────────────────────────────────── -->
         <FrameLayout
             android:id="@+id/widget_container"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/clock_container" />
+            android:visibility="gone" />
 
         <!-- App container ──────────────────────────────────────────────── -->
         <FrameLayout
             android:id="@+id/apps_container"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="24dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/widget_container">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
 
             <!-- App list -->
             <androidx.recyclerview.widget.RecyclerView
@@ -232,7 +224,7 @@
 
         </FrameLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
     <!-- DRAWER CONTENT -->
     <LinearLayout
@@ -421,6 +413,36 @@
             android:textSize="18sp"
             android:visibility="gone" />
 
+        <!-- Clear all button -->
+        <LinearLayout
+            android:id="@+id/btn_clear_all_notifications"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_clear_all"
+                android:contentDescription="@string/cd_clear_all"
+                app:tint="?android:attr/textColorSecondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="sans-serif"
+                android:text="@string/notification_clear_all"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
     </androidx.drawerlayout.widget.DrawerLayout>
@@ -432,7 +454,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:orientation="horizontal"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="16dp"
         android:padding="8dp"
         android:visibility="invisible">
 

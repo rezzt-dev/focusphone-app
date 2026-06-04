@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="24dp"
+    android:paddingTop="16dp"
+    android:paddingEnd="24dp"
+    android:paddingBottom="4dp">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="sans-serif"
+        android:letterSpacing="0.14"
+        android:text="@string/settings_alignment"
+        android:textAllCaps="true"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="11sp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_segmented_control"
+        android:orientation="horizontal"
+        android:padding="4dp">
+
+        <ImageView
+            android:id="@+id/btn_align_left"
+            android:layout_width="72dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_segmented_item"
+            android:contentDescription="@string/cd_align_left"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_align_left"
+            app:tint="@color/selector_segmented_icon" />
+
+        <ImageView
+            android:id="@+id/btn_align_center"
+            android:layout_width="72dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_segmented_item"
+            android:contentDescription="@string/cd_align_center"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_align_center"
+            app:tint="@color/selector_segmented_icon" />
+
+        <ImageView
+            android:id="@+id/btn_align_right"
+            android:layout_width="72dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_segmented_item"
+            android:contentDescription="@string/cd_align_right"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_align_right"
+            app:tint="@color/selector_segmented_icon" />
+    </LinearLayout>
+
+</LinearLayout>
