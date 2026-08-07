@@ -270,8 +270,9 @@ class HomeActivity : BaseActivity() {
             binding.rootHome.setPadding(0, bars.top, 0, bars.bottom)
 
             // Drawers need their own insets so they don't overlap status/nav bars.
-            binding.drawerMenu.setPadding(dp(32), bars.top + dp(32), dp(32), bars.bottom + dp(32))
-            binding.drawerNotifications.setPadding(dp(32), bars.top + dp(32), dp(32), bars.bottom + dp(32))
+            // Horizontal padding is kept small so content uses most of the screen width.
+            binding.drawerMenu.setPadding(dp(16), bars.top + dp(20), dp(16), bars.bottom + dp(20))
+            binding.drawerNotifications.setPadding(dp(16), bars.top + dp(20), dp(16), bars.bottom + dp(20))
 
             // Indicator container lives outside the DrawerLayout, so apply a dynamic bottom margin.
             val indicatorParams = binding.indicatorContainer.layoutParams as android.widget.FrameLayout.LayoutParams
@@ -557,20 +558,10 @@ class HomeActivity : BaseActivity() {
     // ── "nine forty-one" format ────────────────────────────────────
 
     private fun formatTimeWords(h: Int, m: Int): String {
-        val hWords = listOf("twelve","one","two","three","four","five",
-            "six","seven","eight","nine","ten","eleven")
-        val tens = listOf("","","twenty","thirty","forty","fifty")
-        val ones = listOf("","one","two","three","four","five","six","seven",
-            "eight","nine","ten","eleven","twelve","thirteen","fourteen",
-            "fifteen","sixteen","seventeen","eighteen","nineteen")
-
-        val hour = hWords[h % 12]
-        return when {
-            m == 0        -> "$hour\no'clock"
-            m < 20        -> "$hour\n${ones[m]}"
-            m % 10 == 0   -> "$hour\n${tens[m / 10]}"
-            else          -> "$hour\n${tens[m / 10]}-${ones[m % 10]}"
-        }
+        val hours = resources.getStringArray(R.array.clock_words_hours)
+        val minutes = resources.getStringArray(R.array.clock_words_minutes)
+        val hour = hours[h % 12]
+        return "$hour\n${minutes[m]}"
     }
 
     // ── RecyclerView ───────────────────────────────────────────────
@@ -1101,6 +1092,11 @@ class HomeActivity : BaseActivity() {
             )
         }
 
+        // Remove the default grey scrim and shadow so the wallpaper stays fully visible behind
+        // the notification (and menu) drawers, without dark borders around the edges.
+        binding.drawerLayout.setScrimColor(Color.TRANSPARENT)
+        binding.drawerLayout.setDrawerElevation(0f)
+
         binding.rvNotifications.layoutManager = LinearLayoutManager(this)
         binding.rvNotifications.adapter = notificationsAdapter
         binding.rvNotifications.itemAnimator = null
@@ -1386,8 +1382,8 @@ class HomeActivity : BaseActivity() {
                 
                 val dayTextView = android.widget.TextView(this).apply {
                     layoutParams = android.widget.FrameLayout.LayoutParams(
-                        dp(32),
-                        dp(32)
+                        dp(28),
+                        dp(28)
                     ).apply {
                         gravity = android.view.Gravity.CENTER
                     }

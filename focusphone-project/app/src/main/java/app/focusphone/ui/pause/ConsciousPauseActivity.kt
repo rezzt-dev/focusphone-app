@@ -31,7 +31,7 @@ class ConsciousPauseActivity : BaseActivity() {
         setContentView(binding.root)
         setupInsets()
 
-        val appLabel = intent.getStringExtra("app_label") ?: "app"
+        val appLabel = intent.getStringExtra("app_label") ?: getString(R.string.app_unknown)
         binding.tvMindfulQuestion.text = getString(R.string.pause_mindful_question, appLabel.lowercase())
 
         binding.btnBack.setOnClickListener {

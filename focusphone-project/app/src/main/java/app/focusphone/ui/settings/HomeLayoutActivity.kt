@@ -220,7 +220,7 @@ class HomeLayoutActivity : BaseActivity() {
         toggleApps.alpha = 1.0f
 
         // Update edit hint
-        tvEditHint.text = if (isEditMode) "drag components to reorder" else "long press preview to edit"
+        tvEditHint.text = if (isEditMode) getString(R.string.home_layout_drag_hint) else getString(R.string.home_layout_long_press_hint)
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -482,19 +482,10 @@ class HomeLayoutActivity : BaseActivity() {
     }
 
     private fun formatTimeWords(h: Int, m: Int): String {
-        val hWords = listOf("twelve","one","two","three","four","five",
-            "six","seven","eight","nine","ten","eleven")
-        val tens = listOf("","","twenty","thirty","forty","fifty")
-        val ones = listOf("","one","two","three","four","five","six","seven",
-            "eight","nine","ten","eleven","twelve","thirteen","fourteen",
-            "fifteen","sixteen","seventeen","eighteen","nineteen")
-        val hour = hWords[h % 12]
-        return when {
-            m == 0      -> "$hour\no'clock"
-            m < 20      -> "$hour\n${ones[m]}"
-            m % 10 == 0 -> "$hour\n${tens[m / 10]}"
-            else        -> "$hour\n${tens[m / 10]}-${ones[m % 10]}"
-        }
+        val hours = resources.getStringArray(R.array.clock_words_hours)
+        val minutes = resources.getStringArray(R.array.clock_words_minutes)
+        val hour = hours[h % 12]
+        return "$hour\n${minutes[m]}"
     }
 
     private fun scheduleClockUpdate() {

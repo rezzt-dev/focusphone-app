@@ -51,6 +51,7 @@ fun LinearLayout.addCategoryRow(
 /**
  * Inflates a switch row.
  * The listener is invoked **after** the internal state has been updated.
+ * Returns the root view of the row so callers can show/hide or disable it.
  */
 fun LinearLayout.addSwitchRow(
     @StringRes titleResId: Int,
@@ -58,7 +59,7 @@ fun LinearLayout.addSwitchRow(
     isChecked: Boolean,
     @DrawableRes iconResId: Int? = null,
     onCheckedChanged: (Boolean) -> Unit
-): MaterialSwitch {
+): View {
     val binding = ItemSettingsSwitchBinding.inflate(LayoutInflater.from(context), this, false)
     if (iconResId != null) {
         binding.ivIcon.setImageResource(iconResId)
@@ -71,7 +72,7 @@ fun LinearLayout.addSwitchRow(
         onCheckedChanged(checked)
     }
     addView(binding.root)
-    return binding.switchToggle
+    return binding.root
 }
 
 /**

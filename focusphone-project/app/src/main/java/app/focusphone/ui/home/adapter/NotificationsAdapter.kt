@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import app.focusphone.R
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.repository.NotificationItem
 import app.focusphone.databinding.ItemNotificationBinding
@@ -110,7 +111,7 @@ class NotificationsAdapter(
             val now = System.currentTimeMillis()
             val diff = now - postTime
             return when {
-                diff < TimeUnit.MINUTES.toMillis(1) -> "now"
+                diff < TimeUnit.MINUTES.toMillis(1) -> binding.root.context.getString(R.string.notification_now)
                 diff < TimeUnit.HOURS.toMillis(1) -> {
                     val mins = TimeUnit.MILLISECONDS.toMinutes(diff)
                     "${mins}m"

@@ -160,7 +160,7 @@
         android:layout_gravity="center"
         android:fontFamily="sans-serif"
         android:letterSpacing="0.04"
-        android:text="none"
+        android:text="@string/settings_clock_hidden"
         android:textColor="?android:attr/textColorSecondary"
         android:textSize="24sp"
         android:visibility="gone" />

@@ -3,6 +3,7 @@ package app.focusphone.ui.settings
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Typeface
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,15 +12,24 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.lifecycleScope
 import app.focusphone.R
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
+import app.focusphone.data.preferences.WallpaperPreferences
+import app.focusphone.data.preferences.WallpaperTarget
 import app.focusphone.databinding.ItemSettingsFontBinding
 import app.focusphone.databinding.SettingsCustomThemePanelBinding
 import app.focusphone.databinding.SettingsSliderRowBinding
+import app.focusphone.databinding.SettingsWallpaperPreviewBinding
 import app.focusphone.domain.model.AppFont
+import app.focusphone.ui.wallpaper.WallpaperUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Appearance screen: theme (with custom colours), font, text size,
@@ -33,6 +43,28 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
     private var customThemeBinding: SettingsCustomThemePanelBinding? = null
     private var bgTextWatcher: TextWatcher? = null
     private var fgTextWatcher: TextWatcher? = null
+
+    private var previewBinding: SettingsWallpaperPreviewBinding? = null
+    private var homeValueView: TextView? = null
+    private var notificationsValueView: TextView? = null
+    private var settingsValueView: TextView? = null
+    private var pendingWallpaperTarget: WallpaperTarget? = null
+
+    // Wallpaper section views whose visibility is toggled when the master switch changes.
+    private var wallpaperSharedSwitchRoot: View? = null
+    private var wallpaperPreviewRoot: View? = null
+    private var wallpaperHomeRowRoot: View? = null
+    private var wallpaperNotificationsRowRoot: View? = null
+    private var wallpaperSettingsRowRoot: View? = null
+    private var wallpaperBlurSwitchRoot: View? = null
+    private var wallpaperBlurSliderRoot: View? = null
+    private var wallpaperDisabledInfoRoot: View? = null
+
+    private val wallpaperPicker = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        val target = pendingWallpaperTarget ?: return@registerForActivityResult
+        pendingWallpaperTarget = null
+        uri?.let { handleWallpaperSelected(it, target) }
+    }
 
     override fun getScreenTitleRes(): Int = R.string.appearance_settings_title
 
@@ -109,6 +141,114 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
                 applyStatusBarVisibility()
             }
         )
+
+        container.addView(inflater.inflate(R.layout.settings_divider, container, false))
+
+        // ── Wallpaper ──────────────────────────────────────────────────
+        container.addSectionHeader(R.string.settings_section_wallpaper)
+
+        val wallpaperEnabled = WallpaperPreferences.isWallpaperEnabled(this)
+
+        container.addSwitchRow(
+            titleResId = R.string.settings_wallpaper_enabled_label,
+            subtitleResId = R.string.settings_wallpaper_enabled_desc,
+            isChecked = wallpaperEnabled,
+            iconResId = R.drawable.ic_settings_wallpaper,
+            onCheckedChanged = { checked ->
+                WallpaperPreferences.setWallpaperEnabled(this, checked)
+                updateWallpaperSectionVisibility()
+                applyCustomThemeColors()
+                applyWallpaper()
+            }
+        )
+
+        val useShared = WallpaperPreferences.isUseSharedWallpaper(this)
+
+        wallpaperSharedSwitchRoot = container.addSwitchRow(
+            titleResId = R.string.settings_wallpaper_shared_label,
+            subtitleResId = R.string.settings_wallpaper_shared_desc,
+            isChecked = useShared,
+            iconResId = R.drawable.ic_settings_wallpaper,
+            onCheckedChanged = { checked ->
+                WallpaperPreferences.setUseSharedWallpaper(this, checked)
+                updateWallpaperValueLabels()
+                updateWallpaperPreview()
+            }
+        )
+
+        val preview = SettingsWallpaperPreviewBinding.inflate(inflater, container, false)
+        previewBinding = preview
+        wallpaperPreviewRoot = preview.root
+        container.addView(preview.root)
+
+        val (homeValue, homeRoot) = container.addWallpaperValueRow(
+            titleResId = R.string.settings_wallpaper_home,
+            subtitleResId = if (useShared) R.string.settings_wallpaper_shared_hint else R.string.settings_wallpaper_home_desc,
+            initialValue = getWallpaperStatus(WallpaperTarget.HOME),
+            iconResId = R.drawable.ic_settings_wallpaper,
+            onClick = { launchWallpaperPicker(WallpaperTarget.HOME) }
+        )
+        homeValueView = homeValue
+        wallpaperHomeRowRoot = homeRoot
+
+        val (notificationsValue, notificationsRoot) = container.addWallpaperValueRow(
+            titleResId = R.string.settings_wallpaper_notifications,
+            subtitleResId = if (useShared) R.string.settings_wallpaper_shared_hint else R.string.settings_wallpaper_notifications_desc,
+            initialValue = getWallpaperStatus(WallpaperTarget.NOTIFICATIONS),
+            iconResId = R.drawable.ic_settings_wallpaper,
+            onClick = { launchWallpaperPicker(WallpaperTarget.NOTIFICATIONS) }
+        )
+        notificationsValueView = notificationsValue
+        wallpaperNotificationsRowRoot = notificationsRoot
+
+        val (settingsValue, settingsRoot) = container.addWallpaperValueRow(
+            titleResId = R.string.settings_wallpaper_settings,
+            subtitleResId = if (useShared) R.string.settings_wallpaper_shared_hint else R.string.settings_wallpaper_settings_desc,
+            initialValue = getWallpaperStatus(WallpaperTarget.SETTINGS),
+            iconResId = R.drawable.ic_settings_wallpaper,
+            onClick = { launchWallpaperPicker(WallpaperTarget.SETTINGS) }
+        )
+        settingsValueView = settingsValue
+        wallpaperSettingsRowRoot = settingsRoot
+
+        wallpaperBlurSwitchRoot = container.addSwitchRow(
+            titleResId = R.string.settings_wallpaper_blur_label,
+            subtitleResId = R.string.settings_wallpaper_blur_desc,
+            isChecked = WallpaperPreferences.isBlurEnabled(this),
+            iconResId = R.drawable.ic_settings_blur,
+            onCheckedChanged = { checked ->
+                WallpaperPreferences.setBlurEnabled(this, checked)
+                updateWallpaperPreview()
+            }
+        )
+
+        val blurBinding = SettingsSliderRowBinding.inflate(inflater, container, false)
+        blurBinding.ivIcon.setImageResource(R.drawable.ic_settings_blur)
+        blurBinding.ivIcon.visibility = View.VISIBLE
+        val currentBlur = WallpaperPreferences.getBlurIntensity(this)
+        blurBinding.tvLabel.text = getString(R.string.settings_wallpaper_blur_intensity, currentBlur)
+        blurBinding.slider.apply {
+            valueFrom = 0f
+            valueTo = 100f
+            stepSize = 1f
+            value = currentBlur.toFloat().coerceIn(0f, 100f)
+            addOnChangeListener { _, value, _ ->
+                val intensity = value.toInt()
+                WallpaperPreferences.setBlurIntensity(this@AppearanceSettingsActivity, intensity)
+                blurBinding.tvLabel.text = getString(R.string.settings_wallpaper_blur_intensity, intensity)
+                updateWallpaperPreview()
+            }
+        }
+        wallpaperBlurSliderRoot = blurBinding.root
+        container.addView(blurBinding.root)
+
+        wallpaperDisabledInfoRoot = container.addInfoRow(
+            titleResId = R.string.settings_wallpaper_disabled_info,
+            subtitleResId = R.string.settings_wallpaper_disabled_info_desc,
+            onClick = { }
+        )
+
+        updateWallpaperSectionVisibility()
     }
 
     override fun onDestroy() {
@@ -385,6 +525,120 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
         btnRight.setOnClickListener {
             ThemePreferences.setAlignment(this, ThemePreferences.ALIGN_RIGHT)
             updateUI(ThemePreferences.ALIGN_RIGHT)
+        }
+    }
+
+    // ── Wallpaper ────────────────────────────────────────────────────
+
+    private fun launchWallpaperPicker(target: WallpaperTarget) {
+        pendingWallpaperTarget = target
+        wallpaperPicker.launch(
+            androidx.activity.result.PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                .build()
+        )
+    }
+
+    private fun handleWallpaperSelected(uri: Uri, target: WallpaperTarget) {
+        try {
+            contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        } catch (e: Exception) {
+            Log.w("AppearanceSettings", "Could not take persistable URI permission", e)
+        }
+
+        if (WallpaperPreferences.isUseSharedWallpaper(this)) {
+            WallpaperPreferences.setSharedWallpaperUri(this, uri.toString())
+        } else {
+            when (target) {
+                WallpaperTarget.HOME -> WallpaperPreferences.setHomeWallpaperUri(this, uri.toString())
+                WallpaperTarget.NOTIFICATIONS -> WallpaperPreferences.setNotificationsWallpaperUri(this, uri.toString())
+                WallpaperTarget.SETTINGS -> WallpaperPreferences.setSettingsWallpaperUri(this, uri.toString())
+            }
+        }
+
+        updateWallpaperValueLabels()
+        updateWallpaperPreview()
+    }
+
+    private fun getWallpaperStatus(target: WallpaperTarget): String {
+        val uri = WallpaperUtils.getWallpaperUri(this, target)
+        return if (uri.isNullOrBlank()) {
+            getString(R.string.settings_wallpaper_not_set)
+        } else {
+            getString(R.string.settings_wallpaper_set)
+        }
+    }
+
+    private fun updateWallpaperValueLabels() {
+        homeValueView?.text = getWallpaperStatus(WallpaperTarget.HOME)
+        notificationsValueView?.text = getWallpaperStatus(WallpaperTarget.NOTIFICATIONS)
+        settingsValueView?.text = getWallpaperStatus(WallpaperTarget.SETTINGS)
+    }
+
+    private fun LinearLayout.addWallpaperValueRow(
+        titleResId: Int,
+        subtitleResId: Int,
+        initialValue: String?,
+        iconResId: Int,
+        onClick: () -> Unit
+    ): Pair<TextView, View> {
+        val valueView = addValueRow(
+            titleResId = titleResId,
+            subtitleResId = subtitleResId,
+            initialValue = initialValue,
+            iconResId = iconResId,
+            onClick = onClick
+        )
+        val root = getChildAt(childCount - 1)
+        return valueView to root
+    }
+
+    private fun updateWallpaperSectionVisibility() {
+        val enabled = WallpaperPreferences.isWallpaperEnabled(this)
+        wallpaperSharedSwitchRoot?.visibility = if (enabled) View.VISIBLE else View.GONE
+        wallpaperPreviewRoot?.visibility = if (enabled) View.VISIBLE else View.GONE
+        wallpaperHomeRowRoot?.visibility = if (enabled) View.VISIBLE else View.GONE
+        wallpaperNotificationsRowRoot?.visibility = if (enabled) View.VISIBLE else View.GONE
+        wallpaperSettingsRowRoot?.visibility = if (enabled) View.VISIBLE else View.GONE
+        wallpaperBlurSwitchRoot?.visibility = if (enabled) View.VISIBLE else View.GONE
+        wallpaperBlurSliderRoot?.visibility = if (enabled) View.VISIBLE else View.GONE
+        wallpaperDisabledInfoRoot?.visibility = if (enabled) View.GONE else View.VISIBLE
+        updateWallpaperPreview()
+    }
+
+    private fun updateWallpaperPreview() {
+        val preview = previewBinding ?: return
+
+        if (!WallpaperPreferences.isWallpaperEnabled(this)) {
+            WallpaperUtils.clearWallpaperEffect(preview.ivWallpaperPreview)
+            preview.tvWallpaperPreviewHint.visibility = View.GONE
+            return
+        }
+
+        val uri = WallpaperUtils.getWallpaperUri(this, WallpaperTarget.HOME)
+        val blurEnabled = WallpaperPreferences.isBlurEnabled(this)
+        val blurRadius = WallpaperUtils.getBlurRadius(WallpaperPreferences.getBlurIntensity(this))
+
+        if (uri.isNullOrBlank()) {
+            WallpaperUtils.clearWallpaperEffect(preview.ivWallpaperPreview)
+            preview.tvWallpaperPreviewHint.visibility = View.VISIBLE
+            return
+        }
+
+        preview.tvWallpaperPreviewHint.visibility = View.GONE
+        lifecycleScope.launch(Dispatchers.IO) {
+            val bitmap = WallpaperUtils.loadBitmap(this@AppearanceSettingsActivity, uri)
+            withContext(Dispatchers.Main) {
+                WallpaperUtils.applyWallpaperToImageView(
+                    preview.ivWallpaperPreview,
+                    bitmap,
+                    blurRadius,
+                    blurEnabled
+                )
+            }
         }
     }
 }

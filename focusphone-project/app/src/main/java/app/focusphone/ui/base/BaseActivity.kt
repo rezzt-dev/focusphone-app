@@ -2,22 +2,30 @@ package app.focusphone.ui.base
 
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import app.focusphone.FocusPhoneApp
 import app.focusphone.R
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
+import app.focusphone.data.preferences.WallpaperPreferences
+import app.focusphone.ui.wallpaper.WallpaperUtils
 import app.focusphone.ui.widget.AnalogClockView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Base class for all FocusPhone activities.
@@ -41,6 +49,11 @@ abstract class BaseActivity : AppCompatActivity() {
     private var customFgColor: Int? = null
     private var currentFontScale: Float? = null
     private var currentFontFamily: String? = null
+    private var currentHasWallpaper: Boolean = false
+
+    companion object {
+        private const val GLOBAL_WALLPAPER_TAG = "fp_global_wallpaper"
+    }
 
     override fun attachBaseContext(newBase: android.content.Context) {
         try {
@@ -59,9 +72,17 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         currentFontScale = FontPreferences.getFontScale(this)
         currentFontFamily = FontPreferences.getFont(this).key
+        currentHasWallpaper = hasAnyWallpaper()
         applyTheme()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+    }
+
+    private fun hasAnyWallpaper(): Boolean {
+        if (!WallpaperPreferences.isWallpaperEnabled(this)) return false
+        return WallpaperPreferences.getHomeWallpaperUri(this) != null ||
+                WallpaperPreferences.getNotificationsWallpaperUri(this) != null ||
+                WallpaperPreferences.getSettingsWallpaperUri(this) != null
     }
 
     override fun setContentView(view: android.view.View?) {
@@ -101,21 +122,108 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         applyCustomThemeColors()
+        applyWallpaper()
     }
 
-    private fun applyCustomThemeColors() {
+    protected fun applyWallpaper() {
+        val homeView = findViewById<ImageView?>(R.id.iv_wallpaper_home)
+        val settingsView = findViewById<ImageView?>(R.id.iv_wallpaper_settings)
+        val hasDedicatedViews = homeView != null || settingsView != null
+
+        // When wallpapers are disabled, clear every wallpaper surface and let the theme
+        // background show through. applyCustomThemeColors() already uses the solid theme
+        // background because hasAnyWallpaper() returns false in this state.
+        if (!WallpaperPreferences.isWallpaperEnabled(this)) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                homeView?.let { WallpaperUtils.applyWallpaperToImageView(it, null, 0f, false) }
+                settingsView?.let { WallpaperUtils.applyWallpaperToImageView(it, null, 0f, false) }
+
+                if (!hasDedicatedViews) {
+                    val contentFrame = findViewById<ViewGroup>(android.R.id.content) ?: return@launch
+                    contentFrame.findViewWithTag<ImageView>(GLOBAL_WALLPAPER_TAG)?.let {
+                        WallpaperUtils.applyWallpaperToImageView(it, null, 0f, false)
+                    }
+                }
+            }
+            return
+        }
+
+        val blurEnabled = WallpaperPreferences.isBlurEnabled(this)
+        val blurRadius = WallpaperUtils.getBlurRadius(WallpaperPreferences.getBlurIntensity(this))
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val homeBitmap = homeView?.let {
+                WallpaperUtils.loadBitmap(this@BaseActivity, WallpaperPreferences.getHomeWallpaperUri(this@BaseActivity))
+            }
+            val settingsBitmap = settingsView?.let {
+                WallpaperUtils.loadBitmap(this@BaseActivity, WallpaperPreferences.getSettingsWallpaperUri(this@BaseActivity))
+            }
+            val globalBitmap = if (!hasDedicatedViews) {
+                WallpaperUtils.loadBitmap(this@BaseActivity, WallpaperPreferences.getSettingsWallpaperUri(this@BaseActivity))
+            } else null
+
+            withContext(Dispatchers.Main) {
+                homeView?.let { WallpaperUtils.applyWallpaperToImageView(it, homeBitmap, blurRadius, blurEnabled) }
+                settingsView?.let { WallpaperUtils.applyWallpaperToImageView(it, settingsBitmap, blurRadius, blurEnabled) }
+
+                if (!hasDedicatedViews) {
+                    applyGlobalWallpaper(globalBitmap, blurRadius, blurEnabled)
+                }
+
+                // When any wallpaper is active, make sure the content frame is transparent so
+                // the global/home/settings wallpaper remains visible behind the activity layout.
+                if (hasAnyWallpaper()) {
+                    findViewById<View>(android.R.id.content)?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds a full-screen [ImageView] as the first child of [android.R.id.content] and loads the
+     * settings/shared wallpaper into it. This is the fallback for activities that do not declare
+     * their own dedicated wallpaper view (e.g. Permissions, AllApps, DetoxBlocked, Onboarding).
+     */
+    private suspend fun applyGlobalWallpaper(bitmap: Bitmap?, blurRadius: Float, blurEnabled: Boolean) {
+        val contentFrame = findViewById<ViewGroup>(android.R.id.content) ?: return
+        var imageView = contentFrame.findViewWithTag<ImageView>(GLOBAL_WALLPAPER_TAG)
+        if (imageView == null) {
+            imageView = ImageView(this).apply {
+                tag = GLOBAL_WALLPAPER_TAG
+                layoutParams = FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                scaleType = ImageView.ScaleType.CENTER_CROP
+            }
+            contentFrame.addView(imageView, 0)
+        }
+        WallpaperUtils.applyWallpaperToImageView(imageView, bitmap, blurRadius, blurEnabled)
+    }
+
+    protected fun applyCustomThemeColors() {
         val theme = ThemePreferences.getTheme(this)
         if (theme != ThemePreferences.THEME_CUSTOM) return
 
         val bgColor = ThemePreferences.getCustomBackgroundColor(this)
         val fgColor = ThemePreferences.getCustomForegroundColor(this)
 
-        // Set window and content background colors
+        // Set window background color. The content frame must stay transparent when a wallpaper
+        // is active, otherwise the solid background would hide the wallpaper behind the layout.
         window.decorView.setBackgroundColor(bgColor)
         val contentFrame = findViewById<View>(android.R.id.content)
-        contentFrame?.setBackgroundColor(bgColor)
+        val hasWallpaper = hasAnyWallpaper()
+        currentHasWallpaper = hasWallpaper
 
-        contentFrame?.let { colorizeViewTree(it, bgColor, fgColor, applyBackgrounds = true) }
+        if (hasWallpaper) {
+            contentFrame?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        } else {
+            contentFrame?.setBackgroundColor(bgColor)
+        }
+
+        // When a wallpaper is active, keep container backgrounds transparent so the
+        // image stays visible behind the content; only recolour text and controls.
+        contentFrame?.let { colorizeViewTree(it, bgColor, fgColor, applyBackgrounds = !hasWallpaper) }
     }
 
     protected fun colorizeViewTree(root: View, bgColor: Int, fgColor: Int, applyBackgrounds: Boolean) {
@@ -139,12 +247,12 @@ abstract class BaseActivity : AppCompatActivity() {
                 is TextView -> {
                     val currentColor = view.currentTextColor
                     when (currentColor) {
-                        baseSecondary -> view.setTextColor((fgColor and 0x00FFFFFF) or (0x8A shl 24))
+                        baseSecondary -> view.setTextColor((fgColor and 0x00FFFFFF) or (0xB3 shl 24))
                         baseBg -> view.setTextColor(bgColor)
                         else -> view.setTextColor(fgColor)
                     }
                     if (view is android.widget.EditText) {
-                        view.setHintTextColor((fgColor and 0x00FFFFFF) or (0x66 shl 24))
+                        view.setHintTextColor((fgColor and 0x00FFFFFF) or (0x80 shl 24))
                     }
                 }
                 is ImageView -> {
@@ -152,7 +260,7 @@ abstract class BaseActivity : AppCompatActivity() {
                     if (tintList != null) {
                         val currentTint = tintList.getColorForState(intArrayOf(), basePrimary)
                         when (currentTint) {
-                            baseSecondary -> view.imageTintList = ColorStateList.valueOf((fgColor and 0x00FFFFFF) or (0x8A shl 24))
+                            baseSecondary -> view.imageTintList = ColorStateList.valueOf((fgColor and 0x00FFFFFF) or (0xB3 shl 24))
                             else -> view.imageTintList = ColorStateList.valueOf(fgColor)
                         }
                     }
@@ -164,7 +272,7 @@ abstract class BaseActivity : AppCompatActivity() {
                     )
                     val thumbColors = intArrayOf(
                         fgColor,
-                        (fgColor and 0x00FFFFFF) or (0x8A shl 24)
+                        (fgColor and 0x00FFFFFF) or (0xB3 shl 24)
                     )
                     view.thumbTintList = ColorStateList(thumbStates, thumbColors)
 
@@ -173,15 +281,17 @@ abstract class BaseActivity : AppCompatActivity() {
                         intArrayOf(-android.R.attr.state_checked)
                     )
                     val trackColors = intArrayOf(
-                        (fgColor and 0x00FFFFFF) or (0x7C shl 24),
-                        (fgColor and 0x00FFFFFF) or (0x28 shl 24)
+                        (fgColor and 0x00FFFFFF) or (0xB3 shl 24),
+                        (bgColor and 0x00FFFFFF) or (0x66 shl 24)
                     )
                     view.trackTintList = ColorStateList(trackStates, trackColors)
                 }
                 is com.google.android.material.slider.Slider -> {
                     view.thumbTintList = ColorStateList.valueOf(fgColor)
                     view.trackActiveTintList = ColorStateList.valueOf(fgColor)
-                    view.trackInactiveTintList = ColorStateList.valueOf((fgColor and 0x00FFFFFF) or (0x3C shl 24))
+                    // Use the custom background color for the inactive track so it remains visible
+                    // over bright or busy wallpapers (a low-alpha foreground tint disappears).
+                    view.trackInactiveTintList = ColorStateList.valueOf((bgColor and 0x00FFFFFF) or (0x66 shl 24))
                     // haloColor is private in BaseSlider; halo tint is controlled by colorControlHighlight
                 }
                 is AnalogClockView -> {
@@ -195,6 +305,13 @@ abstract class BaseActivity : AppCompatActivity() {
                         viewId.startsWith("view_theme") ||
                         viewId.contains("preview") ||
                         viewId.contains("segmented") ||
+                        viewId.contains("wallpaper") ||
+                        viewId == "root_home" ||
+                        viewId == "drawer_notifications" ||
+                        viewId == "notification_content" ||
+                        viewId == "drawer_layout" ||
+                        viewId == "content_container" ||
+                        viewId == "scroll_content" ||
                         view === root
 
                 if (applyBackgrounds && !skipBg && view.id != android.R.id.content) {
@@ -256,12 +373,15 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         applyStatusBarVisibility()
+        applyWallpaper()
 
         // System-wide dynamic theme, font scale or font family change detection on resume
         val activeTheme = ThemePreferences.getEffectiveTheme(this)
         val activeFontScale = FontPreferences.getFontScale(this)
         val activeFontFamily = FontPreferences.getFont(this).key
-        if (activeTheme != currentTheme || activeFontScale != currentFontScale || activeFontFamily != currentFontFamily) {
+        val activeHasWallpaper = hasAnyWallpaper()
+        val fontScaleChanged = kotlin.math.abs(activeFontScale - (currentFontScale ?: 0f)) > 0.01f
+        if (activeTheme != currentTheme || fontScaleChanged || activeFontFamily != currentFontFamily || activeHasWallpaper != currentHasWallpaper) {
             recreate()
         } else if (ThemePreferences.getTheme(this) == ThemePreferences.THEME_CUSTOM) {
             val bg = ThemePreferences.getCustomBackgroundColor(this)

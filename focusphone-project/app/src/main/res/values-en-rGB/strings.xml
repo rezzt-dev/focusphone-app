@@ -11,4 +11,7 @@
     <string name="notification_panel_title">notifications</string>
     <string name="notification_empty">no notifications</string>
     <string name="cd_notification_indicator">notification page indicator</string>
+    <string name="settings_category_appearance_subtitle">theme, font, colours and alignment</string>
+    <string name="settings_custom_theme_bg">background colour</string>
+    <string name="settings_custom_theme_fg">foreground colour</string>
 </resources>

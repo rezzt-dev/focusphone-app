@@ -46,12 +46,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="-8dp"
         android:layout_marginEnd="-8dp"
-        app:haloColor="?attr/colorControlHighlight"
-        app:thumbColor="?android:attr/textColorPrimary"
         app:thumbRadius="6dp"
         app:tickVisible="false"
-        app:trackColorActive="?android:attr/textColorPrimary"
-        app:trackColorInactive="?android:attr/textColorSecondary"
         app:trackHeight="4dp" />
 
 </LinearLayout>

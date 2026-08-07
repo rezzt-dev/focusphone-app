@@ -85,7 +85,7 @@
     <string name="onboarding_step_welcome_body">dein digitaler raum, vereinfacht. wir glauben, dein telefon sollte dir dienen, nicht ablenken.</string>
     <string name="onboarding_step_welcome_tagline">weniger lärm. mehr fokus.</string>
     <string name="onboarding_step_philosophy_title">die idee ist einfach.</string>
-    <string name="onboarding_step_philosophy_body">nur die apps, die du wirklich brauchst. keine symbole, die um aufmerksamkeit schreien. keine endlosen scrolls. einfach ruhe.</string>
+    <string name="onboarding_step_philosophy_body">nur die apps, die du wirklich brauchst. keine symbole, die um aufmerksamkeit schreien. kein endloses scrollen. einfach ruhe.</string>
     <string name="onboarding_step_launcher_title">als standard-launcher festlegen.</string>
     <string name="onboarding_step_launcher_body">um focusphone vollständig zu erleben, mache es zu deinem startbildschirm. tippe unten, um die systemeinstellungen zu öffnen.</string>
     <string name="onboarding_step_launcher_action">launcher-einstellungen öffnen</string>
@@ -339,4 +339,175 @@
     <string name="settings_language_system_unsupported">system (english us)</string>
     <string name="settings_clock_fixed_top">uhr oben fixieren</string>
     <string name="settings_clock_fixed_top_desc">uhr immer oben anzeigen statt mittig mit apps</string>
+    <string name="about_settings_title">über</string>
+    <string name="appearance_settings_title">aussehen</string>
+    <string name="cd_apps">apps-komponente</string>
+    <string name="cd_clear_all">alle benachrichtigungen löschen</string>
+    <string name="cd_clock">uhr-komponente</string>
+    <string name="cd_drag_handle">ziehen zum neuordnen</string>
+    <string name="cd_toggle_visibility">sichtbarkeit umschalten</string>
+    <string name="cd_widget">widget-komponente</string>
+    <string name="cd_widget_icon">widget-symbol</string>
+    <string name="focus_settings_title">fokus</string>
+    <string name="home_layout_add_widget">widget hinzufügen</string>
+    <string name="home_layout_apps">apps</string>
+    <string name="home_layout_clock">uhr</string>
+    <string name="home_layout_clock_size">uhrgröße</string>
+    <string name="home_layout_done">fertig</string>
+    <string name="home_layout_order">reihenfolge</string>
+    <string name="home_layout_preview">vorschau</string>
+    <string name="home_layout_settings_desc">startbildschirm-komponenten neu ordnen und in der größe anpassen</string>
+    <string name="home_layout_settings_title">startbildschirm-layout</string>
+    <string name="home_layout_sizes">größen</string>
+    <string name="home_layout_title">startbildschirm-layout</string>
+    <string name="home_layout_widget">widget</string>
+    <string name="home_layout_widget_size">widget-größe</string>
+    <string name="home_settings_title">startbildschirm</string>
+    <string name="notification_clear_all">alle löschen</string>
+    <string name="notification_settings_title">benachrichtigungen</string>
+    <string name="settings_accessibility_section_desc">apps blockieren, die außerhalb von focusphone geöffnet werden</string>
+    <string name="settings_alignment_desc">startbildschirm-inhalt ausrichten</string>
+    <string name="settings_app_spacing">app-abstand</string>
+    <string name="settings_app_spacing_desc">abstand zwischen favorisierten apps</string>
+    <string name="settings_app_spacing_dp">app-abstand: %1$ddp</string>
+    <string name="settings_category_about_subtitle">version, tutorial, onboarding und lizenzen</string>
+    <string name="settings_category_about_title">über</string>
+    <string name="settings_category_appearance_subtitle">design, schriftart, farben und ausrichtung</string>
+    <string name="settings_category_appearance_title">aussehen</string>
+    <string name="settings_category_focus_subtitle">bewusste pause und schlüsselwörter für den arbeitsmodus</string>
+    <string name="settings_category_focus_title">fokus</string>
+    <string name="settings_category_home_subtitle">uhr, widget, abstand und layout</string>
+    <string name="settings_category_home_title">startbildschirm</string>
+    <string name="settings_category_notifications_subtitle">abzeichen, benachrichtigungsbereich und gesten</string>
+    <string name="settings_category_notifications_title">benachrichtigungen</string>
+    <string name="settings_category_system_subtitle">berechtigungen, bedienungshilfen, launcher und sprache</string>
+    <string name="settings_category_system_title">system</string>
+    <string name="settings_clock_size_desc">uhr vergrößern oder verkleinern</string>
+    <string name="settings_clock_type_desc">wähle, wie die uhrzeit angezeigt wird</string>
+    <string name="settings_conscious_pause_section_desc">atme vor dem öffnen von apps durch</string>
+    <string name="settings_font_desc">wähle die schriftart für den gesamten launcher</string>
+    <string name="settings_home_layout_desc">startbildschirm-komponenten neu ordnen und anpassen</string>
+    <string name="settings_language_desc">app-sprache ändern</string>
+    <string name="settings_notification_badges_section_desc">ungelesene zähler neben apps anzeigen</string>
+    <string name="settings_notification_panel_desc_short">wische nach rechts, um benachrichtigungen zu sehen</string>
+    <string name="settings_open_source_desc">lizenzen von drittanbieter-software</string>
+    <string name="settings_permissions_desc_short">erforderliche systemberechtigungen prüfen</string>
+    <string name="settings_restart_onboarding_confirm">dadurch wird die einrichtung neu gestartet. fortfahren?</string>
+    <string name="settings_section_system">system</string>
+    <string name="settings_set_default_desc_short">focusphone als startbildschirm festlegen</string>
+    <string name="settings_text_size_desc">größe des gesamten textes anpassen</string>
+    <string name="settings_theme_desc">wähle dein farbschema</string>
+    <string name="settings_widget_settings_desc">system-widget hinzufügen oder entfernen</string>
+    <string name="settings_work_keywords_section_desc">apps im arbeitsmodus nach namen blockieren</string>
+    <string name="system_settings_title">system</string>
+    <string name="widget_picker_empty">keine widgets verfügbar</string>
+    <string name="widget_picker_subtitle">wähle ein widget für den startbildschirm</string>
+    <string name="widget_picker_title">widget auswählen</string>
+    <string name="settings_wallpaper_blur_desc">hintergrund weichzeichnen für bessere lesbarkeit</string>
+    <string name="settings_wallpaper_blur_intensity">weichzeichner-intensität: %1$d%%</string>
+    <string name="settings_wallpaper_blur_label">hintergrund weichzeichnen</string>
+    <string name="settings_wallpaper_disabled_info">hintergrund ausgeblendet</string>
+    <string name="settings_wallpaper_disabled_info_desc">aktiviere den schalter oben, um ein hintergrundbild auszuwählen</string>
+    <string name="settings_wallpaper_enabled_desc">aktiviere ein hintergrundbild hinter dem launcher</string>
+    <string name="settings_wallpaper_enabled_label">hintergrundbild anzeigen</string>
+    <string name="settings_wallpaper_home">startbildschirm-hintergrund</string>
+    <string name="settings_wallpaper_home_desc">hintergrund für deinen startbildschirm</string>
+    <string name="settings_wallpaper_not_set">nicht festgelegt</string>
+    <string name="settings_wallpaper_notifications">benachrichtigungs-hintergrund</string>
+    <string name="settings_wallpaper_notifications_desc">hintergrund für den benachrichtigungsbereich</string>
+    <string name="settings_wallpaper_preview">vorschau</string>
+    <string name="settings_wallpaper_preview_hint">tippe auf eine option oben, um ein bild auszuwählen</string>
+    <string name="settings_wallpaper_set">festgelegt</string>
+    <string name="settings_wallpaper_settings">einstellungs-hintergrund</string>
+    <string name="settings_wallpaper_settings_desc">hintergrund für die einstellungsbildschirme</string>
+    <string name="settings_wallpaper_shared_desc">ein bild für startbildschirm, benachrichtigungen und einstellungen verwenden</string>
+    <string name="settings_wallpaper_shared_hint">gemeinsamer hintergrund</string>
+    <string name="settings_wallpaper_shared_label">überall dasselbe hintergrundbild</string>
+    <string name="settings_section_wallpaper">hintergrundbild</string>
+    <string name="clock_am">am</string>
+    <string name="clock_pm">pm</string>
+    <string name="notification_now">jetzt</string>
+    <string name="app_unknown">app</string>
+    <string name="home_layout_drag_hint">komponenten zum neuordnen ziehen</string>
+    <string name="home_layout_long_press_hint">vorschau gedrückt halten zum bearbeiten</string>
+    <string name="clock_preview_words">neun
+einundvierzig</string>
+
+    <string-array name="clock_words_hours">
+        <item>zwölf</item>
+        <item>eins</item>
+        <item>zwei</item>
+        <item>drei</item>
+        <item>vier</item>
+        <item>fünf</item>
+        <item>sechs</item>
+        <item>sieben</item>
+        <item>acht</item>
+        <item>neun</item>
+        <item>zehn</item>
+        <item>elf</item>
+    </string-array>
+
+    <string-array name="clock_words_minutes">
+        <item>uhr</item>
+        <item>eins</item>
+        <item>zwei</item>
+        <item>drei</item>
+        <item>vier</item>
+        <item>fünf</item>
+        <item>sechs</item>
+        <item>sieben</item>
+        <item>acht</item>
+        <item>neun</item>
+        <item>zehn</item>
+        <item>elf</item>
+        <item>zwölf</item>
+        <item>dreizehn</item>
+        <item>vierzehn</item>
+        <item>fünfzehn</item>
+        <item>sechzehn</item>
+        <item>siebzehn</item>
+        <item>achtzehn</item>
+        <item>neunzehn</item>
+        <item>zwanzig</item>
+        <item>einsundzwanzig</item>
+        <item>zweiundzwanzig</item>
+        <item>dreiundzwanzig</item>
+        <item>vierundzwanzig</item>
+        <item>fünfundzwanzig</item>
+        <item>sechsundzwanzig</item>
+        <item>siebenundzwanzig</item>
+        <item>achtundzwanzig</item>
+        <item>neunundzwanzig</item>
+        <item>dreißig</item>
+        <item>einsunddreißig</item>
+        <item>zweiunddreißig</item>
+        <item>dreiunddreißig</item>
+        <item>vierunddreißig</item>
+        <item>fünfunddreißig</item>
+        <item>sechsunddreißig</item>
+        <item>siebenunddreißig</item>
+        <item>achtunddreißig</item>
+        <item>neununddreißig</item>
+        <item>vierzig</item>
+        <item>einsundvierzig</item>
+        <item>zweiundvierzig</item>
+        <item>dreiundvierzig</item>
+        <item>vierundvierzig</item>
+        <item>fünfundvierzig</item>
+        <item>sechsundvierzig</item>
+        <item>siebenundvierzig</item>
+        <item>achtundvierzig</item>
+        <item>neunundvierzig</item>
+        <item>fünfzig</item>
+        <item>einsundfünfzig</item>
+        <item>zweiundfünfzig</item>
+        <item>dreiundfünfzig</item>
+        <item>vierundfünfzig</item>
+        <item>fünfundfünfzig</item>
+        <item>sechsundfünfzig</item>
+        <item>siebenundfünfzig</item>
+        <item>achtundfünfzig</item>
+        <item>neunundfünfzig</item>
+    </string-array>
 </resources>

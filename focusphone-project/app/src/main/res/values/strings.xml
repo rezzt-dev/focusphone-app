@@ -74,7 +74,7 @@
     <string name="settings_section_about">about</string>
     <string name="settings_version">version %1$s</string>
     <string name="settings_privacy_policy">privacy policy</string>
-    <string name="settings_open_source">open source licences</string>
+    <string name="settings_open_source">open source licenses</string>
     <string name="settings_back">back</string>
     <string name="settings_developed_by">developed by rezzt.dev</string>
     <string name="settings_custom_theme">custom theme</string>
@@ -366,7 +366,7 @@
     <string name="settings_category_system_title">system</string>
     <string name="settings_category_system_subtitle">permissions, accessibility, launcher and language</string>
     <string name="settings_category_about_title">about</string>
-    <string name="settings_category_about_subtitle">version, tutorial, onboarding and licences</string>
+    <string name="settings_category_about_subtitle">version, tutorial, onboarding and licenses</string>
 
     <!-- Settings: Screen titles -->
     <string name="appearance_settings_title">appearance</string>
@@ -396,6 +396,115 @@
     <string name="settings_accessibility_section_desc">block apps opened outside focusphone</string>
     <string name="settings_permissions_desc_short">review required system permissions</string>
     <string name="settings_set_default_desc_short">make focusphone your home screen</string>
-    <string name="settings_open_source_desc">third-party software licences</string>
+    <string name="settings_open_source_desc">third-party software licenses</string>
     <string name="settings_restart_onboarding_confirm">this will restart the onboarding guide. continue?</string>
+    <string name="clock_am">am</string>
+    <string name="clock_pm">pm</string>
+    <string name="notification_now">now</string>
+    <string name="app_unknown">app</string>
+    <string name="home_layout_drag_hint">drag components to reorder</string>
+    <string name="home_layout_long_press_hint">long press preview to edit</string>
+    <string name="clock_preview_words">nine
+forty-one</string>
+
+    <string-array name="clock_words_hours">
+        <item>twelve</item>
+        <item>one</item>
+        <item>two</item>
+        <item>three</item>
+        <item>four</item>
+        <item>five</item>
+        <item>six</item>
+        <item>seven</item>
+        <item>eight</item>
+        <item>nine</item>
+        <item>ten</item>
+        <item>eleven</item>
+    </string-array>
+
+    <string-array name="clock_words_minutes">
+        <item>o\'clock</item>
+        <item>one</item>
+        <item>two</item>
+        <item>three</item>
+        <item>four</item>
+        <item>five</item>
+        <item>six</item>
+        <item>seven</item>
+        <item>eight</item>
+        <item>nine</item>
+        <item>ten</item>
+        <item>eleven</item>
+        <item>twelve</item>
+        <item>thirteen</item>
+        <item>fourteen</item>
+        <item>fifteen</item>
+        <item>sixteen</item>
+        <item>seventeen</item>
+        <item>eighteen</item>
+        <item>nineteen</item>
+        <item>twenty</item>
+        <item>twenty-one</item>
+        <item>twenty-two</item>
+        <item>twenty-three</item>
+        <item>twenty-four</item>
+        <item>twenty-five</item>
+        <item>twenty-six</item>
+        <item>twenty-seven</item>
+        <item>twenty-eight</item>
+        <item>twenty-nine</item>
+        <item>thirty</item>
+        <item>thirty-one</item>
+        <item>thirty-two</item>
+        <item>thirty-three</item>
+        <item>thirty-four</item>
+        <item>thirty-five</item>
+        <item>thirty-six</item>
+        <item>thirty-seven</item>
+        <item>thirty-eight</item>
+        <item>thirty-nine</item>
+        <item>forty</item>
+        <item>forty-one</item>
+        <item>forty-two</item>
+        <item>forty-three</item>
+        <item>forty-four</item>
+        <item>forty-five</item>
+        <item>forty-six</item>
+        <item>forty-seven</item>
+        <item>forty-eight</item>
+        <item>forty-nine</item>
+        <item>fifty</item>
+        <item>fifty-one</item>
+        <item>fifty-two</item>
+        <item>fifty-three</item>
+        <item>fifty-four</item>
+        <item>fifty-five</item>
+        <item>fifty-six</item>
+        <item>fifty-seven</item>
+        <item>fifty-eight</item>
+        <item>fifty-nine</item>
+    </string-array>
+
+    <!-- Wallpaper -->
+    <string name="settings_section_wallpaper">wallpaper</string>
+    <string name="settings_wallpaper_blur_desc">blur the background for better readability</string>
+    <string name="settings_wallpaper_blur_intensity">blur intensity: %1$d%%</string>
+    <string name="settings_wallpaper_blur_label">blur background</string>
+    <string name="settings_wallpaper_disabled_info">wallpaper hidden</string>
+    <string name="settings_wallpaper_disabled_info_desc">enable the switch above to choose a background image</string>
+    <string name="settings_wallpaper_enabled_desc">enable a background image behind the launcher</string>
+    <string name="settings_wallpaper_enabled_label">show wallpaper</string>
+    <string name="settings_wallpaper_home">home wallpaper</string>
+    <string name="settings_wallpaper_home_desc">background for your home screen</string>
+    <string name="settings_wallpaper_not_set">not set</string>
+    <string name="settings_wallpaper_notifications">notifications wallpaper</string>
+    <string name="settings_wallpaper_notifications_desc">background for the notification panel</string>
+    <string name="settings_wallpaper_preview">preview</string>
+    <string name="settings_wallpaper_preview_hint">tap an option above to choose an image</string>
+    <string name="settings_wallpaper_set">set</string>
+    <string name="settings_wallpaper_settings">settings wallpaper</string>
+    <string name="settings_wallpaper_settings_desc">background for the settings screens</string>
+    <string name="settings_wallpaper_shared_desc">use the same image for home, notifications and settings</string>
+    <string name="settings_wallpaper_shared_hint">shared wallpaper</string>
+    <string name="settings_wallpaper_shared_label">same wallpaper everywhere</string>
 </resources>

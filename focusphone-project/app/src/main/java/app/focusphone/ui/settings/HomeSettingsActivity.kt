@@ -128,7 +128,11 @@ class HomeSettingsActivity : SettingsSubActivity() {
 
         ClockType.entries.forEach { type ->
             val item = ItemSettingsClockTypeBinding.inflate(inflater, container, false)
-            item.tvPreview.text = type.previewLabel
+            item.tvPreview.text = when (type) {
+                ClockType.WORDS -> getString(R.string.clock_preview_words)
+                ClockType.HIDDEN -> getString(R.string.settings_clock_hidden)
+                else -> type.previewLabel
+            }
             val labelRes = when (type) {
                 ClockType.DIGITAL -> R.string.settings_clock_digital
                 ClockType.STACKED -> R.string.settings_clock_stacked

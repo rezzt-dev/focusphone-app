@@ -5,7 +5,7 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground">
+    android:background="@android:color/transparent">
 
     <!-- ── Toolbar ─────────────────────────────────────────────── -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -220,7 +220,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif"
-                    android:text="clock"
+                    android:text="@string/home_layout_clock"
                     android:textColor="?android:attr/textColorPrimary"
                     android:textSize="11sp" />
 
@@ -258,7 +258,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif"
-                    android:text="widget"
+                    android:text="@string/home_layout_widget"
                     android:textColor="?android:attr/textColorPrimary"
                     android:textSize="11sp" />
 
@@ -296,7 +296,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif"
-                    android:text="apps"
+                    android:text="@string/home_layout_apps"
                     android:textColor="?android:attr/textColorPrimary"
                     android:textSize="11sp" />
 
@@ -317,7 +317,7 @@
             android:fontFamily="sans-serif"
             android:gravity="center"
             android:paddingBottom="4dp"
-            android:text="long press preview to edit"
+            android:text="@string/home_layout_long_press_hint"
             android:textColor="?android:attr/textColorSecondary"
             android:textSize="11sp" />
     </LinearLayout>

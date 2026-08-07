@@ -128,12 +128,25 @@ object FontPreferences {
 
     // ── Font Size Scale ───────────────────────────────────────────
 
+    private const val KEY_FONT_SIZE_PT = "font_size_pt"
+    private const val MIN_FONT_SIZE_PT = 8
+    private const val MAX_FONT_SIZE_PT = 24
+
     fun getFontSizePt(context: Context): Int {
-        return prefs(context).getInt("font_size_pt", 14)
+        val size = prefs(context).getInt(KEY_FONT_SIZE_PT, 14)
+        return if (size in MIN_FONT_SIZE_PT..MAX_FONT_SIZE_PT) {
+            size
+        } else {
+            // Recover from a corrupted/out-of-range value (e.g. 100) and save the sane default.
+            Log.w("FontPreferences", "font_size_pt was out of range ($size); resetting to $MAX_FONT_SIZE_PT")
+            setFontSizePt(context, MAX_FONT_SIZE_PT)
+            MAX_FONT_SIZE_PT
+        }
     }
 
     fun setFontSizePt(context: Context, size: Int) {
-        prefs(context).edit().putInt("font_size_pt", size).apply()
+        val coerced = size.coerceIn(MIN_FONT_SIZE_PT, MAX_FONT_SIZE_PT)
+        prefs(context).edit().putInt(KEY_FONT_SIZE_PT, coerced).apply()
     }
 
     fun getFontScale(context: Context): Float {

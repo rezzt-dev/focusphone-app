@@ -6,6 +6,7 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.view.ViewCompat
+import app.focusphone.R
 import app.focusphone.data.preferences.ThemePreferences
 import kotlin.math.cos
 import kotlin.math.min
@@ -96,7 +97,7 @@ class AnalogClockView @JvmOverloads constructor(
 
     private fun updateContentDescription() {
         val displayHour = if (hours % 12 == 0) 12 else hours % 12
-        val amPm = if (hours >= 12) "pm" else "am"
+        val amPm = if (hours >= 12) context.getString(R.string.clock_pm) else context.getString(R.string.clock_am)
         val desc = String.format("%02d:%02d %s", displayHour, minutes, amPm)
         ViewCompat.setStateDescription(this, desc)
         contentDescription = desc
