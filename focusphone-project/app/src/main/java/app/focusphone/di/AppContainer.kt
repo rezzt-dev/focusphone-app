@@ -32,6 +32,10 @@ class AppContainer(
         app.focusphone.data.preferences.CustomAppLabelsPreferences(appContext)
     }
 
+    val appFolderPreferences: app.focusphone.data.preferences.AppFolderPreferences by lazy {
+        app.focusphone.data.preferences.AppFolderPreferences(appContext)
+    }
+
     private val database: app.focusphone.data.local.AppDatabase by lazy {
         app.focusphone.data.local.AppDatabase.getDatabase(appContext)
     }

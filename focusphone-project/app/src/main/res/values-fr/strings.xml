@@ -185,6 +185,25 @@
     <string name="allapps_dialog_uninstall">désinstaller</string>
     <string name="allapps_toast_blocked">%1$s bloquée</string>
     <string name="allapps_toast_keywords_saved">mots-clés enregistrés</string>
+
+    <!-- Dossiers d'applications (liste de toutes les apps) -->
+    <string name="allapps_new_folder">nouveau dossier</string>
+    <string name="allapps_folder_name_hint">nom du dossier</string>
+    <string name="allapps_folder_name_taken">ce dossier existe déjà</string>
+    <string name="allapps_folder_rename_title">renommer le dossier</string>
+    <string name="allapps_folder_delete_title">supprimer le dossier</string>
+    <string name="allapps_folder_delete_message">supprimer \"%1$s\" ? les apps qu\'il contient reviendront dans la liste.</string>
+    <string name="allapps_folder_delete_confirm">supprimer</string>
+    <string name="allapps_folder_empty">vide</string>
+    <string name="allapps_dialog_move_to_folder">déplacer vers un dossier</string>
+    <string name="allapps_dialog_remove_from_folder">sortir du dossier</string>
+    <string name="allapps_folder_choose_title">déplacer %1$s</string>
+    <string name="allapps_folder_choose_new">nouveau dossier…</string>
+    <string name="allapps_toast_folder_created">%1$s créé</string>
+    <string name="allapps_toast_folder_deleted">%1$s supprimé</string>
+    <string name="allapps_toast_moved_to_folder">%1$s déplacée vers %2$s</string>
+    <string name="allapps_toast_removed_from_folder">%1$s sortie de %2$s</string>
+    <string name="cd_folder_item">dossier %1$s</string>
     <string name="allapps_toast_unblocked">%1$s autorisée</string>
     <string name="search_empty_state">aucune app trouvée</string>
     <string name="uninstall_progress">désinstallation de l\'app…</string>

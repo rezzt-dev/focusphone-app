@@ -20,16 +20,41 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
+        <!-- Title row: centered title with the "new folder" action pinned to the end -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
-            android:gravity="center"
-            android:letterSpacing="0.08"
-            android:paddingBottom="12dp"
-            android:text="@string/allapps_title"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="17sp" />
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:fontFamily="sans-serif"
+                android:gravity="center"
+                android:letterSpacing="0.08"
+                android:text="@string/allapps_title"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/btn_new_folder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="@string/allapps_new_folder"
+                android:focusable="true"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:minWidth="48dp"
+                android:minHeight="40dp"
+                android:text="@string/allapps_new_folder_symbol"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="20sp" />
+        </FrameLayout>
 
         <!-- Search -->
         <EditText

@@ -185,6 +185,25 @@
     <string name="allapps_dialog_uninstall">deinstallieren</string>
     <string name="allapps_toast_blocked">%1$s gesperrt</string>
     <string name="allapps_toast_keywords_saved">schlüsselwörter gespeichert</string>
+
+    <!-- App-Ordner (alle apps) -->
+    <string name="allapps_new_folder">neuer ordner</string>
+    <string name="allapps_folder_name_hint">ordnername</string>
+    <string name="allapps_folder_name_taken">dieser ordner existiert bereits</string>
+    <string name="allapps_folder_rename_title">ordner umbenennen</string>
+    <string name="allapps_folder_delete_title">ordner löschen</string>
+    <string name="allapps_folder_delete_message">\"%1$s\" löschen? die apps darin kehren in die liste zurück.</string>
+    <string name="allapps_folder_delete_confirm">löschen</string>
+    <string name="allapps_folder_empty">leer</string>
+    <string name="allapps_dialog_move_to_folder">in ordner verschieben</string>
+    <string name="allapps_dialog_remove_from_folder">aus ordner entfernen</string>
+    <string name="allapps_folder_choose_title">%1$s verschieben</string>
+    <string name="allapps_folder_choose_new">neuer ordner…</string>
+    <string name="allapps_toast_folder_created">%1$s erstellt</string>
+    <string name="allapps_toast_folder_deleted">%1$s gelöscht</string>
+    <string name="allapps_toast_moved_to_folder">%1$s nach %2$s verschoben</string>
+    <string name="allapps_toast_removed_from_folder">%1$s aus %2$s entfernt</string>
+    <string name="cd_folder_item">ordner %1$s</string>
     <string name="allapps_toast_unblocked">%1$s erlaubt</string>
     <string name="search_empty_state">keine apps gefunden</string>
     <string name="uninstall_progress">app wird deinstalliert…</string>

@@ -59,7 +59,8 @@ app/src/main/java/app/focusphone/
 │   │   ├── FontPreferences.kt    # Font family, clock type, clock size, text size
 │   │   ├── ProfilePreferences.kt # Normal / Work / Detox profiles, detox timer & password, blocked apps
 │   │   ├── ConsciousPausePreferences.kt # Enable/disable + duration (seconds)
-│   │   └── CustomAppLabelsPreferences.kt # User-renamed app labels
+│   │   ├── CustomAppLabelsPreferences.kt # User-renamed app labels
+│   │   └── AppFolderPreferences.kt   # App-drawer folders and their expanded state
 │   └── repository/
 │       ├── AppRepositoryImpl.kt       # Queries installed launcher apps
 │       └── FavouriteAppRepositoryImpl.kt # Room + custom label merge; also handles SharedPrefs→Room migration
@@ -67,6 +68,7 @@ app/src/main/java/app/focusphone/
 │   ├── model/
 │   │   ├── AppInfo.kt            # Installed app domain model
 │   │   ├── AppScheduleRule.kt    # Per-app time window + daily limit, and ScheduleBlockReason
+│   │   ├── AppFolder.kt          # App-drawer folder (id, name, member packages)
 │   │   ├── ClockType.kt          # DIGITAL | STACKED | WORDS | ANALOG | HIDDEN
 │   │   ├── AppFont.kt            # Font enum (system + downloadable)
 │   │   └── ToggleResult.kt       # Added | Removed | LimitReached
@@ -75,6 +77,7 @@ app/src/main/java/app/focusphone/
 │   │   └── FavouriteAppRepository.kt
 │   ├── util/
 │   │   ├── AppScheduleEvaluator.kt # Pure schedule evaluation + rule serialization
+│   │   ├── AppFolderSerializer.kt  # Pure folder serialization, name sanitizing, ordering
 │   │   └── FuzzyMatcher.kt       # Subsequence search scoring
 │   └── usecase/
 │       ├── GetInstalledAppsUseCase.kt
@@ -95,7 +98,11 @@ app/src/main/java/app/focusphone/
     │   └── adapter/
     │       └── InstalledAppsAdapter.kt
     ├── allapps/
-    │   └── AllAppsActivity.kt    # Full app drawer with search + block/rename long-press menu
+    │   ├── AllAppsActivity.kt    # Full app drawer with search, folders and long-press menu
+    │   ├── AllAppsRow.kt         # Sealed row model: folder header | app
+    │   ├── FolderDragCallback.kt # Drag & drop into folders + long-press dispatch
+    │   └── adapter/
+    │       └── AllAppsAdapter.kt # Two view types (folder header, app row)
     ├── settings/
     │   ├── SettingsActivity.kt            # Category menu that opens sub-screens
     │   ├── SettingsSubActivity.kt         # Abstract base for second-level settings screens
@@ -208,7 +215,7 @@ app/src/main/java/app/focusphone/
 - `AppContainer` supports constructor injection of fake repositories.
 
 ### Coverage (Fase 2)
-- **Unit:** `ProfilePreferences` (pure blocking logic, detox expiration, SHA-256→PBKDF2), `ThemePreferences` (theme resolution, auto day/night, hex fallback), `ToggleFavouriteAppUseCase`, `UpdateAppsOrderUseCase`, `FuzzyMatcher`, `AppScheduleEvaluator` (windows, midnight wrap, weekday filtering, daily limits, serialization), `PasswordHasher` (PBKDF2 payloads, legacy upgrade, malformed input).
+- **Unit:** `ProfilePreferences` (pure blocking logic, detox expiration, SHA-256→PBKDF2), `ThemePreferences` (theme resolution, auto day/night, hex fallback), `ToggleFavouriteAppUseCase`, `UpdateAppsOrderUseCase`, `FuzzyMatcher`, `AppScheduleEvaluator` (windows, midnight wrap, weekday filtering, daily limits, serialization), `PasswordHasher` (PBKDF2 payloads, legacy upgrade, malformed input), `AppFolderSerializer` (round trip, name sanitizing, corrupted lines, alphabetical order).
 - **Instrumented:** Onboarding flow (3 steps), app selection (10-app limit), profile switching (Normal ↔ Work), detox password verification & lockout (4 failed attempts), schedule persistence, usage accounting and schedule-password cooldown (`AppScheduleTest`).
 
 ---
@@ -240,10 +247,28 @@ fully unit tested. Every in-app launch path calls `BaseActivity.enforceAppSchedu
 component that can measure foreground time, so daily limits need it enabled while time
 windows work without it.
 
-### 6. Auto Day/Night Theme
+### 6. App-Drawer Folders
+
+The "all apps" drawer can group apps into user-created folders. Folders are stored in
+`AppFolderPreferences` (AES-256/GCM through `EncryptedPrefs`, like every other user
+list) and always rendered **before** the plain apps, sorted alphabetically and
+case-insensitively — there is no manual folder order to store. A package belongs to at
+most one folder; that invariant is enforced in the preference layer, not in the UI, so
+every entry point (drag & drop, the long-press menu, the folder picker) behaves the same.
+
+Two gestures fill a folder: dropping an app onto it, or the "move to folder" entry of
+the long-press menu. Both share one gesture pipeline — `FolderDragCallback` claims the
+long press of every app row (`ItemTouchHelper` always does), so a press released without
+travelling past the touch slop is reported as a long press and opens the options dialog,
+while a press that travels resolves a drop target from the centre of the dragged row.
+The whole region of an expanded folder accepts a drop, and releasing over the plain app
+list takes an app back out of its folder. Searching hides the folder headers and lists
+every match flat.
+
+### 7. Auto Day/Night Theme
 `ThemePreferences.THEME_AUTO` resolves dynamically to `THEME_SLATE` (dark) when the system is in night mode, or `THEME_OFF_WHITE` (light) otherwise. `BaseActivity` tracks the *effective* resolved theme so that `onResume()` detects system day/night changes automatically.
 
-### 7. Migration from SharedPreferences to Room
+### 8. Migration from SharedPreferences to Room
 `FavouriteAppRepositoryImpl` contains a `migrateFromSharedPreferences()` method that runs once on init, converting the old pipe-delimited string format into Room entities and then deleting the old key.
 
 ---

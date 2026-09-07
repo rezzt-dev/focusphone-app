@@ -332,6 +332,25 @@ facebook</string>
     <string name="allapps_dialog_uninstall">desinstalar</string>
     <string name="allapps_toast_keywords_saved">palabras clave guardadas</string>
 
+    <!-- Carpetas de apps (cajón de todas las apps) -->
+    <string name="allapps_new_folder">nueva carpeta</string>
+    <string name="allapps_folder_name_hint">nombre de la carpeta</string>
+    <string name="allapps_folder_name_taken">esa carpeta ya existe</string>
+    <string name="allapps_folder_rename_title">renombrar carpeta</string>
+    <string name="allapps_folder_delete_title">eliminar carpeta</string>
+    <string name="allapps_folder_delete_message">¿eliminar \"%1$s\"? las apps que contiene volverán a la lista.</string>
+    <string name="allapps_folder_delete_confirm">eliminar</string>
+    <string name="allapps_folder_empty">vacía</string>
+    <string name="allapps_dialog_move_to_folder">mover a una carpeta</string>
+    <string name="allapps_dialog_remove_from_folder">sacar de la carpeta</string>
+    <string name="allapps_folder_choose_title">mover %1$s</string>
+    <string name="allapps_folder_choose_new">nueva carpeta…</string>
+    <string name="allapps_toast_folder_created">%1$s creada</string>
+    <string name="allapps_toast_folder_deleted">%1$s eliminada</string>
+    <string name="allapps_toast_moved_to_folder">%1$s movida a %2$s</string>
+    <string name="allapps_toast_removed_from_folder">%1$s sacada de %2$s</string>
+    <string name="cd_folder_item">carpeta %1$s</string>
+
     <!-- Content Descriptions -->
     <string name="cd_align_left">alinear a la izquierda</string>
     <string name="cd_align_center">alinear al centro</string>

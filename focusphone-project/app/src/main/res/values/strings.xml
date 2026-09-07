@@ -274,6 +274,27 @@
     <string name="allapps_toast_unblocked">%1$s allowed</string>
     <string name="allapps_toast_keywords_saved">keywords saved</string>
 
+    <!-- App Folders (all apps drawer) -->
+    <string name="allapps_new_folder_symbol" translatable="false">+</string>
+    <string name="allapps_folder_caret" translatable="false">›</string>
+    <string name="allapps_new_folder">new folder</string>
+    <string name="allapps_folder_name_hint">folder name</string>
+    <string name="allapps_folder_name_taken">that folder already exists</string>
+    <string name="allapps_folder_rename_title">rename folder</string>
+    <string name="allapps_folder_delete_title">delete folder</string>
+    <string name="allapps_folder_delete_message">delete \"%1$s\"? the apps inside go back to the list.</string>
+    <string name="allapps_folder_delete_confirm">delete</string>
+    <string name="allapps_folder_empty">empty</string>
+    <string name="allapps_dialog_move_to_folder">move to folder</string>
+    <string name="allapps_dialog_remove_from_folder">take out of folder</string>
+    <string name="allapps_folder_choose_title">move %1$s</string>
+    <string name="allapps_folder_choose_new">new folder…</string>
+    <string name="allapps_toast_folder_created">%1$s created</string>
+    <string name="allapps_toast_folder_deleted">%1$s deleted</string>
+    <string name="allapps_toast_moved_to_folder">%1$s moved to %2$s</string>
+    <string name="allapps_toast_removed_from_folder">%1$s taken out of %2$s</string>
+    <string name="cd_folder_item">folder %1$s</string>
+
     <!-- Work Profile -->
     <string name="settings_section_work_profile">work profile</string>
     <string name="settings_work_keywords_title">work mode keywords</string>
