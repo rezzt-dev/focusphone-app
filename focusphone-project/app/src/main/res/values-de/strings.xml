@@ -374,7 +374,7 @@
     <string name="settings_category_about_title">über</string>
     <string name="settings_category_appearance_subtitle">design, schriftart, farben und ausrichtung</string>
     <string name="settings_category_appearance_title">aussehen</string>
-    <string name="settings_category_focus_subtitle">bewusste pause und schlüsselwörter für den arbeitsmodus</string>
+    <string name="settings_category_focus_subtitle">bewusste pause, app-zeitpläne und schlüsselwörter für den arbeitsmodus</string>
     <string name="settings_category_focus_title">fokus</string>
     <string name="settings_category_home_subtitle">uhr, widget, abstand und layout</string>
     <string name="settings_category_home_title">startbildschirm</string>
@@ -510,4 +510,65 @@ einundvierzig</string>
         <item>achtundfünfzig</item>
         <item>neunundfünfzig</item>
     </string-array>
+    <!-- Zeitgesteuerte app-sperre -->
+    <string name="schedule_title">app-zeitpläne</string>
+    <string name="schedule_settings_row_title">app-zeitpläne</string>
+    <string name="schedule_settings_row_desc">apps auf ein zeitfenster oder wenige minuten pro tag begrenzen</string>
+    <string name="schedule_section_apps">apps mit zeitplan</string>
+    <string name="schedule_section_protection">schutz</string>
+    <string name="schedule_section_warning">hinweis</string>
+    <string name="schedule_section_window">erlaubte zeiten</string>
+    <string name="schedule_section_limit">tageslimit</string>
+    <string name="schedule_edit_title">app-zeitplan</string>
+    <string name="schedule_empty_title">keine apps mit zeitplan</string>
+    <string name="schedule_empty_desc">wähle eine app, um zu begrenzen, wann und wie lange sie genutzt werden kann.</string>
+    <string name="schedule_add_app">app hinzufügen</string>
+    <string name="schedule_add_app_desc">wähle eine app zum einschränken</string>
+    <string name="schedule_no_apps_left">alle apps haben bereits einen zeitplan</string>
+    <string name="schedule_window_switch">auf ein zeitfenster begrenzen</string>
+    <string name="schedule_window_switch_desc">die app lässt sich nur zwischen diesen zeiten öffnen</string>
+    <string name="schedule_start_time">von</string>
+    <string name="schedule_start_time_desc">zu dieser zeit wird die app entsperrt</string>
+    <string name="schedule_end_time">bis</string>
+    <string name="schedule_end_time_desc">zu dieser zeit wird die app wieder gesperrt</string>
+    <string name="schedule_days_label">tage</string>
+    <string name="schedule_days_min_one">lass mindestens einen tag ausgewählt</string>
+    <string name="schedule_limit_switch">tägliche nutzung begrenzen</string>
+    <string name="schedule_limit_switch_desc">das guthaben wird jeden tag um mitternacht zurückgesetzt</string>
+    <string name="schedule_limit_value">tageslimit: %1$d min</string>
+    <string name="schedule_summary_window">%1$s – %2$s</string>
+    <string name="schedule_summary_limit">%1$d min pro tag</string>
+    <string name="schedule_used_today">heute genutzt: %1$d von %2$d min</string>
+    <string name="schedule_action_remove">entfernen</string>
+    <string name="schedule_rule_saved">zeitplan gespeichert</string>
+    <string name="schedule_rule_removed">zeitplan entfernt</string>
+    <string name="schedule_nothing_to_save">aktiviere zuerst ein zeitfenster oder ein tageslimit</string>
+    <string name="schedule_accessibility_required">systemweite sperre ist aus</string>
+    <string name="schedule_accessibility_required_desc">tageslimits brauchen den focusphone-bedienungshilfedienst, um die nutzung zu messen. zum aktivieren tippen.</string>
+
+    <!-- Zeitplan-passwort -->
+    <string name="schedule_password_row_title">zeitplan-passwort</string>
+    <string name="schedule_password_row_desc">passwort für diese einstellungen ändern oder entfernen</string>
+    <string name="schedule_password_change">passwort ändern</string>
+    <string name="schedule_password_remove">schutz entfernen</string>
+    <string name="schedule_password_remove_confirm">damit werden das passwort und alle zeitpläne gelöscht. fortfahren?</string>
+    <string name="schedule_password_removed">schutz entfernt</string>
+    <string name="schedule_password_confirm_hint">passwort wiederholen</string>
+    <string name="schedule_password_too_short">verwende mindestens %1$d zeichen</string>
+    <string name="schedule_password_mismatch">die passwörter stimmen nicht überein</string>
+    <string name="schedule_create_password_title">zeitpläne schützen</string>
+    <string name="schedule_create_password_desc">lege ein passwort fest, damit zeitpläne nicht spontan geändert werden.</string>
+    <string name="schedule_unlock_title">zeitpläne entsperren</string>
+    <string name="schedule_unlock_desc">gib dein passwort ein, um zeitpläne zu sehen und zu bearbeiten:</string>
+    <string name="schedule_confirm_password_title">passwort bestätigen</string>
+    <string name="schedule_confirm_password_desc">gib zum fortfahren dein aktuelles passwort ein:</string>
+    <string name="schedule_wrong_password">falsches passwort. noch %1$d versuche</string>
+    <string name="schedule_locked_out">zu viele versuche. versuche es in %1$d min erneut</string>
+
+    <!-- Sperrbildschirm für zeitpläne -->
+    <string name="schedule_blocked_label">zeitplan</string>
+    <string name="schedule_blocked_window_title">außerhalb der erlaubten zeit</string>
+    <string name="schedule_blocked_window_desc">diese app ist zwischen %1$s und %2$s verfügbar.</string>
+    <string name="schedule_blocked_limit_title">tageslimit erreicht</string>
+    <string name="schedule_blocked_limit_desc">du hast heute %1$d von %2$d minuten genutzt. das guthaben startet um mitternacht neu.</string>
 </resources>

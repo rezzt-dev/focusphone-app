@@ -18,9 +18,11 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import app.focusphone.FocusPhoneApp
 import app.focusphone.R
+import app.focusphone.data.preferences.AppSchedulePreferences
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.WallpaperPreferences
+import app.focusphone.ui.schedule.ScheduleBlockedActivity
 import app.focusphone.ui.wallpaper.WallpaperUtils
 import app.focusphone.ui.widget.AnalogClockView
 import kotlinx.coroutines.Dispatchers
@@ -447,5 +449,22 @@ abstract class BaseActivity : AppCompatActivity() {
 
             colorizeViewTree(root, bgColor, fgColor, applyBackgrounds = false)
         }
+    }
+
+    // ── Schedule blocking ──────────────────────────────────────────
+
+    /**
+     * Shows the schedule block screen when [packageName] may not be used right now.
+     *
+     * Every in-app launch path calls this before starting an app, so the restriction
+     * holds even when the accessibility service is off; the service only adds coverage
+     * for launches that never pass through FocusPhone (notifications, recents, voice).
+     *
+     * @return true when the launch was blocked and the caller must abort.
+     */
+    protected fun enforceAppSchedule(packageName: String, label: String? = null): Boolean {
+        val reason = AppSchedulePreferences.getBlockReason(this, packageName) ?: return false
+        startActivity(ScheduleBlockedActivity.newIntent(this, packageName, label, reason))
+        return true
     }
 }

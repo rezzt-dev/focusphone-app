@@ -54,6 +54,7 @@ app/src/main/java/app/focusphone/
 │   ├── model/
 │   │   └── FavouriteApp.kt       # Room entity
 │   ├── preferences/
+│   │   ├── AppSchedulePreferences.kt # Per-app time windows, daily limits, usage counters, schedule password
 │   │   ├── ThemePreferences.kt   # Theme, alignment, onboarding, status bar
 │   │   ├── FontPreferences.kt    # Font family, clock type, clock size, text size
 │   │   ├── ProfilePreferences.kt # Normal / Work / Detox profiles, detox timer & password, blocked apps
@@ -65,12 +66,16 @@ app/src/main/java/app/focusphone/
 ├── domain/
 │   ├── model/
 │   │   ├── AppInfo.kt            # Installed app domain model
+│   │   ├── AppScheduleRule.kt    # Per-app time window + daily limit, and ScheduleBlockReason
 │   │   ├── ClockType.kt          # DIGITAL | STACKED | WORDS | ANALOG | HIDDEN
 │   │   ├── AppFont.kt            # Font enum (system + downloadable)
 │   │   └── ToggleResult.kt       # Added | Removed | LimitReached
 │   ├── repository/
 │   │   ├── AppRepository.kt
 │   │   └── FavouriteAppRepository.kt
+│   ├── util/
+│   │   ├── AppScheduleEvaluator.kt # Pure schedule evaluation + rule serialization
+│   │   └── FuzzyMatcher.kt       # Subsequence search scoring
 │   └── usecase/
 │       ├── GetInstalledAppsUseCase.kt
 │       ├── GetFavouriteAppsUseCase.kt
@@ -109,6 +114,12 @@ app/src/main/java/app/focusphone/
     │   └── ConsciousPauseActivity.kt # Breathing countdown before launching target app
     ├── detox/
     │   └── DetoxBlockedActivity.kt   # Full-screen block page with live countdown
+    ├── schedule/
+    │   ├── AppScheduleActivity.kt     # Password-gated list of scheduled apps
+    │   ├── AppScheduleEditActivity.kt # Time window, weekdays and daily limit for one app
+    │   ├── ScheduleBlockedActivity.kt # Block page explaining the schedule restriction
+    │   ├── ScheduleAccessGate.kt      # In-memory unlock session for the settings
+    │   └── ScheduleDayLabels.kt       # Locale-aware weekday labels and week order
     └── widget/
         ├── AnalogClockView.kt
         └── WeightGradientTextView.kt
@@ -197,8 +208,8 @@ app/src/main/java/app/focusphone/
 - `AppContainer` supports constructor injection of fake repositories.
 
 ### Coverage (Fase 2)
-- **Unit:** `ProfilePreferences` (pure blocking logic, detox expiration, SHA-256→PBKDF2), `ThemePreferences` (theme resolution, auto day/night, hex fallback), `ToggleFavouriteAppUseCase`, `UpdateAppsOrderUseCase`, `FuzzyMatcher`.
-- **Instrumented:** Onboarding flow (3 steps), app selection (10-app limit), profile switching (Normal ↔ Work), detox password verification & lockout (4 failed attempts).
+- **Unit:** `ProfilePreferences` (pure blocking logic, detox expiration, SHA-256→PBKDF2), `ThemePreferences` (theme resolution, auto day/night, hex fallback), `ToggleFavouriteAppUseCase`, `UpdateAppsOrderUseCase`, `FuzzyMatcher`, `AppScheduleEvaluator` (windows, midnight wrap, weekday filtering, daily limits, serialization), `PasswordHasher` (PBKDF2 payloads, legacy upgrade, malformed input).
+- **Instrumented:** Onboarding flow (3 steps), app selection (10-app limit), profile switching (Normal ↔ Work), detox password verification & lockout (4 failed attempts), schedule persistence, usage accounting and schedule-password cooldown (`AppScheduleTest`).
 
 ---
 
@@ -218,10 +229,21 @@ The home screen (`HomeActivity`) displays only text labels for favourite apps. I
 - **Work**: blocks manually blocked apps + apps matching user-configurable keywords (`ProfilePreferences.getWorkKeywords()`). Defaults are pre-populated from the former hardcoded list; users can edit them in Settings.
 - **Detox**: blocks **all** apps except FocusPhone itself. Requires a password (min 4 chars) to exit early. Auto-reverts to Normal when the timer expires.
 
-### 5. Auto Day/Night Theme
+### 5. Schedule-Based Blocking (independent of profiles)
+
+Any app can carry an [AppScheduleRule]: an allowed time window (with weekday selection,
+windows may wrap past midnight) and/or a daily usage allowance that resets at local
+midnight. Schedules are evaluated **in addition to** the active profile — a Normal-profile
+device still enforces them — and the pure decision lives in `AppScheduleEvaluator` so it is
+fully unit tested. Every in-app launch path calls `BaseActivity.enforceAppSchedule()`;
+`FocusAccessibilityService` covers launches that bypass FocusPhone and is the only
+component that can measure foreground time, so daily limits need it enabled while time
+windows work without it.
+
+### 6. Auto Day/Night Theme
 `ThemePreferences.THEME_AUTO` resolves dynamically to `THEME_SLATE` (dark) when the system is in night mode, or `THEME_OFF_WHITE` (light) otherwise. `BaseActivity` tracks the *effective* resolved theme so that `onResume()` detects system day/night changes automatically.
 
-### 6. Migration from SharedPreferences to Room
+### 7. Migration from SharedPreferences to Room
 `FavouriteAppRepositoryImpl` contains a `migrateFromSharedPreferences()` method that runs once on init, converting the old pipe-delimited string format into Room entities and then deleting the old key.
 
 ---
@@ -241,9 +263,26 @@ The home screen (`HomeActivity`) displays only text labels for favourite apps. I
 - `DetoxBlockedActivity` and password dialogs set `FLAG_SECURE` to prevent screenshots/screen recording while the user is entering credentials or viewing the block screen.
 - All values in `focusphone_profile` and `focusphone_custom_labels` are encrypted at rest with **AES-256/GCM** via Android Keystore (`SecureStorageHelper`).
 
+### Schedule Password Behavior
+- The schedule password is hashed with the shared `PasswordHasher` (PBKDF2-HMAC-SHA256,
+  100 000 iterations, 128-bit random salt), exactly like the detox password.
+- Unlike detox, wrong attempts **never** clear the password or the rules: after 5 failures
+  the settings enter a 15-minute cooldown (`AppSchedulePreferences.LOCKOUT_DURATION_MS`)
+  and `verifyPassword()` refuses every attempt until it expires. Erasing the configuration
+  on failed attempts would turn the lock into a trivial bypass, whereas a detox session is
+  time-boxed and must never trap the user.
+- The password dialogs set `FLAG_SECURE`, and the rule list is not rendered at all until
+  the password check succeeds.
+- `ScheduleBlockedActivity` intentionally offers no unlock button: rules can only be
+  changed from the password-protected settings screen.
+
 ### System-Level Blocking (`FocusAccessibilityService`)
 - An optional `AccessibilityService` (`FocusAccessibilityService`) intercepts `TYPE_WINDOW_STATE_CHANGED` events. When a blocked app is launched from outside FocusPhone (notifications, recents, voice assistants), the service immediately launches `DetoxBlockedActivity` on top, closing the bypass vector that existed when the process was killed.
 - The service is **not** enabled by default; the user is prompted to activate it when starting a Detox session.
+- The service also owns per-app usage accounting for daily limits: it accumulates foreground
+  seconds, pauses while the screen is off, persists them through `AppSchedulePreferences`,
+  and re-checks the active rule every 30 seconds (or exactly when the allowance would run
+  out) so a session is interrupted mid-use.
 
 ### Backup Policy
 - `android:allowBackup="false"` is set globally to prevent `adb backup` and cloud backup from leaking user metadata (favourite apps, themes, custom labels, profile state).

@@ -120,6 +120,7 @@ class AllAppsActivity : BaseActivity() {
         startActivity(Intent(this, DetoxBlockedActivity::class.java))
         return@AllAppsAdapter
       }
+      if (enforceAppSchedule(app.packageName, app.label)) return@AllAppsAdapter
       val launchIntent = packageManager.getLaunchIntentForPackage(app.packageName) ?: return@AllAppsAdapter
       if (ConsciousPausePreferences.isEnabled(this)) {
         val intent = Intent(this, ConsciousPauseActivity::class.java).apply {
@@ -286,6 +287,8 @@ class AllAppsActivity : BaseActivity() {
           else -> {
             val shortcutIndex = which - shortcutStartIndex
             if (shortcutIndex in shortcuts.indices) {
+              // A shortcut opens the same app, so it obeys the same schedule.
+              if (enforceAppSchedule(app.packageName, app.label)) return@setItems
               val launched = focusPhoneApp.container.getAppShortcutsUseCase.launchShortcut(shortcuts[shortcutIndex])
               if (!launched) {
                 Toast.makeText(this@AllAppsActivity, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()

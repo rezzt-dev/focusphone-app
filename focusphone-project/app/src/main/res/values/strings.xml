@@ -360,7 +360,7 @@
     <string name="settings_category_home_title">home screen</string>
     <string name="settings_category_home_subtitle">clock, widget, spacing and layout</string>
     <string name="settings_category_focus_title">focus</string>
-    <string name="settings_category_focus_subtitle">conscious pause and work mode keywords</string>
+    <string name="settings_category_focus_subtitle">conscious pause, app schedules and work mode keywords</string>
     <string name="settings_category_notifications_title">notifications</string>
     <string name="settings_category_notifications_subtitle">badges, notification panel and gestures</string>
     <string name="settings_category_system_title">system</string>
@@ -507,4 +507,65 @@ forty-one</string>
     <string name="settings_wallpaper_shared_desc">use the same image for home, notifications and settings</string>
     <string name="settings_wallpaper_shared_hint">shared wallpaper</string>
     <string name="settings_wallpaper_shared_label">same wallpaper everywhere</string>
+    <!-- Schedule-based app blocking -->
+    <string name="schedule_title">app schedules</string>
+    <string name="schedule_settings_row_title">app schedules</string>
+    <string name="schedule_settings_row_desc">limit apps to a time window or to a few minutes a day</string>
+    <string name="schedule_section_apps">scheduled apps</string>
+    <string name="schedule_section_protection">protection</string>
+    <string name="schedule_section_warning">heads up</string>
+    <string name="schedule_section_window">allowed hours</string>
+    <string name="schedule_section_limit">daily limit</string>
+    <string name="schedule_edit_title">app schedule</string>
+    <string name="schedule_empty_title">no scheduled apps</string>
+    <string name="schedule_empty_desc">pick an app to limit when, and how long, it can be used.</string>
+    <string name="schedule_add_app">add app</string>
+    <string name="schedule_add_app_desc">choose an app to restrict</string>
+    <string name="schedule_no_apps_left">every app already has a schedule</string>
+    <string name="schedule_window_switch">restrict to a time window</string>
+    <string name="schedule_window_switch_desc">the app can only be opened between these hours</string>
+    <string name="schedule_start_time">from</string>
+    <string name="schedule_start_time_desc">the app unlocks at this time</string>
+    <string name="schedule_end_time">until</string>
+    <string name="schedule_end_time_desc">the app locks again at this time</string>
+    <string name="schedule_days_label">days</string>
+    <string name="schedule_days_min_one">keep at least one day selected</string>
+    <string name="schedule_limit_switch">limit daily use</string>
+    <string name="schedule_limit_switch_desc">the allowance resets every day at midnight</string>
+    <string name="schedule_limit_value">daily limit: %1$d min</string>
+    <string name="schedule_summary_window">%1$s – %2$s</string>
+    <string name="schedule_summary_limit">%1$d min per day</string>
+    <string name="schedule_used_today">used today: %1$d of %2$d min</string>
+    <string name="schedule_action_remove">remove</string>
+    <string name="schedule_rule_saved">schedule saved</string>
+    <string name="schedule_rule_removed">schedule removed</string>
+    <string name="schedule_nothing_to_save">enable a time window or a daily limit first</string>
+    <string name="schedule_accessibility_required">system blocking is off</string>
+    <string name="schedule_accessibility_required_desc">daily limits need the focusphone accessibility service to measure app usage. tap to enable it.</string>
+
+    <!-- Schedule password -->
+    <string name="schedule_password_row_title">schedule password</string>
+    <string name="schedule_password_row_desc">change or remove the password guarding these settings</string>
+    <string name="schedule_password_change">change password</string>
+    <string name="schedule_password_remove">remove protection</string>
+    <string name="schedule_password_remove_confirm">this deletes the password and every app schedule. continue?</string>
+    <string name="schedule_password_removed">protection removed</string>
+    <string name="schedule_password_confirm_hint">repeat password</string>
+    <string name="schedule_password_too_short">use at least %1$d characters</string>
+    <string name="schedule_password_mismatch">the passwords do not match</string>
+    <string name="schedule_create_password_title">protect schedules</string>
+    <string name="schedule_create_password_desc">set a password so app schedules cannot be changed on impulse.</string>
+    <string name="schedule_unlock_title">unlock schedules</string>
+    <string name="schedule_unlock_desc">enter your password to view and edit app schedules:</string>
+    <string name="schedule_confirm_password_title">confirm password</string>
+    <string name="schedule_confirm_password_desc">enter your current password to continue:</string>
+    <string name="schedule_wrong_password">incorrect password. %1$d attempts left</string>
+    <string name="schedule_locked_out">too many attempts. try again in %1$d min</string>
+
+    <!-- Schedule block screen -->
+    <string name="schedule_blocked_label">scheduled</string>
+    <string name="schedule_blocked_window_title">outside allowed hours</string>
+    <string name="schedule_blocked_window_desc">this app is available between %1$s and %2$s.</string>
+    <string name="schedule_blocked_limit_title">daily limit reached</string>
+    <string name="schedule_blocked_limit_desc">you have used %1$d of your %2$d minutes today. the allowance resets at midnight.</string>
 </resources>

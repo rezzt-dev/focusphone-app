@@ -204,26 +204,30 @@ class ProfilePreferencesTest {
 
     @Test
     fun `sha256 different inputs produce different hashes`() {
-        val hash1 = sha256Reflect("abc")
-        val hash2 = sha256Reflect("abd")
+        val hash1 = legacySha256("abc")
+        val hash2 = legacySha256("abd")
         assertNotEquals(hash1, hash2)
     }
 
     @Test
     fun `verifyDetoxPassword upgrades legacy SHA-256 to PBKDF2`() {
         // Simulate a legacy stored hash
-        val legacyHash = sha256Reflect("mysecret")
+        val legacyHash = legacySha256("mysecret")
         // In a real context test we would call verifyDetoxPassword and assert
         // the stored value is upgraded. Here we verify the hash format transition.
         assertEquals(64, legacyHash.length)
         assertFalse(legacyHash.contains(":"))
     }
 
-    // ── Reflection helpers ────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────
 
-    private fun sha256Reflect(input: String): String {
-        val method = ProfilePreferences::class.java.getDeclaredMethod("sha256Legacy", String::class.java)
-        method.isAccessible = true
-        return method.invoke(ProfilePreferences, input) as String
-    }
+    /**
+     * Reproduces the legacy unsalted hash format that early builds stored.
+     * Verification of that format now lives in
+     * [app.focusphone.security.PasswordHasher] and is covered by its own tests.
+     */
+    private fun legacySha256(input: String): String =
+        MessageDigest.getInstance("SHA-256")
+            .digest(input.toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it) }
 }

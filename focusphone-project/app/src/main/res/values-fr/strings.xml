@@ -374,7 +374,7 @@
     <string name="settings_category_about_title">à propos</string>
     <string name="settings_category_appearance_subtitle">thème, police, couleurs et alignement</string>
     <string name="settings_category_appearance_title">apparence</string>
-    <string name="settings_category_focus_subtitle">pause consciente et mots-clés du mode travail</string>
+    <string name="settings_category_focus_subtitle">pause consciente, horaires des applis et mots-clés du mode travail</string>
     <string name="settings_category_focus_title">focus</string>
     <string name="settings_category_home_subtitle">horloge, widget, espacement et disposition</string>
     <string name="settings_category_home_title">écran d\'accueil</string>
@@ -509,4 +509,65 @@ quarante et une</string>
         <item>cinquante-huit</item>
         <item>cinquante-neuf</item>
     </string-array>
+    <!-- Blocage des applis par horaire -->
+    <string name="schedule_title">horaires des applis</string>
+    <string name="schedule_settings_row_title">horaires des applis</string>
+    <string name="schedule_settings_row_desc">limitez une appli à une plage horaire ou à quelques minutes par jour</string>
+    <string name="schedule_section_apps">applis planifiées</string>
+    <string name="schedule_section_protection">protection</string>
+    <string name="schedule_section_warning">à noter</string>
+    <string name="schedule_section_window">heures autorisées</string>
+    <string name="schedule_section_limit">limite quotidienne</string>
+    <string name="schedule_edit_title">horaire de l\'appli</string>
+    <string name="schedule_empty_title">aucune appli planifiée</string>
+    <string name="schedule_empty_desc">choisissez une appli pour limiter quand et combien de temps elle peut être utilisée.</string>
+    <string name="schedule_add_app">ajouter une appli</string>
+    <string name="schedule_add_app_desc">choisissez une appli à restreindre</string>
+    <string name="schedule_no_apps_left">toutes les applis ont déjà un horaire</string>
+    <string name="schedule_window_switch">limiter à une plage horaire</string>
+    <string name="schedule_window_switch_desc">l\'appli ne peut être ouverte qu\'entre ces heures</string>
+    <string name="schedule_start_time">de</string>
+    <string name="schedule_start_time_desc">l\'appli se déverrouille à cette heure</string>
+    <string name="schedule_end_time">à</string>
+    <string name="schedule_end_time_desc">l\'appli se verrouille de nouveau à cette heure</string>
+    <string name="schedule_days_label">jours</string>
+    <string name="schedule_days_min_one">gardez au moins un jour sélectionné</string>
+    <string name="schedule_limit_switch">limiter l\'usage quotidien</string>
+    <string name="schedule_limit_switch_desc">le quota est réinitialisé chaque jour à minuit</string>
+    <string name="schedule_limit_value">limite quotidienne : %1$d min</string>
+    <string name="schedule_summary_window">%1$s – %2$s</string>
+    <string name="schedule_summary_limit">%1$d min par jour</string>
+    <string name="schedule_used_today">utilisé aujourd\'hui : %1$d sur %2$d min</string>
+    <string name="schedule_action_remove">supprimer</string>
+    <string name="schedule_rule_saved">horaire enregistré</string>
+    <string name="schedule_rule_removed">horaire supprimé</string>
+    <string name="schedule_nothing_to_save">activez d\'abord une plage horaire ou une limite quotidienne</string>
+    <string name="schedule_accessibility_required">le blocage système est désactivé</string>
+    <string name="schedule_accessibility_required_desc">les limites quotidiennes ont besoin du service d\'accessibilité focusphone pour mesurer l\'usage. touchez pour l\'activer.</string>
+
+    <!-- Mot de passe des horaires -->
+    <string name="schedule_password_row_title">mot de passe des horaires</string>
+    <string name="schedule_password_row_desc">changez ou supprimez le mot de passe qui protège ces réglages</string>
+    <string name="schedule_password_change">changer le mot de passe</string>
+    <string name="schedule_password_remove">retirer la protection</string>
+    <string name="schedule_password_remove_confirm">cela supprime le mot de passe et tous les horaires. continuer ?</string>
+    <string name="schedule_password_removed">protection retirée</string>
+    <string name="schedule_password_confirm_hint">répétez le mot de passe</string>
+    <string name="schedule_password_too_short">utilisez au moins %1$d caractères</string>
+    <string name="schedule_password_mismatch">les mots de passe ne correspondent pas</string>
+    <string name="schedule_create_password_title">protéger les horaires</string>
+    <string name="schedule_create_password_desc">définissez un mot de passe pour ne pas modifier les horaires sur un coup de tête.</string>
+    <string name="schedule_unlock_title">déverrouiller les horaires</string>
+    <string name="schedule_unlock_desc">entrez votre mot de passe pour voir et modifier les horaires :</string>
+    <string name="schedule_confirm_password_title">confirmer le mot de passe</string>
+    <string name="schedule_confirm_password_desc">entrez votre mot de passe actuel pour continuer :</string>
+    <string name="schedule_wrong_password">mot de passe incorrect. %1$d tentatives restantes</string>
+    <string name="schedule_locked_out">trop de tentatives. réessayez dans %1$d min</string>
+
+    <!-- Écran de blocage par horaire -->
+    <string name="schedule_blocked_label">planifiée</string>
+    <string name="schedule_blocked_window_title">hors des heures autorisées</string>
+    <string name="schedule_blocked_window_desc">cette appli est disponible entre %1$s et %2$s.</string>
+    <string name="schedule_blocked_limit_title">limite quotidienne atteinte</string>
+    <string name="schedule_blocked_limit_desc">vous avez utilisé %1$d de vos %2$d minutes aujourd\'hui. le quota repart à minuit.</string>
 </resources>

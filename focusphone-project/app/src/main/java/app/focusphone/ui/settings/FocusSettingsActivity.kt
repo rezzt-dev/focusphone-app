@@ -1,5 +1,6 @@
 package app.focusphone.ui.settings
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
@@ -8,10 +9,11 @@ import app.focusphone.R
 import app.focusphone.data.preferences.ConsciousPausePreferences
 import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.databinding.SettingsSliderRowBinding
+import app.focusphone.ui.schedule.AppScheduleActivity
 import com.google.android.material.slider.Slider
 
 /**
- * Focus screen: conscious pause (toggle + duration) and work-mode keywords.
+ * Focus screen: conscious pause (toggle + duration), app schedules and work-mode keywords.
  */
 class FocusSettingsActivity : SettingsSubActivity() {
 
@@ -54,6 +56,18 @@ class FocusSettingsActivity : SettingsSubActivity() {
         }
         durationSlider = durationBinding.slider
         container.addView(durationBinding.root)
+
+        container.addView(inflater.inflate(R.layout.settings_divider, container, false))
+
+        // ── App Schedules ────────────────────────────────────────────
+        container.addSectionHeader(R.string.schedule_section_apps)
+
+        container.addCategoryRow(
+            iconResId = R.drawable.ic_settings_schedule,
+            titleResId = R.string.schedule_settings_row_title,
+            subtitleResId = R.string.schedule_settings_row_desc,
+            onClick = { startActivity(Intent(this, AppScheduleActivity::class.java)) }
+        )
 
         container.addView(inflater.inflate(R.layout.settings_divider, container, false))
 

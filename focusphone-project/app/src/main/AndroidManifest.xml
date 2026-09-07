@@ -72,6 +72,18 @@
             android:exported="false"
             android:launchMode="singleTop" />
 
+        <!-- ── App Schedule Activities (time-based blocking) ───────── -->
+        <activity
+            android:name=".ui.schedule.AppScheduleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.schedule.AppScheduleEditActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.schedule.ScheduleBlockedActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
         <!-- ── Home Layout Activity ───────────────────────────────── -->
         <activity
             android:name=".ui.settings.HomeLayoutActivity"

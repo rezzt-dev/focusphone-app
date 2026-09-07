@@ -1171,6 +1171,8 @@ class HomeActivity : BaseActivity() {
             return
         }
 
+        if (enforceAppSchedule(item.packageName, item.appName)) return
+
         val launchIntent = packageManager.getLaunchIntentForPackage(item.packageName)
         if (launchIntent == null) {
             Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
@@ -1219,6 +1221,7 @@ class HomeActivity : BaseActivity() {
             startActivity(Intent(this, DetoxBlockedActivity::class.java))
             return
         }
+        if (enforceAppSchedule(app.packageName, app.label)) return
         val launchIntent = packageManager.getLaunchIntentForPackage(app.packageName) ?: return
         if (ConsciousPausePreferences.isEnabled(this)) {
             val intent = Intent(this, ConsciousPauseActivity::class.java).apply {
@@ -1300,6 +1303,8 @@ class HomeActivity : BaseActivity() {
                     // Shortcut item
                     val shortcutIndex = item.itemId - MENU_ID_SHORTCUT_BASE
                     if (shortcutIndex in shortcuts.indices) {
+                        // A shortcut opens the same app, so it obeys the same schedule.
+                        if (enforceAppSchedule(app.packageName, app.label)) return@setOnMenuItemClickListener true
                         val launched = focusPhoneApp.container.getAppShortcutsUseCase.launchShortcut(shortcuts[shortcutIndex])
                         if (!launched) {
                             Toast.makeText(this@HomeActivity, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()

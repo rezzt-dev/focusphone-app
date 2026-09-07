@@ -64,6 +64,7 @@
 - **dynamic reordering**: long-press and drag favorite apps on the home screen to instantly sort them.
 - **premium themes**: swap between beautifully crafted color palettes (slate, navy, warm beige, and off-white).
 - **modern typography**: seamless integration of downloadable fonts (poppins, comfortaa, figtree, jetbrains mono, space mono).
+- **app schedules**: allow an app only inside a time window (weekdays included) or for a few minutes a day, protected by a password so limits cannot be undone on impulse.
 
 ### technical highlights
 - **clean architecture**: distinct separation of concerns dividing data, domain, and presentation layers.
