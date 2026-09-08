@@ -1,6 +1,7 @@
 package app.focusphone.ui.allapps.adapter
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -66,12 +67,13 @@ class AllAppsAdapter(
                 row.appCount.toString()
             }
 
-            // The caret points right when collapsed and down when expanded.
-            b.tvCaret.rotation = if (row.expanded) 90f else 0f
+            b.ivFolder.setImageResource(
+                if (row.expanded) R.drawable.ic_folder_open else R.drawable.ic_folder_closed
+            )
 
             b.tvName.setTextColor(primaryTextColor(context))
             b.tvCount.setTextColor(secondaryTextColor(context))
-            b.tvCaret.setTextColor(secondaryTextColor(context))
+            b.ivFolder.imageTintList = ColorStateList.valueOf(secondaryTextColor(context))
 
             b.root.contentDescription = context.getString(R.string.cd_folder_item, row.folder.name)
             b.root.setOnClickListener { onFolderTap(row.folder) }
@@ -115,7 +117,7 @@ class AllAppsAdapter(
 
     private fun secondaryTextColor(context: Context): Int =
         if (ThemePreferences.getTheme(context) == ThemePreferences.THEME_CUSTOM) {
-            // Custom themes only define one foreground colour; dim it so the caret and
+            // Custom themes only define one foreground colour; dim it so the folder icon and
             // the app count stay secondary to the folder name.
             ColorUtils.setAlphaComponent(ThemePreferences.getCustomForegroundColor(context), 0x99)
         } else {
