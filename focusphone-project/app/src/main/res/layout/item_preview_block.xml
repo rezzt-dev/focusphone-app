@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_block"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="0dp"
+    app:strokeColor="?android:attr/textColorPrimary"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:contentPadding="0dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Label centrado -->
+        <TextView
+            android:id="@+id/tv_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="sans-serif"
+            android:letterSpacing="0.01"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="14sp"
+            tools:text="clock" />
+
+        <!-- Overlay para componentes ocultos en modo edición -->
+        <View
+            android:id="@+id/overlay_hidden"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?android:attr/colorBackground"
+            android:alpha="0.55"
+            android:visibility="gone" />
+
+        <!-- Botón de visibilidad (ojo) -->
+        <ImageButton
+            android:id="@+id/btn_visibility"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_toggle_visibility"
+            android:padding="6dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_eye_open"
+            android:visibility="gone"
+            app:tint="?android:attr/textColorPrimary" />
+
+    </FrameLayout>
+
+</com.google.android.material.card.MaterialCardView>

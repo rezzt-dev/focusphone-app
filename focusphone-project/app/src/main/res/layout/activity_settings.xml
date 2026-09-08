@@ -2,9 +2,33 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/android:colorBackground">
+    android:background="@android:color/transparent">
+
+    <!-- Wallpaper behind the settings screen -->
+    <ImageView
+        android:id="@+id/iv_wallpaper_settings"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Subtle scrim so text and controls remain readable over the wallpaper -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="?android:attr/colorBackground"
+        android:alpha="0.85"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- ── Toolbar ─────────────────────────────────────────────── -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -29,7 +53,7 @@
             android:paddingStart="20dp"
             android:paddingEnd="12dp"
             android:text="@string/settings_back"
-            android:textColor="?attr/android:textColorSecondary"
+            android:textColor="?android:attr/textColorSecondary"
             android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -41,7 +65,7 @@
             android:fontFamily="sans-serif"
             android:letterSpacing="0.04"
             android:text="@string/settings_title"
-            android:textColor="?attr/android:textColorPrimary"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -55,7 +79,7 @@
         android:layout_width="0dp"
         android:layout_height="0.5dp"
         android:alpha="0.12"
-        android:background="?attr/android:textColorPrimary"
+        android:background="?android:attr/textColorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
@@ -65,735 +89,36 @@
         android:id="@+id/scroll_content"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:overScrollMode="never"
         android:clipToPadding="false"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:overScrollMode="never"
+        app:layout_constraintBottom_toTopOf="@id/tv_developed_by"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider_toolbar">
 
         <LinearLayout
+            android:id="@+id/content_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="56dp">
+            android:paddingBottom="56dp"
+            tools:ignore="UselessLeaf" />
 
-            <!-- ═══ APPEARANCE ══════════════════════════════════════ -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:letterSpacing="0.14"
-                android:paddingStart="24dp"
-                android:paddingTop="32dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="12dp"
-                android:text="@string/settings_section_appearance"
-                android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
-                android:textSize="11sp" />
-
-            <!-- Theme Dialog Selector Row -->
-            <LinearLayout
-                android:id="@+id/btn_toggle_theme"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:minHeight="56dp"
-                android:orientation="horizontal"
-                android:paddingStart="24dp"
-                android:paddingEnd="24dp">
-
-                <TextView
-                    android:id="@+id/tv_active_theme_label"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="@string/settings_theme_label"
-                    android:textColor="?attr/android:textColorPrimary"
-                    android:textSize="15sp" />
-
-                <!-- Preview Circle of Current Theme -->
-                <View
-                    android:id="@+id/view_active_theme_circle_preview"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="12dp"
-                    android:background="@drawable/bg_theme_card_slate" />
-
-                <TextView
-                    android:id="@+id/tv_active_theme_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
-                    android:textSize="14sp"
-                    android:text="slate" />
-            </LinearLayout>
-
-            <!-- Expandable "personalizar tema" panel -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:paddingStart="24dp"
-                android:paddingEnd="24dp"
-                android:orientation="vertical">
-
-                <!-- Header toggle -->
-                <LinearLayout
-                    android:id="@+id/btn_toggle_custom_theme"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="personalizar tema"
-                        android:textColor="?attr/android:textColorSecondary"
-                        android:textSize="14sp"
-                        android:fontFamily="sans-serif-light"
-                        android:letterSpacing="0.04" />
-
-                    <ImageView
-                        android:id="@+id/iv_custom_theme_toggle_indicator"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_chevron_down"
-                        app:tint="?attr/android:textColorSecondary" />
-                </LinearLayout>
-
-                <!-- Collapsible body -->
-                <LinearLayout
-                    android:id="@+id/layout_custom_theme_panel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="16dp"
-                    android:visibility="gone">
-
-                    <!-- Background color row -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <!-- Left Color Circle Container with Border -->
-                        <FrameLayout
-                            android:layout_width="26dp"
-                            android:layout_height="26dp"
-                            android:background="@drawable/bg_circle_border">
-
-                            <View
-                                android:id="@+id/view_custom_bg_preview"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:layout_gravity="center"
-                                android:background="@drawable/bg_circle_fill" />
-                        </FrameLayout>
-
-                        <TextView
-                            android:layout_width="128dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:text="background color"
-                            android:textColor="?attr/android:textColorPrimary"
-                            android:alpha="0.8"
-                            android:textSize="14sp"
-                            android:fontFamily="sans-serif" />
-                        <EditText
-                            android:id="@+id/et_custom_bg_color"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@null"
-                            android:fontFamily="sans-serif-medium"
-                            android:hint="#181818"
-                            android:maxLength="7"
-                            android:textColor="?attr/android:textColorPrimary"
-                            android:textColorHint="?attr/android:textColorSecondary"
-                            android:textSize="15sp"
-                            android:letterSpacing="0.04"
-                            android:inputType="textCapCharacters"
-                            android:digits="#0123456789abcdefABCDEF" />
-                    </LinearLayout>
-
-                    <!-- Foreground color row -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginTop="8dp">
-
-                        <!-- Left Color Circle Container with Border -->
-                        <FrameLayout
-                            android:layout_width="26dp"
-                            android:layout_height="26dp"
-                            android:background="@drawable/bg_circle_border">
-
-                            <View
-                                android:id="@+id/view_custom_fg_preview"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:layout_gravity="center"
-                                android:background="@drawable/bg_circle_fill" />
-                        </FrameLayout>
-
-                        <TextView
-                            android:layout_width="128dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:text="foreground color"
-                            android:textColor="?attr/android:textColorPrimary"
-                            android:alpha="0.8"
-                            android:textSize="14sp"
-                            android:fontFamily="sans-serif" />
-                        <EditText
-                            android:id="@+id/et_custom_fg_color"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@null"
-                            android:fontFamily="sans-serif-medium"
-                            android:hint="#FAFAFA"
-                            android:maxLength="7"
-                            android:textColor="?attr/android:textColorPrimary"
-                            android:textColorHint="?attr/android:textColorSecondary"
-                            android:textSize="15sp"
-                            android:letterSpacing="0.04"
-                            android:inputType="textCapCharacters"
-                            android:digits="#0123456789abcdefABCDEF" />
-                    </LinearLayout>
-
-                    <!-- Apply action -->
-                    <TextView
-                        android:id="@+id/btn_apply_custom_theme"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="16dp"
-                        android:minWidth="64dp"
-                        android:minHeight="36dp"
-                        android:gravity="center"
-                        android:text="apply"
-                        android:textColor="?attr/android:textColorPrimary"
-                        android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Text Alignment -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:paddingStart="24dp"
-                android:paddingEnd="24dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/settings_alignment"
-                    android:textColor="?attr/android:textColorSecondary"
-                    android:textAllCaps="true"
-                    android:letterSpacing="0.14"
-                    android:textSize="11sp"
-                    android:fontFamily="sans-serif" />
-
-                <!-- Segmented Control Container -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_segmented_control"
-                    android:orientation="horizontal"
-                    android:padding="4dp">
-
-                    <ImageView
-                        android:id="@+id/btn_align_left"
-                        android:layout_width="72dp"
-                        android:layout_height="32dp"
-                        android:scaleType="centerInside"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"
-                        android:src="@drawable/ic_align_left"
-                        app:tint="@color/color_segmented_text"
-                        android:background="@drawable/bg_segmented_item" />
-
-                    <ImageView
-                        android:id="@+id/btn_align_center"
-                        android:layout_width="72dp"
-                        android:layout_height="32dp"
-                        android:scaleType="centerInside"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"
-                        android:src="@drawable/ic_align_center"
-                        app:tint="@color/color_segmented_text"
-                        android:background="@drawable/bg_segmented_item" />
-
-                    <ImageView
-                        android:id="@+id/btn_align_right"
-                        android:layout_width="72dp"
-                        android:layout_height="32dp"
-                        android:scaleType="centerInside"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"
-                        android:src="@drawable/ic_align_right"
-                        app:tint="@color/color_segmented_text"
-                        android:background="@drawable/bg_segmented_item" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Status Bar Toggle -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:paddingStart="24dp"
-                android:paddingEnd="24dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/settings_hide_status_bar"
-                        android:textColor="?attr/android:textColorPrimary"
-                        android:textSize="16sp"
-                        android:fontFamily="sans-serif" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="@string/settings_hide_status_bar_desc"
-                        android:textColor="?attr/android:textColorSecondary"
-                        android:textSize="13sp"
-                        android:fontFamily="sans-serif" />
-                </LinearLayout>
-
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switch_hide_status_bar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:thumbTint="@color/color_switch_thumb"
-                    app:trackTint="@color/color_switch_track" />
-            </LinearLayout>
-
-            <!-- Section divider -->
-            <View android:layout_width="match_parent" android:layout_height="0.5dp"
-                android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-                android:layout_marginTop="20dp" android:layout_marginBottom="0dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
-
-            <!-- ═══ CLOCK TYPE ══════════════════════════════════════ -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:letterSpacing="0.14"
-                android:paddingStart="24dp"
-                android:paddingTop="28dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="12dp"
-                android:text="@string/settings_section_clock"
-                android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
-                android:textSize="11sp" />
-
-            <!-- Clock type tiles: inflated programmatically into this container -->
-            <LinearLayout
-                android:id="@+id/clock_type_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:paddingBottom="4dp" />
-
-            <!-- Clock Size Slider -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:letterSpacing="0.14"
-                android:paddingStart="24dp"
-                android:paddingTop="16dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="4dp"
-                android:text="@string/settings_clock_size"
-                android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
-                android:textSize="11sp" />
-
-            <com.google.android.material.slider.Slider
-                android:id="@+id/slider_clock_size"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:valueFrom="0.0"
-                android:valueTo="100.0"
-                android:stepSize="1.0"
-                app:thumbRadius="6dp"
-                app:trackHeight="4dp"
-                app:tickVisible="false"
-                app:haloColor="#1AFFFFFF"
-                app:thumbColor="?attr/android:textColorPrimary"
-                app:trackColorActive="?attr/android:textColorPrimary"
-                app:trackColorInactive="?attr/android:textColorSecondary" />
-
-            <!-- Text Size Slider -->
-            <TextView
-                android:id="@+id/tv_text_size_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:letterSpacing="0.14"
-                android:paddingStart="24dp"
-                android:paddingTop="16dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="4dp"
-                android:text="@string/settings_text_size"
-                android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
-                android:textSize="11sp" />
-
-            <com.google.android.material.slider.Slider
-                android:id="@+id/slider_text_size"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:valueFrom="8.0"
-                android:valueTo="24.0"
-                android:stepSize="1.0"
-                app:thumbRadius="6dp"
-                app:trackHeight="4dp"
-                app:tickVisible="false"
-                app:haloColor="#1AFFFFFF"
-                app:thumbColor="?attr/android:textColorPrimary"
-                app:trackColorActive="?attr/android:textColorPrimary"
-                app:trackColorInactive="?attr/android:textColorSecondary" />
-
-            <View android:layout_width="match_parent" android:layout_height="0.5dp"
-                android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-                android:layout_marginTop="20dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
-
-            <!-- ═══ CONSCIOUS PAUSE ═════════════════════════════════ -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:letterSpacing="0.14"
-                android:paddingStart="24dp"
-                android:paddingTop="28dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="12dp"
-                android:text="@string/settings_section_conscious_pause"
-                android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
-                android:textSize="11sp" />
-
-            <!-- Conscious Pause Toggle -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="24dp"
-                android:paddingEnd="24dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/settings_conscious_pause_title"
-                        android:textColor="?attr/android:textColorPrimary"
-                        android:textSize="16sp"
-                        android:fontFamily="sans-serif" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="@string/settings_conscious_pause_desc"
-                        android:textColor="?attr/android:textColorSecondary"
-                        android:textSize="13sp"
-                        android:fontFamily="sans-serif" />
-                </LinearLayout>
-
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switch_conscious_pause"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:thumbTint="@color/color_switch_thumb"
-                    app:trackTint="@color/color_switch_track" />
-            </LinearLayout>
-
-            <!-- Conscious Pause Duration (Slider) -->
-            <TextView
-                android:id="@+id/tv_conscious_pause_duration_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:letterSpacing="0.14"
-                android:paddingStart="24dp"
-                android:paddingTop="16dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="4dp"
-                android:text="@string/settings_conscious_pause_duration"
-                android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
-                android:textSize="11sp" />
-
-            <com.google.android.material.slider.Slider
-                android:id="@+id/slider_conscious_pause_duration"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:valueFrom="3.0"
-                android:valueTo="10.0"
-                android:stepSize="1.0"
-                app:thumbRadius="6dp"
-                app:trackHeight="4dp"
-                app:tickVisible="false"
-                app:haloColor="#1AFFFFFF"
-                app:thumbColor="?attr/android:textColorPrimary"
-                app:trackColorActive="?attr/android:textColorPrimary"
-                app:trackColorInactive="?attr/android:textColorSecondary" />
-
-            <View android:layout_width="match_parent" android:layout_height="0.5dp"
-                android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-                android:layout_marginTop="20dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
-
-
-            <!-- ═══ LANGUAGE ═══════════════════════════════════════ -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:letterSpacing="0.14"
-                android:paddingStart="24dp"
-                android:paddingTop="28dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="8dp"
-                android:text="@string/settings_section_language"
-                android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
-                android:textSize="11sp" />
-
-            <!-- Language Dropdown Toggle Button -->
-            <LinearLayout
-                android:id="@+id/btn_toggle_language"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:minHeight="48dp"
-                android:orientation="horizontal"
-                android:paddingStart="24dp"
-                android:paddingEnd="24dp">
-
-                <TextView
-                    android:id="@+id/tv_active_language_label"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="@string/settings_language_system"
-                    android:textColor="?attr/android:textColorPrimary"
-                    android:textSize="15sp" />
-
-                <ImageView
-                    android:id="@+id/iv_language_toggle_indicator"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_chevron_down"
-                    app:tint="?attr/android:textColorSecondary" />
-            </LinearLayout>
-
-            <!-- Language items: inflated programmatically, collapsed by default -->
-            <LinearLayout
-                android:id="@+id/language_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingStart="40dp"
-                android:paddingEnd="24dp"
-                android:visibility="gone" />
-
-            <View android:layout_width="match_parent" android:layout_height="0.5dp"
-                android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-                android:layout_marginTop="20dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
-
-            <!-- ═══ TUTORIAL ════════════════════════════════════════ -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:letterSpacing="0.14"
-                android:paddingStart="24dp"
-                android:paddingTop="28dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="4dp"
-                android:text="@string/settings_section_tutorial"
-                android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
-                android:textSize="11sp" />
-
-            <LinearLayout
-                android:id="@+id/item_tutorial"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:minHeight="56dp"
-                android:orientation="horizontal"
-                android:paddingStart="24dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="12dp"
-                android:clickable="true"
-                android:focusable="true">
-
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif" android:textSize="16sp"
-                        android:textColor="?attr/android:textColorPrimary"
-                        android:text="@string/settings_tutorial_title" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif" android:textSize="13sp"
-                        android:layout_marginTop="2dp"
-                        android:textColor="?attr/android:textColorSecondary"
-                        android:text="@string/settings_tutorial_desc" />
-                </LinearLayout>
-
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
-                    android:textSize="20sp"
-                    android:text="›" />
-            </LinearLayout>
-
-            <View android:layout_width="match_parent" android:layout_height="0.5dp"
-                android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
-
-            <!-- ═══ LAUNCHER ════════════════════════════════════════ -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:letterSpacing="0.14"
-                android:paddingStart="24dp"
-                android:paddingTop="28dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="4dp"
-                android:text="@string/settings_section_launcher"
-                android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
-                android:textSize="11sp" />
-
-            <LinearLayout
-                android:id="@+id/item_set_default_launcher"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:gravity="center_vertical"
-                android:minHeight="56dp"
-                android:orientation="horizontal"
-                android:paddingStart="24dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="12dp">
-
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif" android:textSize="16sp"
-                        android:textColor="?attr/android:textColorPrimary"
-                        android:text="@string/settings_set_default" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif" android:textSize="13sp"
-                        android:layout_marginTop="2dp"
-                        android:textColor="?attr/android:textColorSecondary"
-                        android:text="@string/settings_set_default_desc" />
-                </LinearLayout>
-
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif"
-                    android:textColor="?attr/android:textColorSecondary"
-                    android:textSize="20sp"
-                    android:text="›" />
-            </LinearLayout>
-
-            <View android:layout_width="match_parent" android:layout_height="0.5dp"
-                android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-                android:alpha="0.12" android:background="?attr/android:textColorPrimary" />
-
-            <!-- ═══ ABOUT ════════════════════════════════════════════ -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:letterSpacing="0.14"
-                android:paddingStart="24dp"
-                android:paddingTop="28dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="4dp"
-                android:text="@string/settings_section_about"
-                android:textAllCaps="true"
-                android:textColor="?attr/android:textColorSecondary"
-                android:textSize="11sp" />
-
-            <TextView
-                android:id="@+id/tv_version"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:paddingStart="24dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="16dp"
-                android:textColor="?attr/android:textColorSecondary"
-                android:textSize="14sp" />
-
-        </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- ── Developed by ──────────────────────────────────────────── -->
+    <TextView
+        android:id="@+id/tv_developed_by"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingVertical="16dp"
+        android:text="@string/settings_developed_by"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

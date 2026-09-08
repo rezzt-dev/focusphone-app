@@ -18,7 +18,7 @@
         android:paddingEnd="16dp"
         android:fontFamily="sans-serif-medium"
         android:text="@string/theme_select_title"
-        android:textColor="?attr/android:textColorPrimary"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="20sp"
         android:letterSpacing="0.02" />
 
@@ -26,7 +26,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/android:textColorSecondary"
+        android:background="?android:attr/textColorSecondary"
         android:alpha="0.15"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp" />
@@ -57,7 +57,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
             android:text="@string/settings_theme_off_white"
-            android:textColor="?attr/android:textColorPrimary"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="17sp" />
     </LinearLayout>
 
@@ -65,7 +65,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/android:textColorSecondary"
+        android:background="?android:attr/textColorSecondary"
         android:alpha="0.1"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp" />
@@ -96,7 +96,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
             android:text="@string/settings_theme_slate"
-            android:textColor="?attr/android:textColorPrimary"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="17sp" />
     </LinearLayout>
 
@@ -104,7 +104,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/android:textColorSecondary"
+        android:background="?android:attr/textColorSecondary"
         android:alpha="0.1"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp" />
@@ -135,7 +135,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
             android:text="@string/settings_theme_warm_beige"
-            android:textColor="?attr/android:textColorPrimary"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="17sp" />
     </LinearLayout>
 
@@ -143,7 +143,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/android:textColorSecondary"
+        android:background="?android:attr/textColorSecondary"
         android:alpha="0.1"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp" />
@@ -174,7 +174,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
             android:text="@string/settings_theme_navy"
-            android:textColor="?attr/android:textColorPrimary"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="17sp" />
     </LinearLayout>
 
@@ -182,7 +182,46 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/android:textColorSecondary"
+        android:background="?android:attr/textColorSecondary"
+        android:alpha="0.1"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Option: Auto -->
+    <LinearLayout
+        android:id="@+id/btn_theme_auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <View
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="@drawable/bg_theme_card_slate"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/settings_theme_auto"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="17sp" />
+    </LinearLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/textColorSecondary"
         android:alpha="0.1"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp" />
@@ -213,8 +252,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
-            android:text="custom"
-            android:textColor="?attr/android:textColorPrimary"
+            android:text="@string/settings_theme_custom"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="17sp" />
     </LinearLayout>
 

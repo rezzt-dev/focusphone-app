@@ -1,25 +1,28 @@
 package app.focusphone.ui.pause
 
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.lifecycleScope
 import app.focusphone.R
 import app.focusphone.data.preferences.ConsciousPausePreferences
 import app.focusphone.databinding.ActivityConsciousPauseBinding
 import app.focusphone.ui.base.BaseActivity
+import app.focusphone.ui.home.HomeActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * Conscious pause screen.
+ * Displays a calm countdown before launching the target app,
+ * giving the user a moment to reflect.
+ */
 class ConsciousPauseActivity : BaseActivity() {
 
     private lateinit var binding: ActivityConsciousPauseBinding
     private var countdownJob: Job? = null
-    private var scaleAnimator: AnimatorSet? = null
     private var remainingSeconds: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,16 +31,22 @@ class ConsciousPauseActivity : BaseActivity() {
         setContentView(binding.root)
         setupInsets()
 
-        val appLabel = intent.getStringExtra("app_label") ?: "app"
+        val appLabel = intent.getStringExtra("app_label") ?: getString(R.string.app_unknown)
         binding.tvMindfulQuestion.text = getString(R.string.pause_mindful_question, appLabel.lowercase())
 
-        binding.btnCancel.setOnClickListener {
-            finish()
+        binding.btnBack.setOnClickListener {
+            navigateHome()
         }
 
-        startBreathingAnimation()
         remainingSeconds = savedInstanceState?.getInt(KEY_REMAINING, -1) ?: -1
         startCountdown()
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+            }
+        })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -53,24 +62,6 @@ class ConsciousPauseActivity : BaseActivity() {
         }
     }
 
-    private fun startBreathingAnimation() {
-        val animX = ObjectAnimator.ofFloat(binding.viewBreathingCircle, "scaleX", 0.9f, 1.15f).apply {
-            duration = 2000
-            repeatMode = ValueAnimator.REVERSE
-            repeatCount = ValueAnimator.INFINITE
-        }
-        val animY = ObjectAnimator.ofFloat(binding.viewBreathingCircle, "scaleY", 0.9f, 1.15f).apply {
-            duration = 2000
-            repeatMode = ValueAnimator.REVERSE
-            repeatCount = ValueAnimator.INFINITE
-        }
-
-        scaleAnimator = AnimatorSet().apply {
-            playTogether(animX, animY)
-            start()
-        }
-    }
-
     private fun startCountdown() {
         countdownJob = lifecycleScope.launch {
             var remaining = if (remainingSeconds > 0) remainingSeconds else ConsciousPausePreferences.getDuration(this@ConsciousPauseActivity)
@@ -78,7 +69,6 @@ class ConsciousPauseActivity : BaseActivity() {
                 remainingSeconds = remaining
                 binding.tvCountdown.text = remaining.toString()
 
-                // Breathe-synchronized visual guidance (4-second total cycle: 2s inhale, 2s exhale)
                 val stateText = when (remaining % 4) {
                     0, 3 -> getString(R.string.pause_inhale)
                     else -> getString(R.string.pause_exhale)
@@ -109,7 +99,14 @@ class ConsciousPauseActivity : BaseActivity() {
             }
         }
         finish()
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+    }
+
+    private fun navigateHome() {
+        val intent = Intent(this, HomeActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        startActivity(intent)
+        finish()
     }
 
     companion object {
@@ -117,14 +114,7 @@ class ConsciousPauseActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         countdownJob?.cancel()
-        scaleAnimator?.cancel()
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        // Pressing back cancels the launch and goes back to home screen
-        super.onBackPressed()
+        super.onDestroy()
     }
 }

@@ -5,7 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/android:colorBackground">
+    android:background="@android:color/transparent">
+
+    <!-- Wallpaper behind the whole home screen (including open drawers) -->
+    <ImageView
+        android:id="@+id/iv_wallpaper_home"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
 
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
@@ -13,10 +21,13 @@
         android:layout_height="match_parent">
 
     <!-- MAIN CONTENT -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/root_home"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@android:color/transparent"
+        android:gravity="center_vertical">
 
         <!--
             CLOCK CONTAINER — fills top 38% of screen.
@@ -25,13 +36,10 @@
         -->
         <FrameLayout
             android:id="@+id/clock_container"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            android:layout_marginBottom="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
 
             <!-- ── TYPE 1: Digital (HH:mm + date) ─────────────────── -->
             <LinearLayout
@@ -48,7 +56,7 @@
                     android:fontFamily="sans-serif"
                     android:includeFontPadding="false"
                     android:letterSpacing="-0.03"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="56sp"
                     tools:text="09:41" />
 
@@ -59,7 +67,7 @@
                     android:layout_marginTop="6dp"
                     android:fontFamily="sans-serif"
                     android:letterSpacing="0.04"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="16sp"
                     tools:text="Tuesday, 5 May" />
             </LinearLayout>
@@ -81,7 +89,7 @@
                     android:includeFontPadding="false"
                     android:letterSpacing="-0.04"
                     android:lineSpacingMultiplier="0.85"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="76sp"
                     tools:text="09" />
 
@@ -93,7 +101,7 @@
                     android:includeFontPadding="false"
                     android:letterSpacing="-0.04"
                     android:lineSpacingMultiplier="0.85"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="76sp"
                     tools:text="41" />
 
@@ -104,7 +112,7 @@
                     android:layout_marginTop="8dp"
                     android:fontFamily="sans-serif"
                     android:letterSpacing="0.04"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="16sp"
                     tools:text="Tuesday, 5 May" />
             </LinearLayout>
@@ -127,7 +135,7 @@
                     android:fontFamily="sans-serif"
                     android:gravity="center"
                     android:lineSpacingMultiplier="1.1"
-                    android:textColor="?attr/android:textColorPrimary"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textSize="34sp"
                     tools:text="nine\nforty-one" />
 
@@ -139,7 +147,7 @@
                     android:fontFamily="sans-serif"
                     android:letterSpacing="0.04"
                     android:gravity="center"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="16sp"
                     tools:text="tuesday, 5 may" />
             </LinearLayout>
@@ -160,7 +168,8 @@
                     android:layout_marginStart="52dp"
                     android:layout_marginEnd="52dp"
                     android:layout_marginTop="8dp"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="4dp"
+                    android:contentDescription="@string/cd_analog_clock" />
 
                 <TextView
                     android:id="@+id/tv_analog_date"
@@ -169,24 +178,31 @@
                     android:layout_marginBottom="8dp"
                     android:fontFamily="sans-serif"
                     android:letterSpacing="0.04"
-                    android:textColor="?attr/android:textColorSecondary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="16sp"
                     tools:text="Tuesday, 5 May" />
             </LinearLayout>
 
         </FrameLayout>
 
+        <!-- Widget container ───────────────────────────────────────────── -->
+        <FrameLayout
+            android:id="@+id/widget_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:visibility="gone" />
+
         <!-- App container ──────────────────────────────────────────────── -->
         <FrameLayout
             android:id="@+id/apps_container"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="24dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/clock_container">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
 
             <!-- App list -->
             <androidx.recyclerview.widget.RecyclerView
@@ -211,23 +227,33 @@
                 android:paddingEnd="44dp"
                 android:paddingTop="24dp"
                 android:text="@string/home_no_apps"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="22sp"
                 android:visibility="gone" />
 
         </FrameLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
     <!-- DRAWER CONTENT -->
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/drawer_menu"
-        android:layout_width="match_parent"
+        android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
-        android:layout_gravity="end"
-        android:background="?attr/android:colorBackground"
-        android:orientation="vertical"
-        android:padding="32dp">
+        android:layout_gravity="end">
+
+        <!-- Solid scrim behind the menu content so text remains readable over the wallpaper -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?android:attr/colorBackground"
+            android:alpha="0" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="20dp">
 
         <!-- TOP HALF: Minimalist Calendar -->
         <LinearLayout
@@ -237,9 +263,9 @@
             android:layout_weight="1.1"
             android:orientation="vertical"
             android:gravity="center"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="16dp">
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="12dp">
 
             <!-- Month Title (e.g., "mayo 2026") -->
             <TextView
@@ -247,10 +273,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
-                android:textColor="?attr/android:textColorPrimary"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="20sp"
                 android:letterSpacing="0.05"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="16dp"
                 tools:text="mayo 2026" />
 
             <!-- Weekdays header (L, M, M, J, V, S, D) -->
@@ -261,13 +287,13 @@
                 android:weightSum="7"
                 android:layout_marginBottom="12dp">
 
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="L" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="M" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="M" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="J" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="V" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="S" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="D" android:textColor="?attr/android:textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_0" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="m" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="t" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="w" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="t" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_4" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="f" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_5" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="s" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_6" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="s" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
             </LinearLayout>
 
             <!-- Days Grid -->
@@ -285,8 +311,8 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="start|center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
             android:paddingTop="8dp">
 
             <!-- "ajustes de focusphone" -->
@@ -300,7 +326,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="@string/home_settings"
-                android:textColor="?attr/android:textColorPrimary"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="26sp" />
 
             <!-- "todas las apps" -->
@@ -315,7 +341,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="@string/home_all_apps"
-                android:textColor="?attr/android:textColorPrimary"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="26sp" />
 
             <!-- "editar apps" -->
@@ -330,7 +356,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="@string/home_edit_apps"
-                android:textColor="?attr/android:textColorPrimary"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="26sp" />
 
             <!-- "perfil: libre" -->
@@ -344,13 +370,120 @@
                 android:gravity="start|center_vertical"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:textColor="?attr/android:textColorPrimary"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="26sp"
                 tools:text="perfil: libre" />
 
         </LinearLayout>
 
-    </LinearLayout>
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <!-- LEFT DRAWER: Notifications Panel -->
+    <FrameLayout
+        android:id="@+id/drawer_notifications"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@android:color/transparent">
+
+        <!-- Wallpaper behind the notification drawer content -->
+        <!-- Notification drawer intentionally has no dedicated wallpaper: it reuses the home
+             wallpaper or the theme background so a per-screen image cannot render corrupted. -->
+        <!-- Solid scrim so notifications / empty state remain readable over the wallpaper -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?android:attr/colorBackground"
+            android:alpha="0" />
+
+        <LinearLayout
+            android:id="@+id/notification_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_notifications_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="start|center_vertical"
+            android:paddingTop="4dp"
+            android:paddingBottom="10dp"
+            android:ellipsize="none"
+            android:maxLines="2"
+            android:text="@string/notification_panel_title"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="26sp" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:alpha="0.12"
+            android:background="?android:attr/textColorPrimary" />
+
+        <!-- Notification list -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_notifications"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            android:paddingTop="8dp"
+            tools:listitem="@layout/item_notification" />
+
+        <!-- Empty state -->
+        <TextView
+            android:id="@+id/tv_notifications_empty"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:text="@string/notification_empty"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="18sp"
+            android:visibility="gone" />
+
+        <!-- Clear all button -->
+        <LinearLayout
+            android:id="@+id/btn_clear_all_notifications"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_clear_all"
+                android:contentDescription="@string/cd_clear_all"
+                app:tint="?android:attr/textColorSecondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:fontFamily="sans-serif"
+                android:text="@string/notification_clear_all"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
 
     </androidx.drawerlayout.widget.DrawerLayout>
 
@@ -361,14 +494,21 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:orientation="horizontal"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="16dp"
         android:padding="8dp"
         android:visibility="invisible">
+
+        <View
+            android:id="@+id/indicator_notifications"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/shape_indicator_outline" />
 
         <View
             android:id="@+id/indicator_home"
             android:layout_width="8dp"
             android:layout_height="8dp"
+            android:layout_marginStart="12dp"
             android:background="@drawable/shape_indicator_filled" />
 
         <View

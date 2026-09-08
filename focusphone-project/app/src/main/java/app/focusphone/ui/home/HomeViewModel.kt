@@ -1,5 +1,6 @@
 package app.focusphone.ui.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -35,12 +36,16 @@ class HomeViewModel(
 
     fun removeFavourite(packageName: String, label: String) {
         viewModelScope.launch {
-            try { toggleFavourite(packageName, label) } catch (_: Exception) { }
+            try { toggleFavourite(packageName, label) } catch (e: Exception) {
+                Log.e("HomeViewModel", "Failed to remove favourite $packageName", e)
+            }
         }
     }
     fun onAppsReordered(newOrder: List<FavouriteApp>) {
         viewModelScope.launch {
-            try { updateAppsOrder(newOrder) } catch (_: Exception) { }
+            try { updateAppsOrder(newOrder) } catch (e: Exception) {
+                Log.e("HomeViewModel", "Failed to update apps order", e)
+            }
         }
     }
 

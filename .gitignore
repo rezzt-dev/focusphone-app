@@ -42,3 +42,6 @@ ehthumbs.db
 
 # Kotlin / Compiler caches
 .kotlin/
+
+# Local working documentation and agent skills (not part of the published project)
+docs/

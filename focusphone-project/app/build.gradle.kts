@@ -15,16 +15,32 @@ android {
         applicationId = "app.focusphone"
         minSdk        = 24
         targetSdk     = 36
-        versionCode   = 1
-        versionName   = "alfa 1.0.3"
+        versionCode   = 2
+        versionName   = "1.0.4"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "app.focusphone.TestRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            val releaseStoreFile = findProperty("RELEASE_STORE_FILE") as String?
+            if (releaseStoreFile != null) {
+                storeFile = file(releaseStoreFile)
+                storePassword = findProperty("RELEASE_STORE_PASSWORD") as String
+                keyAlias = findProperty("RELEASE_KEY_ALIAS") as String
+                keyPassword = findProperty("RELEASE_KEY_PASSWORD") as String
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled   = true
             isShrinkResources = true
+            val releaseStoreFile = findProperty("RELEASE_STORE_FILE") as String?
+            if (releaseStoreFile != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -40,6 +56,14 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    lint {
+        // Disable the lint-vital task on release builds.
+        // The lintVitalAnalyzeRelease task causes a FileSystemException on Windows
+        // when Android Studio holds a lock on the lint cache JARs during the build.
+        // Run ./gradlew :app:lint separately for a full lint report.
+        checkReleaseBuilds = false
     }
 }
 
@@ -70,8 +94,18 @@ dependencies {
     implementation(libs.room.ktx)
     "kapt"(libs.room.compiler)
 
-    // Testing
+    // Testing — JVM unit tests
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.turbine)
+
+    // Testing — Instrumented tests
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.espresso.contrib)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
 }

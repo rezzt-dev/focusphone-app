@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
-    <!-- Solid semi-transparent background using primary text color alpha -->
-    <solid android:color="#1AFFFFFF" />
+    <!-- Semi-transparent halo using theme-aware ripple color (adapts to light/dark) -->
+    <solid android:color="?attr/colorControlHighlight" />
     <!-- Fine outline matching the secondary text color of the current theme -->
     <stroke
         android:width="1.5dp"
-        android:color="?attr/android:textColorSecondary" />
+        android:color="?android:attr/textColorSecondary" />
 </shape>

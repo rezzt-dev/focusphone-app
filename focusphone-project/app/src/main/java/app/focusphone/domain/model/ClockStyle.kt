@@ -13,10 +13,10 @@ enum class ClockStyle(
     val textSizeSp: Float,
     val fontStyle: String
 ) {
-    THIN    ("thin",    "Thin",     58f, "sans-serif-thin"),
-    LIGHT   ("light",   "Light",    54f, "sans-serif-light"),
-    REGULAR ("regular", "Regular",  48f, "sans-serif"),
-    BOLD    ("bold",    "Bold",     46f, "sans-serif-medium");
+    THIN    ("thin",    "thin",     58f, "sans-serif-thin"),
+    LIGHT   ("light",   "light",    54f, "sans-serif-light"),
+    REGULAR ("regular", "regular",  48f, "sans-serif"),
+    BOLD    ("bold",    "bold",     46f, "sans-serif-medium");
 
     companion object {
         fun fromKey(key: String) = entries.firstOrNull { it.key == key } ?: THIN

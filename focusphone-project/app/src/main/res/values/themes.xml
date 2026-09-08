@@ -33,6 +33,19 @@
         <item name="android:navigationBarColor">@color/transparent</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+
+        <!-- Material 3 switch / control coloring — use direct @color refs, never ?attr -->
+        <item name="colorPrimary">@color/ow_text_primary</item>
+        <item name="colorOnPrimary">@color/ow_bg_primary</item>
+        <item name="colorPrimaryContainer">@color/ow_text_secondary</item>
+        <item name="colorOnPrimaryContainer">@color/ow_bg_primary</item>
+        <item name="colorSecondary">@color/ow_text_secondary</item>
+        <item name="colorSurfaceVariant">@color/ow_bg_secondary</item>
+        <item name="colorOnSurface">@color/ow_text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/ow_text_secondary</item>
+        <item name="colorControlNormal">@color/ow_text_secondary</item>
+        <item name="colorControlActivated">@color/ow_text_primary</item>
+        <item name="colorControlHighlight">@color/ow_ripple</item>
     </style>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -51,6 +64,19 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:windowTranslucentNavigation">false</item>
+
+        <!-- Material 3 switch / control coloring — use direct @color refs, never ?attr -->
+        <item name="colorPrimary">@color/sl_text_primary</item>
+        <item name="colorOnPrimary">@color/sl_bg_primary</item>
+        <item name="colorPrimaryContainer">@color/sl_text_secondary</item>
+        <item name="colorOnPrimaryContainer">@color/sl_bg_primary</item>
+        <item name="colorSecondary">@color/sl_text_secondary</item>
+        <item name="colorSurfaceVariant">@color/sl_bg_secondary</item>
+        <item name="colorOnSurface">@color/sl_text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/sl_text_secondary</item>
+        <item name="colorControlNormal">@color/sl_text_secondary</item>
+        <item name="colorControlActivated">@color/sl_text_primary</item>
+        <item name="colorControlHighlight">@color/sl_ripple</item>
     </style>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -67,6 +93,19 @@
         <item name="android:navigationBarColor">@color/transparent</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+
+        <!-- Material 3 switch / control coloring — use direct @color refs, never ?attr -->
+        <item name="colorPrimary">@color/wb_text_primary</item>
+        <item name="colorOnPrimary">@color/wb_bg_primary</item>
+        <item name="colorPrimaryContainer">@color/wb_text_secondary</item>
+        <item name="colorOnPrimaryContainer">@color/wb_bg_primary</item>
+        <item name="colorSecondary">@color/wb_text_secondary</item>
+        <item name="colorSurfaceVariant">@color/wb_bg_secondary</item>
+        <item name="colorOnSurface">@color/wb_text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/wb_text_secondary</item>
+        <item name="colorControlNormal">@color/wb_text_secondary</item>
+        <item name="colorControlActivated">@color/wb_text_primary</item>
+        <item name="colorControlHighlight">@color/wb_ripple</item>
     </style>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -83,6 +122,19 @@
         <item name="android:navigationBarColor">@color/transparent</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+
+        <!-- Material 3 switch / control coloring — use direct @color refs, never ?attr -->
+        <item name="colorPrimary">@color/nv_text_primary</item>
+        <item name="colorOnPrimary">@color/nv_bg_primary</item>
+        <item name="colorPrimaryContainer">@color/nv_text_secondary</item>
+        <item name="colorOnPrimaryContainer">@color/nv_bg_primary</item>
+        <item name="colorSecondary">@color/nv_text_secondary</item>
+        <item name="colorSurfaceVariant">@color/nv_bg_secondary</item>
+        <item name="colorOnSurface">@color/nv_text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/nv_text_secondary</item>
+        <item name="colorControlNormal">@color/nv_text_secondary</item>
+        <item name="colorControlActivated">@color/nv_text_primary</item>
+        <item name="colorControlHighlight">@color/nv_ripple</item>
     </style>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -107,7 +159,7 @@
         <item name="android:paddingTop">@dimen/app_item_vertical_padding</item>
         <item name="android:paddingBottom">@dimen/app_item_vertical_padding</item>
         <item name="android:textSize">@dimen/text_app_item</item>
-        <item name="android:textColor">?attr/android:textColorPrimary</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:letterSpacing">0.02</item>
     </style>
@@ -116,7 +168,7 @@
     <style name="FocusPhone.ActionButton">
         <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:textSize">@dimen/text_action_button</item>
-        <item name="android:textColor">?attr/android:textColorSecondary</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
         <item name="android:fontFamily">sans-serif-light</item>
         <item name="android:letterSpacing">0.08</item>
         <item name="android:paddingStart">@dimen/spacing_l</item>
@@ -128,15 +180,9 @@
 
     <!-- Custom Material AlertDialog styling -->
     <style name="FocusPhone.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <!-- Dialog card styling -->
-        <item name="colorSurface">?attr/colorSurface</item>
-        <item name="colorOnSurface">?attr/android:textColorPrimary</item>
-        <item name="colorOnSurfaceVariant">?attr/android:textColorSecondary</item>
-        
         <!-- Text styling -->
         <item name="materialAlertDialogTitleTextStyle">@style/FocusPhone.DialogTitleTextStyle</item>
         <item name="materialAlertDialogBodyTextStyle">@style/FocusPhone.DialogBodyTextStyle</item>
-        
         <!-- Button styling -->
         <item name="buttonBarPositiveButtonStyle">@style/FocusPhone.DialogButton</item>
         <item name="buttonBarNegativeButtonStyle">@style/FocusPhone.DialogButton</item>
@@ -144,21 +190,21 @@
     </style>
 
     <style name="FocusPhone.DialogTitleTextStyle" parent="TextAppearance.Material3.TitleMedium">
-        <item name="android:textColor">?attr/android:textColorPrimary</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textSize">20sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textAllCaps">false</item>
     </style>
 
     <style name="FocusPhone.DialogBodyTextStyle" parent="TextAppearance.Material3.BodyMedium">
-        <item name="android:textColor">?attr/android:textColorSecondary</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
         <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="FocusPhone.DialogButton" parent="Widget.Material3.Button.TextButton">
-        <item name="android:textColor">?attr/android:textColorPrimary</item>
-        <item name="rippleColor">?attr/android:textColorSecondary</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="rippleColor">?android:attr/textColorSecondary</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">false</item>

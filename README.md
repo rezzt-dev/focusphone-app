@@ -9,8 +9,8 @@
 
 <br>
 
-<a href="https://opensource.org/licenses/MIT">
-  <img src="https://img.shields.io/badge/license-mit-yellow.svg" />
+<a href="./LICENSE">
+  <img src="https://img.shields.io/badge/license-non--commercial-orange.svg" />
 </a>
 <a href="https://kotlinlang.org">
   <img src="https://img.shields.io/badge/kotlin-2.0+-7F52FF?logo=kotlin&logoColor=white" />
@@ -64,6 +64,7 @@
 - **dynamic reordering**: long-press and drag favorite apps on the home screen to instantly sort them.
 - **premium themes**: swap between beautifully crafted color palettes (slate, navy, warm beige, and off-white).
 - **modern typography**: seamless integration of downloadable fonts (poppins, comfortaa, figtree, jetbrains mono, space mono).
+- **app schedules**: allow an app only inside a time window (weekdays included) or for a few minutes a day, protected by a password so limits cannot be undone on impulse.
 
 ### technical highlights
 - **clean architecture**: distinct separation of concerns dividing data, domain, and presentation layers.
@@ -157,7 +158,7 @@ how to contribute:
 
 ---
 ## License
-this project is licensed under the mit license. see the license file for full details.
+this project is licensed under a custom non-commercial license. personal, educational and evaluation use is allowed; commercial use requires prior written permission from the author. see the [license](./LICENSE) file for full details.
 
 ---
 ## Author

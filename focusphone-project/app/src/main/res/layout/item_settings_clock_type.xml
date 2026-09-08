@@ -19,7 +19,7 @@
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
         android:includeFontPadding="false"
-        android:textColor="?attr/android:textColorPrimary"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="18sp"
         android:lineSpacingMultiplier="0.88"
         tools:text="09:41" />
@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
         android:letterSpacing="0.04"
-        android:textColor="?attr/android:textColorSecondary"
+        android:textColor="?android:attr/textColorSecondary"
         android:textSize="10sp"
         tools:text="digital" />
 

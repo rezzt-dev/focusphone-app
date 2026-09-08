@@ -1,5 +1,6 @@
 package app.focusphone.domain.usecase
 
+import app.focusphone.BuildConfig
 import app.focusphone.data.model.FavouriteApp
 import app.focusphone.domain.repository.FavouriteAppRepository
 import kotlinx.coroutines.flow.Flow
@@ -10,6 +11,8 @@ class GetFavouriteAppsUseCase(
     private val repository: FavouriteAppRepository
 ) {
     operator fun invoke(): Flow<List<FavouriteApp>> = repository.observeFavourites().map { apps ->
-        apps.take(ToggleFavouriteAppUseCase.MAX_FAVOURITES)
+        apps
+            .filter { it.packageName != BuildConfig.APPLICATION_ID }
+            .take(ToggleFavouriteAppUseCase.MAX_FAVOURITES)
     }
 }

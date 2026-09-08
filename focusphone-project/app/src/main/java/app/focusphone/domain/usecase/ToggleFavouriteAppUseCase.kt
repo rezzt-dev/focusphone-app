@@ -3,6 +3,7 @@ package app.focusphone.domain.usecase
 import app.focusphone.data.model.FavouriteApp
 import app.focusphone.domain.model.ToggleResult
 import app.focusphone.domain.repository.FavouriteAppRepository
+import app.focusphone.domain.util.normalizeAppName
 
 class ToggleFavouriteAppUseCase(
     private val repository: FavouriteAppRepository
@@ -21,7 +22,7 @@ class ToggleFavouriteAppUseCase(
                 ToggleResult.LimitReached(MAX_FAVOURITES)
             } else {
                 repository.addFavourite(
-                    FavouriteApp(packageName = packageName, label = label, sortOrder = currentCount)
+                    FavouriteApp(packageName = packageName, label = label.normalizeAppName(), sortOrder = currentCount)
                 )
                 ToggleResult.Added
             }
