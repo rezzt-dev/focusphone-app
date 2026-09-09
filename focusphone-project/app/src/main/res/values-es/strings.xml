@@ -53,6 +53,7 @@ toca el menú para añadir apps.</string>
     <string name="settings_clock_analog">análogo</string>
     <string name="settings_clock_hidden">oculto</string>
     <string name="settings_section_font">fuente</string>
+    <string name="settings_section_text_layout">texto y disposición</string>
     <string name="settings_font_label">fuente del launcher</string>
     <string name="font_select_title">seleccionar fuente</string>
     <string name="settings_font_system">sistema</string>
@@ -309,6 +310,7 @@ facebook</string>
     <string name="settings_custom_theme_bg">color de fondo</string>
     <string name="settings_custom_theme_fg">color de texto</string>
     <string name="settings_custom_theme_apply">aplicar</string>
+    <string name="settings_custom_theme_invalid">introduce dos colores con formato #rrggbb</string>
 
     <!-- Settings: Clock -->
 
@@ -434,6 +436,9 @@ facebook</string>
     <string name="system_settings_title">sistema</string>
     <string name="settings_wallpaper_blur_desc">suaviza el fondo para mejorar la legibilidad</string>
     <string name="settings_wallpaper_blur_intensity">intensidad del desenfoque: %1$d%%</string>
+
+    <string name="settings_wallpaper_readability">legibilidad del texto: %1$d%%</string>
+    <string name="settings_wallpaper_readability_hint">cuánto se atenúan los paneles para que el texto se lea sobre tu fondo de pantalla</string>
     <string name="settings_wallpaper_blur_label">desenfocar fondo</string>
     <string name="settings_wallpaper_disabled_info">fondo de pantalla oculto</string>
     <string name="settings_wallpaper_disabled_info_desc">activa el interruptor de arriba para elegir una imagen de fondo</string>

@@ -24,6 +24,7 @@ import app.focusphone.domain.model.AppInfo
 import app.focusphone.domain.util.normalizeAppName
 import android.view.ViewGroup
 import kotlinx.coroutines.launch
+import androidx.core.view.updatePadding
 
 class AppSelectActivity : BaseActivity() {
 
@@ -90,24 +91,16 @@ class AppSelectActivity : BaseActivity() {
             setSingleLine()
             filters = arrayOf(android.text.InputFilter.LengthFilter(50))
 
-            val gd = android.graphics.drawable.GradientDrawable().apply {
+            val colors = palette
+            background = android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.RECTANGLE
                 cornerRadius = dp(16).toFloat()
-
-                val typedValue = android.util.TypedValue()
-                theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-                setColor(typedValue.data)
-
-                theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-                setStroke(dp(1), typedValue.data)
+                setColor(colors.surface)
+                setStroke(dp(1), colors.divider)
             }
-            background = gd
 
-            val typedValue = android.util.TypedValue()
-            theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-            setTextColor(typedValue.data)
-            theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-            setHintTextColor(typedValue.data)
+            setTextColor(colors.textPrimary)
+            setHintTextColor(colors.textSecondary)
 
             textSize = 15f
             val padH = dp(16)
@@ -179,9 +172,10 @@ class AppSelectActivity : BaseActivity() {
     private fun setupInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.header.setPadding(0, bars.top + dp(16), 0, 0)
-            binding.btnDone.setPadding(0, 0, 0, bars.bottom)
-            binding.rvApps.setPadding(0, 0, 0, bars.bottom)
+            // Preserve the horizontal and vertical padding declared in the layout.
+            binding.header.updatePadding(top = bars.top + dp(16))
+            binding.btnDone.updatePadding(bottom = bars.bottom)
+            binding.rvApps.updatePadding(bottom = bars.bottom)
             insets
         }
     }

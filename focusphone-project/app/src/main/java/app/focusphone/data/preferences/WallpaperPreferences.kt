@@ -21,8 +21,15 @@ object WallpaperPreferences {
     private const val KEY_BLUR_ENABLED = "wallpaper_blur_enabled"
     private const val KEY_BLUR_INTENSITY = "wallpaper_blur_intensity"
     private const val KEY_WALLPAPER_ENABLED = "wallpaper_enabled"
+    private const val KEY_READABILITY = "wallpaper_readability"
 
     private const val DEFAULT_BLUR_INTENSITY = 50
+
+    /**
+     * Default legibility level. Tuned so the settings screens stay comfortably readable
+     * over a photo while the home screen keeps most of the wallpaper visible.
+     */
+    const val DEFAULT_READABILITY = 60
 
     private fun prefs(context: Context) = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
 
@@ -84,6 +91,20 @@ object WallpaperPreferences {
 
     fun setBlurIntensity(context: Context, intensity: Int) =
         prefs(context).edit().putInt(KEY_BLUR_INTENSITY, intensity.coerceIn(0, 100)).apply()
+
+    /**
+     * How strongly FocusPhone protects text drawn over a wallpaper, from 0 (no
+     * protection, the raw image everywhere) to 100 (nearly opaque panels).
+     *
+     * The value is a user intent, not a raw alpha: each surface maps it to its own
+     * range in `SurfaceScrim` because a dense settings list and a minimalist home
+     * screen need very different amounts of help.
+     */
+    fun getReadability(context: Context): Int =
+        prefs(context).getInt(KEY_READABILITY, DEFAULT_READABILITY).coerceIn(0, 100)
+
+    fun setReadability(context: Context, level: Int) =
+        prefs(context).edit().putInt(KEY_READABILITY, level.coerceIn(0, 100)).apply()
 
     fun isWallpaperEnabled(context: Context): Boolean =
         prefs(context).getBoolean(KEY_WALLPAPER_ENABLED, true)

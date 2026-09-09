@@ -157,14 +157,14 @@ class AppScheduleEditActivity : SettingsSubActivity() {
         applyChipColors(chip)
     }
 
+    /**
+     * An activated chip is filled with the accent colour, so its label has to use the
+     * contrast-checked [FocusPalette.onAccent] rather than the raw theme background —
+     * which is unreadable on a light custom accent.
+     */
     private fun applyChipColors(chip: TextView) {
-        val typedValue = TypedValue()
-        if (chip.isActivated) {
-            theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-        } else {
-            theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-        }
-        chip.setTextColor(typedValue.data)
+        val colors = palette
+        chip.setTextColor(if (chip.isActivated) colors.onAccent else colors.textSecondary)
     }
 
     private fun buildDailyLimitSection(container: LinearLayout) {

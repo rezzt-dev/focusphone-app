@@ -31,57 +31,51 @@ class AboutSettingsActivity : SettingsSubActivity() {
     override fun getScreenTitleRes(): Int = R.string.about_settings_title
 
     override fun buildContent(container: LinearLayout) {
-        container.addSectionHeader(R.string.settings_section_about)
-
-        // Version info row (no chevron, long-press for privacy policy)
-        val versionLabel = getString(R.string.settings_version, BuildConfig.VERSION_NAME).lowercase()
-        container.addInfoRow(
-            titleResId = R.string.settings_version,
-            subtitleResId = R.string.settings_privacy_policy,
-            iconResId = R.drawable.ic_settings_version,
-            onClick = {}
-        ).apply {
-            // Replace title with actual version text
-            findViewById<TextView>(R.id.tv_title).text = versionLabel
-            setOnLongClickListener {
-                showPrivacyPolicyDialog()
-                true
+        container.settingsSection(R.string.settings_section_about) {
+            // Version info row (no chevron; a long press opens the privacy policy)
+            val versionLabel =
+                getString(R.string.settings_version, BuildConfig.VERSION_NAME).lowercase()
+            addInfoRow(
+                titleResId = R.string.settings_version,
+                subtitleResId = R.string.settings_privacy_policy,
+                iconResId = R.drawable.ic_settings_version,
+                onClick = ::showPrivacyPolicyDialog
+            ).apply {
+                findViewById<TextView>(R.id.tv_title).text = versionLabel
+                setOnLongClickListener {
+                    showPrivacyPolicyDialog()
+                    true
+                }
             }
+
+            addCategoryRow(
+                iconResId = R.drawable.ic_settings_tutorial,
+                titleResId = R.string.settings_tutorial_title,
+                subtitleResId = R.string.settings_tutorial_desc,
+                onClick = ::showTutorialDialog
+            )
+
+            addCategoryRow(
+                iconResId = R.drawable.ic_settings_tutorial,
+                titleResId = R.string.settings_tutorial_restart_title,
+                subtitleResId = R.string.settings_tutorial_restart_desc,
+                onClick = ::confirmRestartTutorial
+            )
+
+            addCategoryRow(
+                iconResId = R.drawable.ic_settings_onboarding,
+                titleResId = R.string.settings_onboarding_title,
+                subtitleResId = R.string.settings_onboarding_desc,
+                onClick = ::confirmRestartOnboarding
+            )
+
+            addCategoryRow(
+                iconResId = R.drawable.ic_settings_license,
+                titleResId = R.string.settings_open_source,
+                subtitleResId = R.string.settings_open_source_desc,
+                onClick = ::showOpenSourceLicencesDialog
+            )
         }
-
-        container.addView(inflater.inflate(R.layout.settings_divider, container, false))
-
-        // Interactive tutorial
-        container.addCategoryRow(
-            iconResId = R.drawable.ic_settings_tutorial,
-            titleResId = R.string.settings_tutorial_title,
-            subtitleResId = R.string.settings_tutorial_desc,
-            onClick = ::showTutorialDialog
-        )
-
-        // Restart tutorial
-        container.addCategoryRow(
-            iconResId = R.drawable.ic_settings_tutorial,
-            titleResId = R.string.settings_tutorial_restart_title,
-            subtitleResId = R.string.settings_tutorial_restart_desc,
-            onClick = ::confirmRestartTutorial
-        )
-
-        // Restart onboarding
-        container.addCategoryRow(
-            iconResId = R.drawable.ic_settings_onboarding,
-            titleResId = R.string.settings_onboarding_title,
-            subtitleResId = R.string.settings_onboarding_desc,
-            onClick = ::confirmRestartOnboarding
-        )
-
-        // Open source licences
-        container.addCategoryRow(
-            iconResId = R.drawable.ic_settings_license,
-            titleResId = R.string.settings_open_source,
-            subtitleResId = R.string.settings_open_source_desc,
-            onClick = ::showOpenSourceLicencesDialog
-        )
     }
 
     private fun confirmRestartTutorial() {
@@ -176,6 +170,7 @@ class AboutSettingsActivity : SettingsSubActivity() {
 
     private fun showTutorialDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_tutorial_carousel, null)
+        applyDialogSurface(dialogView)
         applyFontFamilyToView(dialogView)
         activeDialog = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -204,14 +199,8 @@ class AboutSettingsActivity : SettingsSubActivity() {
 
         var currentIndex = 0
 
-        fun resolveColorAttr(attrId: Int): Int {
-            val typedValue = android.util.TypedValue()
-            theme.resolveAttribute(attrId, typedValue, true)
-            return typedValue.data
-        }
-
-        val primaryColor = resolveColorAttr(android.R.attr.textColorPrimary)
-        val secondaryColor = resolveColorAttr(android.R.attr.textColorSecondary)
+        val primaryColor = palette.textPrimary
+        val secondaryColor = palette.textSecondary
 
         fun updateSlide() {
             val (iconRes, titleRes, descRes) = slides[currentIndex]

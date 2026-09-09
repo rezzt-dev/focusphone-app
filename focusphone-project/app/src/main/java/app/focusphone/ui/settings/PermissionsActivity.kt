@@ -11,6 +11,7 @@ import app.focusphone.R
 import app.focusphone.databinding.ActivityPermissionsBinding
 import app.focusphone.service.FocusAccessibilityService
 import app.focusphone.ui.base.BaseActivity
+import androidx.core.view.updatePadding
 
 class PermissionsActivity : BaseActivity() {
 
@@ -85,8 +86,8 @@ class PermissionsActivity : BaseActivity() {
     private fun setupInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.toolbar.setPadding(0, bars.top, 0, 0)
-            binding.scrollContent.setPadding(0, 0, 0, bars.bottom)
+            binding.toolbar.updatePadding(top = bars.top)
+            binding.scrollContent.updatePadding(bottom = bars.bottom)
             insets
         }
     }

@@ -18,58 +18,64 @@ import com.google.android.material.slider.Slider
 class FocusSettingsActivity : SettingsSubActivity() {
 
     private var durationSlider: Slider? = null
+    private var durationRow: View? = null
 
     override fun getScreenTitleRes(): Int = R.string.focus_settings_title
 
     override fun buildContent(container: LinearLayout) {
         // ── Conscious Pause ──────────────────────────────────────────
-        container.addSectionHeader(R.string.settings_section_conscious_pause)
+        container.settingsSection(R.string.settings_section_conscious_pause) {
+            val pauseEnabled = ConsciousPausePreferences.isEnabled(this@FocusSettingsActivity)
+            addSwitchRow(
+                titleResId = R.string.settings_conscious_pause_title,
+                subtitleResId = R.string.settings_conscious_pause_desc,
+                isChecked = pauseEnabled,
+                iconResId = R.drawable.ic_settings_pause,
+                onCheckedChanged = { checked ->
+                    ConsciousPausePreferences.setEnabled(this@FocusSettingsActivity, checked)
+                    // Dim the whole row, not just the slider: an enabled-looking label above
+                    // a dead control reads as a bug.
+                    durationRow?.setRowEnabled(checked)
+                    durationSlider?.isEnabled = checked
+                }
+            )
 
-        val pauseEnabled = ConsciousPausePreferences.isEnabled(this)
-        container.addSwitchRow(
-            titleResId = R.string.settings_conscious_pause_title,
-            subtitleResId = R.string.settings_conscious_pause_desc,
-            isChecked = pauseEnabled,
-            iconResId = R.drawable.ic_settings_pause,
-            onCheckedChanged = { checked ->
-                ConsciousPausePreferences.setEnabled(this, checked)
-                durationSlider?.isEnabled = checked
+            val currentDuration = ConsciousPausePreferences.getDuration(this@FocusSettingsActivity)
+            val durationBinding = SettingsSliderRowBinding.inflate(inflater, this, false)
+            durationBinding.ivIcon.setImageResource(R.drawable.ic_settings_timer)
+            durationBinding.ivIcon.visibility = View.VISIBLE
+            durationBinding.tvLabel.text =
+                getString(R.string.settings_conscious_pause_duration, currentDuration)
+            durationBinding.slider.apply {
+                valueFrom = 3f
+                valueTo = 10f
+                stepSize = 1f
+                value = currentDuration.toFloat().coerceIn(3f, 10f)
+                isEnabled = pauseEnabled
+                addOnChangeListener { _, value, _ ->
+                    val duration = value.toInt()
+                    ConsciousPausePreferences.setDuration(this@FocusSettingsActivity, duration)
+                    durationBinding.tvLabel.text =
+                        getString(R.string.settings_conscious_pause_duration, duration)
+                }
             }
-        )
-
-        val currentDuration = ConsciousPausePreferences.getDuration(this)
-        val durationBinding = SettingsSliderRowBinding.inflate(inflater, container, false)
-        durationBinding.ivIcon.setImageResource(R.drawable.ic_settings_timer)
-        durationBinding.ivIcon.visibility = View.VISIBLE
-        durationBinding.tvLabel.text = getString(R.string.settings_conscious_pause_duration, currentDuration)
-        durationBinding.slider.apply {
-            valueFrom = 3f
-            valueTo = 10f
-            stepSize = 1f
-            value = currentDuration.toFloat().coerceIn(3f, 10f)
-            isEnabled = pauseEnabled
-            addOnChangeListener { _, value, _ ->
-                val duration = value.toInt()
-                ConsciousPausePreferences.setDuration(this@FocusSettingsActivity, duration)
-                durationBinding.tvLabel.text = getString(R.string.settings_conscious_pause_duration, duration)
-            }
+            durationSlider = durationBinding.slider
+            durationRow = durationBinding.root
+            addView(durationBinding.root)
+            durationBinding.root.setRowEnabled(pauseEnabled)
         }
-        durationSlider = durationBinding.slider
-        container.addView(durationBinding.root)
-
-        container.addView(inflater.inflate(R.layout.settings_divider, container, false))
 
         // ── App Schedules ────────────────────────────────────────────
-        container.addSectionHeader(R.string.schedule_section_apps)
-
-        container.addCategoryRow(
-            iconResId = R.drawable.ic_settings_schedule,
-            titleResId = R.string.schedule_settings_row_title,
-            subtitleResId = R.string.schedule_settings_row_desc,
-            onClick = { startActivity(Intent(this, AppScheduleActivity::class.java)) }
-        )
-
-        container.addView(inflater.inflate(R.layout.settings_divider, container, false))
+        container.settingsSection(R.string.schedule_section_apps) {
+            addCategoryRow(
+                iconResId = R.drawable.ic_settings_schedule,
+                titleResId = R.string.schedule_settings_row_title,
+                subtitleResId = R.string.schedule_settings_row_desc,
+                onClick = {
+                    startActivity(Intent(this@FocusSettingsActivity, AppScheduleActivity::class.java))
+                }
+            )
+        }
 
         // ── Work Keywords ────────────────────────────────────────────
         container.addSectionHeader(R.string.settings_section_work_profile)

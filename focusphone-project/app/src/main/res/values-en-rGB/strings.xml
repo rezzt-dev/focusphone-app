@@ -14,4 +14,5 @@
     <string name="settings_category_appearance_subtitle">theme, font, colours and alignment</string>
     <string name="settings_custom_theme_bg">background colour</string>
     <string name="settings_custom_theme_fg">foreground colour</string>
+    <string name="settings_custom_theme_invalid">enter two colours as #rrggbb</string>
 </resources>

@@ -40,14 +40,26 @@
             tools:text="clock size" />
     </LinearLayout>
 
+    <!-- Optional supporting line; hidden unless a screen sets it. -->
+    <TextView
+        android:id="@+id/tv_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:fontFamily="sans-serif"
+        android:lineSpacingMultiplier="1.15"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="13sp"
+        android:visibility="gone"
+        tools:text="how strongly panels are dimmed"
+        tools:visibility="visible" />
+
+    <!-- Appearance comes from @style/FocusPhone.Slider via the theme's sliderStyle. -->
     <com.google.android.material.slider.Slider
         android:id="@+id/slider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="-8dp"
-        android:layout_marginEnd="-8dp"
-        app:thumbRadius="6dp"
-        app:tickVisible="false"
-        app:trackHeight="4dp" />
+        android:layout_marginEnd="-8dp" />
 
 </LinearLayout>

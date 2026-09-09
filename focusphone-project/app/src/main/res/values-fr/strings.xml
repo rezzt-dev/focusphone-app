@@ -45,6 +45,7 @@
     <string name="settings_text_size">taille du texte</string>
     <string name="settings_text_size_pt">taille du texte : %1$dpt</string>
     <string name="settings_section_font">police</string>
+    <string name="settings_section_text_layout">texte et disposition</string>
     <string name="settings_font_label">police du launcher</string>
     <string name="font_select_title">sélectionner la police</string>
     <string name="settings_font_system">système</string>
@@ -281,6 +282,7 @@
     <string name="settings_custom_theme_bg">couleur d\'arrière-plan</string>
     <string name="settings_custom_theme_fg">couleur de premier plan</string>
     <string name="settings_custom_theme_apply">appliquer</string>
+    <string name="settings_custom_theme_invalid">saisis deux couleurs au format #rrggbb</string>
 
     <!-- Settings: Clock -->
     <string name="settings_clock_thin">fin</string>
@@ -424,6 +426,9 @@
     <string name="widget_picker_title">sélectionner le widget</string>
     <string name="settings_wallpaper_blur_desc">adoucir l\'arrière-plan pour une meilleure lisibilité</string>
     <string name="settings_wallpaper_blur_intensity">intensité du flou : %1$d%%</string>
+
+    <string name="settings_wallpaper_readability">lisibilité du texte : %1$d%%</string>
+    <string name="settings_wallpaper_readability_hint">à quel point les panneaux sont assombris pour que le texte reste lisible sur votre fond d’écran</string>
     <string name="settings_wallpaper_blur_label">flouter l\'arrière-plan</string>
     <string name="settings_wallpaper_disabled_info">fond d\'écran masqué</string>
     <string name="settings_wallpaper_disabled_info_desc">activez le commutateur ci-dessus pour choisir une image de fond</string>

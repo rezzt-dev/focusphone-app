@@ -104,6 +104,7 @@ class DetoxBlockedActivity : BaseActivity() {
 
     private fun showUnlockDialog() {
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_detox_password_verify, null)
+        applyDialogSurface(view)
         val dialog = AlertDialog.Builder(this)
             .setView(view)
             .create()

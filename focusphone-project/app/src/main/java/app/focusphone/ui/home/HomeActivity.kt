@@ -25,6 +25,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.PopupMenu
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
@@ -62,7 +63,10 @@ import app.focusphone.ui.appselect.AppSelectActivity
 import app.focusphone.ui.base.BaseActivity
 import app.focusphone.ui.home.adapter.FavouriteAppsAdapter
 import app.focusphone.ui.onboarding.OnboardingActivity
+import app.focusphone.ui.schedule.ScheduleDayLabels
 import app.focusphone.ui.settings.SettingsActivity
+import app.focusphone.ui.theme.ScrimSurface
+import app.focusphone.ui.theme.SurfaceScrim
 import app.focusphone.ui.tutorial.TutorialOverlayView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -72,6 +76,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import app.focusphone.ui.theme.FocusColors
 
 class HomeActivity : BaseActivity() {
 
@@ -100,8 +105,22 @@ class HomeActivity : BaseActivity() {
     private var appSpacingDecoration: RecyclerView.ItemDecoration? = null
     private var pendingVerify = false
 
+    /** Day of the month the calendar grid was last built for, or 0 when never built. */
+    private var renderedCalendarDay = 0
+
+
+    /**
+     * A launcher stays resident for days, so the minute tick doubles as the midnight
+     * signal: without this, the calendar kept highlighting yesterday until the user left
+     * the home screen and came back.
+     */
     private val clockReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) = updateClock()
+        override fun onReceive(context: Context, intent: Intent) {
+            updateClock()
+            if (Calendar.getInstance().get(Calendar.DAY_OF_MONTH) != renderedCalendarDay) {
+                populateCalendar()
+            }
+        }
     }
 
     // ── Lifecycle ──────────────────────────────────────────────────
@@ -259,6 +278,29 @@ class HomeActivity : BaseActivity() {
         return resolved?.activityInfo?.packageName == packageName
     }
 
+    // ── Legibility scrims ──────────────────────────────────────────
+
+    /**
+     * The home screen owns three independent surfaces over a single wallpaper, so it places
+     * its scrims itself instead of using the base class's full-screen one.
+     *
+     * The home surface is kept deliberately light — the wallpaper is the point of this
+     * screen — while both drawers get the denser panel treatment, because a 12sp weekday
+     * letter or a notification subtitle has no chance against an unfiltered photo.
+     */
+    /** The calendar and the launcher options live in the drawers, behind a panel scrim. */
+    override fun contentSurface(): ScrimSurface = ScrimSurface.PANEL
+
+    override fun applyScrim() {
+        val hasWallpaper = hasSurfaceWallpaper()
+        val colors = palette
+        SurfaceScrim.apply(binding.viewScrimHome, this, ScrimSurface.HOME, colors, hasWallpaper)
+        SurfaceScrim.apply(binding.viewScrimMenu, this, ScrimSurface.PANEL, colors, hasWallpaper)
+        SurfaceScrim.apply(
+            binding.viewScrimNotifications, this, ScrimSurface.PANEL, colors, hasWallpaper
+        )
+    }
+
     // ── Insets ─────────────────────────────────────────────────────
 
     private fun setupInsets() {
@@ -269,10 +311,18 @@ class HomeActivity : BaseActivity() {
             // (clock, widget, apps) is safe regardless of user-defined order.
             binding.rootHome.setPadding(0, bars.top, 0, bars.bottom)
 
-            // Drawers need their own insets so they don't overlap status/nav bars.
-            // Horizontal padding is kept small so content uses most of the screen width.
-            binding.drawerMenu.setPadding(dp(16), bars.top + dp(20), dp(16), bars.bottom + dp(20))
-            binding.drawerNotifications.setPadding(dp(16), bars.top + dp(20), dp(16), bars.bottom + dp(20))
+            // Drawers need their own insets so they don't overlap status/nav bars, but the
+            // padding belongs on the *content* rather than on the drawer frame: the frame
+            // also hosts the legibility scrim, and a padded frame left the scrim floating
+            // as a visible rectangle inside the drawer instead of covering it edge to edge.
+            val drawerInsetH = dp(36)
+            val drawerInsetV = dp(40)
+            binding.menuContent.setPadding(
+                drawerInsetH, bars.top + drawerInsetV, drawerInsetH, bars.bottom + drawerInsetV
+            )
+            binding.notificationContent.setPadding(
+                drawerInsetH, bars.top + drawerInsetV, drawerInsetH, bars.bottom + drawerInsetV
+            )
 
             // Indicator container lives outside the DrawerLayout, so apply a dynamic bottom margin.
             val indicatorParams = binding.indicatorContainer.layoutParams as android.widget.FrameLayout.LayoutParams
@@ -756,31 +806,25 @@ class HomeActivity : BaseActivity() {
     }
 
     /**
-     * Sets the page indicator background shape, adapting to the custom theme color
-     * when active. Built-in themes reuse the XML drawables directly.
+     * Draws a page indicator dot in the active palette.
+     *
+     * The indicators float above the wallpaper with no scrim of their own, so they are
+     * always built from the contrast-checked palette instead of the static drawables —
+     * which resolved to a theme colour that could vanish against a photo.
      */
     private fun setIndicatorBackground(view: View, filled: Boolean) {
-        val isCustom = ThemePreferences.getTheme(this) == ThemePreferences.THEME_CUSTOM
-        if (!isCustom) {
-            view.setBackgroundResource(
-                if (filled) R.drawable.shape_indicator_filled
-                else R.drawable.shape_indicator_outline
-            )
-            return
-        }
-        val fgColor = ThemePreferences.getCustomForegroundColor(this)
+        val colors = palette
         val sizePx = dp(8)
-        val drawable = GradientDrawable().apply {
+        view.background = GradientDrawable().apply {
             shape = GradientDrawable.OVAL
             setSize(sizePx, sizePx)
             if (filled) {
-                setColor(fgColor)
+                setColor(colors.accent)
             } else {
                 setColor(Color.TRANSPARENT)
-                setStroke(dp(2), (fgColor and 0x00FFFFFF) or (0x8A shl 24))
+                setStroke(dp(2), FocusColors.withAlpha(colors.accent, 0.55f))
             }
         }
-        view.background = drawable
     }
 
     private fun setupDrawerMenu() {
@@ -813,6 +857,7 @@ class HomeActivity : BaseActivity() {
 
     private fun showProfileSelectionDialog() {
         val view = layoutInflater.inflate(R.layout.dialog_profile_select, null)
+        applyDialogSurface(view)
         applyFontFamilyToView(view)
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(view)
@@ -854,6 +899,7 @@ class HomeActivity : BaseActivity() {
 
     private fun showDetoxVerifyPasswordDialog(onSuccess: () -> Unit) {
         val view = layoutInflater.inflate(R.layout.dialog_detox_password_verify, null)
+        applyDialogSurface(view)
         applyFontFamilyToView(view)
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(view)
@@ -913,6 +959,7 @@ class HomeActivity : BaseActivity() {
 
     private fun showDetoxDurationDialog() {
         val view = layoutInflater.inflate(R.layout.dialog_detox_duration_select, null)
+        applyDialogSurface(view)
         applyFontFamilyToView(view)
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(view)
@@ -971,6 +1018,7 @@ class HomeActivity : BaseActivity() {
 
     private fun showDetoxCustomTimeDialog() {
         val view = layoutInflater.inflate(R.layout.dialog_detox_custom_time, null)
+        applyDialogSurface(view)
         applyFontFamilyToView(view)
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(view)
@@ -1002,6 +1050,7 @@ class HomeActivity : BaseActivity() {
 
     private fun showDetoxSetPasswordDialog(durationMs: Long, onSet: () -> Unit) {
         val view = layoutInflater.inflate(R.layout.dialog_detox_password_set, null)
+        applyDialogSurface(view)
         applyFontFamilyToView(view)
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(view)
@@ -1319,121 +1368,135 @@ class HomeActivity : BaseActivity() {
 
     // ── Helpers ────────────────────────────────────────────────────
 
+    /**
+     * Renders the month grid shown at the top of the launcher menu drawer.
+     *
+     * Colours come from [palette] rather than from raw theme attributes: the previous
+     * implementation read them through `Theme.resolveAttribute(...).data`, which returns a
+     * resource id instead of a colour whenever the attribute resolves to a `ColorStateList`,
+     * and it ignored the custom theme entirely. Day numbers also used the *secondary* text
+     * colour, which is too faint to read against a wallpaper.
+     *
+     * The week starts on the locale's own first weekday, so the header letters and the grid
+     * agree with the rest of the system instead of being hard-coded to Monday.
+     */
     private fun populateCalendar() {
         val calendar = Calendar.getInstance()
         val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
+        val colors = effectivePalette
 
         // Month title formatted using localized resource string
         val monthFormat = SimpleDateFormat("MMMM", Locale.getDefault())
         val monthName = monthFormat.format(calendar.time).replaceFirstChar { it.lowercase() }
         val year = calendar.get(Calendar.YEAR)
         binding.tvCalendarMonth.text = getString(R.string.calendar_date_format, monthName, currentDay, year)
+        binding.tvCalendarMonth.setTextColor(colors.textPrimary)
 
-        // Update weekday headers using localized short names (Mon..Sun)
-        val weekdays = java.text.DateFormatSymbols.getInstance(Locale.getDefault()).shortWeekdays
-        val dayViews = listOf(
+        // ── Weekday header, in locale week order ─────────────────────
+        val orderedDays = ScheduleDayLabels.orderedDays()
+        val todayDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+        val headerViews = listOf(
             binding.tvDay0, binding.tvDay1, binding.tvDay2,
             binding.tvDay3, binding.tvDay4, binding.tvDay5, binding.tvDay6
         )
-        // Calendar.MONDAY=2 ... Calendar.SUNDAY=1
-        val calDayIndices = listOf(
-            Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
-            Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY
-        )
-        dayViews.forEachIndexed { index, textView ->
-            textView.text = weekdays[calDayIndices[index]]?.take(1)?.lowercase(Locale.getDefault()) ?: ""
+        headerViews.forEachIndexed { index, textView ->
+            val dayOfWeek = orderedDays[index]
+            textView.text = ScheduleDayLabels.shortLabel(dayOfWeek).take(1)
+            // The column the user is standing in is the one worth finding at a glance.
+            textView.setTextColor(
+                if (dayOfWeek == todayDayOfWeek) colors.textPrimary else colors.textSecondary
+            )
         }
 
-        // Set to first day of month to calculate starting weekday offset
+        // ── Grid ─────────────────────────────────────────────────────
         calendar.set(Calendar.DAY_OF_MONTH, 1)
-        val firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) // Sunday = 1, Monday = 2, Tuesday = 3...
-
-        // Monday = 0, Tuesday = 1, ..., Sunday = 6
-        val startOffset = (firstDayOfWeek + 5) % 7
+        val firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+        val startOffset = orderedDays.indexOf(firstDayOfWeek).coerceAtLeast(0)
         val maxDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 
         binding.calendarGrid.removeAllViews()
-        
+
+        val typeface = FontPreferences.getTypefaceOrNull(this)
+        val dayTextSizeSp = 14f
+        // Size the selection circle from the *scaled* text so it never clips the number at
+        // large system font scales or with the app's own text-size multiplier.
+        val dayTextSizePx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_SP,
+            dayTextSizeSp,
+            resources.displayMetrics
+        )
+        val cellSize = maxOf(dp(28), (dayTextSizePx * 2f).toInt())
+
+        // Non-today numbers: primary text held back so today still stands out, but far more
+        // legible than the old secondary grey.
+        val dayColor = colors.primaryAt(0.82f)
+        val weekendColor = colors.primaryAt(0.60f)
+
         var dayCounter = 1
-        val totalSlots = startOffset + maxDays
-        val totalWeeks = kotlin.math.ceil(totalSlots.toDouble() / 7).toInt()
-        
-        // Get primary and secondary colors from current theme
-        val typedValue = android.util.TypedValue()
-        theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-        val colorPrimary = typedValue.data
-        theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-        val colorSecondary = typedValue.data
-        
-        for (w in 0 until totalWeeks) {
-            val weekRow = android.widget.LinearLayout(this).apply {
-                orientation = android.widget.LinearLayout.HORIZONTAL
-                layoutParams = android.widget.LinearLayout.LayoutParams(
-                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
-                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+        val totalWeeks = kotlin.math.ceil((startOffset + maxDays) / 7.0).toInt()
+
+        for (week in 0 until totalWeeks) {
+            val weekRow = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
                 )
                 weightSum = 7f
             }
-            
-            for (d in 0 until 7) {
-                val cellIndex = w * 7 + d
+
+            for (column in 0 until 7) {
+                val cellIndex = week * 7 + column
                 val cell = android.widget.FrameLayout(this).apply {
-                    layoutParams = android.widget.LinearLayout.LayoutParams(
+                    layoutParams = LinearLayout.LayoutParams(
                         0,
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
                         1f
                     )
                 }
-                
-                val dayTextView = android.widget.TextView(this).apply {
-                    layoutParams = android.widget.FrameLayout.LayoutParams(
-                        dp(28),
-                        dp(28)
-                    ).apply {
-                        gravity = android.view.Gravity.CENTER
+
+                val dayView = TextView(this).apply {
+                    layoutParams = android.widget.FrameLayout.LayoutParams(cellSize, cellSize).apply {
+                        gravity = Gravity.CENTER
                     }
-                    gravity = android.view.Gravity.CENTER
+                    gravity = Gravity.CENTER
                     includeFontPadding = false
-                    setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14f)
+                    setTextSize(TypedValue.COMPLEX_UNIT_SP, dayTextSizeSp)
                 }
-                
-                if (cellIndex >= startOffset && dayCounter <= maxDays) {
-                    dayTextView.text = dayCounter.toString()
+
+                val hasDay = cellIndex >= startOffset && dayCounter <= maxDays
+                if (hasDay) {
+                    val dayOfWeek = orderedDays[column]
+                    val isWeekend = dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY
+                    dayView.text = dayCounter.toString()
+
                     if (dayCounter == currentDay) {
-                        val isCustom = ThemePreferences.getTheme(this) == ThemePreferences.THEME_CUSTOM
-                        if (isCustom) {
-                            val customFg = ThemePreferences.getCustomForegroundColor(this)
-                            val customBg = ThemePreferences.getCustomBackgroundColor(this)
-                            dayTextView.setTextColor(customBg)
-                            val circle = GradientDrawable().apply {
-                                shape = GradientDrawable.OVAL
-                                setColor(customFg)
-                            }
-                            dayTextView.background = circle
-                        } else {
-                            val bgValue = android.util.TypedValue()
-                            theme.resolveAttribute(android.R.attr.colorBackground, bgValue, true)
-                            dayTextView.setTextColor(bgValue.data)
-                            dayTextView.setBackgroundResource(R.drawable.shape_current_day)
+                        dayView.setTextColor(colors.onAccent)
+                        dayView.background = GradientDrawable().apply {
+                            shape = GradientDrawable.OVAL
+                            setColor(colors.accent)
                         }
-                        dayTextView.typeface = android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.BOLD)
-                        dayTextView.contentDescription = getString(R.string.cd_today_indicator, dayCounter)
+                        dayView.typeface = Typeface.create(typeface ?: Typeface.DEFAULT, Typeface.BOLD)
+                        dayView.contentDescription = getString(R.string.cd_today_indicator, dayCounter)
                     } else {
-                        dayTextView.setTextColor(colorSecondary)
-                        dayTextView.setTypeface(null, android.graphics.Typeface.NORMAL)
-                        dayTextView.contentDescription = getString(R.string.cd_day_indicator, dayCounter)
+                        dayView.setTextColor(if (isWeekend) weekendColor else dayColor)
+                        dayView.typeface = typeface
+                        dayView.contentDescription = getString(R.string.cd_day_indicator, dayCounter)
                     }
                     dayCounter++
                 } else {
-                    dayTextView.text = ""
-                    dayTextView.contentDescription = ""
+                    dayView.text = ""
+                    dayView.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 }
-                cell.addView(dayTextView)
+
+                cell.addView(dayView)
                 weekRow.addView(cell)
             }
             binding.calendarGrid.addView(weekRow)
         }
-        applyFontFamilyToView(binding.calendarGrid)
+
+        // The day of the month the grid was built for. Used to redraw at midnight.
+        renderedCalendarDay = currentDay
     }
 
     // ── Gesture exclusion (Android 10+ back gesture conflict) ───────

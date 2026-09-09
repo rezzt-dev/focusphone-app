@@ -2,15 +2,14 @@ package app.focusphone.ui.allapps
 
 import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
-import android.util.TypedValue
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.view.ViewConfiguration
 import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.domain.model.AppInfo
+import app.focusphone.ui.theme.FocusPalette
 import kotlin.math.abs
 
 /**
@@ -184,17 +183,8 @@ class FolderDragCallback(
         }
     }
 
-    private fun highlightColor(view: View): Int {
-        val context = view.context
-        val base = if (ThemePreferences.getTheme(context) == ThemePreferences.THEME_CUSTOM) {
-            ThemePreferences.getCustomForegroundColor(context)
-        } else {
-            val typedValue = TypedValue()
-            context.theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-            typedValue.data
-        }
-        return ColorUtils.setAlphaComponent(base, HIGHLIGHT_ALPHA)
-    }
+    private fun highlightColor(view: View): Int =
+        ColorUtils.setAlphaComponent(FocusPalette.of(view.context).accent, HIGHLIGHT_ALPHA)
 
     private companion object {
         const val DRAGGED_ALPHA = 0.7f

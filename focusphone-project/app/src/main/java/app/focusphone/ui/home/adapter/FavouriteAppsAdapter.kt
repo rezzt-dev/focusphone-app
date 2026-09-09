@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import app.focusphone.R
 import app.focusphone.data.model.FavouriteApp
 import app.focusphone.databinding.ItemFavouriteAppBinding
-import app.focusphone.data.preferences.ThemePreferences
+import app.focusphone.ui.theme.FocusPalette
 
 class FavouriteAppsAdapter(
     private val onAppClick: (FavouriteApp) -> Unit,
@@ -106,21 +106,19 @@ class FavouriteAppsAdapter(
             binding.tvAppName.typeface = typeface
             binding.tvAppName.gravity  = textAlignment
 
-            val activeTheme = ThemePreferences.getTheme(context)
-            if (activeTheme == ThemePreferences.THEME_CUSTOM) {
-                val fgColor = ThemePreferences.getCustomForegroundColor(context)
-                binding.tvAppName.setTextColor(fgColor)
-            } else {
-                val typedValue = android.util.TypedValue()
-                context.theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-                binding.tvAppName.setTextColor(typedValue.data)
-            }
+            binding.tvAppName.setTextColor(palette(context).textPrimary)
 
             binding.root.contentDescription = binding.root.context.getString(R.string.cd_app_item, app.label)
             binding.root.setOnClickListener     { onAppClick(app) }
             binding.root.setOnLongClickListener { onAppLongClick(app) }
         }
     }
+
+    /** Resolved once per adapter; the activity is recreated on any theme change. */
+    private var paletteCache: FocusPalette? = null
+
+    private fun palette(context: android.content.Context): FocusPalette =
+        paletteCache ?: FocusPalette.of(context).also { paletteCache = it }
 
     companion object {
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<FavouriteApp>() {

@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import app.focusphone.ui.theme.FocusColors
+import app.focusphone.ui.theme.FocusPalette
 
 class NotificationsAdapter(
     private val onClick: (NotificationItem) -> Unit = {},
@@ -58,19 +60,20 @@ class NotificationsAdapter(
             binding.tvNotificationText.typeface = typeface
             binding.tvNotificationTime.typeface = typeface
 
-            // Build a subtle card background with rounded corners and a faint border
-            val typedValue = TypedValue()
-            context.theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-            val primaryColor = typedValue.data
+            // Build a subtle card background with rounded corners and a faint border.
+            // Over a wallpaper the panel scrim behind is only partly opaque, so the card is
+            // filled a little more strongly than a pure theme background would need.
+            val colors = FocusPalette.of(context)
+            val primaryColor = colors.textPrimary
             val density = context.resources.displayMetrics.density
 
             val bgDrawable = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = 12f * density
-                setColor((primaryColor and 0x00FFFFFF) or (0x08 shl 24)) // ~3% alpha fill
+                setColor(FocusColors.withAlpha(colors.background, 0.55f))
                 setStroke(
                     (1f * density).toInt().coerceAtLeast(1),
-                    (primaryColor and 0x00FFFFFF) or (0x12 shl 24) // ~7% alpha stroke
+                    FocusColors.withAlpha(primaryColor, 0.10f)
                 )
             }
             binding.cardContainer.background = bgDrawable

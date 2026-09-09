@@ -49,6 +49,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.core.view.updatePadding
 
 // ── ViewModel ──────────────────────────────────────────────────────
 
@@ -444,22 +445,18 @@ class AllAppsActivity : BaseActivity() {
       hint?.let { this.hint = it }
       filters = arrayOf(android.text.InputFilter.LengthFilter(INPUT_MAX_LENGTH))
 
-      val typedValue = android.util.TypedValue()
+      val colors = palette
       background = android.graphics.drawable.GradientDrawable().apply {
         shape = android.graphics.drawable.GradientDrawable.RECTANGLE
         cornerRadius = dp(16).toFloat()
-
-        theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-        setColor(typedValue.data)
-
-        theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-        setStroke(dp(1), typedValue.data)
+        // Opaque fill: a text field must stay solid even when a wallpaper shows behind
+        // the dialog, and a hairline outline reads better than a full-strength border.
+        setColor(colors.surface)
+        setStroke(dp(1), colors.divider)
       }
 
-      theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-      setTextColor(typedValue.data)
-      theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-      setHintTextColor(typedValue.data)
+      setTextColor(colors.textPrimary)
+      setHintTextColor(colors.textSecondary)
 
       textSize = 15f
       setPadding(dp(16), dp(14), dp(16), dp(14))
@@ -550,9 +547,12 @@ class AllAppsActivity : BaseActivity() {
   private fun setupInsets() {
     ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
       val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-      binding.header.setPadding(0, bars.top + dp(12), 0, 0)
-      binding.btnClose.setPadding(0, 0, 0, bars.bottom)
-      binding.rvApps.setPadding(0, 0, 0, bars.bottom)
+      // updatePadding, not setPadding: these views declare their own horizontal and
+      // vertical padding in XML, and overwriting all four edges pushed the search field
+      // and the close button flush against the screen edges.
+      binding.header.updatePadding(top = bars.top + dp(12))
+      binding.btnClose.updatePadding(bottom = bars.bottom)
+      binding.rvApps.updatePadding(bottom = bars.bottom)
       insets
     }
   }

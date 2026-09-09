@@ -68,6 +68,7 @@
     <string name="settings_clock_analog">analog</string>
     <string name="settings_clock_hidden">hidden</string>
     <string name="settings_section_font">font</string>
+    <string name="settings_section_text_layout">text and layout</string>
     <string name="settings_font_label">launcher font</string>
     <string name="font_select_title">select font</string>
     <string name="settings_font_system">system</string>
@@ -81,6 +82,7 @@
     <string name="settings_custom_theme_bg">background color</string>
     <string name="settings_custom_theme_fg">foreground color</string>
     <string name="settings_custom_theme_apply">apply</string>
+    <string name="settings_custom_theme_invalid">enter two colors as #rrggbb</string>
     <string name="settings_chevron">›</string>
 
     <!-- Settings: Language -->
@@ -510,6 +512,10 @@ forty-one</string>
     <string name="settings_section_wallpaper">wallpaper</string>
     <string name="settings_wallpaper_blur_desc">blur the background for better readability</string>
     <string name="settings_wallpaper_blur_intensity">blur intensity: %1$d%%</string>
+
+    <!-- Legibility: how strongly panels are dimmed over a wallpaper -->
+    <string name="settings_wallpaper_readability">text legibility: %1$d%%</string>
+    <string name="settings_wallpaper_readability_hint">how strongly panels are dimmed so text stays readable over your wallpaper</string>
     <string name="settings_wallpaper_blur_label">blur background</string>
     <string name="settings_wallpaper_disabled_info">wallpaper hidden</string>
     <string name="settings_wallpaper_disabled_info_desc">enable the switch above to choose a background image</string>

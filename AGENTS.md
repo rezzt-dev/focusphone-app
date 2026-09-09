@@ -127,15 +127,29 @@ app/src/main/java/app/focusphone/
     │   ├── ScheduleBlockedActivity.kt # Block page explaining the schedule restriction
     │   ├── ScheduleAccessGate.kt      # In-memory unlock session for the settings
     │   └── ScheduleDayLabels.kt       # Locale-aware weekday labels and week order
+    ├── theme/
+    │   ├── FocusColors.kt        # WCAG contrast maths (luminance, ratio, ensureContrast)
+    │   ├── FocusPalette.kt       # Single source of truth for the active theme's colours
+    │   └── SurfaceScrim.kt       # Adaptive scrim between a wallpaper and the content
     └── widget/
         ├── AnalogClockView.kt
         └── WeightGradientTextView.kt
 ```
 
+> **Colours at runtime:** always go through `FocusPalette.of(context)` (or `BaseActivity.palette` /
+> `effectivePalette`). Never `Theme.resolveAttribute(attr, tv, true).data` — it yields a resource id
+> rather than a colour whenever the attribute resolves to a `ColorStateList`, and it does not know
+> about the custom theme. See `docs/app-analysis/interfaz-tematizacion-y-legibilidad.md`.
+
+> **Window insets:** use `updatePadding(top = …)`, never `setPadding(0, …, 0, 0)`, or the padding a
+> layout declares in XML is silently erased.
+
 ### Resources
 - `res/values/strings.xml` — primary English strings (all lowercase, minimalist tone).
 - Localized strings in `values-es`, `values-fr`, `values-de`, `values-en-rGB`.
 - `res/values/themes.xml` — 4 built-in themes + `Base.Theme.FocusPhone` + custom widget/dialog styles.
+  Each theme also redirects the Material 3 roles it does not define to its own colours, so the M3
+  baseline (purple) never leaks into the monochrome UI.
 - `res/values-night/themes.xml` — intentionally empty; day/night is handled manually via `THEME_AUTO` resolving to explicit themes.
 - `res/drawable/` — custom shapes, theme preview circles, tutorial icons.
 - `res/anim/fp_fade_in.xml` & `fp_fade_out.xml` — used by `BaseActivity` for consistent Activity transitions.

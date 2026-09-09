@@ -22,6 +22,7 @@ import app.focusphone.ui.appselect.AppSelectActivity
 import app.focusphone.ui.base.BaseActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import app.focusphone.ui.theme.FocusPalette
 
 /**
  * Enhanced onboarding flow for first-time users.
@@ -237,10 +238,10 @@ class OnboardingActivity : BaseActivity() {
         }
     }
 
-    private fun resolveColorAttr(attrId: Int): Int {
-        val typedValue = android.util.TypedValue()
-        theme.resolveAttribute(attrId, typedValue, true)
-        return typedValue.data
+    private fun resolveColorAttr(attrId: Int): Int = when (attrId) {
+        android.R.attr.textColorSecondary -> palette.textSecondary
+        android.R.attr.colorBackground -> palette.background
+        else -> palette.textPrimary
     }
 
     // ── Page actions ───────────────────────────────────────────────────────────────
@@ -365,9 +366,12 @@ private class OnboardingPagerAdapter(
         }
 
         private fun resolveColor(context: android.content.Context, attrId: Int): Int {
-            val typedValue = android.util.TypedValue()
-            context.theme.resolveAttribute(attrId, typedValue, true)
-            return typedValue.data
+            val colors = FocusPalette.of(context)
+            return when (attrId) {
+                android.R.attr.textColorSecondary -> colors.textSecondary
+                android.R.attr.colorBackground -> colors.background
+                else -> colors.textPrimary
+            }
         }
     }
 }

@@ -128,6 +128,7 @@ class AppScheduleActivity : SettingsSubActivity() {
         onSubmit: (password: String, confirmation: String) -> String?
     ) {
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_schedule_password, null)
+        applyDialogSurface(view)
         val dialog = AlertDialog.Builder(this).setView(view).setCancelable(false).create()
 
         dialog.window?.apply {

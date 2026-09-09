@@ -46,6 +46,7 @@ import java.util.Calendar
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
+import androidx.core.view.updatePadding
 
 /**
  * Activity that lets the user reorder the three home-screen components
@@ -171,7 +172,7 @@ class HomeLayoutActivity : BaseActivity() {
     private fun setupInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.toolbar.setPadding(0, bars.top, 0, 0)
+            binding.toolbar.updatePadding(top = bars.top)
             binding.sliderSheet.setPadding(
                 binding.sliderSheet.paddingLeft,
                 binding.sliderSheet.paddingTop,

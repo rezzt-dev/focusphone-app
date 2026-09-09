@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
@@ -58,6 +59,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
     private var wallpaperSettingsRowRoot: View? = null
     private var wallpaperBlurSwitchRoot: View? = null
     private var wallpaperBlurSliderRoot: View? = null
+    private var wallpaperReadabilitySliderRoot: View? = null
     private var wallpaperDisabledInfoRoot: View? = null
 
     private val wallpaperPicker = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -70,81 +72,76 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
 
     override fun buildContent(container: LinearLayout) {
         // ── Theme ────────────────────────────────────────────────────
-        container.addSectionHeader(R.string.settings_section_appearance)
+        container.settingsSection(R.string.settings_section_appearance) {
+            themeValueView = addValueRow(
+                titleResId = R.string.settings_theme_label,
+                subtitleResId = R.string.settings_theme_desc,
+                initialValue = getThemeDisplayName(
+                    ThemePreferences.getTheme(this@AppearanceSettingsActivity)
+                ).lowercase(),
+                iconResId = R.drawable.ic_settings_theme,
+                onClick = ::showThemeSelectionDialog
+            )
 
-        themeValueView = container.addValueRow(
-            titleResId = R.string.settings_theme_label,
-            subtitleResId = R.string.settings_theme_desc,
-            initialValue = getThemeDisplayName(ThemePreferences.getTheme(this)).lowercase(),
-            iconResId = R.drawable.ic_settings_theme,
-            onClick = ::showThemeSelectionDialog
-        )
-
-        // Custom theme panel (shown only when custom theme active)
-        val customBinding = SettingsCustomThemePanelBinding.inflate(inflater, container, false)
-        customThemeBinding = customBinding
-        setupCustomThemePanel(customBinding)
-        container.addView(customBinding.root)
-        updateCustomThemePanelVisibility()
-
-        container.addView(inflater.inflate(R.layout.settings_divider, container, false))
+            // Custom theme panel (shown only when the custom theme is active)
+            val customBinding = SettingsCustomThemePanelBinding.inflate(inflater, this, false)
+            customThemeBinding = customBinding
+            setupCustomThemePanel(customBinding)
+            addView(customBinding.root)
+            updateCustomThemePanelVisibility()
+        }
 
         // ── Font ─────────────────────────────────────────────────────
-        container.addSectionHeader(R.string.settings_section_font)
-
-        fontValueView = container.addValueRow(
-            titleResId = R.string.settings_font_label,
-            subtitleResId = R.string.settings_font_desc,
-            initialValue = getFontDisplayName(FontPreferences.getFont(this)).lowercase(),
-            iconResId = R.drawable.ic_settings_font,
-            onClick = ::showFontSelectionDialog
-        )
-
-        container.addView(inflater.inflate(R.layout.settings_divider, container, false))
-
-        // ── Text size ────────────────────────────────────────────────
-        container.addSectionHeader(R.string.settings_section_appearance)
-
-        val currentSize = FontPreferences.getFontSizePt(this)
-        val sizeBinding = SettingsSliderRowBinding.inflate(inflater, container, false)
-        sizeBinding.ivIcon.setImageResource(R.drawable.ic_settings_text_size)
-        sizeBinding.ivIcon.visibility = View.VISIBLE
-        sizeBinding.tvLabel.text = getString(R.string.settings_text_size_pt, currentSize)
-        sizeBinding.slider.apply {
-            valueFrom = 8f
-            valueTo = 24f
-            stepSize = 1f
-            value = currentSize.toFloat().coerceIn(8f, 24f)
-            addOnChangeListener { _, value, _ ->
-                val size = value.toInt()
-                FontPreferences.setFontSizePt(this@AppearanceSettingsActivity, size)
-                sizeBinding.tvLabel.text = getString(R.string.settings_text_size_pt, size)
-            }
+        container.settingsSection(R.string.settings_section_font) {
+            fontValueView = addValueRow(
+                titleResId = R.string.settings_font_label,
+                subtitleResId = R.string.settings_font_desc,
+                initialValue = getFontDisplayName(
+                    FontPreferences.getFont(this@AppearanceSettingsActivity)
+                ).lowercase(),
+                iconResId = R.drawable.ic_settings_font,
+                onClick = ::showFontSelectionDialog
+            )
         }
-        container.addView(sizeBinding.root)
 
-        container.addView(inflater.inflate(R.layout.settings_divider, container, false))
-
-        // ── Alignment ────────────────────────────────────────────────
-        val alignmentView = inflater.inflate(R.layout.settings_alignment_selector, container, false)
-        setupAlignmentSelector(alignmentView)
-        container.addView(alignmentView)
-
-        // ── Hide status bar ──────────────────────────────────────────
-        container.addSwitchRow(
-            titleResId = R.string.settings_hide_status_bar,
-            subtitleResId = R.string.settings_hide_status_bar_desc,
-            isChecked = ThemePreferences.isStatusBarHidden(this),
-            iconResId = R.drawable.ic_settings_status_bar,
-            onCheckedChanged = { checked ->
-                ThemePreferences.setStatusBarHidden(this, checked)
-                applyStatusBarVisibility()
+        // ── Text size, alignment and status bar ──────────────────────
+        // Previously headed "appearance" a second time, which read as a duplicated section.
+        container.settingsSection(R.string.settings_section_text_layout) {
+            val currentSize = FontPreferences.getFontSizePt(this@AppearanceSettingsActivity)
+            val sizeBinding = SettingsSliderRowBinding.inflate(inflater, this, false)
+            sizeBinding.ivIcon.setImageResource(R.drawable.ic_settings_text_size)
+            sizeBinding.ivIcon.visibility = View.VISIBLE
+            sizeBinding.tvLabel.text = getString(R.string.settings_text_size_pt, currentSize)
+            sizeBinding.slider.apply {
+                valueFrom = 8f
+                valueTo = 24f
+                stepSize = 1f
+                value = currentSize.toFloat().coerceIn(8f, 24f)
+                addOnChangeListener { _, value, _ ->
+                    val size = value.toInt()
+                    FontPreferences.setFontSizePt(this@AppearanceSettingsActivity, size)
+                    sizeBinding.tvLabel.text = getString(R.string.settings_text_size_pt, size)
+                }
             }
-        )
+            addView(sizeBinding.root)
 
-        container.addView(inflater.inflate(R.layout.settings_divider, container, false))
+            val alignmentView = inflater.inflate(R.layout.settings_alignment_selector, this, false)
+            setupAlignmentSelector(alignmentView)
+            addView(alignmentView)
 
-        // ── Wallpaper ──────────────────────────────────────────────────
+            addSwitchRow(
+                titleResId = R.string.settings_hide_status_bar,
+                subtitleResId = R.string.settings_hide_status_bar_desc,
+                isChecked = ThemePreferences.isStatusBarHidden(this@AppearanceSettingsActivity),
+                iconResId = R.drawable.ic_settings_status_bar,
+                onCheckedChanged = { checked ->
+                    ThemePreferences.setStatusBarHidden(this@AppearanceSettingsActivity, checked)
+                    applyStatusBarVisibility()
+                }
+            )
+        }
+
+        // ── Wallpaper ────────────────────────────────────────────────
         container.addSectionHeader(R.string.settings_section_wallpaper)
 
         val wallpaperEnabled = WallpaperPreferences.isWallpaperEnabled(this)
@@ -242,6 +239,35 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
         wallpaperBlurSliderRoot = blurBinding.root
         container.addView(blurBinding.root)
 
+        // ── Legibility ───────────────────────────────────────────────
+        // The single control behind every scrim in the app: it decides how strongly panels
+        // are dimmed so text survives a busy photo. Blur already softens the image, so
+        // SurfaceScrim reduces the scrim automatically when blur is on.
+        val currentReadability = WallpaperPreferences.getReadability(this)
+        val readabilityBinding = SettingsSliderRowBinding.inflate(inflater, container, false)
+        readabilityBinding.ivIcon.setImageResource(R.drawable.ic_settings_text_size)
+        readabilityBinding.ivIcon.visibility = View.VISIBLE
+        readabilityBinding.tvLabel.text =
+            getString(R.string.settings_wallpaper_readability, currentReadability)
+        readabilityBinding.tvDescription.setText(R.string.settings_wallpaper_readability_hint)
+        readabilityBinding.tvDescription.visibility = View.VISIBLE
+        readabilityBinding.slider.apply {
+            valueFrom = 0f
+            valueTo = 100f
+            stepSize = 5f
+            value = currentReadability.toFloat().coerceIn(0f, 100f)
+            addOnChangeListener { _, value, _ ->
+                val level = value.toInt()
+                WallpaperPreferences.setReadability(this@AppearanceSettingsActivity, level)
+                readabilityBinding.tvLabel.text =
+                    getString(R.string.settings_wallpaper_readability, level)
+                // Repaint this screen straight away so the slider previews its own effect.
+                applyScrim()
+            }
+        }
+        wallpaperReadabilitySliderRoot = readabilityBinding.root
+        container.addView(readabilityBinding.root)
+
         wallpaperDisabledInfoRoot = container.addInfoRow(
             titleResId = R.string.settings_wallpaper_disabled_info,
             subtitleResId = R.string.settings_wallpaper_disabled_info_desc,
@@ -263,6 +289,14 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
     private fun applyTheme(theme: String) {
         if (ThemePreferences.getTheme(this) == theme) return
         ThemePreferences.setTheme(this, theme)
+        relaunchForThemeChange()
+    }
+
+    /**
+     * Restarts this screen so the new theme is applied before `setContentView`, which is the
+     * only point at which a style theme can take effect.
+     */
+    private fun relaunchForThemeChange() {
         val relaunch = Intent(this, AppearanceSettingsActivity::class.java)
         finish()
         startActivity(relaunch)
@@ -287,6 +321,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
 
     private fun showThemeSelectionDialog() {
         val view = inflater.inflate(R.layout.dialog_theme_select, null)
+        applyDialogSurface(view)
         applyFontFamilyToView(view)
         activeDialog = AlertDialog.Builder(this)
             .setView(view)
@@ -413,11 +448,16 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
         binding.btnApplyCustomTheme.setOnClickListener {
             val bgHex = binding.etCustomBgColor.text.toString().trim()
             val fgHex = binding.etCustomFgColor.text.toString().trim()
-            if (isValidHexColor(bgHex) && isValidHexColor(fgHex)) {
-                ThemePreferences.setCustomBackgroundColorHex(this, bgHex)
-                ThemePreferences.setCustomForegroundColorHex(this, fgHex)
-                applyTheme(ThemePreferences.THEME_CUSTOM)
+            if (!isValidHexColor(bgHex) || !isValidHexColor(fgHex)) {
+                // Silently doing nothing left the user tapping a dead button.
+                Toast.makeText(this, R.string.settings_custom_theme_invalid, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+            ThemePreferences.setCustomBackgroundColorHex(this, bgHex)
+            ThemePreferences.setCustomForegroundColorHex(this, fgHex)
+            // Always relaunch: when the custom theme is *already* selected only the two
+            // colours changed, and applyTheme() short-circuits on an unchanged theme id.
+            relaunchForThemeChange()
         }
     }
 
@@ -434,6 +474,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
     private fun showFontSelectionDialog() {
         val current = FontPreferences.getFont(this)
         val view = inflater.inflate(R.layout.dialog_font_select, null)
+        applyDialogSurface(view)
         applyFontFamilyToView(view)
         activeDialog = AlertDialog.Builder(this)
             .setView(view)
@@ -505,6 +546,12 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
         val btnLeft = view.findViewById<ImageView>(R.id.btn_align_left)
         val btnCenter = view.findViewById<ImageView>(R.id.btn_align_center)
         val btnRight = view.findViewById<ImageView>(R.id.btn_align_right)
+
+        // Rebuild the pill from the palette so the selected segment is correct under every
+        // theme — the XML selectors resolve to the style theme and miss custom colours.
+        (btnLeft.parent as? View)?.let {
+            applySegmentedControlColors(it, listOf(btnLeft, btnCenter, btnRight))
+        }
 
         fun updateUI(alignment: String) {
             btnLeft.isActivated = (alignment == ThemePreferences.ALIGN_LEFT)
@@ -605,6 +652,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
         wallpaperSettingsRowRoot?.visibility = if (enabled) View.VISIBLE else View.GONE
         wallpaperBlurSwitchRoot?.visibility = if (enabled) View.VISIBLE else View.GONE
         wallpaperBlurSliderRoot?.visibility = if (enabled) View.VISIBLE else View.GONE
+        wallpaperReadabilitySliderRoot?.visibility = if (enabled) View.VISIBLE else View.GONE
         wallpaperDisabledInfoRoot?.visibility = if (enabled) View.GONE else View.VISIBLE
         updateWallpaperPreview()
     }

@@ -45,6 +45,7 @@
     <string name="settings_text_size">textgröße</string>
     <string name="settings_text_size_pt">textgröße: %1$dpt</string>
     <string name="settings_section_font">schriftart</string>
+    <string name="settings_section_text_layout">text und layout</string>
     <string name="settings_font_label">launcher-schriftart</string>
     <string name="font_select_title">schriftart auswählen</string>
     <string name="settings_font_system">system</string>
@@ -281,6 +282,7 @@
     <string name="settings_custom_theme_bg">hintergrundfarbe</string>
     <string name="settings_custom_theme_fg">vordergrundfarbe</string>
     <string name="settings_custom_theme_apply">anwenden</string>
+    <string name="settings_custom_theme_invalid">gib zwei farben im format #rrggbb ein</string>
 
     <!-- Settings: Clock -->
     <string name="settings_clock_thin">dünn</string>
@@ -424,6 +426,9 @@
     <string name="widget_picker_title">widget auswählen</string>
     <string name="settings_wallpaper_blur_desc">hintergrund weichzeichnen für bessere lesbarkeit</string>
     <string name="settings_wallpaper_blur_intensity">weichzeichner-intensität: %1$d%%</string>
+
+    <string name="settings_wallpaper_readability">textlesbarkeit: %1$d%%</string>
+    <string name="settings_wallpaper_readability_hint">wie stark panels abgedunkelt werden, damit text über dem hintergrundbild lesbar bleibt</string>
     <string name="settings_wallpaper_blur_label">hintergrund weichzeichnen</string>
     <string name="settings_wallpaper_disabled_info">hintergrund ausgeblendet</string>
     <string name="settings_wallpaper_disabled_info_desc">aktiviere den schalter oben, um ein hintergrundbild auszuwählen</string>

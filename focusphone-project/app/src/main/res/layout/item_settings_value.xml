@@ -35,19 +35,24 @@
 
         <TextView
             android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
             android:fontFamily="sans-serif-medium"
+            android:maxLines="2"
             android:textColor="?android:attr/textColorPrimary"
             android:textSize="15sp"
             tools:text="theme" />
 
         <TextView
             android:id="@+id/tv_subtitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
+            android:ellipsize="end"
             android:fontFamily="sans-serif"
+            android:lineSpacingMultiplier="1.15"
+            android:maxLines="3"
             android:textColor="?android:attr/textColorSecondary"
             android:textSize="13sp"
             tools:text="choose your colour scheme" />
@@ -57,9 +62,13 @@
         android:id="@+id/tv_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="12dp"
         android:layout_marginEnd="8dp"
+        android:ellipsize="end"
         android:fontFamily="sans-serif"
+        android:gravity="end"
+        android:maxLines="1"
+        android:maxWidth="132dp"
         android:textColor="?android:attr/textColorSecondary"
         android:textSize="14sp"
         tools:text="slate" />
@@ -69,6 +78,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-light"
+        android:importantForAccessibility="no"
         android:text="@string/settings_chevron"
         android:textColor="?android:attr/textColorSecondary"
         android:textSize="18sp" />
