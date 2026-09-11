@@ -47,5 +47,3 @@ ehthumbs.db
 # Local working documentation and agent skills (not part of the published project).
 # `docs/*` rather than `docs/`: git cannot re-include a file whose parent directory is
 # excluded, and the technical audit is the tracking document every fix is marked in.
-.docs/*
-!docs/auditoria-tecnica-completa.md
