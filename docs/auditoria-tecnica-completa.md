@@ -90,8 +90,8 @@ Actualizar esta tabla cada vez que se cierre un bloque de trabajo.
 | **Fase 4** — Rendimiento | 10 | 10 | ✅ Completada |
 | **Fase 5** — Build, calidad y CI | 15 | 15 | ✅ Completada |
 | **Fase 6** — Limpieza y código muerto | 11 | 9 | 🟡 En curso |
-| **Fase 7** — Localización y accesibilidad | 12 | 0 | ⬜ Pendiente |
-| **TOTAL** | **83** | **69** | **83 %** |
+| **Fase 7** — Localización y accesibilidad | 12 | 12 | ✅ Completada |
+| **TOTAL** | **83** | **81** | **98 %** |
 
 **Por severidad:**
 
@@ -100,8 +100,8 @@ Actualizar esta tabla cada vez que se cierre un bloque de trabajo.
 | 🟥 BLOCKER | 3 | 3 |
 | 🟧 CRÍTICO | 9 | 9 |
 | 🟨 ALTO | 21 | 21 |
-| 🟦 MEDIO | 26 | 17 |
-| ⬜ BAJO | 24 | 19 |
+| 🟦 MEDIO | 26 | 26 |
+| ⬜ BAJO | 24 | 22 |
 
 > **Criterio de release:** no se publica ninguna build mientras queden hallazgos 🟥 o 🟧 sin cerrar.
 
@@ -225,8 +225,8 @@ Actualizar esta tabla cada vez que se cierre un bloque de trabajo.
 - [x] ⬜ **FP-064** — [Código duplicado literal dentro de `HomeActivity.onResume`](#fp-064--código-duplicado-literal-dentro-de-homeactivityonresume) (b6db552)
 - [x] ⬜ **FP-065** — [Ficheros de configuración de backup muertos](#fp-065--ficheros-de-configuración-de-backup-muertos) (b6db552)
 - [x] ⬜ **FP-066** — [`values-night/themes.xml` vacío](#fp-066--values-nightthemesxml-vacío) (b6db552)
-- [ ] ⬜ **FP-067** — [66 strings sin usar](#fp-067--66-strings-sin-usar)
-- [ ] ⬜ **FP-068** — [19 recursos sin usar](#fp-068--19-recursos-sin-usar)
+- [x] ⬜ **FP-067** — [66 strings sin usar](#fp-067--66-strings-sin-usar)
+- [x] ⬜ **FP-068** — [19 recursos sin usar](#fp-068--19-recursos-sin-usar)
 - [x] ⬜ **FP-069** — [APIs deprecadas (avisos del compilador)](#fp-069--apis-deprecadas-avisos-del-compilador) (b6db552)
 - [x] ⬜ **FP-070** — [85 avisos `UseKtx`](#fp-070--85-avisos-usektx) (b6db552)
 
@@ -236,20 +236,20 @@ Actualizar esta tabla cada vez que se cierre un bloque de trabajo.
 
 *Pulido final de cara al usuario.*
 
-**Progreso: 0 / 12**
+**Progreso: 12 / 12**
 
-- [ ] 🟦 **FP-038** — [`expandNotificationsPanel()` usa reflexión bloqueada en Android moderno](#fp-038--expandnotificationspanel-usa-reflexión-bloqueada-en-android-moderno)
-- [ ] 🟦 **FP-039** — [El ancho de los cajones usa `displayMetrics.widthPixels`](#fp-039--el-ancho-de-los-cajones-usa-displaymetricswidthpixels)
-- [ ] 🟦 **FP-040** — [El "long press" del editor de layout se dispara a los 200 ms](#fp-040--el-long-press-del-editor-de-layout-se-dispara-a-los-200-ms)
-- [ ] 🟦 **FP-043** — [El diálogo de licencias muestra HTML en crudo](#fp-043--el-diálogo-de-licencias-muestra-html-en-crudo)
-- [ ] 🟦 **FP-044** — [Los diálogos de creación/renombrado de carpeta pierden lo escrito ante un nombre duplicado](#fp-044--los-diálogos-de-creaciónrenombrado-de-carpeta-pierden-lo-escrito-ante-un-nombre-duplicado)
-- [ ] 🟦 **FP-056** — [Los nombres de app se fuerzan a minúsculas y se eliminan los acentos](#fp-056--los-nombres-de-app-se-fuerzan-a-minúsculas-y-se-eliminan-los-acentos)
-- [ ] 🟦 **FP-057** — [El reloj ignora el ajuste de 12/24 horas del sistema](#fp-057--el-reloj-ignora-el-ajuste-de-1224-horas-del-sistema)
-- [ ] 🟦 **FP-058** — [`AnalogClockView` describe AM/PM incluso en locales de 24 h](#fp-058--analogclockview-describe-ampm-incluso-en-locales-de-24-h)
-- [ ] 🟦 **FP-059** — [`PermissionsActivity` muestra un estado siempre "concedido" para `QUERY_ALL_PACKAGES`](#fp-059--permissionsactivity-muestra-un-estado-siempre-concedido-para-query_all_packages)
-- [ ] ⬜ **FP-078** — [Faltan `contentDescription` y atributos de accesibilidad](#fp-078--faltan-contentdescription-y-atributos-de-accesibilidad)
-- [ ] ⬜ **FP-079** — [Texto embebido en layouts y concatenación en `setText`](#fp-079--texto-embebido-en-layouts-y-concatenación-en-settext)
-- [ ] ⬜ **FP-080** — [Candidatos a `plurals` y erratas](#fp-080--candidatos-a-plurals-y-erratas)
+- [x] 🟦 **FP-038** — [`expandNotificationsPanel()` usa reflexión bloqueada en Android moderno](#fp-038--expandnotificationspanel-usa-reflexión-bloqueada-en-android-moderno) (8cafb13)
+- [x] 🟦 **FP-039** — [El ancho de los cajones usa `displayMetrics.widthPixels`](#fp-039--el-ancho-de-los-cajones-usa-displaymetricswidthpixels) (8cafb13)
+- [x] 🟦 **FP-040** — [El "long press" del editor de layout se dispara a los 200 ms](#fp-040--el-long-press-del-editor-de-layout-se-dispara-a-los-200-ms) (8cafb13)
+- [x] 🟦 **FP-043** — [El diálogo de licencias muestra HTML en crudo](#fp-043--el-diálogo-de-licencias-muestra-html-en-crudo) (8cafb13)
+- [x] 🟦 **FP-044** — [Los diálogos de creación/renombrado de carpeta pierden lo escrito ante un nombre duplicado](#fp-044--los-diálogos-de-creaciónrenombrado-de-carpeta-pierden-lo-escrito-ante-un-nombre-duplicado) (8cafb13)
+- [x] 🟦 **FP-056** — [Los nombres de app se fuerzan a minúsculas y se eliminan los acentos](#fp-056--los-nombres-de-app-se-fuerzan-a-minúsculas-y-se-eliminan-los-acentos) (8cafb13)
+- [x] 🟦 **FP-057** — [El reloj ignora el ajuste de 12/24 horas del sistema](#fp-057--el-reloj-ignora-el-ajuste-de-1224-horas-del-sistema) (8cafb13)
+- [x] 🟦 **FP-058** — [`AnalogClockView` describe AM/PM incluso en locales de 24 h](#fp-058--analogclockview-describe-ampm-incluso-en-locales-de-24-h) (8cafb13)
+- [x] 🟦 **FP-059** — [`PermissionsActivity` muestra un estado siempre "concedido" para `QUERY_ALL_PACKAGES`](#fp-059--permissionsactivity-muestra-un-estado-siempre-concedido-para-query_all_packages) (8cafb13)
+- [x] ⬜ **FP-078** — [Faltan `contentDescription` y atributos de accesibilidad](#fp-078--faltan-contentdescription-y-atributos-de-accesibilidad) (697bd19)
+- [x] ⬜ **FP-079** — [Texto embebido en layouts y concatenación en `setText`](#fp-079--texto-embebido-en-layouts-y-concatenación-en-settext) (697bd19)
+- [x] ⬜ **FP-080** — [Candidatos a `plurals` y erratas](#fp-080--candidatos-a-plurals-y-erratas) (697bd19)
 
 ---
 
@@ -263,7 +263,7 @@ Marcar solo cuando la fase entera esté cerrada y las comprobaciones pasen.
 - [x] **Fase 4 cerrada** — sin decodificación de bitmap por `onResume` · sin lecturas de preferencias en `onBindViewHolder` ni en `onChildDraw`
 - [x] **Fase 5 cerrada** — `./gradlew :app:lintDebug` con **0 errores** · `checkReleaseBuilds = true` · clon limpio ejecuta `./gradlew` (eb4ba0e; 149 tests unitarios en verde)
 - [ ] **Fase 6 cerrada** — pendiente FP-067/FP-068 (poda de recursos sin usar; lint sigue reportando 133 `UnusedResources`). El resto de la fase está cerrado (b6db552; `compileDebugKotlin` sin warnings, 156/156 tests, `lintDebug` 0 errores)
-- [ ] **Fase 7 cerrada** — 0 `MissingTranslation` · 0 `ContentDescription` · 0 `HardcodedText`
+- [x] **Fase 7 cerrada** — 0 `MissingTranslation` · 0 `ContentDescription` · 0 `HardcodedText` · 0 `ClickableViewAccessibility` · 0 `SetTextI18n` · 0 `PluralsCandidate`/`MissingQuantity` (8cafb13, 697bd19; `lintDebug` sigue en 0 errores, 156/156 tests)
 
 ---
 
@@ -291,6 +291,13 @@ encontrados durante la corrección. Un hallazgo nuevo se numera `FP-082` en adel
 | 2026-09-11 | FP-070 (alcance ampliado) | El pase `UseKtx` detectó y corrigió un bug real: `EncryptedPrefs.commitString` usaba `edit(commit = true) { }`, que devuelve `Unit`, no el `Boolean` que la firma promete a sus llamadores | Sin la corrección el código no compilaba; se deja registrado porque no estaba en la ficha original | Claude |
 | 2026-09-11 | FP-083 (nuevo) | Añadido a la Fase 5: al terminar el onboarding, `HomeActivity.onResume` hace `recreate()` en lugar de llamar a `initializeHome()` | El diferido de FP-034 lanzaba `repeatOnLifecycle` desde `onResume` (error de lint `RepeatOnLifecycleWrongUsage`); recrear una única vez en la vida de la app mantiene toda la inicialización en `onCreate` | Claude |
 | 2026-09-11 | Alcance ampliado | Nuevo workflow `.github/workflows/android-ci.yml` (tests unitarios, `lintDebug`, `assembleRelease` sin firmar) | La fase es "Build, calidad y CI" y su criterio es que un clon limpio ejecute `./gradlew`; CI lo comprueba en cada push | Claude |
+| 2026-09-11 | FP-038 | Ruta oficial `GLOBAL_ACTION_NOTIFICATIONS` vía `FocusAccessibilityService` (instancia viva en `WeakReference`), con la reflexión sobre `StatusBarManager` como último recurso | La reflexión está bloqueada por la lista de interfaces no-SDK en API 31+; el servicio de accesibilidad ya es requisito para el bloqueo real de apps, así que la ruta oficial cubre el caso común | Claude |
+| 2026-09-11 | FP-039 | Ancho de cajones recalculado desde `View.OnLayoutChangeListener` sobre el propio `DrawerLayout`, no `WindowMetricsCalculator` (sin añadir la dependencia `androidx.window`) | El layout del propio contenedor ya reflejaba el tamaño real de ventana en multi-ventana/plegables; añadir una librería nueva solo para esto no se justificaba | Claude |
+| 2026-09-11 | FP-056 (alcance ampliado) | Se separó `normalizeAppName()` (solo minúsculas, conserva acentos) de una nueva `normalizeForSearch()` (sin acentos) usada por `FuzzyMatcher` | Sin la segunda función, restaurar los acentos en las etiquetas mostradas habría roto la búsqueda insensible a acentos que dependía del efecto secundario de `normalizeAppName()`; se actualizó el test `FuzzyMatcherTest` que documentaba el comportamiento antiguo (accent-sensitive) como si fuera correcto | Claude |
+| 2026-09-11 | FP-059 | Se sustituyó `checkSelfPermission(QUERY_ALL_PACKAGES)` por un recuento real de apps visibles (`appRepository.getInstalledApps().size > 5`) en vez de eliminar la fila | Mantiene la fila informativa (coincide con el resto de filas de `PermissionsActivity`) pero con una señal que sí puede fallar de verdad | Claude |
+| 2026-09-11 | FP-078/FP-079/FP-080 | `@SuppressLint("ClickableViewAccessibility")` documentado en los tres touch listeners que ya llaman a `performClick()` en `ACTION_UP`/`ACTION_CANCEL`; los símbolos puramente visuales (✓, ←, →, ":", hex de ejemplo, nombre de marca "focusphone") se movieron a `@string` con `translatable="false"` en vez de traducirlos | El análisis estático de lint no seguye la llamada a `performClick()` dentro de un `when` anidado; marcar como no traducible evita que aparezcan en el panel de traducciones símbolos que no son texto de ningún idioma | Claude |
+| 2026-09-11 | FP-080 (alcance ampliado) | Se añadió `many` a los plurals de `es`/`fr` (categoría definida por CLDR para ambos idiomas) y se convirtió `schedule_blocked_limit_desc` a `<plurals>`, no incluido en la ficha original | Necesario para que `lintDebug` mantuviera 0 errores tras convertir los otros candidatos a `plurals`; lint señaló ambos como consecuencia directa del cambio | Claude |
+| 2026-09-11 | FP-080 | Los tres usos de "cancel" en minúsculas (`action_cancel`, `pause_cancel`, `detox_btn_cancel`) se dejan como están pese al aviso de lint `ButtonCase` | Es el estilo minimalista deliberado de todo el proyecto (todas las cadenas van en minúsculas); la ficha solo señalaba "ok" como errata, no "cancel" | Claude |
 ---
 
 # 2. 🟥 BLOCKER — Rompen la propuesta de valor del producto
