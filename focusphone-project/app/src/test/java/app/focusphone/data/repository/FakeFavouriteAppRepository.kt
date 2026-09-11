@@ -2,6 +2,7 @@ package app.focusphone.data.repository
 
 import app.focusphone.data.model.FavouriteApp
 import app.focusphone.domain.repository.FavouriteAppRepository
+import app.focusphone.domain.util.FavouriteOrdering
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -31,9 +32,11 @@ class FakeFavouriteAppRepository : FavouriteAppRepository {
     override suspend fun isFavourite(packageName: String): Boolean =
         apps.any { it.packageName == packageName }
 
-    override suspend fun replaceAll(appsList: List<FavouriteApp>) {
+    override suspend fun updateOrder(packageNames: List<String>) {
+        val byPackage = apps.associateBy { it.packageName }
+        val merged = FavouriteOrdering.merge(apps.map { it.packageName }, packageNames)
         apps.clear()
-        apps.addAll(appsList.mapIndexed { index, app -> app.copy(sortOrder = index) })
+        apps.addAll(merged.mapIndexed { index, pkg -> byPackage.getValue(pkg).copy(sortOrder = index) })
         flow.value = apps.toList()
     }
 }

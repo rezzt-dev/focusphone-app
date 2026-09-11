@@ -374,7 +374,10 @@ class AllAppsActivity : BaseActivity() {
   }
 
   private fun toggleBlocked(app: AppInfo, isBlocked: Boolean) {
-    ProfilePreferences.setAppBlockedState(this, app.packageName, !isBlocked)
+    if (!ProfilePreferences.setAppBlockedState(this, app.packageName, !isBlocked)) {
+      toast(getString(R.string.error_save_failed))
+      return
+    }
     val toastFormat = if (isBlocked) {
       R.string.allapps_toast_unblocked
     } else {
@@ -424,7 +427,9 @@ class AllAppsActivity : BaseActivity() {
       .setPositiveButton(R.string.action_save) { _, _ ->
         val newLabel = input.text.toString().trim().normalizeAppName()
         val prefs = focusPhoneApp.container.customAppLabelsPreferences
-        prefs.setCustomLabel(app.packageName, newLabel.ifEmpty { null })
+        if (!prefs.setCustomLabel(app.packageName, newLabel.ifEmpty { null })) {
+          toast(getString(R.string.error_save_failed))
+        }
         viewModel.load()
       }
       .setNeutralButton(R.string.action_reset) { _, _ ->

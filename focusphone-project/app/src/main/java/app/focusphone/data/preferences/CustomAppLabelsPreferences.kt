@@ -1,6 +1,8 @@
 package app.focusphone.data.preferences
 
 import android.content.Context
+import android.util.Log
+import androidx.core.content.edit
 import app.focusphone.security.SecureStorageHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,13 +14,18 @@ import kotlinx.coroutines.flow.asStateFlow
  * Values are encrypted at rest with [SecureStorageHelper] (AES-256/GCM + Android Keystore).
  * On first load, any legacy plain-text values are transparently migrated to the encrypted format.
  *
+ * Legacy values are recognised by their *shape* ([SecureStorageHelper.looksEncrypted]), never
+ * by a failed decryption: when the Keystore key is lost, a real payload also fails to decrypt,
+ * and treating it as plain text would re-encrypt the ciphertext and corrupt the label forever.
+ * Unreadable labels are left on disk untouched and the system label is shown instead.
+ *
  * Keys (package names) are validated to ensure they conform to a valid package name shape
  * before persistence.
  */
 class CustomAppLabelsPreferences(context: Context) {
 
-    private val prefs = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
     private val appContext = context.applicationContext
+    private val prefs = appContext.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
     private val _labelsFlow = MutableStateFlow<Map<String, String>>(loadAllLabels())
     val labelsFlow: StateFlow<Map<String, String>> = _labelsFlow.asStateFlow()
 
@@ -26,54 +33,63 @@ class CustomAppLabelsPreferences(context: Context) {
         return _labelsFlow.value[packageName]
     }
 
-    fun setCustomLabel(packageName: String, label: String?) {
-        if (!isValidPackageName(packageName)) return
+    /**
+     * Stores [label] for [packageName]; a blank label restores the system name.
+     *
+     * @return false when nothing changed because the package name is invalid or the label
+     * could not be encrypted. The in-memory state only ever reflects what reached disk.
+     */
+    fun setCustomLabel(packageName: String, label: String?): Boolean {
+        if (!isValidPackageName(packageName)) return false
 
-        val current = _labelsFlow.value.toMutableMap()
         if (label.isNullOrBlank()) {
-            current.remove(packageName)
-            prefs.edit().remove(packageName).apply()
-        } else {
-            val trimmed = label.trim()
-            current[packageName] = trimmed
-            SecureStorageHelper.encrypt(appContext, trimmed)?.let { encrypted ->
-                prefs.edit().putString(packageName, encrypted).apply()
-            }
+            prefs.edit { remove(packageName) }
+            _labelsFlow.value = _labelsFlow.value - packageName
+            return true
         }
-        _labelsFlow.value = current.toMap()
+
+        val trimmed = label.trim()
+        val encrypted = SecureStorageHelper.encrypt(trimmed) ?: return false
+        prefs.edit { putString(packageName, encrypted) }
+        _labelsFlow.value = _labelsFlow.value + (packageName to trimmed)
+        return true
     }
 
     private fun loadAllLabels(): Map<String, String> {
-        val all = prefs.all
         val map = mutableMapOf<String, String>()
         val plainValuesToMigrate = mutableMapOf<String, String>()
+        val invalidKeys = mutableListOf<String>()
 
-        for ((key, value) in all) {
+        for ((key, value) in prefs.all) {
             if (value !is String) continue
             if (!isValidPackageName(key)) {
-                // Clean up invalid keys from older versions
-                prefs.edit().remove(key).apply()
+                invalidKeys += key
                 continue
             }
 
-            val decrypted = SecureStorageHelper.decrypt(appContext, value)
-            if (decrypted != null) {
-                map[key] = decrypted
-            } else {
-                // Assume legacy plain-text value; migrate transparently
+            if (!SecureStorageHelper.looksEncrypted(value)) {
+                // Legacy plain-text label written before encryption existed.
                 map[key] = value
                 plainValuesToMigrate[key] = value
+                continue
+            }
+
+            when (val result = SecureStorageHelper.decrypt(value)) {
+                is SecureStorageHelper.DecryptResult.Success -> map[key] = result.plainText
+                // Never rewrite an unreadable payload: the key may come back, and even if it
+                // does not, the user simply sees the system name until they rename the app.
+                else -> Log.w(TAG, "Custom label for $key is unreadable ($result); using system label")
             }
         }
 
-        if (plainValuesToMigrate.isNotEmpty()) {
-            val editor = prefs.edit()
-            for ((key, plain) in plainValuesToMigrate) {
-                SecureStorageHelper.encrypt(appContext, plain)?.let { encrypted ->
-                    editor.putString(key, encrypted)
+        if (invalidKeys.isNotEmpty() || plainValuesToMigrate.isNotEmpty()) {
+            prefs.edit {
+                // Clean up invalid keys from older versions.
+                invalidKeys.forEach { remove(it) }
+                for ((key, plain) in plainValuesToMigrate) {
+                    SecureStorageHelper.encrypt(plain)?.let { encrypted -> putString(key, encrypted) }
                 }
             }
-            editor.apply()
         }
 
         return map
@@ -84,10 +100,12 @@ class CustomAppLabelsPreferences(context: Context) {
         if (packageName.isBlank()) return false
         if (packageName.length > 255) return false
         if (!packageName.contains(".")) return false
-        return packageName.matches(Regex("^[a-zA-Z0-9._]+$"))
+        return PACKAGE_NAME_SHAPE.matches(packageName)
     }
 
     companion object {
+        private const val TAG = "CustomAppLabels"
         private const val PREF_FILE = "focusphone_custom_labels"
+        private val PACKAGE_NAME_SHAPE = Regex("^[a-zA-Z0-9._]+$")
     }
 }

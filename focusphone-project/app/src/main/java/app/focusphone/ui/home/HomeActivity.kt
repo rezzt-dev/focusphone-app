@@ -887,74 +887,15 @@ class HomeActivity : BaseActivity() {
 
     private fun changeProfileWithDetoxCheck(newProfile: String, onApproved: () -> Unit) {
         if (ProfilePreferences.isDetoxActive(this)) {
-            showDetoxVerifyPasswordDialog {
-                ProfilePreferences.setProfile(this, newProfile)
+            // Leaving a running detox session always requires its password.
+            showDetoxUnlockDialog {
+                ProfilePreferences.endDetoxSession(this, newProfile)
                 onApproved()
             }
         } else {
             ProfilePreferences.setProfile(this, newProfile)
             onApproved()
         }
-    }
-
-    private fun showDetoxVerifyPasswordDialog(onSuccess: () -> Unit) {
-        val view = layoutInflater.inflate(R.layout.dialog_detox_password_verify, null)
-        applyDialogSurface(view)
-        applyFontFamilyToView(view)
-        val dialog = android.app.AlertDialog.Builder(this)
-            .setView(view)
-            .create()
-
-        dialog.window?.apply {
-            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
-            addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
-
-        val etPassword = view.findViewById<android.widget.EditText>(R.id.et_detox_password_verify)
-
-        view.findViewById<View>(R.id.btn_cancel).setOnClickListener {
-            dialog.dismiss()
-        }
-
-        view.findViewById<View>(R.id.btn_ok).setOnClickListener {
-            if (ProfilePreferences.isPasswordLockedOut(this)) {
-                Toast.makeText(this, getString(R.string.detox_force_disabled), Toast.LENGTH_LONG).show()
-                ProfilePreferences.setDetoxPassword(this, null)
-                ProfilePreferences.setDetoxEndTime(this, 0L)
-                ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_NORMAL)
-                ProfilePreferences.clearFailedAttempts(this)
-                onSuccess()
-                dialog.dismiss()
-                return@setOnClickListener
-            }
-
-            val entered = etPassword.text.toString()
-            if (ProfilePreferences.verifyDetoxPassword(this, entered)) {
-                ProfilePreferences.clearFailedAttempts(this)
-                ProfilePreferences.setDetoxPassword(this, null)
-                onSuccess()
-                dialog.dismiss()
-            } else {
-                val attempts = ProfilePreferences.getFailedAttempts(this)
-                if (attempts >= 4) {
-                    ProfilePreferences.setDetoxPassword(this, null)
-                    ProfilePreferences.setDetoxEndTime(this, 0L)
-                    ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_NORMAL)
-                    ProfilePreferences.clearFailedAttempts(this)
-                    onSuccess()
-                    dialog.dismiss()
-                    Toast.makeText(
-                        this,
-                        getString(R.string.detox_force_disabled),
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    Toast.makeText(this, getString(R.string.error_incorrect_password), Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-
-        dialog.show()
     }
 
     private fun showDetoxDurationDialog() {
@@ -1069,18 +1010,25 @@ class HomeActivity : BaseActivity() {
 
         view.findViewById<View>(R.id.btn_ok).setOnClickListener {
             val pwd = etPassword.text.toString()
-            if (pwd.length >= 4) {
-                ProfilePreferences.setDetoxPassword(this, pwd)
-                val endTime = System.currentTimeMillis() + durationMs
-                ProfilePreferences.setProfile(this, ProfilePreferences.PROFILE_DETOX)
-                ProfilePreferences.setDetoxEndTime(this, endTime)
-                ProfilePreferences.clearFailedAttempts(this)
+            if (pwd.length < ProfilePreferences.MIN_PASSWORD_LENGTH) {
+                Toast.makeText(this, getString(R.string.error_min_characters), Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            it.isEnabled = false
+            lifecycleScope.launch {
+                // PBKDF2 is deliberately slow; never hash on the main thread.
+                val started = withContext(Dispatchers.Default) {
+                    ProfilePreferences.startDetoxSession(applicationContext, pwd, durationMs)
+                }
+                it.isEnabled = true
+                if (!started) {
+                    Toast.makeText(this@HomeActivity, R.string.error_save_failed, Toast.LENGTH_LONG).show()
+                    return@launch
+                }
                 updateProfileLabel()
                 binding.drawerLayout.closeDrawers()
                 dialog.dismiss()
                 onSet()
-            } else {
-                Toast.makeText(this, getString(R.string.error_min_characters), Toast.LENGTH_SHORT).show()
             }
         }
 

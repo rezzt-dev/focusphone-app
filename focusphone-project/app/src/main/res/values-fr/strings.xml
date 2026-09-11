@@ -139,7 +139,6 @@
     <string name="detox_unlock_desc">entrez le mot de passe pour désactiver le mode detox :</string>
     <string name="detox_btn_unlock">déverrouiller</string>
     <string name="error_incorrect_password">mot de passe incorrect</string>
-    <string name="detox_force_disabled">mode detox désactivé automatiquement par sécurité</string>
     <string name="error_min_characters">minimum 4 caractères</string>
     <string name="error_invalid_duration">durée invalide</string>
     <!-- Settings Sections -->
@@ -585,8 +584,6 @@ quarante et une</string>
     <string name="schedule_unlock_desc">entrez votre mot de passe pour voir et modifier les horaires :</string>
     <string name="schedule_confirm_password_title">confirmer le mot de passe</string>
     <string name="schedule_confirm_password_desc">entrez votre mot de passe actuel pour continuer :</string>
-    <string name="schedule_wrong_password">mot de passe incorrect. %1$d tentatives restantes</string>
-    <string name="schedule_locked_out">trop de tentatives. réessayez dans %1$d min</string>
 
     <!-- Écran de blocage par horaire -->
     <string name="schedule_blocked_label">planifiée</string>
@@ -594,4 +591,17 @@ quarante et une</string>
     <string name="schedule_blocked_window_desc">cette appli est disponible entre %1$s et %2$s.</string>
     <string name="schedule_blocked_limit_title">limite quotidienne atteinte</string>
     <string name="schedule_blocked_limit_desc">vous avez utilisé %1$d de vos %2$d minutes aujourd\'hui. le quota repart à minuit.</string>
+
+    <!-- Shared password lock (detox and schedules) -->
+    <plurals name="password_attempts_left">
+        <item quantity="one">mot de passe incorrect. %1$d tentative restante</item>
+        <item quantity="other">mot de passe incorrect. %1$d tentatives restantes</item>
+    </plurals>
+    <plurals name="password_locked_out_minutes">
+        <item quantity="one">trop de tentatives. réessayez dans %1$d minute</item>
+        <item quantity="other">trop de tentatives. réessayez dans %1$d minutes</item>
+    </plurals>
+    <string name="error_save_failed">impossible d\'enregistrer. réessayez</string>
+    <string name="settings_wallpaper_import_failed">impossible d\'utiliser cette image</string>
+    <string name="wallpaper_access_lost">un fond d\'écran n\'était plus lisible et a été retiré. choisissez-le à nouveau</string>
 </resources>

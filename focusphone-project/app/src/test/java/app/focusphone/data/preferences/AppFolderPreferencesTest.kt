@@ -1,6 +1,9 @@
 package app.focusphone.data.preferences
 
+import app.focusphone.security.EncryptedPrefs.StoredValue
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class AppFolderPreferencesTest {
@@ -38,6 +41,47 @@ class AppFolderPreferencesTest {
             listOf("com.example.mail"),
             rejecting.getFolder(folder.id)?.packageNames
         )
+    }
+
+    @Test
+    fun `temporarily unreadable folders are never overwritten`() {
+        val stored = mutableMapOf<String, String>()
+        requireNotNull(preferencesBackedBy(stored).createFolder("home"))
+        val onDisk = stored.toMap()
+
+        var keyAvailable = false
+        val preferences = AppFolderPreferences.forTesting(
+            read = { key ->
+                if (!keyAvailable) StoredValue.Unavailable
+                else stored[key]?.let(StoredValue::Present) ?: StoredValue.Absent
+            },
+            writeString = { key, value ->
+                if (value == null) stored.remove(key) else stored[key] = value
+                true
+            }
+        )
+
+        assertNull(preferences.createFolder("work"))
+        assertEquals(onDisk, stored)
+
+        // Once the key is back, the real folders are loaded before the change is applied.
+        keyAvailable = true
+        assertNotNull(preferences.createFolder("work"))
+        assertEquals(listOf("home", "work"), preferences.getFolders().map { it.name })
+    }
+
+    @Test
+    fun `permanently lost folders can be rebuilt`() {
+        val stored = mutableMapOf<String, String>()
+        val preferences = AppFolderPreferences.forTesting(
+            read = { key -> stored[key]?.let(StoredValue::Present) ?: StoredValue.Lost },
+            writeString = { key, value ->
+                if (value == null) stored.remove(key) else stored[key] = value
+                true
+            }
+        )
+
+        assertNotNull(preferences.createFolder("work"))
     }
 
     private fun preferencesBackedBy(stored: MutableMap<String, String>): AppFolderPreferences =

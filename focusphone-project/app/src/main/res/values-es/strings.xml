@@ -180,7 +180,6 @@ toca el menú para añadir apps.</string>
     <string name="detox_unlock_desc">introduce la contraseña para desactivar el modo detox:</string>
     <string name="detox_btn_unlock">desbloquear</string>
     <string name="error_incorrect_password">contraseña incorrecta</string>
-    <string name="detox_force_disabled">modo detox desactivado automáticamente por seguridad</string>
     <string name="error_min_characters">mínimo 4 caracteres</string>
     <string name="error_invalid_duration">duración no válida</string>
     <string name="detox_blocked_title">detox activo</string>
@@ -596,8 +595,6 @@ cuarenta y uno</string>
     <string name="schedule_unlock_desc">introduce tu contraseña para ver y editar los horarios:</string>
     <string name="schedule_confirm_password_title">confirmar contraseña</string>
     <string name="schedule_confirm_password_desc">introduce tu contraseña actual para continuar:</string>
-    <string name="schedule_wrong_password">contraseña incorrecta. quedan %1$d intentos</string>
-    <string name="schedule_locked_out">demasiados intentos. inténtalo en %1$d min</string>
 
     <!-- Pantalla de bloqueo por horario -->
     <string name="schedule_blocked_label">con horario</string>
@@ -605,4 +602,17 @@ cuarenta y uno</string>
     <string name="schedule_blocked_window_desc">esta app está disponible entre las %1$s y las %2$s.</string>
     <string name="schedule_blocked_limit_title">límite diario alcanzado</string>
     <string name="schedule_blocked_limit_desc">has usado %1$d de tus %2$d minutos de hoy. el límite se reinicia a medianoche.</string>
+
+    <!-- Shared password lock (detox and schedules) -->
+    <plurals name="password_attempts_left">
+        <item quantity="one">contraseña incorrecta. queda %1$d intento</item>
+        <item quantity="other">contraseña incorrecta. quedan %1$d intentos</item>
+    </plurals>
+    <plurals name="password_locked_out_minutes">
+        <item quantity="one">demasiados intentos. inténtalo en %1$d minuto</item>
+        <item quantity="other">demasiados intentos. inténtalo en %1$d minutos</item>
+    </plurals>
+    <string name="error_save_failed">no se pudo guardar. inténtalo de nuevo</string>
+    <string name="settings_wallpaper_import_failed">no se pudo usar esta imagen</string>
+    <string name="wallpaper_access_lost">no se pudo leer un fondo de pantalla y se ha quitado. vuelve a elegirlo</string>
 </resources>

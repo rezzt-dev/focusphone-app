@@ -27,6 +27,7 @@ import app.focusphone.databinding.SettingsCustomThemePanelBinding
 import app.focusphone.databinding.SettingsSliderRowBinding
 import app.focusphone.databinding.SettingsWallpaperPreviewBinding
 import app.focusphone.domain.model.AppFont
+import app.focusphone.ui.wallpaper.WallpaperStorage
 import app.focusphone.ui.wallpaper.WallpaperUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -586,28 +587,41 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
         )
     }
 
+    /**
+     * Stores a picked image. The Photo Picker grant dies with the process, so the image is
+     * copied into private storage rather than referenced by its `content://` URI.
+     */
     private fun handleWallpaperSelected(uri: Uri, target: WallpaperTarget) {
-        try {
-            contentResolver.takePersistableUriPermission(
-                uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-        } catch (e: Exception) {
-            Log.w("AppearanceSettings", "Could not take persistable URI permission", e)
-        }
-
-        if (WallpaperPreferences.isUseSharedWallpaper(this)) {
-            WallpaperPreferences.setSharedWallpaperUri(this, uri.toString())
-        } else {
-            when (target) {
-                WallpaperTarget.HOME -> WallpaperPreferences.setHomeWallpaperUri(this, uri.toString())
-                WallpaperTarget.NOTIFICATIONS -> WallpaperPreferences.setNotificationsWallpaperUri(this, uri.toString())
-                WallpaperTarget.SETTINGS -> WallpaperPreferences.setSettingsWallpaperUri(this, uri.toString())
+        val shared = WallpaperPreferences.isUseSharedWallpaper(this)
+        lifecycleScope.launch {
+            val stored = WallpaperStorage.replace(this@AppearanceSettingsActivity, uri) { copy ->
+                if (shared) {
+                    WallpaperPreferences.setSharedWallpaperUri(this@AppearanceSettingsActivity, copy)
+                } else {
+                    when (target) {
+                        WallpaperTarget.HOME ->
+                            WallpaperPreferences.setHomeWallpaperUri(this@AppearanceSettingsActivity, copy)
+                        WallpaperTarget.NOTIFICATIONS ->
+                            WallpaperPreferences.setNotificationsWallpaperUri(this@AppearanceSettingsActivity, copy)
+                        WallpaperTarget.SETTINGS ->
+                            WallpaperPreferences.setSettingsWallpaperUri(this@AppearanceSettingsActivity, copy)
+                    }
+                }
             }
-        }
+            if (!stored) {
+                Toast.makeText(
+                    this@AppearanceSettingsActivity,
+                    R.string.settings_wallpaper_import_failed,
+                    Toast.LENGTH_LONG
+                ).show()
+                return@launch
+            }
 
-        updateWallpaperValueLabels()
-        updateWallpaperPreview()
+            updateWallpaperValueLabels()
+            updateWallpaperPreview()
+            applyCustomThemeColors()
+            applyWallpaper()
+        }
     }
 
     private fun getWallpaperStatus(target: WallpaperTarget): String {

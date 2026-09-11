@@ -12,10 +12,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -25,6 +27,7 @@ import app.focusphone.FocusPhoneApp
 import app.focusphone.R
 import app.focusphone.data.preferences.AppSchedulePreferences
 import app.focusphone.data.preferences.FontPreferences
+import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.WallpaperPreferences
 import app.focusphone.ui.schedule.ScheduleBlockedActivity
@@ -32,6 +35,7 @@ import app.focusphone.ui.theme.FocusColors
 import app.focusphone.ui.theme.FocusPalette
 import app.focusphone.ui.theme.ScrimSurface
 import app.focusphone.ui.theme.SurfaceScrim
+import app.focusphone.ui.wallpaper.WallpaperStorage
 import app.focusphone.ui.wallpaper.WallpaperUtils
 import app.focusphone.ui.widget.AnalogClockView
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -80,6 +84,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "BaseActivity"
+        private const val MS_PER_MINUTE = 60_000L
         private const val GLOBAL_WALLPAPER_TAG = "fp_global_wallpaper"
         private const val GLOBAL_SCRIM_TAG = "fp_global_scrim"
 
@@ -219,9 +224,15 @@ abstract class BaseActivity : AppCompatActivity() {
         val blurRadius = WallpaperUtils.getBlurRadius(WallpaperPreferences.getBlurIntensity(this))
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val bitmap = WallpaperUtils.loadBitmap(this@BaseActivity, uri)
+            val result = WallpaperStorage.load(this@BaseActivity, uri)
+            val bitmap = (result as? WallpaperStorage.LoadResult.Ready)?.bitmap
 
             withContext(Dispatchers.Main) {
+                if (result == WallpaperStorage.LoadResult.Lost) {
+                    // The reference is gone for good; say so instead of dropping it silently.
+                    currentHasWallpaper = false
+                    Toast.makeText(this@BaseActivity, R.string.wallpaper_access_lost, Toast.LENGTH_LONG).show()
+                }
                 homeView?.let { WallpaperUtils.applyWallpaperToImageView(it, bitmap, blurRadius, blurEnabled) }
                 settingsView?.let { WallpaperUtils.applyWallpaperToImageView(it, bitmap, blurRadius, blurEnabled) }
                 if (!hasDedicatedViews) {
@@ -699,6 +710,86 @@ abstract class BaseActivity : AppCompatActivity() {
             segment.imageTintList =
                 ColorStateList(states, intArrayOf(colors.onAccent, colors.textSecondary))
         }
+    }
+
+    // ── Password locks ─────────────────────────────────────────────
+
+    /** Inline message shown while a password lock is cooling down. */
+    protected fun passwordLockoutMessage(remainingMs: Long): String {
+        val minutes = ((remainingMs + MS_PER_MINUTE - 1) / MS_PER_MINUTE).toInt().coerceAtLeast(1)
+        return resources.getQuantityString(R.plurals.password_locked_out_minutes, minutes, minutes)
+    }
+
+    /** Inline message shown after a wrong password that did not start the cooldown. */
+    protected fun passwordAttemptsLeftMessage(remaining: Int): String =
+        resources.getQuantityString(R.plurals.password_attempts_left, remaining, remaining)
+
+    /**
+     * Asks for the detox password and calls [onUnlocked] once it has been verified.
+     *
+     * Wrong passwords never end the session: they consume attempts from the shared
+     * [app.focusphone.security.PasswordAttemptPolicy] and, once the budget is spent, the
+     * dialog only reports how long the cooldown still lasts. Errors are shown inline so the
+     * dialog stays open, and the deliberately slow PBKDF2 check runs off the main thread.
+     */
+    protected fun showDetoxUnlockDialog(onUnlocked: () -> Unit) {
+        val view = layoutInflater.inflate(R.layout.dialog_detox_password_verify, null)
+        applyDialogSurface(view)
+        applyFontFamilyToView(view)
+        val dialog = AlertDialog.Builder(this).setView(view).create()
+
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            // Passwords are typed here: keep them out of screenshots and screen recordings.
+            addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+
+        val etPassword = view.findViewById<EditText>(R.id.et_detox_password_verify)
+        val tvError = view.findViewById<TextView>(R.id.tv_password_error)
+        val btnOk = view.findViewById<View>(R.id.btn_ok)
+
+        fun showError(message: String) {
+            tvError.text = message
+            tvError.visibility = View.VISIBLE
+        }
+
+        if (ProfilePreferences.isPasswordLockedOut(this)) {
+            showError(passwordLockoutMessage(ProfilePreferences.getLockoutRemainingMs(this)))
+        }
+
+        view.findViewById<View>(R.id.btn_cancel).setOnClickListener { dialog.dismiss() }
+
+        btnOk.setOnClickListener {
+            if (ProfilePreferences.isPasswordLockedOut(this)) {
+                showError(passwordLockoutMessage(ProfilePreferences.getLockoutRemainingMs(this)))
+                return@setOnClickListener
+            }
+            val entered = etPassword.text.toString()
+            btnOk.isEnabled = false
+            lifecycleScope.launch {
+                val verified = withContext(Dispatchers.Default) {
+                    ProfilePreferences.verifyDetoxPassword(applicationContext, entered)
+                }
+                btnOk.isEnabled = true
+                if (!dialog.isShowing) return@launch
+                when {
+                    verified -> {
+                        dialog.dismiss()
+                        onUnlocked()
+                    }
+                    ProfilePreferences.isPasswordLockedOut(this@BaseActivity) -> {
+                        etPassword.text.clear()
+                        showError(passwordLockoutMessage(ProfilePreferences.getLockoutRemainingMs(this@BaseActivity)))
+                    }
+                    else -> {
+                        etPassword.text.clear()
+                        showError(passwordAttemptsLeftMessage(ProfilePreferences.getRemainingAttempts(this@BaseActivity)))
+                    }
+                }
+            }
+        }
+
+        dialog.show()
     }
 
     // ── Schedule blocking ──────────────────────────────────────────

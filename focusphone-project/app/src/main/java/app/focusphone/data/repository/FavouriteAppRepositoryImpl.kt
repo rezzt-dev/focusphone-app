@@ -6,6 +6,7 @@ import app.focusphone.data.local.FavouriteAppDao
 import app.focusphone.data.model.FavouriteApp
 import app.focusphone.data.preferences.CustomAppLabelsPreferences
 import app.focusphone.domain.repository.FavouriteAppRepository
+import app.focusphone.domain.usecase.ToggleFavouriteAppUseCase
 import app.focusphone.domain.util.normalizeAppName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -23,9 +24,17 @@ class FavouriteAppRepositoryImpl(
         migrateFromSharedPreferences(context)
     }
 
+    /**
+     * One-time move of the pipe-delimited favourites of early builds into Room.
+     *
+     * The [ToggleFavouriteAppUseCase.MAX_FAVOURITES] limit is enforced here, at the point
+     * of writing: the old format had no limit, and rows over it would otherwise sit in the
+     * table invisible to every screen that caps what it shows.
+     */
     private fun migrateFromSharedPreferences(context: Context) {
         val oldPrefs = context.getSharedPreferences("focusphone_favourites", Context.MODE_PRIVATE)
         val raw = oldPrefs.getString("apps", null)
+        val ownPackage = context.packageName
         if (raw != null) {
             applicationScope.launch {
                 try {
@@ -43,6 +52,11 @@ class FavouriteAppRepositoryImpl(
                                 sortOrder   = cols.getOrElse(2) { "0" }.toIntOrNull() ?: 0
                             )
                         }
+                        .filter { it.packageName != ownPackage }
+                        .distinctBy { it.packageName }
+                        .sortedBy { it.sortOrder }
+                        .take(ToggleFavouriteAppUseCase.MAX_FAVOURITES)
+                        .mapIndexed { index, app -> app.copy(sortOrder = index) }
                     dao.insertAll(apps)
                     oldPrefs.edit().remove("apps").apply()
                 } catch (e: Exception) {
@@ -79,8 +93,7 @@ class FavouriteAppRepositoryImpl(
     override suspend fun isFavourite(packageName: String): Boolean =
         dao.exists(packageName)
 
-    override suspend fun replaceAll(apps: List<FavouriteApp>) {
-        val ordered = apps.mapIndexed { index, app -> app.copy(sortOrder = index) }
-        dao.replaceAllOrdered(ordered)
+    override suspend fun updateOrder(packageNames: List<String>) {
+        dao.applyOrder(packageNames)
     }
 }

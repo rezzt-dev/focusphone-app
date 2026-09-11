@@ -22,6 +22,7 @@ open class FocusPhoneApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        ProfilePreferences.migrateLegacyKeys(this)
         // Ensure detox state is current on every cold start, not just when HomeActivity resumes.
         ProfilePreferences.expireDetoxIfNeeded(this)
     }

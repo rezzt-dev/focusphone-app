@@ -18,37 +18,43 @@ class UpdateAppsOrderUseCaseTest {
         useCase = UpdateAppsOrderUseCase(repository)
     }
 
-    @Test
-    fun `reorders apps and updates sortOrder indices`() = runTest {
-        val apps = listOf(
-            FavouriteApp("com.a", "A", 0),
-            FavouriteApp("com.b", "B", 1),
-            FavouriteApp("com.c", "C", 2)
-        )
-        repository.replaceAll(apps)
-
-        val reordered = listOf(
-            FavouriteApp("com.c", "C", 2),
-            FavouriteApp("com.a", "A", 0),
-            FavouriteApp("com.b", "B", 1)
-        )
-
-        useCase(reordered)
-
-        val result = repository.getFavourites()
-        assertEquals(3, result.size)
-        assertEquals("com.c", result[0].packageName)
-        assertEquals(0, result[0].sortOrder)
-        assertEquals("com.a", result[1].packageName)
-        assertEquals(1, result[1].sortOrder)
-        assertEquals("com.b", result[2].packageName)
-        assertEquals(2, result[2].sortOrder)
+    private suspend fun seed(vararg packages: String) {
+        packages.forEach { repository.addFavourite(FavouriteApp(it, it.uppercase())) }
     }
 
     @Test
-    fun `empty list clears all favourites`() = runTest {
-        repository.addFavourite(FavouriteApp("com.a", "A", 0))
+    fun `reorders apps and updates sortOrder indices`() = runTest {
+        seed("com.a", "com.b", "com.c")
+
+        useCase(
+            listOf(
+                FavouriteApp("com.c", "C", 2),
+                FavouriteApp("com.a", "A", 0),
+                FavouriteApp("com.b", "B", 1)
+            )
+        )
+
+        val result = repository.getFavourites()
+        assertEquals(listOf("com.c", "com.a", "com.b"), result.map { it.packageName })
+        assertEquals(listOf(0, 1, 2), result.map { it.sortOrder })
+    }
+
+    @Test
+    fun `reordering a partial list never deletes the other favourites`() = runTest {
+        seed("com.a", "com.b", "com.c", "com.d")
+
+        useCase(listOf(FavouriteApp("com.b", "B"), FavouriteApp("com.a", "A")))
+
+        assertEquals(
+            listOf("com.b", "com.a", "com.c", "com.d"),
+            repository.getFavourites().map { it.packageName }
+        )
+    }
+
+    @Test
+    fun `empty list keeps every favourite`() = runTest {
+        seed("com.a")
         useCase(emptyList())
-        assertEquals(0, repository.getFavourites().size)
+        assertEquals(1, repository.getFavourites().size)
     }
 }

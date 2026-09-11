@@ -298,18 +298,32 @@ every match flat.
 
 ### Detox Password Behavior
 - The detox password is hashed with **PBKDF2-HMAC-SHA256** (100 000 iterations, 128-bit random salt) before storage. Legacy SHA-256 hashes (no salt) are detected and transparently upgraded on successful verification.
-- After 4 incorrect password attempts within a 30-minute sliding window, detox is **force-disabled** for safety and the password is cleared. The attempt counter is persisted across UI sessions.
+- Wrong passwords follow the shared `PasswordAttemptPolicy` (the same one schedules use): after 5 failures every attempt — even the correct password — is refused for a 15-minute cooldown. Nothing is ever cleared on failure; a detox session only ends early with the right password, and always ends on its own when its timer expires, so nobody can be trapped. The counter is encrypted and persisted across process restarts.
+- Password hashing (PBKDF2) always runs off the main thread.
 - `DetoxBlockedActivity` and password dialogs set `FLAG_SECURE` to prevent screenshots/screen recording while the user is entering credentials or viewing the block screen.
 - All values in `focusphone_profile` and `focusphone_custom_labels` are encrypted at rest with **AES-256/GCM** via Android Keystore (`SecureStorageHelper`).
 
 ### Schedule Password Behavior
 - The schedule password is hashed with the shared `PasswordHasher` (PBKDF2-HMAC-SHA256,
   100 000 iterations, 128-bit random salt), exactly like the detox password.
-- Unlike detox, wrong attempts **never** clear the password or the rules: after 5 failures
+- Wrong attempts **never** clear the password or the rules: after 5 failures
   the settings enter a 15-minute cooldown (`AppSchedulePreferences.LOCKOUT_DURATION_MS`)
   and `verifyPassword()` refuses every attempt until it expires. Erasing the configuration
-  on failed attempts would turn the lock into a trivial bypass, whereas a detox session is
-  time-boxed and must never trap the user.
+  on failed attempts would turn the lock into a trivial bypass. Detox follows the same
+  `PasswordAttemptPolicy`.
+
+### Encrypted storage failures
+- `EncryptedPrefs.read()` distinguishes `Absent`, `Present`, `Unavailable` (Keystore key
+  temporarily unusable — never overwrite) and `Lost` (payload can never be decrypted —
+  treated as absent so the user can rebuild). Writers of user-authored lists (rules,
+  folders, blocked apps) refuse to run while a value is `Unavailable`.
+- Custom labels detect the legacy plain-text format by shape
+  (`SecureStorageHelper.looksEncrypted`), never by a failed decryption.
+
+### Wallpapers
+- Picked images are copied (downscaled, EXIF-rotated) into `filesDir/wallpapers` by
+  `WallpaperStorage`; preferences store the `file://` URI of the copy. The Photo Picker
+  grant dies with the process, so a `content://` URI must never be stored.
 - The password dialogs set `FLAG_SECURE`, and the rule list is not rendered at all until
   the password check succeeds.
 - `ScheduleBlockedActivity` intentionally offers no unlock button: rules can only be

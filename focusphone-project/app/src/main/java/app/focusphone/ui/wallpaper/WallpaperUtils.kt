@@ -39,28 +39,33 @@ object WallpaperUtils {
     }
 
     /**
-     * Load a bitmap from a persisted content URI, scaled to avoid excessive memory use.
+     * Load a bitmap from a stored wallpaper URI, scaled to avoid excessive memory use.
      */
     suspend fun loadBitmap(context: Context, uriString: String?): Bitmap? = withContext(Dispatchers.IO) {
         if (uriString.isNullOrBlank()) return@withContext null
-        try {
-            val uri = Uri.parse(uriString)
-            val (width, height) = context.contentResolver.openInputStream(uri)?.use { stream ->
-                val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                BitmapFactory.decodeStream(stream, null, options)
-                options.outWidth to options.outHeight
-            } ?: return@withContext null
+        decodeSampled(context, Uri.parse(uriString))
+    }
 
-            val sampleSize = calculateInSampleSize(width, height, MAX_BITMAP_DIMENSION, MAX_BITMAP_DIMENSION)
-            val decodeOptions = BitmapFactory.Options().apply { inSampleSize = sampleSize }
+    /**
+     * Decodes [uri] no larger than [MAX_BITMAP_DIMENSION] on either side, or returns null
+     * when it cannot be read. Blocking; call from a background thread.
+     */
+    fun decodeSampled(context: Context, uri: Uri): Bitmap? = try {
+        val (width, height) = context.contentResolver.openInputStream(uri)?.use { stream ->
+            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeStream(stream, null, options)
+            options.outWidth to options.outHeight
+        } ?: throw java.io.FileNotFoundException("No stream for $uri")
 
-            context.contentResolver.openInputStream(uri)?.use { stream ->
-                BitmapFactory.decodeStream(stream, null, decodeOptions)
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to load wallpaper from $uriString", e)
-            null
+        val sampleSize = calculateInSampleSize(width, height, MAX_BITMAP_DIMENSION, MAX_BITMAP_DIMENSION)
+        val decodeOptions = BitmapFactory.Options().apply { inSampleSize = sampleSize }
+
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+            BitmapFactory.decodeStream(stream, null, decodeOptions)
         }
+    } catch (e: Exception) {
+        Log.w(TAG, "Failed to decode wallpaper from $uri", e)
+        null
     }
 
     private fun calculateInSampleSize(width: Int, height: Int, reqWidth: Int, reqHeight: Int): Int {

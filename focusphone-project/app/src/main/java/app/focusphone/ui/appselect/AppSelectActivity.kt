@@ -126,10 +126,8 @@ class AppSelectActivity : BaseActivity() {
             .setPositiveButton(R.string.action_save) { _, _ ->
                 val newLabel = input.text.toString().trim().normalizeAppName()
                 val prefs = focusPhoneApp.container.customAppLabelsPreferences
-                if (newLabel.isEmpty()) {
-                    prefs.setCustomLabel(app.packageName, null)
-                } else {
-                    prefs.setCustomLabel(app.packageName, newLabel)
+                if (!prefs.setCustomLabel(app.packageName, newLabel.ifEmpty { null })) {
+                    Toast.makeText(this@AppSelectActivity, R.string.error_save_failed, Toast.LENGTH_LONG).show()
                 }
                 viewModel.loadApps()
             }

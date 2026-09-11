@@ -2,20 +2,26 @@ package app.focusphone.data.preferences
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import androidx.core.content.edit
 import app.focusphone.security.EncryptedPrefs
+import app.focusphone.security.PasswordAttemptPolicy
 import app.focusphone.security.PasswordHasher
 
 /**
  * Synchronous preference manager for Contextual Profiles and Detox app blocking.
  *
  * Security guarantees:
- *  - Sensitive values (profile, detox timers, password hash, blocked apps, work keywords) are
- *    encrypted at rest via [EncryptedPrefs] (AES-256/GCM + Android Keystore).
+ *  - Every value in `focusphone_profile` — profile, detox timer, password hash, blocked
+ *    apps, work keywords and the wrong-password counter — is encrypted at rest via
+ *    [EncryptedPrefs] (AES-256/GCM + Android Keystore).
  *  - Detox passwords are hashed by [PasswordHasher] with PBKDF2-HMAC-SHA256 using a
  *    128-bit random salt and 100 000 iterations. The legacy SHA-256 (no salt) format is
  *    detected and transparently upgraded on successful verification.
- *  - Failed password attempts are persisted with a 30-minute sliding window.
- *    After 4 failures the detox session is force-disabled.
+ *  - Wrong passwords follow the shared [PasswordAttemptPolicy]: after
+ *    [PasswordAttemptPolicy.DEFAULT_MAX_FAILED_ATTEMPTS] failures every attempt is refused
+ *    for a cooldown. The session is never disabled on failure — a detox session always
+ *    ends on its own when the timer expires, so nobody can be trapped, and wrong guesses
+ *    can never be used to end it early.
  */
 object ProfilePreferences {
 
@@ -25,14 +31,18 @@ object ProfilePreferences {
     private const val KEY_DETOX_PASSWORD = "detox_password"
     private const val KEY_BLOCKED_APPS = "blocked_apps"
     private const val KEY_WORK_KEYWORDS = "work_keywords"
-    private const val KEY_FAILED_ATTEMPTS = "detox_failed_attempts"
-    private const val KEY_LAST_FAILED_TIME = "detox_last_failed_time"
+    private const val KEY_ATTEMPTS = "detox_attempts"
+    private const val KEY_LOCKOUT_UNTIL = "detox_lockout_until"
+
+    /** Plain-text counters written by builds before the shared attempt policy. */
+    private val LEGACY_PLAIN_KEYS = arrayOf("detox_failed_attempts", "detox_last_failed_time")
 
     const val PROFILE_NORMAL = "normal"
     const val PROFILE_WORK = "work"
     const val PROFILE_DETOX = "detox"
 
-    private const val ATTEMPT_WINDOW_MS = 30 * 60 * 1000L // 30 minutes
+    /** Minimum length accepted when the user creates a detox password. */
+    const val MIN_PASSWORD_LENGTH = 4
 
     private val DEFAULT_WORK_KEYWORDS = setOf(
         "instagram", "facebook", "twitter", "tiktok", "youtube", "snapchat",
@@ -42,53 +52,108 @@ object ProfilePreferences {
 
     private val store = EncryptedPrefs(PREF_FILE)
 
-    private fun prefs(context: Context) =
-        context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+    private fun attemptPolicy(context: Context) = PasswordAttemptPolicy.encrypted(
+        context = context.applicationContext,
+        prefs = store,
+        attemptsKey = KEY_ATTEMPTS,
+        lockoutKey = KEY_LOCKOUT_UNTIL
+    )
+
+    /**
+     * Removes the plain-text attempt counters left by older builds. Idempotent and cheap;
+     * run once per process start.
+     */
+    fun migrateLegacyKeys(context: Context) {
+        val prefs = context.getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
+        if (LEGACY_PLAIN_KEYS.any { prefs.contains(it) }) {
+            prefs.edit { LEGACY_PLAIN_KEYS.forEach { remove(it) } }
+        }
+    }
 
     // ── Profile ────────────────────────────────────────────────────
 
     fun getProfile(context: Context): String =
-        getEncryptedString(context, KEY_PROFILE, PROFILE_NORMAL) ?: PROFILE_NORMAL
+        store.getString(context, KEY_PROFILE, PROFILE_NORMAL) ?: PROFILE_NORMAL
 
     fun setProfile(context: Context, profile: String) {
-        putEncryptedString(context, KEY_PROFILE, profile)
+        store.putString(context, KEY_PROFILE, profile)
     }
 
     // ── Detox timer ────────────────────────────────────────────────
 
     fun getDetoxEndTime(context: Context): Long =
-        getEncryptedLong(context, KEY_DETOX_END, 0L)
+        store.getLong(context, KEY_DETOX_END, 0L)
 
     fun setDetoxEndTime(context: Context, endTimeMs: Long) {
-        putEncryptedLong(context, KEY_DETOX_END, endTimeMs)
+        store.putLong(context, KEY_DETOX_END, endTimeMs)
+    }
+
+    /**
+     * Starts a detox session lasting [durationMs], protected by [password].
+     *
+     * @return false when the session could not be stored securely, in which case nothing
+     * was activated.
+     */
+    fun startDetoxSession(context: Context, password: String, durationMs: Long): Boolean {
+        if (!store.putString(context, KEY_DETOX_PASSWORD, PasswordHasher.hash(password))) return false
+        attemptPolicy(context).reset()
+        store.putLong(context, KEY_DETOX_END, System.currentTimeMillis() + durationMs)
+        store.putString(context, KEY_PROFILE, PROFILE_DETOX)
+        return true
+    }
+
+    /** Ends the current detox session, switching to [nextProfile]. */
+    fun endDetoxSession(context: Context, nextProfile: String = PROFILE_NORMAL) {
+        store.putString(context, KEY_DETOX_PASSWORD, null)
+        store.putLong(context, KEY_DETOX_END, 0L)
+        attemptPolicy(context).reset()
+        store.putString(context, KEY_PROFILE, nextProfile)
     }
 
     // ── Detox password (PBKDF2 + salt) ─────────────────────────────
 
     /** Returns the stored PBKDF2 hash payload, or null if none is set. */
     fun getDetoxPassword(context: Context): String? =
-        getEncryptedString(context, KEY_DETOX_PASSWORD, null)
+        store.getString(context, KEY_DETOX_PASSWORD, null)
 
     /** Stores the password as a PBKDF2 hash with random salt. Pass null to clear. */
     fun setDetoxPassword(context: Context, password: String?) {
-        putEncryptedString(context, KEY_DETOX_PASSWORD, password?.let { PasswordHasher.hash(it) })
+        store.putString(context, KEY_DETOX_PASSWORD, password?.let { PasswordHasher.hash(it) })
+        attemptPolicy(context).reset()
     }
 
-    /** Hashes input and compares with stored hash. Supports transparent migration from legacy SHA-256. */
+    /**
+     * Verifies [input] against the stored hash under the shared attempt policy.
+     *
+     * Returns false without consuming an attempt while the cooldown is active. A
+     * successful attempt clears the failure counter; a failed one consumes an attempt.
+     * Nothing else changes here: ending the session is the caller's decision.
+     *
+     * PBKDF2 is deliberately slow; call this off the main thread.
+     */
     fun verifyDetoxPassword(context: Context, input: String): Boolean {
+        val policy = attemptPolicy(context)
+        // Enforced here rather than only in the UI so no caller can spend attempts
+        // while the cooldown is running.
+        if (policy.isLockedOut()) return false
+
         val stored = getDetoxPassword(context) ?: return false
 
         return when (PasswordHasher.verify(stored, input)) {
-            PasswordHasher.VerifyResult.Match -> true
+            PasswordHasher.VerifyResult.Match -> {
+                policy.reset()
+                true
+            }
 
             PasswordHasher.VerifyResult.MatchNeedsUpgrade -> {
                 // Transparent upgrade of the legacy unsalted SHA-256 hash.
-                setDetoxPassword(context, input)
+                store.putString(context, KEY_DETOX_PASSWORD, PasswordHasher.hash(input))
+                policy.reset()
                 true
             }
 
             PasswordHasher.VerifyResult.Mismatch -> {
-                recordFailedAttempt(context)
+                policy.recordFailure()
                 false
             }
         }
@@ -96,50 +161,41 @@ object ProfilePreferences {
 
     // ── Failed-attempt counter ─────────────────────────────────────
 
-    /** Returns whether the user is currently locked out from password attempts. */
-    fun isPasswordLockedOut(context: Context): Boolean =
-        getFailedAttempts(context) >= 4
+    /** Whether password attempts are currently refused because of the cooldown. */
+    fun isPasswordLockedOut(context: Context): Boolean = attemptPolicy(context).isLockedOut()
 
-    /** Records a failed attempt and returns the new total within the sliding window. */
-    fun recordFailedAttempt(context: Context): Int {
-        val now = System.currentTimeMillis()
-        val last = prefs(context).getLong(KEY_LAST_FAILED_TIME, 0L)
-        val current = if (now - last > ATTEMPT_WINDOW_MS) 1 else {
-            prefs(context).getInt(KEY_FAILED_ATTEMPTS, 0) + 1
-        }
-        prefs(context).edit()
-            .putInt(KEY_FAILED_ATTEMPTS, current)
-            .putLong(KEY_LAST_FAILED_TIME, now)
-            .apply()
-        return current
-    }
+    /** Milliseconds left before password attempts are accepted again (0 when unlocked). */
+    fun getLockoutRemainingMs(context: Context): Long = attemptPolicy(context).lockoutRemainingMs()
 
-    fun getFailedAttempts(context: Context): Int {
-        val now = System.currentTimeMillis()
-        val last = prefs(context).getLong(KEY_LAST_FAILED_TIME, 0L)
-        return if (now - last > ATTEMPT_WINDOW_MS) 0
-        else prefs(context).getInt(KEY_FAILED_ATTEMPTS, 0)
-    }
+    /** Attempts remaining before the cooldown starts. */
+    fun getRemainingAttempts(context: Context): Int = attemptPolicy(context).remainingAttempts()
 
-    fun clearFailedAttempts(context: Context) {
-        prefs(context).edit()
-            .remove(KEY_FAILED_ATTEMPTS)
-            .remove(KEY_LAST_FAILED_TIME)
-            .apply()
-    }
+    fun clearFailedAttempts(context: Context) = attemptPolicy(context).reset()
 
     // ── Blocked apps ───────────────────────────────────────────────
 
     fun getBlockedApps(context: Context): Set<String> {
-        val raw = getEncryptedString(context, KEY_BLOCKED_APPS, null) ?: return emptySet()
+        val raw = store.getString(context, KEY_BLOCKED_APPS, null) ?: return emptySet()
         return raw.split("\n").filter { it.isNotBlank() }.toSet()
     }
 
-    fun setAppBlockedState(context: Context, packageName: String, blocked: Boolean) {
-        val current = getBlockedApps(context).toMutableSet()
+    /**
+     * Adds or removes [packageName] from the manual block list.
+     *
+     * @return false when the current list is temporarily unreadable or the new one could
+     * not be written. A list that cannot be read right now is never replaced, since that
+     * would silently unblock every other app.
+     */
+    fun setAppBlockedState(context: Context, packageName: String, blocked: Boolean): Boolean {
+        val current = when (val stored = store.read(context, KEY_BLOCKED_APPS)) {
+            is EncryptedPrefs.StoredValue.Present ->
+                stored.value.split("\n").filter { it.isNotBlank() }.toMutableSet()
+            EncryptedPrefs.StoredValue.Absent, EncryptedPrefs.StoredValue.Lost -> mutableSetOf()
+            EncryptedPrefs.StoredValue.Unavailable -> return false
+        }
         if (blocked) current.add(packageName) else current.remove(packageName)
         val raw = if (current.isEmpty()) null else current.joinToString("\n")
-        putEncryptedString(context, KEY_BLOCKED_APPS, raw)
+        return store.putString(context, KEY_BLOCKED_APPS, raw)
     }
 
     // ── Work keywords ──────────────────────────────────────────────
@@ -149,7 +205,7 @@ object ProfilePreferences {
      * If the user has never configured keywords, the default hardcoded list is returned.
      */
     fun getWorkKeywords(context: Context): Set<String> {
-        val raw = getEncryptedString(context, KEY_WORK_KEYWORDS, null)
+        val raw = store.getString(context, KEY_WORK_KEYWORDS, null)
         return if (raw.isNullOrBlank()) DEFAULT_WORK_KEYWORDS else raw.split("\n").filter { it.isNotBlank() }.toSet()
     }
 
@@ -159,7 +215,7 @@ object ProfilePreferences {
      */
     fun setWorkKeywords(context: Context, keywords: Set<String>) {
         val raw = if (keywords.isEmpty()) null else keywords.joinToString("\n")
-        putEncryptedString(context, KEY_WORK_KEYWORDS, raw)
+        store.putString(context, KEY_WORK_KEYWORDS, raw)
     }
 
     // ── App blocking logic (public API delegates to pure functions) ─
@@ -172,14 +228,16 @@ object ProfilePreferences {
         )
     }
 
+    /** Ends a detox session whose timer has run out. */
     fun expireDetoxIfNeeded(context: Context) {
+        val profile = getProfile(context)
         val newProfile = expireDetoxIfNeededPure(
-            profile = getProfile(context),
+            profile = profile,
             detoxEndTime = getDetoxEndTime(context),
             now = System.currentTimeMillis()
         )
-        if (newProfile != getProfile(context)) {
-            setProfile(context, newProfile)
+        if (newProfile != profile) {
+            endDetoxSession(context, newProfile)
         }
     }
 
@@ -222,8 +280,8 @@ object ProfilePreferences {
         return false
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    internal fun isDetoxActivePure(profile: String, detoxEndTime: Long, now: Long): Boolean {
+    /** Whether a detox session is running at [now]. Public so hot paths can cache inputs. */
+    fun isDetoxActivePure(profile: String, detoxEndTime: Long, now: Long): Boolean {
         if (profile != PROFILE_DETOX) return false
         val remaining = detoxEndTime - now
         return remaining > 0
@@ -237,18 +295,4 @@ object ProfilePreferences {
             profile
         }
     }
-
-    // ── Secure storage primitives ──────────────────────────────────
-
-    private fun getEncryptedString(context: Context, key: String, default: String?): String? =
-        store.getString(context, key, default)
-
-    private fun putEncryptedString(context: Context, key: String, value: String?) =
-        store.putString(context, key, value)
-
-    private fun getEncryptedLong(context: Context, key: String, default: Long): Long =
-        store.getLong(context, key, default)
-
-    private fun putEncryptedLong(context: Context, key: String, value: Long) =
-        store.putLong(context, key, value)
 }

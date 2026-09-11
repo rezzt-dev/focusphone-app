@@ -1,6 +1,7 @@
 package app.focusphone.data.preferences
 
 import android.content.Context
+import androidx.core.content.edit
 
 /**
  * Synchronous SharedPreferences storage for wallpaper backgrounds and blur settings.
@@ -8,6 +9,10 @@ import android.content.Context
  * Supports a global enable/disable toggle, a separate image for each wallpaper-aware
  * surface (home screen, notification drawer and settings screens), a shared wallpaper mode,
  * and a blur toggle with intensity slider.
+ *
+ * The stored references are `file://` URIs of copies kept in app-private storage by
+ * [app.focusphone.ui.wallpaper.WallpaperStorage]; builds before that stored `content://`
+ * URIs, which are migrated the first time they are displayed.
  */
 object WallpaperPreferences {
 
@@ -22,6 +27,13 @@ object WallpaperPreferences {
     private const val KEY_BLUR_INTENSITY = "wallpaper_blur_intensity"
     private const val KEY_WALLPAPER_ENABLED = "wallpaper_enabled"
     private const val KEY_READABILITY = "wallpaper_readability"
+
+    private val URI_KEYS = arrayOf(
+        KEY_HOME_WALLPAPER_URI,
+        KEY_NOTIFICATIONS_WALLPAPER_URI,
+        KEY_SETTINGS_WALLPAPER_URI,
+        KEY_SHARED_WALLPAPER_URI
+    )
 
     private const val DEFAULT_BLUR_INTENSITY = 50
 
@@ -71,6 +83,28 @@ object WallpaperPreferences {
 
     fun setSettingsWallpaperUri(context: Context, uri: String?) =
         prefs(context).edit().putString(KEY_SETTINGS_WALLPAPER_URI, uri).apply()
+
+    /** Every image reference currently stored, whichever surface or mode it belongs to. */
+    fun storedUris(context: Context): Set<String> {
+        val prefs = prefs(context)
+        return URI_KEYS.mapNotNull { prefs.getString(it, null)?.takeIf { uri -> uri.isNotBlank() } }.toSet()
+    }
+
+    /** Points every surface that used [oldUri] at [newUri] instead. */
+    fun replaceUri(context: Context, oldUri: String, newUri: String) {
+        val prefs = prefs(context)
+        prefs.edit {
+            URI_KEYS.filter { prefs.getString(it, null) == oldUri }.forEach { putString(it, newUri) }
+        }
+    }
+
+    /** Forgets [uri] on every surface that used it. */
+    fun removeUri(context: Context, uri: String) {
+        val prefs = prefs(context)
+        prefs.edit {
+            URI_KEYS.filter { prefs.getString(it, null) == uri }.forEach { remove(it) }
+        }
+    }
 
     private fun resolveEffectiveUri(context: Context, ownKey: String): String? {
         if (isUseSharedWallpaper(context)) {
