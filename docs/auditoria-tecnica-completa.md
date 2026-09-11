@@ -88,20 +88,20 @@ Actualizar esta tabla cada vez que se cierre un bloque de trabajo.
 | **Fase 2** — Fugas de recursos y corrección funcional | 15 | 15 | ✅ Completada |
 | **Fase 3** — Coherencia interna | 12 | 12 | ✅ Completada |
 | **Fase 4** — Rendimiento | 10 | 10 | ✅ Completada |
-| **Fase 5** — Build, calidad y CI | 13 | 0 | ⬜ Pendiente |
+| **Fase 5** — Build, calidad y CI | 15 | 15 | ✅ Completada |
 | **Fase 6** — Limpieza y código muerto | 11 | 0 | ⬜ Pendiente |
 | **Fase 7** — Localización y accesibilidad | 12 | 0 | ⬜ Pendiente |
-| **TOTAL** | **81** | **45** | **56 %** |
+| **TOTAL** | **83** | **60** | **72 %** |
 
 **Por severidad:**
 
 | Severidad | Total | Resueltos |
 |---|---|---|
 | 🟥 BLOCKER | 3 | 3 |
-| 🟧 CRÍTICO | 9 | 6 |
+| 🟧 CRÍTICO | 9 | 9 |
 | 🟨 ALTO | 21 | 21 |
-| 🟦 MEDIO | 26 | 14 |
-| ⬜ BAJO | 22 | 1 |
+| 🟦 MEDIO | 26 | 17 |
+| ⬜ BAJO | 24 | 10 |
 
 > **Criterio de release:** no se publica ninguna build mientras queden hallazgos 🟥 o 🟧 sin cerrar.
 
@@ -192,22 +192,23 @@ Actualizar esta tabla cada vez que se cierre un bloque de trabajo.
 
 *Requisito para poder verificar automáticamente todo lo anterior.*
 
-**Progreso: 0 / 13**
+**Progreso: 15 / 15**
 
-- [ ] 🟧 **FP-011** — [`Lint` está desactivado en release, ocultando 443 errores](#fp-011--lint-está-desactivado-en-release-ocultando-443-errores)
-- [ ] 🟧 **FP-012** — [`BIND_APPWIDGET` declarado: permiso exclusivo de apps de sistema](#fp-012--bind_appwidget-declarado-permiso-exclusivo-de-apps-de-sistema)
-- [ ] 🟦 **FP-053** — [Errores de lint `ResourceType` en `colorizeViewTree`](#fp-053--errores-de-lint-resourcetype-en-colorizeviewtree)
-- [ ] 🟦 **FP-054** — [Configuración de locales mal formada: 439 errores de lint](#fp-054--configuración-de-locales-mal-formada-439-errores-de-lint)
-- [ ] 🟦 **FP-055** — [Traducciones realmente ausentes e inconsistencia de argumentos de formato](#fp-055--traducciones-realmente-ausentes-e-inconsistencia-de-argumentos-de-formato)
-- [ ] ⬜ **FP-071** — [Dependencias desactualizadas](#fp-071--dependencias-desactualizadas)
-- [ ] ⬜ **FP-072** — [`versionName` desincronizado con la rama y los commits](#fp-072--versionname-desincronizado-con-la-rama-y-los-commits)
-- [ ] ⬜ **FP-073** — [`gradle-wrapper.jar` no está versionado](#fp-073--gradle-wrapperjar-no-está-versionado)
-- [ ] ⬜ **FP-074** — [`org.gradle.java.home` con ruta absoluta local](#fp-074--orggradlejavahome-con-ruta-absoluta-local)
-- [ ] ⬜ **FP-075** — [APK de release y artefactos de build versionados](#fp-075--apk-de-release-y-artefactos-de-build-versionados)
-- [ ] ⬜ **FP-076** — [`docs/` está en el `.gitignore` raíz](#fp-076--docs-está-en-el-gitignore-raíz)
-- [ ] ⬜ **FP-077** — [Tests de plantilla en el paquete equivocado](#fp-077--tests-de-plantilla-en-el-paquete-equivocado)
-- [ ] 🟧 **FP-010** — [`TestFocusPhoneApp.container` crea un contenedor nuevo en cada acceso](#fp-010--testfocusphoneappcontainer-crea-un-contenedor-nuevo-en-cada-acceso)
-- [ ] ⬜ **FP-082** — [Error de lint `WrongConstant` en `expandNotificationsPanel`](#fp-082--error-de-lint-wrongconstant-en-expandnotificationspanel)
+- [x] 🟧 **FP-011** — [`Lint` está desactivado en release, ocultando 443 errores](#fp-011--lint-está-desactivado-en-release-ocultando-443-errores) (eb4ba0e)
+- [x] 🟧 **FP-012** — [`BIND_APPWIDGET` declarado: permiso exclusivo de apps de sistema](#fp-012--bind_appwidget-declarado-permiso-exclusivo-de-apps-de-sistema) (eb4ba0e)
+- [x] 🟦 **FP-053** — [Errores de lint `ResourceType` en `colorizeViewTree`](#fp-053--errores-de-lint-resourcetype-en-colorizeviewtree) (eb4ba0e)
+- [x] 🟦 **FP-054** — [Configuración de locales mal formada: 439 errores de lint](#fp-054--configuración-de-locales-mal-formada-439-errores-de-lint) (eb4ba0e)
+- [x] 🟦 **FP-055** — [Traducciones realmente ausentes e inconsistencia de argumentos de formato](#fp-055--traducciones-realmente-ausentes-e-inconsistencia-de-argumentos-de-formato) (eb4ba0e)
+- [x] ⬜ **FP-071** — [Dependencias desactualizadas](#fp-071--dependencias-desactualizadas) (eb4ba0e)
+- [x] ⬜ **FP-072** — [`versionName` desincronizado con la rama y los commits](#fp-072--versionname-desincronizado-con-la-rama-y-los-commits) (eb4ba0e)
+- [x] ⬜ **FP-073** — [`gradle-wrapper.jar` no está versionado](#fp-073--gradle-wrapperjar-no-está-versionado) (eb4ba0e)
+- [x] ⬜ **FP-074** — [`org.gradle.java.home` con ruta absoluta local](#fp-074--orggradlejavahome-con-ruta-absoluta-local) (eb4ba0e)
+- [x] ⬜ **FP-075** — [APK de release y artefactos de build versionados](#fp-075--apk-de-release-y-artefactos-de-build-versionados) (eb4ba0e)
+- [x] ⬜ **FP-076** — [`docs/` está en el `.gitignore` raíz](#fp-076--docs-está-en-el-gitignore-raíz) (eb4ba0e)
+- [x] ⬜ **FP-077** — [Tests de plantilla en el paquete equivocado](#fp-077--tests-de-plantilla-en-el-paquete-equivocado) (eb4ba0e)
+- [x] 🟧 **FP-010** — [`TestFocusPhoneApp.container` crea un contenedor nuevo en cada acceso](#fp-010--testfocusphoneappcontainer-crea-un-contenedor-nuevo-en-cada-acceso) (eb4ba0e)
+- [x] ⬜ **FP-082** — [Error de lint `WrongConstant` en `expandNotificationsPanel`](#fp-082--error-de-lint-wrongconstant-en-expandnotificationspanel) (eb4ba0e)
+- [x] ⬜ **FP-083** — `RepeatOnLifecycleWrongUsage`: `HomeActivity` inicia sus observadores desde `onResume` tras el onboarding (eb4ba0e)
 
 ---
 
@@ -260,7 +261,7 @@ Marcar solo cuando la fase entera esté cerrada y las comprobaciones pasen.
 - [x] **Fase 2 cerrada** — 20 ciclos de home + swipe descarta **una** notificación · 5 ciclos añadir/quitar widget sin acumular IDs (`adb shell dumpsys appwidget`) (edf460c; regresión de widget automatizada en `WidgetSlotTest`)
 - [x] **Fase 3 cerrada** — un único helper de "launcher por defecto" · una única política de contraseña · ningún ajuste visible sin efecto (2e4989a)
 - [x] **Fase 4 cerrada** — sin decodificación de bitmap por `onResume` · sin lecturas de preferencias en `onBindViewHolder` ni en `onChildDraw`
-- [ ] **Fase 5 cerrada** — `./gradlew :app:lintDebug` con **0 errores** · `checkReleaseBuilds = true` · clon limpio ejecuta `./gradlew`
+- [x] **Fase 5 cerrada** — `./gradlew :app:lintDebug` con **0 errores** · `checkReleaseBuilds = true` · clon limpio ejecuta `./gradlew` (eb4ba0e; 149 tests unitarios en verde)
 - [ ] **Fase 6 cerrada** — `compileDebugKotlin` sin warnings · 0 `UnusedResources` en lint
 - [ ] **Fase 7 cerrada** — 0 `MissingTranslation` · 0 `ContentDescription` · 0 `HardcodedText`
 
@@ -286,6 +287,7 @@ encontrados durante la corrección. Un hallazgo nuevo se numera `FP-082` en adel
 | 2026-09-11 | FP-055 | `settings_tutorial_desc` pasa a `formatted="false"` en los cuatro idiomas | La cadena nunca se formatea: el `100%%` español se mostraba literalmente como "100%%". `allapps_folder_caret`/`allapps_new_folder_symbol` ya eran `translatable="false"` | Claude |
 | 2026-09-11 | FP-073 | El JAR del wrapper se regenera con la tarea `wrapper` antes de versionarlo (SHA-256 `7a9ce74c…`, idéntico al oficial de Gradle 9.7.1) | El JAR local no coincidía con el oficial de la versión declarada; versionar un binario sin verificar sería un riesgo de cadena de suministro. CI lo valida con `setup-gradle` | Claude |
 | 2026-09-11 | FP-072 | `versionCode` 3 / `versionName` 1.0.6, fijados a mano | No hay tags de git y CI trabaja en HEAD desacoplado: derivar la versión de la rama sería frágil | Claude |
+| 2026-09-11 | FP-083 (nuevo) | Añadido a la Fase 5: al terminar el onboarding, `HomeActivity.onResume` hace `recreate()` en lugar de llamar a `initializeHome()` | El diferido de FP-034 lanzaba `repeatOnLifecycle` desde `onResume` (error de lint `RepeatOnLifecycleWrongUsage`); recrear una única vez en la vida de la app mantiene toda la inicialización en `onCreate` | Claude |
 | 2026-09-11 | Alcance ampliado | Nuevo workflow `.github/workflows/android-ci.yml` (tests unitarios, `lintDebug`, `assembleRelease` sin firmar) | La fase es "Build, calidad y CI" y su criterio es que un clon limpio ejecute `./gradlew`; CI lo comprueba en cada push | Claude |
 ---
 
