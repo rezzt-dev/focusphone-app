@@ -74,10 +74,10 @@ class FuzzyMatcherTest {
     }
 
     @Test
-    fun `diacritics are treated as separate characters`() {
-        // 'café' lowercase -> 'café', query 'cafe' -> 'cafe'
-        assertFalse(FuzzyMatcher.matches("cafe", "café"))
-        // But exact accent match works
+    fun `search is accent-insensitive`() {
+        // A query typed without accents must still find an accented app name (FP-056):
+        // display keeps "Teléfono", but searching for "telefono" has to match it.
+        assertTrue(FuzzyMatcher.matches("cafe", "café"))
         assertTrue(FuzzyMatcher.matches("caf", "café"))
     }
 

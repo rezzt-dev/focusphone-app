@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Inactive slider track. Derived from the theme's own secondary text colour so it stays
+    neutral in every FocusPhone theme, instead of falling back to the Material 3 baseline
+    palette (which is purple and looks foreign in a monochrome launcher).
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:alpha="0.28" android:color="?android:attr/textColorSecondary" />
+</selector>

@@ -1,20 +1,19 @@
 package app.focusphone.ui.settings
 
 import android.animation.ObjectAnimator
-import android.appwidget.AppWidgetHostView
-import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.util.TypedValue
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
@@ -22,9 +21,13 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -40,17 +43,18 @@ import app.focusphone.domain.model.ClockType
 import app.focusphone.ui.base.BaseActivity
 import app.focusphone.ui.home.adapter.FavouriteAppsAdapter
 import app.focusphone.ui.widget.AppWidgetHostManager
+import app.focusphone.ui.widget.ClockRenderer
 import app.focusphone.ui.widget.WidgetPickerActivity
+import app.focusphone.ui.widget.WidgetSurface
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Collections
-import java.util.Date
-import java.util.Locale
+import androidx.core.view.updatePadding
 
 /**
  * Activity that lets the user reorder the three home-screen components
- * (clock, external widget, apps list), toggle their visibility and
- * adjust their relative sizes. Shows a **real, functional preview**
+ * (clock, external widget, apps list) and toggle their visibility. Shows a
+ * **real, functional preview**
  * of the home screen with live clock, rendered widget and favourite apps.
  */
 class HomeLayoutActivity : BaseActivity() {
@@ -62,13 +66,9 @@ class HomeLayoutActivity : BaseActivity() {
     private var currentOrder = listOf<HomeLayoutPreferences.Component>()
     private var currentClockEnabled = true
     private var currentWidgetEnabled = true
-    private var currentClockWeight = 38
-    private var currentWidgetWeight = 25
     private var isEditMode = false
-    private var selectedComponent: HomeLayoutPreferences.Component? = null
 
     // Drag & drop state
-    private var draggedView: FrameLayout? = null
     private var dragStartRawY = 0f
     private var longPressRunnable: Runnable? = null
     private val touchSlop by lazy {
@@ -76,8 +76,8 @@ class HomeLayoutActivity : BaseActivity() {
     }
 
     // Widget
-    private var widgetHostView: AppWidgetHostView? = null
-    private var lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
+    private lateinit var widgetSurface: WidgetSurface
+    private var timeTickReceiverRegistered = false
 
     // Wiggle
     private val wiggleAnimators = mutableMapOf<View, ObjectAnimator>()
@@ -103,6 +103,18 @@ class HomeLayoutActivity : BaseActivity() {
     private var currentClockContainer: FrameLayout? = null
     private var currentWidgetContainer: FrameLayout? = null
     private var currentAppsContainer: FrameLayout? = null
+    private var clockRenderer: ClockRenderer? = null
+
+    private val widgetPickerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            currentWidgetEnabled = true
+            WidgetPreferences.setWidgetEnabled(this, true)
+            saveVisibility()
+            rebuildPreview()
+        }
+    }
 
     // ═══════════════════════════════════════════════════════════════
     // Lifecycle
@@ -112,12 +124,12 @@ class HomeLayoutActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeLayoutBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        widgetSurface = WidgetSurface(this, WidgetSurface.EmptyBehavior.SHOW_ADD_BUTTON)
         setupInsets()
         binding.btnBack.setOnClickListener { finish() }
         binding.btnDone.setOnClickListener { exitEditMode() }
 
         loadState()
-        setupSliderSheet()
         setupVisibilityToggles()
         observeApps()
         updateVisibilityToggles()
@@ -128,38 +140,43 @@ class HomeLayoutActivity : BaseActivity() {
 
     override fun onStart() {
         super.onStart()
-        AppWidgetHostManager.getInstance(this).startListening()
-        registerReceiver(timeTickReceiver, IntentFilter(Intent.ACTION_TIME_TICK))
+        AppWidgetHostManager.getInstance(this).startListening(this)
+        try {
+            ContextCompat.registerReceiver(
+                this,
+                timeTickReceiver,
+                IntentFilter(Intent.ACTION_TIME_TICK),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            timeTickReceiverRegistered = true
+        } catch (e: RuntimeException) {
+            Log.w(TAG, "Cannot register ACTION_TIME_TICK receiver", e)
+        }
         updateClock()
         scheduleClockUpdate()
         restoreWidget()
     }
 
     override fun onStop() {
-        super.onStop()
-        try {
-            unregisterReceiver(timeTickReceiver)
-        } catch (_: IllegalArgumentException) {
+        widgetSurface.releaseView()
+        if (timeTickReceiverRegistered) {
+            try {
+                unregisterReceiver(timeTickReceiver)
+            } catch (e: IllegalArgumentException) {
+                Log.w(TAG, "Time receiver was not registered", e)
+            } finally {
+                timeTickReceiverRegistered = false
+            }
         }
         handler.removeCallbacks(clockUpdateRunnable)
-        AppWidgetHostManager.getInstance(this).stopListening()
-    }
-
-    @Suppress("DEPRECATION")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_PICK_WIDGET && resultCode == RESULT_OK) {
-            currentWidgetEnabled = true
-            WidgetPreferences.setWidgetEnabled(this, true)
-            rebuildPreview()
-        }
+        AppWidgetHostManager.getInstance(this).stopListening(this)
+        super.onStop()
     }
 
     // ═══════════════════════════════════════════════════════════════
     // Insets
     // ═══════════════════════════════════════════════════════════════
 
-    private val sliderSection by lazy { findViewById<LinearLayout>(R.id.slider_section) }
     private val toggleClock by lazy { findViewById<LinearLayout>(R.id.toggle_clock) }
     private val toggleWidget by lazy { findViewById<LinearLayout>(R.id.toggle_widget) }
     private val toggleApps by lazy { findViewById<LinearLayout>(R.id.toggle_apps) }
@@ -171,13 +188,8 @@ class HomeLayoutActivity : BaseActivity() {
     private fun setupInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.toolbar.setPadding(0, bars.top, 0, 0)
-            binding.sliderSheet.setPadding(
-                binding.sliderSheet.paddingLeft,
-                binding.sliderSheet.paddingTop,
-                binding.sliderSheet.paddingRight,
-                bars.bottom + dp(8)
-            )
+            binding.toolbar.updatePadding(top = bars.top)
+            binding.controlSheet.updatePadding(bottom = bars.bottom + dp(8))
             insets
         }
     }
@@ -231,8 +243,6 @@ class HomeLayoutActivity : BaseActivity() {
         currentOrder = HomeLayoutPreferences.getOrder(this)
         currentClockEnabled = HomeLayoutPreferences.isClockEnabled(this)
         currentWidgetEnabled = HomeLayoutPreferences.isWidgetEnabled(this)
-        currentClockWeight = HomeLayoutPreferences.getClockWeightPercent(this)
-        currentWidgetWeight = HomeLayoutPreferences.getWidgetWeightPercent(this)
 
         // If the clock type is HIDDEN, treat it as disabled here for consistency
         if (FontPreferences.getClockType(this) == ClockType.HIDDEN) {
@@ -249,11 +259,6 @@ class HomeLayoutActivity : BaseActivity() {
         HomeLayoutPreferences.setWidgetEnabled(this, currentWidgetEnabled)
     }
 
-    private fun saveSizes() {
-        HomeLayoutPreferences.setClockWeightPercent(this, currentClockWeight)
-        HomeLayoutPreferences.setWidgetWeightPercent(this, currentWidgetWeight)
-    }
-
     private fun isComponentEnabled(component: HomeLayoutPreferences.Component): Boolean = when (component) {
         HomeLayoutPreferences.Component.CLOCK -> currentClockEnabled
         HomeLayoutPreferences.Component.WIDGET -> currentWidgetEnabled
@@ -264,13 +269,18 @@ class HomeLayoutActivity : BaseActivity() {
     // Preview (real home screen replica)
     // ═══════════════════════════════════════════════════════════════
 
+    // The drag handle's touch listener calls performClick() on ACTION_UP, but lint's static
+    // check does not follow it through the nested `when` branch below (FP-078).
+    @android.annotation.SuppressLint("ClickableViewAccessibility")
     private fun rebuildPreview() {
         val root = binding.previewRoot
+        widgetSurface.releaseView()
         root.removeAllViews()
 
         currentClockContainer = null
         currentWidgetContainer = null
         currentAppsContainer = null
+        clockRenderer = null
 
         var remainingWeight = 100
         val visibleOrder = currentOrder.filter { component ->
@@ -284,14 +294,14 @@ class HomeLayoutActivity : BaseActivity() {
         for (component in visibleOrder) {
             val weight = when (component) {
                 HomeLayoutPreferences.Component.CLOCK -> {
-                    remainingWeight -= currentClockWeight
-                    if (currentClockEnabled) currentClockWeight else 0
+                    remainingWeight -= CLOCK_PREVIEW_WEIGHT
+                    if (currentClockEnabled) CLOCK_PREVIEW_WEIGHT else 0
                 }
                 HomeLayoutPreferences.Component.WIDGET -> {
-                    remainingWeight -= currentWidgetWeight
-                    if (currentWidgetEnabled) currentWidgetWeight else 0
+                    remainingWeight -= WIDGET_PREVIEW_WEIGHT
+                    if (currentWidgetEnabled) WIDGET_PREVIEW_WEIGHT else 0
                 }
-                HomeLayoutPreferences.Component.APPS -> remainingWeight.coerceAtLeast(20)
+                HomeLayoutPreferences.Component.APPS -> remainingWeight.coerceAtLeast(MIN_APPS_PREVIEW_WEIGHT)
             }
 
             val wrapper = FrameLayout(this).apply {
@@ -311,6 +321,7 @@ class HomeLayoutActivity : BaseActivity() {
                     )
                     wrapper.addView(clockView)
                     currentClockContainer = wrapper
+                    clockRenderer = ClockRenderer(this, wrapper, showHiddenPlaceholder = true)
                     applyClockType()
                     applyClockScale()
                     updateClock()
@@ -344,6 +355,7 @@ class HomeLayoutActivity : BaseActivity() {
                     marginEnd = dp(4)
                 }
                 background = null
+                contentDescription = getString(R.string.cd_toggle_visibility)
                 scaleType = android.widget.ImageView.ScaleType.CENTER_INSIDE
                 setImageResource(
                     if (isComponentEnabled(component)) R.drawable.ic_eye_open
@@ -363,12 +375,13 @@ class HomeLayoutActivity : BaseActivity() {
                         topMargin = dp(4)
                     }
                     setImageResource(R.drawable.ic_drag_handle)
+                    contentDescription = getString(R.string.cd_drag_handle)
                     alpha = 0.6f
                     tag = "drag_handle"
                 }
                 wrapper.addView(dragHandle)
 
-                dragHandle.setOnTouchListener { _, event ->
+                dragHandle.setOnTouchListener { v, event ->
                     when (event.actionMasked) {
                         MotionEvent.ACTION_DOWN -> {
                             if (!isEditMode) enterEditMode()
@@ -381,6 +394,7 @@ class HomeLayoutActivity : BaseActivity() {
                         }
                         MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                             endDrag(wrapper)
+                            if (event.actionMasked == MotionEvent.ACTION_UP) v.performClick()
                             true
                         }
                         else -> false
@@ -407,85 +421,15 @@ class HomeLayoutActivity : BaseActivity() {
     // ═══════════════════════════════════════════════════════════════
 
     private fun applyClockType() {
-        val container = currentClockContainer ?: return
-        val type = FontPreferences.getClockType(this)
-        val isHidden = type == ClockType.HIDDEN
-
-        // In the preview we keep the container visible so "none" can be shown when hidden
-        container.visibility = View.VISIBLE
-        container.findViewById<View>(R.id.clock_type_digital)?.visibility =
-            if (type == ClockType.DIGITAL) View.VISIBLE else View.GONE
-        container.findViewById<View>(R.id.clock_type_stacked)?.visibility =
-            if (type == ClockType.STACKED) View.VISIBLE else View.GONE
-        container.findViewById<View>(R.id.clock_type_words)?.visibility =
-            if (type == ClockType.WORDS) View.VISIBLE else View.GONE
-        container.findViewById<View>(R.id.clock_type_analog)?.visibility =
-            if (type == ClockType.ANALOG) View.VISIBLE else View.GONE
-        container.findViewById<View>(R.id.clock_type_none)?.visibility =
-            if (isHidden) View.VISIBLE else View.GONE
+        clockRenderer?.applyType(FontPreferences.getClockType(this))
     }
 
     private fun applyClockScale() {
-        val container = currentClockContainer ?: return
-        val scale = FontPreferences.getClockSize(this)
-
-        container.findViewById<TextView>(R.id.tv_time)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 56f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_date)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 16f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_stacked_h)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 76f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_stacked_m)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 76f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_stacked_date)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 16f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_words_time)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 34f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_words_date)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 16f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_analog_date)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 16f * scale
-        )
-
-        container.findViewById<app.focusphone.ui.widget.AnalogClockView>(R.id.view_analog)?.let { view ->
-            val params = view.layoutParams
-            params.height = (140f * resources.displayMetrics.density * scale).toInt()
-            view.layoutParams = params
-        }
+        clockRenderer?.applyScale(FontPreferences.getClockSize(this))
     }
 
     private fun updateClock() {
-        val container = currentClockContainer ?: return
-        val now = Date()
-        val cal = Calendar.getInstance()
-        val h = cal.get(Calendar.HOUR_OF_DAY)
-        val m = cal.get(Calendar.MINUTE)
-        val dateStr = java.text.SimpleDateFormat("EEEE, d MMMM", Locale.getDefault()).format(now)
-        val timeStr = java.text.SimpleDateFormat("HH:mm", Locale.getDefault()).format(now)
-
-        container.findViewById<TextView>(R.id.tv_time)?.text = timeStr
-        container.findViewById<TextView>(R.id.tv_date)?.text = dateStr.lowercase(Locale.getDefault())
-        container.findViewById<TextView>(R.id.tv_stacked_h)?.text = String.format("%02d", h)
-        container.findViewById<TextView>(R.id.tv_stacked_m)?.text = String.format("%02d", m)
-        container.findViewById<TextView>(R.id.tv_stacked_date)?.text = dateStr.lowercase(Locale.getDefault())
-        container.findViewById<TextView>(R.id.tv_words_time)?.text = formatTimeWords(h, m)
-        container.findViewById<TextView>(R.id.tv_words_date)?.text = dateStr.lowercase(Locale.getDefault())
-        container.findViewById<app.focusphone.ui.widget.AnalogClockView>(R.id.view_analog)?.setTime(h, m)
-        container.findViewById<TextView>(R.id.tv_analog_date)?.text = dateStr.lowercase(Locale.getDefault())
-    }
-
-    private fun formatTimeWords(h: Int, m: Int): String {
-        val hours = resources.getStringArray(R.array.clock_words_hours)
-        val minutes = resources.getStringArray(R.array.clock_words_minutes)
-        val hour = hours[h % 12]
-        return "$hour\n${minutes[m]}"
+        clockRenderer?.render()
     }
 
     private fun scheduleClockUpdate() {
@@ -501,77 +445,7 @@ class HomeLayoutActivity : BaseActivity() {
 
     private fun restoreWidget() {
         val container = currentWidgetContainer ?: return
-        val widgetId = WidgetPreferences.getWidgetId(this)
-        val enabled = WidgetPreferences.isWidgetEnabled(this)
-        val hostManager = AppWidgetHostManager.getInstance(this)
-
-        if (!enabled || widgetId == WidgetPreferences.INVALID_WIDGET_ID) {
-            widgetHostView?.let { container.removeView(it) }
-            widgetHostView = null
-            lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
-            container.findViewById<View>(R.id.btn_add_widget)?.visibility = View.VISIBLE
-            return
-        }
-
-        if (widgetId == lastRestoredWidgetId && widgetHostView != null) {
-            container.findViewById<View>(R.id.btn_add_widget)?.visibility = View.GONE
-            return
-        }
-
-        val info = hostManager.getAppWidgetInfo(widgetId)
-        if (info == null || info.provider == null) {
-            // Provider may be temporarily unavailable; don't clear preferences aggressively.
-            widgetHostView?.let { container.removeView(it) }
-            widgetHostView = null
-            lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
-            container.findViewById<View>(R.id.btn_add_widget)?.visibility = View.VISIBLE
-            return
-        }
-
-        widgetHostView?.let { container.removeView(it) }
-        widgetHostView = null
-
-        // Update widget options with current container size for best compatibility
-        try {
-            val appWidgetManager = AppWidgetManager.getInstance(this)
-            val options = android.os.Bundle().apply {
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, container.width)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, container.width)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, container.height)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, container.height)
-            }
-            appWidgetManager.updateAppWidgetOptions(widgetId, options)
-        } catch (e: Exception) {
-            Log.w("HomeLayoutActivity", "Failed to update widget options", e)
-        }
-
-        var hostView = hostManager.createView(this, widgetId, info)
-        if (hostView == null) {
-            val repaired = hostManager.bindAppWidgetIdIfAllowed(widgetId, info.provider)
-            if (repaired) hostView = hostManager.createView(this, widgetId, info)
-            if (hostView == null) {
-                Log.w("HomeLayoutActivity", "createView failed for widget id=$widgetId")
-                container.findViewById<View>(R.id.btn_add_widget)?.visibility = View.VISIBLE
-                return
-            }
-        }
-
-        hostView.layoutParams = FrameLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        widgetHostView = hostView
-        lastRestoredWidgetId = widgetId
-
-        try {
-            container.addView(hostView, 0)
-            container.findViewById<View>(R.id.btn_add_widget)?.visibility = View.GONE
-        } catch (e: RuntimeException) {
-            Log.e("HomeLayoutActivity", "Failed to add widget view", e)
-            widgetHostView = null
-            lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
-            container.findViewById<View>(R.id.btn_add_widget)?.visibility = View.VISIBLE
-        }
+        widgetSurface.restore(container)
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -581,6 +455,7 @@ class HomeLayoutActivity : BaseActivity() {
     private fun observeApps() {
         val app = application as app.focusphone.FocusPhoneApp
         lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
             app.container.getFavouriteAppsUseCase().collect { apps ->
                 favouriteAppsAdapter.submitList(apps)
                 val container = currentAppsContainer
@@ -596,6 +471,7 @@ class HomeLayoutActivity : BaseActivity() {
                         updateAppsItemHeight(apps.size)
                     }
                 }
+            }
             }
         }
     }
@@ -622,9 +498,7 @@ class HomeLayoutActivity : BaseActivity() {
                 val from = viewHolder.bindingAdapterPosition
                 val to = target.bindingAdapterPosition
                 if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) return false
-                favouriteAppsAdapter.moveItem(from, to)
-                favouriteAppsAdapter.notifyItemMoved(from, to)
-                return true
+                return favouriteAppsAdapter.moveItem(from, to)
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
@@ -632,6 +506,7 @@ class HomeLayoutActivity : BaseActivity() {
             override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
                 super.onSelectedChanged(viewHolder, actionState)
                 if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                    favouriteAppsAdapter.beginDrag()
                     if (!isEditMode) {
                         enterEditMode(rebuild = false)
                     }
@@ -677,11 +552,14 @@ class HomeLayoutActivity : BaseActivity() {
     // Drag & drop
     // ═══════════════════════════════════════════════════════════════
 
+    // performClick() is called on ACTION_UP below, but lint's static check does not follow
+    // it through the nested `when` branch (FP-078).
+    @android.annotation.SuppressLint("ClickableViewAccessibility")
     private fun setupWrapperTouch(wrapper: FrameLayout, component: HomeLayoutPreferences.Component) {
         var startRawY = 0f
         var startRawX = 0f
 
-        wrapper.setOnTouchListener { _, event ->
+        wrapper.setOnTouchListener { v, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     startRawY = event.rawY
@@ -689,7 +567,7 @@ class HomeLayoutActivity : BaseActivity() {
                     wrapper.parent.requestDisallowInterceptTouchEvent(true)
                     longPressRunnable = Runnable {
                         if (!isEditMode) enterEditMode()
-                    }.also { handler.postDelayed(it, 200) }
+                    }.also { handler.postDelayed(it, ViewConfiguration.getLongPressTimeout().toLong()) }
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (longPressRunnable != null) {
@@ -706,6 +584,7 @@ class HomeLayoutActivity : BaseActivity() {
                     longPressRunnable = null
                     wrapper.parent.requestDisallowInterceptTouchEvent(false)
                     if (!isEditMode) {
+                        v.performClick()
                         onWrapperClicked(component)
                     }
                 }
@@ -720,7 +599,6 @@ class HomeLayoutActivity : BaseActivity() {
     }
 
     private fun beginDrag(wrapper: FrameLayout, rawY: Float) {
-        draggedView = wrapper
         dragStartRawY = rawY
         wrapper.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
         wrapper.animate()
@@ -763,7 +641,6 @@ class HomeLayoutActivity : BaseActivity() {
                     add(i, comp)
                 }
                 currentOrder = newOrder
-                saveOrder()
 
                 parent.removeView(dragged)
                 parent.addView(dragged, i)
@@ -785,8 +662,14 @@ class HomeLayoutActivity : BaseActivity() {
             .setDuration(200)
             .setInterpolator(DecelerateInterpolator())
             .start()
-        binding.previewRoot.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
-        draggedView = null
+        val feedback = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            HapticFeedbackConstants.CONFIRM
+        } else {
+            HapticFeedbackConstants.VIRTUAL_KEY
+        }
+        binding.previewRoot.performHapticFeedback(feedback)
+        // Persisted once per gesture rather than on every crossing during the drag.
+        saveOrder()
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -796,8 +679,6 @@ class HomeLayoutActivity : BaseActivity() {
     private fun enterEditMode(rebuild: Boolean = true) {
         if (isEditMode) return
         isEditMode = true
-        selectedComponent = null
-        hideSliderSheet()
         binding.btnDone.visibility = View.VISIBLE
         binding.previewRoot.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
         if (rebuild) {
@@ -830,6 +711,7 @@ class HomeLayoutActivity : BaseActivity() {
                         marginEnd = dp(4)
                     }
                     background = null
+                    contentDescription = getString(R.string.cd_toggle_visibility)
                     scaleType = android.widget.ImageView.ScaleType.CENTER_INSIDE
                     alpha = 0.9f
                     tag = "eye_button"
@@ -876,8 +758,7 @@ class HomeLayoutActivity : BaseActivity() {
 
     private fun onWrapperClicked(component: HomeLayoutPreferences.Component) {
         if (isEditMode) return
-        // Size adjustment is no longer offered from this screen;
-        // only allow picking a widget when none is configured.
+        // Outside edit mode a tap only offers to pick a widget when none is configured.
         if (component == HomeLayoutPreferences.Component.WIDGET &&
             WidgetPreferences.getWidgetId(this) == WidgetPreferences.INVALID_WIDGET_ID) {
             launchWidgetPicker()
@@ -905,103 +786,11 @@ class HomeLayoutActivity : BaseActivity() {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // Slider sheet
-    // ═══════════════════════════════════════════════════════════════
-
-    private fun setupSliderSheet() {
-        binding.sliderSize.addOnChangeListener { _, value, fromUser ->
-            if (!fromUser) return@addOnChangeListener
-            when (selectedComponent) {
-                HomeLayoutPreferences.Component.CLOCK -> {
-                    currentClockWeight = value.toInt()
-                    HomeLayoutPreferences.setClockWeightPercent(this, currentClockWeight)
-                }
-                HomeLayoutPreferences.Component.WIDGET -> {
-                    currentWidgetWeight = value.toInt()
-                    HomeLayoutPreferences.setWidgetWeightPercent(this, currentWidgetWeight)
-                }
-                else -> {}
-            }
-            binding.tvSliderValue.text = "${value.toInt()}%"
-            updateComponentWeights()
-        }
-    }
-
-    private fun showSliderSheet(component: HomeLayoutPreferences.Component) {
-        if (component == HomeLayoutPreferences.Component.APPS) {
-            hideSliderSheet()
-            return
-        }
-        selectedComponent = component
-        val (value, titleRes) = when (component) {
-            HomeLayoutPreferences.Component.CLOCK ->
-                currentClockWeight to R.string.home_layout_clock_size
-            HomeLayoutPreferences.Component.WIDGET ->
-                currentWidgetWeight to R.string.home_layout_widget_size
-            else -> return
-        }
-        binding.tvSliderTitle.text = getString(titleRes).lowercase()
-        binding.tvSliderValue.text = "$value%"
-        binding.sliderSize.value = value.toFloat()
-
-        if (sliderSection.visibility != View.VISIBLE) {
-            sliderSection.visibility = View.VISIBLE
-            sliderSection.alpha = 0f
-            sliderSection.animate()
-                .alpha(1f)
-                .setDuration(200)
-                .start()
-        }
-    }
-
-    private fun hideSliderSheet() {
-        selectedComponent = null
-        if (sliderSection.visibility == View.VISIBLE) {
-            sliderSection.animate()
-                .alpha(0f)
-                .setDuration(150)
-                .withEndAction { sliderSection.visibility = View.GONE }
-                .start()
-        }
-    }
-
-    private fun updateComponentWeights() {
-        val root = binding.previewRoot
-        var remainingWeight = 100
-
-        for (i in 0 until root.childCount) {
-            val child = root.getChildAt(i) as? FrameLayout ?: continue
-            val component = child.tag as? HomeLayoutPreferences.Component ?: continue
-            val weight = when (component) {
-                HomeLayoutPreferences.Component.CLOCK -> {
-                    remainingWeight -= currentClockWeight
-                    if (currentClockEnabled) currentClockWeight else 0
-                }
-                HomeLayoutPreferences.Component.WIDGET -> {
-                    remainingWeight -= currentWidgetWeight
-                    if (currentWidgetEnabled) currentWidgetWeight else 0
-                }
-                HomeLayoutPreferences.Component.APPS -> remainingWeight.coerceAtLeast(20)
-            }
-            val params = child.layoutParams as LinearLayout.LayoutParams
-            params.weight = weight.toFloat()
-            child.layoutParams = params
-        }
-        // Recalculate app item heights since the apps container may have changed size
-        val appCount = favouriteAppsAdapter.itemCount
-        if (appCount > 0) updateAppsItemHeight(appCount)
-    }
-
-    // ═══════════════════════════════════════════════════════════════
     // Widget picker launcher
     // ═══════════════════════════════════════════════════════════════
 
     private fun launchWidgetPicker() {
-        @Suppress("DEPRECATION")
-        startActivityForResult(
-            Intent(this, WidgetPickerActivity::class.java),
-            REQUEST_PICK_WIDGET
-        )
+        widgetPickerLauncher.launch(Intent(this, WidgetPickerActivity::class.java))
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -1014,14 +803,13 @@ class HomeLayoutActivity : BaseActivity() {
     private fun dpF(value: Int): Float =
         value * resources.displayMetrics.density
 
-    private fun isTouchInsideView(event: MotionEvent, view: View): Boolean {
-        val loc = IntArray(2)
-        view.getLocationOnScreen(loc)
-        return event.rawX >= loc[0] && event.rawX <= loc[0] + view.width &&
-               event.rawY >= loc[1] && event.rawY <= loc[1] + view.height
-    }
-
     companion object {
-        private const val REQUEST_PICK_WIDGET = 3001
+        private const val TAG = "HomeLayoutActivity"
+
+        // Share of the preview's height given to each component. The preview only has to
+        // convey the order and visibility; the real home screen sizes them by content.
+        private const val CLOCK_PREVIEW_WEIGHT = 38
+        private const val WIDGET_PREVIEW_WEIGHT = 25
+        private const val MIN_APPS_PREVIEW_WEIGHT = 20
     }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Marks a view as a standard settings row, so `settingsSection` knows where a
+        hairline separator belongs and where it would only add noise (slider rows,
+        selectors and inline panels).
+    -->
+    <item name="tag_settings_row" type="id" />
+    <!-- Opts a custom-drawn ViewGroup out of BaseActivity's background recolouring. -->
+    <item name="tag_skip_recolor" type="id" />
+</resources>

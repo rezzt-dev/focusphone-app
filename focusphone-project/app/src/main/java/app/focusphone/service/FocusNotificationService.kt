@@ -8,6 +8,7 @@ import android.service.notification.StatusBarNotification
 import android.util.Log
 import app.focusphone.data.repository.NotificationItem
 import app.focusphone.data.repository.NotificationRepository
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Notification listener that maintains an in-memory list of active
@@ -30,6 +31,26 @@ class FocusNotificationService : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         refresh()
+    }
+
+    /**
+     * Called when access is revoked or the system unbinds the listener. Without a live
+     * listener the list can no longer be kept current, so the content of other apps'
+     * notifications must not stay on screen (or in memory) either.
+     */
+    override fun onListenerDisconnected() {
+        super.onListenerDisconnected()
+        forgetAll()
+    }
+
+    override fun onDestroy() {
+        forgetAll()
+        super.onDestroy()
+    }
+
+    private fun forgetAll() {
+        NotificationRepository.clear()
+        clearPendingIntents()
     }
 
     override fun onStartCommand(intent: android.content.Intent?, flags: Int, startId: Int): Int {
@@ -79,6 +100,9 @@ class FocusNotificationService : NotificationListenerService() {
                     postTime = sbn.postTime
                 )
             }
+            // Reconcile: a removal missed while the listener was disconnected must not
+            // keep another app's PendingIntent alive for the rest of the process.
+            retainPendingIntents(items.mapTo(HashSet()) { it.key })
             NotificationRepository.update(items)
         } catch (e: Exception) {
             Log.w(TAG, "Failed to refresh notification list", e)
@@ -111,7 +135,12 @@ class FocusNotificationService : NotificationListenerService() {
 
         // ── PendingIntent cache for opening notifications directly ─────
 
-        private val pendingIntents = mutableMapOf<String, PendingIntent>()
+        /**
+         * Content intents of the notifications currently listed. Written from the
+         * listener's callbacks and read from the home screen, hence concurrent; it only
+         * ever holds entries for notifications that are still active.
+         */
+        private val pendingIntents = ConcurrentHashMap<String, PendingIntent>()
 
         fun storePendingIntent(key: String, intent: PendingIntent?) {
             if (intent != null) {
@@ -125,6 +154,11 @@ class FocusNotificationService : NotificationListenerService() {
 
         fun removePendingIntent(key: String) {
             pendingIntents.remove(key)
+        }
+
+        /** Drops every entry whose notification is no longer active. */
+        private fun retainPendingIntents(activeKeys: Set<String>) {
+            pendingIntents.keys.retainAll(activeKeys)
         }
 
         fun clearPendingIntents() {

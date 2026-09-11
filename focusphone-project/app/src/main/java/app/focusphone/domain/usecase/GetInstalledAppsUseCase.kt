@@ -11,10 +11,9 @@ class GetInstalledAppsUseCase(
     suspend operator fun invoke(): List<AppInfo> {
         val installed  = appRepository.getInstalledApps()
         val favourites = favouriteRepository.getFavourites()
-            .take(ToggleFavouriteAppUseCase.MAX_FAVOURITES)
             .map { it.packageName }
             .toSet()
-            
+
         return installed.map { app ->
             app.copy(isFavourite = app.packageName in favourites)
         }

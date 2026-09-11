@@ -8,13 +8,18 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.os.BundleCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.focusphone.R
-import app.focusphone.data.preferences.WidgetPreferences
 import app.focusphone.databinding.ActivityWidgetPickerBinding
 import app.focusphone.ui.base.BaseActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Built-in widget picker for FocusPhone.
@@ -40,19 +45,35 @@ class WidgetPickerActivity : BaseActivity() {
 
     private val appWidgetManager by lazy { AppWidgetManager.getInstance(this) }
 
+    private val bindLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result -> handleBindResult(result.resultCode) }
+
+    private val configureLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result -> handleConfigureResult(result.resultCode) }
+
     // ── Lifecycle ──────────────────────────────────────────────────
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        isSelectionInProgress = true
         binding = ActivityWidgetPickerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         allocatedWidgetId = savedInstanceState?.getInt(KEY_ALLOCATED_WIDGET_ID, INVALID_WIDGET_ID) ?: INVALID_WIDGET_ID
-        pendingProvider = savedInstanceState?.getParcelable(KEY_PENDING_PROVIDER)
+        pendingProvider = savedInstanceState?.let {
+            BundleCompat.getParcelable(it, KEY_PENDING_PROVIDER, ComponentName::class.java)
+        }
 
         setupInsets()
         setupRecyclerView()
         loadWidgets()
+    }
+
+    override fun onDestroy() {
+        isSelectionInProgress = false
+        super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -83,32 +104,33 @@ class WidgetPickerActivity : BaseActivity() {
     // ── Load widgets ───────────────────────────────────────────────
 
     private fun loadWidgets() {
-        val providers = try {
-            appWidgetManager.getInstalledProviders()
-        } catch (e: RuntimeException) {
-            Log.e(TAG, "getInstalledProviders() failed", e)
-            emptyList()
+        binding.tvEmpty.setText(R.string.widget_picker_loading)
+        binding.tvEmpty.visibility = View.VISIBLE
+        binding.rvWidgets.visibility = View.INVISIBLE
+
+        lifecycleScope.launch {
+            val items = withContext(Dispatchers.IO) {
+                val providers = try {
+                    appWidgetManager.getInstalledProviders()
+                } catch (e: RuntimeException) {
+                    Log.e(TAG, "getInstalledProviders() failed", e)
+                    emptyList()
+                }
+                providers.map { info ->
+                    WidgetPickerAdapter.Item(
+                        provider = info.provider,
+                        label = info.loadLabel(packageManager).toString(),
+                        icon = info.loadIcon(this@WidgetPickerActivity, resources.displayMetrics.densityDpi),
+                        sizeLabel = formatWidgetSize(info.minWidth, info.minHeight)
+                    )
+                }.sortedBy { it.label.lowercase() }
+            }
+
+            binding.tvEmpty.setText(R.string.widget_picker_empty)
+            binding.tvEmpty.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
+            binding.rvWidgets.visibility = if (items.isEmpty()) View.GONE else View.VISIBLE
+            adapter.submitList(items)
         }
-
-        if (providers.isEmpty()) {
-            binding.tvEmpty.visibility = View.VISIBLE
-            binding.rvWidgets.visibility = View.GONE
-            return
-        }
-
-        binding.tvEmpty.visibility = View.GONE
-        binding.rvWidgets.visibility = View.VISIBLE
-
-        val items = providers.map { info ->
-            WidgetPickerAdapter.Item(
-                provider = info.provider,
-                label = info.loadLabel(packageManager).toString(),
-                icon = info.loadIcon(this, resources.displayMetrics.densityDpi),
-                sizeLabel = formatWidgetSize(info.minWidth, info.minHeight)
-            )
-        }.sortedBy { it.label.lowercase() }
-
-        adapter.submitList(items)
     }
 
     private fun formatWidgetSize(minWidth: Int, minHeight: Int): String {
@@ -136,8 +158,7 @@ class WidgetPickerActivity : BaseActivity() {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider)
             }
             try {
-                @Suppress("DEPRECATION")
-                startActivityForResult(bindIntent, REQUEST_BIND_WIDGET)
+                bindLauncher.launch(bindIntent)
                 return
             } catch (e: Exception) {
                 Log.e(TAG, "Unable to start bind activity", e)
@@ -165,8 +186,7 @@ class WidgetPickerActivity : BaseActivity() {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
             }
             try {
-                @Suppress("DEPRECATION")
-                startActivityForResult(configureIntent, REQUEST_CONFIGURE_WIDGET)
+                configureLauncher.launch(configureIntent)
                 return
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to launch widget configuration", e)
@@ -178,16 +198,6 @@ class WidgetPickerActivity : BaseActivity() {
     }
 
     // ── Activity results ───────────────────────────────────────────
-
-    @Suppress("DEPRECATION")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        when (requestCode) {
-            REQUEST_BIND_WIDGET -> handleBindResult(resultCode)
-            REQUEST_CONFIGURE_WIDGET -> handleConfigureResult(resultCode)
-        }
-    }
 
     private fun handleBindResult(resultCode: Int) {
         val widgetId = allocatedWidgetId
@@ -229,8 +239,8 @@ class WidgetPickerActivity : BaseActivity() {
     // ── Persistence ────────────────────────────────────────────────
 
     private fun saveWidgetAndFinish(widgetId: Int) {
-        WidgetPreferences.setWidgetId(this, widgetId)
-        WidgetPreferences.setWidgetEnabled(this, true)
+        // Releases the widget being replaced, if any, so its ID does not leak.
+        AppWidgetHostManager.getInstance(this).assignHomeWidget(this, widgetId)
         setResult(RESULT_OK)
         finish()
     }
@@ -249,11 +259,17 @@ class WidgetPickerActivity : BaseActivity() {
 
     companion object {
         private const val TAG = "WidgetPickerActivity"
-        private const val REQUEST_BIND_WIDGET = 2001
-        private const val REQUEST_CONFIGURE_WIDGET = 2002
         private const val INVALID_WIDGET_ID = -1
 
         private const val KEY_ALLOCATED_WIDGET_ID = "allocated_widget_id"
         private const val KEY_PENDING_PROVIDER = "pending_provider"
+
+        /**
+         * true while a picker is alive, i.e. an allocated ID may not be saved yet. The
+         * orphan clean-up in [AppWidgetHostManager.releaseOrphanedIds] must leave it alone.
+         */
+        @Volatile
+        var isSelectionInProgress = false
+            private set
     }
 }

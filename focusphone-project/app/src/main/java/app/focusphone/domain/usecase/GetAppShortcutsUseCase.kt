@@ -1,12 +1,12 @@
 package app.focusphone.domain.usecase
 
 import android.content.Context
-import android.content.Intent
 import android.content.pm.LauncherApps
 import android.os.Build
 import android.os.Process
 import android.util.Log
 import app.focusphone.domain.model.AppShortcut
+import app.focusphone.util.LauncherUtils
 
 /**
  * Retrieves app shortcuts for a given package using the LauncherApps API.
@@ -25,7 +25,7 @@ class GetAppShortcutsUseCase(private val context: Context) {
             return emptyList()
         }
 
-        if (!isDefaultLauncher()) {
+        if (!LauncherUtils.isDefaultLauncher(context)) {
             return emptyList()
         }
 
@@ -92,12 +92,6 @@ class GetAppShortcutsUseCase(private val context: Context) {
             Log.e(TAG, "Failed to launch shortcut ${shortcut.id}", e)
             false
         }
-    }
-
-    private fun isDefaultLauncher(): Boolean {
-        val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
-        val resolved = context.packageManager.resolveActivity(intent, 0)
-        return resolved?.activityInfo?.packageName == context.packageName
     }
 
     companion object {

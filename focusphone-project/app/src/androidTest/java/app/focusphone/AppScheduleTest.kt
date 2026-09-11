@@ -111,6 +111,24 @@ class AppScheduleTest {
     }
 
     @Test
+    fun a_buffered_usage_batch_merges_with_the_existing_counter() {
+        AppSchedulePreferences.saveRule(
+            context,
+            AppScheduleRule(testPackage, dailyLimitMinutes = 10)
+        )
+        AppSchedulePreferences.addUsageSeconds(context, testPackage, 15)
+
+        assertTrue(
+            AppSchedulePreferences.addUsageSeconds(
+                context,
+                mapOf(testPackage to 45, "com.example.ignored" to 0)
+            )
+        )
+
+        assertEquals(60, AppSchedulePreferences.getUsageSecondsSnapshot(context)[testPackage])
+    }
+
+    @Test
     fun removing_a_rule_also_clears_its_usage() {
         AppSchedulePreferences.saveRule(context, AppScheduleRule(testPackage, dailyLimitMinutes = 10))
         AppSchedulePreferences.addUsageSeconds(context, testPackage, 120)

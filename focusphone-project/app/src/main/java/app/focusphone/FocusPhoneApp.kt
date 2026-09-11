@@ -1,7 +1,9 @@
 package app.focusphone
 
 import android.app.Application
+import app.focusphone.data.preferences.HomeLayoutPreferences
 import app.focusphone.data.preferences.ProfilePreferences
+import app.focusphone.data.repository.PackageChangeMonitor
 import app.focusphone.di.AppContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +24,9 @@ open class FocusPhoneApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        ProfilePreferences.migrateLegacyKeys(this)
+        HomeLayoutPreferences.removeObsoleteKeys(this)
+        PackageChangeMonitor.start(this)
         // Ensure detox state is current on every cold start, not just when HomeActivity resumes.
         ProfilePreferences.expireDetoxIfNeeded(this)
     }

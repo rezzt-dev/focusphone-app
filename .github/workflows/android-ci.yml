@@ -1,0 +1,49 @@
+name: android-ci
+
+on:
+  push:
+    branches: [main, "alfa-*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: unit tests, lint and release build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: focusphone-project
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # JDK 21 satisfies the daemon toolchain criteria in gradle/gradle-daemon-jvm.properties.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      # Also validates gradle/wrapper/gradle-wrapper.jar against the official checksums.
+      - uses: gradle/actions/setup-gradle@v4
+
+      # assembleRelease runs lint-vital (checkReleaseBuilds = true) and R8; it is unsigned
+      # here because the RELEASE_* signing properties only exist on the release machine.
+      - name: Verify
+        run: ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease --stacktrace
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            focusphone-project/app/build/reports/
+            focusphone-project/app/build/test-results/
+          if-no-files-found: ignore

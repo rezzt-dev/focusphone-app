@@ -2,7 +2,6 @@ package app.focusphone.ui.settings
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.LinearLayout
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.view.ViewCompat
@@ -10,6 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import app.focusphone.R
 import app.focusphone.databinding.ActivitySettingsBinding
 import app.focusphone.ui.base.BaseActivity
+import androidx.core.view.updatePadding
 
 /**
  * Main settings screen. Transformed from a monolithic scrollable form into a
@@ -78,25 +78,22 @@ class SettingsActivity : BaseActivity() {
     private fun setupInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.toolbar.setPadding(0, bars.top, 0, 0)
-            binding.scrollContent.setPadding(0, 0, 0, 0)
-            binding.tvDevelopedBy.setPadding(0, 0, 0, bars.bottom)
+            binding.toolbar.updatePadding(top = bars.top)
+            binding.tvDevelopedBy.updatePadding(bottom = bars.bottom)
             insets
         }
     }
 
     private fun renderCategories() {
-        val container = binding.contentContainer
-        categories.forEachIndexed { index, category ->
-            if (index > 0) {
-                container.addView(layoutInflater.inflate(R.layout.settings_divider, container, false))
+        binding.contentContainer.settingsSection {
+            categories.forEach { category ->
+                addCategoryRow(
+                    iconResId = category.iconResId,
+                    titleResId = category.titleResId,
+                    subtitleResId = category.subtitleResId,
+                    onClick = { openSubScreen(category.target) }
+                )
             }
-            container.addCategoryRow(
-                iconResId = category.iconResId,
-                titleResId = category.titleResId,
-                subtitleResId = category.subtitleResId,
-                onClick = { openSubScreen(category.target) }
-            )
         }
     }
 

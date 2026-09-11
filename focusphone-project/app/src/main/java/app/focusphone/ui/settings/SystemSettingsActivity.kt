@@ -1,6 +1,5 @@
 package app.focusphone.ui.settings
 
-import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -17,7 +16,6 @@ import app.focusphone.service.FocusAccessibilityService
  */
 class SystemSettingsActivity : SettingsSubActivity() {
 
-    private var activeDialog: Dialog? = null
     private var accessibilityValueView: TextView? = null
 
     private data class LangOption(val tag: String, val labelResId: Int)
@@ -34,55 +32,45 @@ class SystemSettingsActivity : SettingsSubActivity() {
     override fun getScreenTitleRes(): Int = R.string.system_settings_title
 
     override fun buildContent(container: LinearLayout) {
-        container.addSectionHeader(R.string.settings_section_system)
+        container.settingsSection(R.string.settings_section_system) {
+            addCategoryRow(
+                iconResId = R.drawable.ic_settings_permissions,
+                titleResId = R.string.settings_permissions_title,
+                subtitleResId = R.string.settings_permissions_desc_short,
+                onClick = { startActivity(Intent(this@SystemSettingsActivity, PermissionsActivity::class.java)) }
+            )
 
-        // Permissions
-        container.addCategoryRow(
-            iconResId = R.drawable.ic_settings_permissions,
-            titleResId = R.string.settings_permissions_title,
-            subtitleResId = R.string.settings_permissions_desc_short,
-            onClick = { startActivity(Intent(this, PermissionsActivity::class.java)) }
-        )
+            accessibilityValueView = addValueRow(
+                titleResId = R.string.settings_accessibility_title,
+                subtitleResId = R.string.settings_accessibility_section_desc,
+                initialValue = getAccessibilityStatusText(),
+                iconResId = R.drawable.ic_settings_accessibility,
+                onClick = { FocusAccessibilityService.openAccessibilitySettings(this@SystemSettingsActivity) }
+            )
 
-        // Accessibility service
-        accessibilityValueView = container.addValueRow(
-            titleResId = R.string.settings_accessibility_title,
-            subtitleResId = R.string.settings_accessibility_section_desc,
-            initialValue = getAccessibilityStatusText(),
-            iconResId = R.drawable.ic_settings_accessibility,
-            onClick = { FocusAccessibilityService.openAccessibilitySettings(this) }
-        )
+            addValueRow(
+                titleResId = R.string.settings_set_default,
+                subtitleResId = R.string.settings_set_default_desc_short,
+                initialValue = null,
+                iconResId = R.drawable.ic_settings_launcher,
+                onClick = { startActivity(Intent(Settings.ACTION_HOME_SETTINGS)) }
+            )
+        }
 
-        // Set as default launcher
-        container.addValueRow(
-            titleResId = R.string.settings_set_default,
-            subtitleResId = R.string.settings_set_default_desc_short,
-            initialValue = null,
-            iconResId = R.drawable.ic_settings_launcher,
-            onClick = { startActivity(Intent(Settings.ACTION_HOME_SETTINGS)) }
-        )
-
-        container.addView(inflater.inflate(R.layout.settings_divider, container, false))
-
-        // Language
-        container.addSectionHeader(R.string.settings_section_language)
-        container.addValueRow(
-            titleResId = R.string.settings_section_language,
-            subtitleResId = R.string.settings_language_desc,
-            initialValue = getCurrentLanguageLabel(),
-            iconResId = R.drawable.ic_settings_language,
-            onClick = ::showLanguageDialog
-        )
+        container.settingsSection(R.string.settings_section_language) {
+            addValueRow(
+                titleResId = R.string.settings_section_language,
+                subtitleResId = R.string.settings_language_desc,
+                initialValue = getCurrentLanguageLabel(),
+                iconResId = R.drawable.ic_settings_language,
+                onClick = ::showLanguageDialog
+            )
+        }
     }
 
     override fun onResume() {
         super.onResume()
         accessibilityValueView?.text = getAccessibilityStatusText()
-    }
-
-    override fun onDestroy() {
-        activeDialog?.dismiss()
-        super.onDestroy()
     }
 
     private fun getAccessibilityStatusText(): String =
@@ -106,7 +94,7 @@ class SystemSettingsActivity : SettingsSubActivity() {
             it.tag.equals(currentTag, ignoreCase = true) || (it.tag.isEmpty() && currentTag.isEmpty())
         }.coerceAtLeast(0)
 
-        activeDialog = AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle(R.string.settings_section_language)
             .setSingleChoiceItems(labels, checkedItem) { dialog, which ->
                 val selected = languages[which]
@@ -121,6 +109,8 @@ class SystemSettingsActivity : SettingsSubActivity() {
             }
             .setNegativeButton(R.string.action_cancel, null)
             .create()
-        activeDialog?.show()
+            // Styled: without it the single-choice list keeps the style theme's colours and
+            // ignores both the custom theme and the user's font.
+            .also { showStyledDialog(it) }
     }
 }

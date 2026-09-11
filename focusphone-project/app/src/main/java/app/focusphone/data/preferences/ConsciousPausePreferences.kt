@@ -1,5 +1,6 @@
 package app.focusphone.data.preferences
 
+import androidx.core.content.edit
 import android.content.Context
 
 /**
@@ -18,11 +19,11 @@ object ConsciousPausePreferences {
         prefs(context).getBoolean(KEY_ENABLED, false) // Default is disabled so it is opt-in
 
     fun setEnabled(context: Context, enabled: Boolean) =
-        prefs(context).edit().putBoolean(KEY_ENABLED, enabled).apply()
+        prefs(context).edit { putBoolean(KEY_ENABLED, enabled) }
 
     fun getDuration(context: Context): Int =
         prefs(context).getInt(KEY_DURATION, 4) // Default is 4 seconds
 
     fun setDuration(context: Context, duration: Int) =
-        prefs(context).edit().putInt(KEY_DURATION, duration).apply()
+        prefs(context).edit { putInt(KEY_DURATION, duration) }
 }

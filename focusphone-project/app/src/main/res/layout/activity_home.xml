@@ -13,7 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:importantForAccessibility="no" />
 
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
@@ -21,6 +22,24 @@
         android:layout_height="match_parent">
 
     <!-- MAIN CONTENT -->
+    <FrameLayout
+        android:id="@+id/home_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent">
+
+    <!--
+        Home legibility scrim. Sits above the wallpaper and below the clock and app list,
+        and is NOT translated with the content when a drawer slides, so the dimming stays
+        anchored to the screen. Driven by HomeActivity.applyScrim().
+    -->
+    <View
+        android:id="@+id/view_scrim_home"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/root_home"
         android:layout_width="match_parent"
@@ -235,6 +254,8 @@
 
     </LinearLayout>
 
+    </FrameLayout>
+
     <!-- DRAWER CONTENT -->
     <FrameLayout
         android:id="@+id/drawer_menu"
@@ -242,14 +263,20 @@
         android:layout_height="match_parent"
         android:layout_gravity="end">
 
-        <!-- Solid scrim behind the menu content so text remains readable over the wallpaper -->
+        <!--
+            Panel scrim behind the calendar and launcher options. Colour and alpha come from
+            the active palette and the user's legibility preference; hidden entirely when no
+            wallpaper is showing.
+        -->
         <View
+            android:id="@+id/view_scrim_menu"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="?android:attr/colorBackground"
-            android:alpha="0" />
+            android:importantForAccessibility="no"
+            android:visibility="gone" />
 
         <LinearLayout
+            android:id="@+id/menu_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
@@ -287,13 +314,13 @@
                 android:weightSum="7"
                 android:layout_marginBottom="12dp">
 
-                <TextView android:id="@+id/tv_day_0" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="m" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:id="@+id/tv_day_1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="t" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:id="@+id/tv_day_2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="w" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:id="@+id/tv_day_3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="t" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:id="@+id/tv_day_4" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="f" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:id="@+id/tv_day_5" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="s" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
-                <TextView android:id="@+id/tv_day_6" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="s" android:textColor="?android:attr/textColorSecondary" android:textSize="12sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_0" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="m" android:textColor="?android:attr/textColorSecondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="t" android:textColor="?android:attr/textColorSecondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="w" android:textColor="?android:attr/textColorSecondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="t" android:textColor="?android:attr/textColorSecondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_4" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="f" android:textColor="?android:attr/textColorSecondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_5" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="s" android:textColor="?android:attr/textColorSecondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" />
+                <TextView android:id="@+id/tv_day_6" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="" tools:text="s" android:textColor="?android:attr/textColorSecondary" android:textSize="13sp" android:fontFamily="sans-serif-medium" />
             </LinearLayout>
 
             <!-- Days Grid -->
@@ -344,7 +371,7 @@
                 android:textColor="?android:attr/textColorPrimary"
                 android:textSize="26sp" />
 
-            <!-- "editar apps" -->
+            <!-- "edit dashboard" -->
             <TextView
                 android:id="@+id/tv_menu_select_apps"
                 android:layout_width="match_parent"
@@ -388,15 +415,22 @@
         android:layout_gravity="start"
         android:background="@android:color/transparent">
 
-        <!-- Wallpaper behind the notification drawer content -->
-        <!-- Notification drawer intentionally has no dedicated wallpaper: it reuses the home
-             wallpaper or the theme background so a per-screen image cannot render corrupted. -->
-        <!-- Solid scrim so notifications / empty state remain readable over the wallpaper -->
-        <View
+        <!-- The notification panel is an independent wallpaper surface. -->
+        <ImageView
+            android:id="@+id/iv_wallpaper_notifications"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="?android:attr/colorBackground"
-            android:alpha="0" />
+            android:importantForAccessibility="no"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
+        <!-- Panel scrim so notifications and the empty state stay readable over the wallpaper -->
+        <View
+            android:id="@+id/view_scrim_notifications"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/notification_content"

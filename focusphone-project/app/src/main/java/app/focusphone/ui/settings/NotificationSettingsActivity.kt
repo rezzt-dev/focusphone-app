@@ -1,6 +1,5 @@
 package app.focusphone.ui.settings
 
-import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.TextView
 import app.focusphone.R
@@ -19,40 +18,38 @@ class NotificationSettingsActivity : SettingsSubActivity() {
     override fun getScreenTitleRes(): Int = R.string.notification_settings_title
 
     override fun buildContent(container: LinearLayout) {
-        container.addSectionHeader(R.string.settings_section_notifications)
+        container.settingsSection(R.string.settings_section_notifications) {
+            // Notification access (system permission)
+            notificationAccessValueView = addValueRow(
+                titleResId = R.string.settings_notification_access_title,
+                subtitleResId = R.string.settings_notification_access_desc,
+                initialValue = getNotificationAccessStatusText(),
+                iconResId = R.drawable.ic_settings_badge,
+                onClick = {
+                    FocusNotificationService.openNotificationSettings(this@NotificationSettingsActivity)
+                }
+            )
 
-        // Notification access (system permission)
-        notificationAccessValueView = container.addValueRow(
-            titleResId = R.string.settings_notification_access_title,
-            subtitleResId = R.string.settings_notification_access_desc,
-            initialValue = getNotificationAccessStatusText(),
-            iconResId = R.drawable.ic_settings_badge,
-            onClick = { FocusNotificationService.openNotificationSettings(this) }
-        )
+            addSwitchRow(
+                titleResId = R.string.settings_notification_panel_title,
+                subtitleResId = R.string.settings_notification_panel_desc_short,
+                isChecked = NotificationPanelPreferences.isEnabled(this@NotificationSettingsActivity),
+                iconResId = R.drawable.ic_settings_panel,
+                onCheckedChanged = { checked ->
+                    NotificationPanelPreferences.setEnabled(this@NotificationSettingsActivity, checked)
+                }
+            )
 
-        container.addView(inflater.inflate(R.layout.settings_divider, container, false))
-
-        // Notification panel toggle
-        container.addSwitchRow(
-            titleResId = R.string.settings_notification_panel_title,
-            subtitleResId = R.string.settings_notification_panel_desc_short,
-            isChecked = NotificationPanelPreferences.isEnabled(this),
-            iconResId = R.drawable.ic_settings_panel,
-            onCheckedChanged = { checked ->
-                NotificationPanelPreferences.setEnabled(this, checked)
-            }
-        )
-
-        // Swipe down for notifications
-        container.addSwitchRow(
-            titleResId = R.string.settings_swipe_down_title,
-            subtitleResId = R.string.settings_swipe_down_desc,
-            isChecked = GesturePreferences.isSwipeDownEnabled(this),
-            iconResId = R.drawable.ic_settings_swipe,
-            onCheckedChanged = { checked ->
-                GesturePreferences.setSwipeDownEnabled(this, checked)
-            }
-        )
+            addSwitchRow(
+                titleResId = R.string.settings_swipe_down_title,
+                subtitleResId = R.string.settings_swipe_down_desc,
+                isChecked = GesturePreferences.isSwipeDownEnabled(this@NotificationSettingsActivity),
+                iconResId = R.drawable.ic_settings_swipe,
+                onCheckedChanged = { checked ->
+                    GesturePreferences.setSwipeDownEnabled(this@NotificationSettingsActivity, checked)
+                }
+            )
+        }
     }
 
     override fun onResume() {

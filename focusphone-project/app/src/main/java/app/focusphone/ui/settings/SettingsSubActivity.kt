@@ -8,6 +8,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import app.focusphone.databinding.ActivitySettingsSubBinding
 import app.focusphone.ui.base.BaseActivity
+import androidx.core.view.updatePadding
 
 /**
  * Abstract base class for second-level settings screens.
@@ -42,8 +43,8 @@ abstract class SettingsSubActivity : BaseActivity() {
     private fun setupInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.toolbar.setPadding(0, bars.top, 0, 0)
-            binding.scrollContent.setPadding(0, 0, 0, bars.bottom)
+            binding.toolbar.updatePadding(top = bars.top)
+            binding.scrollContent.updatePadding(bottom = bars.bottom)
             insets
         }
     }

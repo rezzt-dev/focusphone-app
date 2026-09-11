@@ -7,10 +7,10 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.view.ViewCompat
 import app.focusphone.R
-import app.focusphone.data.preferences.ThemePreferences
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
+import app.focusphone.ui.theme.FocusPalette
 
 /**
  * Modern minimalist analog clock drawn on Canvas.
@@ -62,27 +62,14 @@ class AnalogClockView @JvmOverloads constructor(
     }
 
     /**
-     * Resolves the primary/secondary/background colors dynamically
-     * depending on the active theme, supporting custom theme values.
+     * Resolves the primary/secondary/background colours for the active theme, custom
+     * themes included. Called on attach and whenever the host re-themes the view tree.
      */
     fun updateColors() {
-        val theme = ThemePreferences.getTheme(context)
-        if (theme == ThemePreferences.THEME_CUSTOM) {
-            colorPrimary = ThemePreferences.getCustomForegroundColor(context)
-            colorSecondary = (colorPrimary and 0x00FFFFFF) or (0x8A shl 24) // ~54% opacity secondary
-            bgColor = ThemePreferences.getCustomBackgroundColor(context)
-        } else {
-            val themeAttrs = intArrayOf(
-                android.R.attr.textColorPrimary,
-                android.R.attr.textColorSecondary,
-                android.R.attr.colorBackground
-            )
-            val ta = context.obtainStyledAttributes(themeAttrs)
-            colorPrimary = ta.getColor(0, 0xFF1A1A1A.toInt())
-            colorSecondary = ta.getColor(1, 0xFF888888.toInt())
-            bgColor = ta.getColor(2, 0xFFFAFAFA.toInt())
-            ta.recycle()
-        }
+        val colors = FocusPalette.of(context)
+        colorPrimary = colors.textPrimary
+        colorSecondary = colors.textSecondary
+        bgColor = colors.background
         invalidate()
     }
 
@@ -96,9 +83,14 @@ class AnalogClockView @JvmOverloads constructor(
     }
 
     private fun updateContentDescription() {
-        val displayHour = if (hours % 12 == 0) 12 else hours % 12
-        val amPm = if (hours >= 12) context.getString(R.string.clock_pm) else context.getString(R.string.clock_am)
-        val desc = String.format("%02d:%02d %s", displayHour, minutes, amPm)
+        val locale = context.resources.configuration.locales[0]
+        val desc = if (android.text.format.DateFormat.is24HourFormat(context)) {
+            String.format(locale, "%02d:%02d", hours, minutes)
+        } else {
+            val displayHour = if (hours % 12 == 0) 12 else hours % 12
+            val amPm = if (hours >= 12) context.getString(R.string.clock_pm) else context.getString(R.string.clock_am)
+            String.format(locale, "%02d:%02d %s", displayHour, minutes, amPm)
+        }
         ViewCompat.setStateDescription(this, desc)
         contentDescription = desc
     }
