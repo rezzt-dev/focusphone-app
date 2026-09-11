@@ -43,7 +43,10 @@ object WallpaperStorage {
     private val migrated = mutableMapOf<String, String>()
 
     sealed interface LoadResult {
-        data class Ready(val bitmap: Bitmap) : LoadResult
+        data class Ready(
+            val bitmap: Bitmap,
+            val softwareBlurApplied: Boolean
+        ) : LoadResult
 
         /** The image can never be read again; its references have been removed. */
         data object Lost : LoadResult
@@ -71,7 +74,12 @@ object WallpaperStorage {
         }
 
     /** Loads the wallpaper stored as [uriString], migrating a legacy reference first. */
-    suspend fun load(context: Context, uriString: String): LoadResult = withContext(Dispatchers.IO) {
+    suspend fun load(
+        context: Context,
+        uriString: String,
+        blurEnabled: Boolean = false,
+        blurRadius: Float = 0f
+    ): LoadResult = withContext(Dispatchers.IO) {
         val appContext = context.applicationContext
         val privateUri = if (isPrivate(appContext, uriString)) {
             uriString
@@ -82,10 +90,11 @@ object WallpaperStorage {
         if (fileOf(privateUri)?.exists() != true) {
             Log.w(TAG, "Wallpaper copy is missing; forgetting it")
             WallpaperPreferences.removeUri(appContext, privateUri)
+            WallpaperUtils.invalidate(privateUri)
             return@withContext LoadResult.Lost
         }
-        WallpaperUtils.loadBitmap(appContext, privateUri)
-            ?.let { LoadResult.Ready(it) }
+        WallpaperUtils.loadBitmap(appContext, privateUri, blurEnabled, blurRadius)
+            ?.let { LoadResult.Ready(it.bitmap, it.softwareBlurApplied) }
             ?: LoadResult.Failed
     }
 
@@ -151,7 +160,10 @@ object WallpaperStorage {
             .mapNotNull { fileOf(it)?.canonicalFile }
             .toSet()
         directory(context).listFiles()?.forEach { file ->
-            if (file.canonicalFile !in referenced) file.delete()
+            if (file.canonicalFile !in referenced) {
+                WallpaperUtils.invalidate(Uri.fromFile(file).toString())
+                file.delete()
+            }
         }
     }
 

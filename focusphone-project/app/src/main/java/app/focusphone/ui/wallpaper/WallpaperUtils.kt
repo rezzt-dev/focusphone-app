@@ -8,6 +8,7 @@ import android.graphics.Shader
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.util.LruCache
 import android.view.View
 import android.widget.ImageView
 import app.focusphone.data.preferences.WallpaperPreferences
@@ -27,6 +28,25 @@ object WallpaperUtils {
     private const val TAG = "WallpaperUtils"
     private const val MAX_BITMAP_DIMENSION = 1920
 
+    private data class CacheKey(
+        val uri: String,
+        val blurEnabled: Boolean,
+        val blurRadiusTenths: Int
+    )
+
+    data class PreparedBitmap(
+        val bitmap: Bitmap,
+        val softwareBlurApplied: Boolean
+    )
+
+    /** At most one eighth of the process heap is retained for prepared wallpapers. */
+    private val bitmapCache = object : LruCache<CacheKey, PreparedBitmap>(
+        (Runtime.getRuntime().maxMemory() / 1024L / 8L).toInt().coerceAtLeast(1)
+    ) {
+        override fun sizeOf(key: CacheKey, value: PreparedBitmap): Int =
+            (value.bitmap.allocationByteCount / 1024).coerceAtLeast(1)
+    }
+
     /**
      * Convert a 0-100 intensity value into a blur radius in pixels (0-25).
      */
@@ -41,9 +61,46 @@ object WallpaperUtils {
     /**
      * Load a bitmap from a stored wallpaper URI, scaled to avoid excessive memory use.
      */
-    suspend fun loadBitmap(context: Context, uriString: String?): Bitmap? = withContext(Dispatchers.IO) {
+    suspend fun loadBitmap(
+        context: Context,
+        uriString: String?,
+        blurEnabled: Boolean = false,
+        blurRadius: Float = 0f
+    ): PreparedBitmap? = withContext(Dispatchers.IO) {
         if (uriString.isNullOrBlank()) return@withContext null
-        decodeSampled(context, Uri.parse(uriString))
+        val key = CacheKey(uriString, blurEnabled, (blurRadius * 10f).toInt())
+        synchronized(bitmapCache) {
+            bitmapCache.get(key)?.takeUnless { it.bitmap.isRecycled }
+        }?.let { return@withContext it }
+
+        val decoded = decodeSampled(context, Uri.parse(uriString)) ?: return@withContext null
+        val useSoftwareBlur = blurEnabled && blurRadius > 0.5f && Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+        val prepared = if (useSoftwareBlur) {
+            val blurred = blurBitmap(decoded, blurRadius)
+            if (blurred !== decoded) decoded.recycle()
+            PreparedBitmap(blurred, softwareBlurApplied = true)
+        } else {
+            PreparedBitmap(decoded, softwareBlurApplied = false)
+        }
+        synchronized(bitmapCache) {
+            // Blur is global, so variants for the same URI become stale as soon as the
+            // setting changes. Keeping only the active one prevents slider previews from
+            // filling the cache with dozens of radii.
+            bitmapCache.snapshot().keys
+                .filter { it.uri == uriString && it != key }
+                .forEach(bitmapCache::remove)
+            bitmapCache.put(key, prepared)
+        }
+        prepared
+    }
+
+    /** Removes every cached variant of a wallpaper that was deleted or replaced. */
+    fun invalidate(uriString: String) {
+        synchronized(bitmapCache) {
+            bitmapCache.snapshot().keys
+                .filter { it.uri == uriString }
+                .forEach(bitmapCache::remove)
+        }
     }
 
     /**
@@ -58,7 +115,10 @@ object WallpaperUtils {
         } ?: throw java.io.FileNotFoundException("No stream for $uri")
 
         val sampleSize = calculateInSampleSize(width, height, MAX_BITMAP_DIMENSION, MAX_BITMAP_DIMENSION)
-        val decodeOptions = BitmapFactory.Options().apply { inSampleSize = sampleSize }
+        val decodeOptions = BitmapFactory.Options().apply {
+            inSampleSize = sampleSize
+            inPreferredConfig = Bitmap.Config.RGB_565
+        }
 
         context.contentResolver.openInputStream(uri)?.use { stream ->
             BitmapFactory.decodeStream(stream, null, decodeOptions)
@@ -117,7 +177,9 @@ object WallpaperUtils {
         val scaledWidth = (source.width / scaleFactor).toInt().coerceAtLeast(1)
         val scaledHeight = (source.height / scaleFactor).toInt().coerceAtLeast(1)
         val scaled = Bitmap.createScaledBitmap(source, scaledWidth, scaledHeight, true)
-        return Bitmap.createScaledBitmap(scaled, source.width, source.height, true)
+        val result = Bitmap.createScaledBitmap(scaled, source.width, source.height, true)
+        if (scaled !== source && scaled !== result) scaled.recycle()
+        return result
     }
 
     /**

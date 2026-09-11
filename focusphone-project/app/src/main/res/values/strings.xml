@@ -337,6 +337,7 @@
     <string name="widget_picker_title">select widget</string>
     <string name="widget_picker_subtitle">choose a widget to add to your home screen</string>
     <string name="widget_picker_empty">no widgets available</string>
+    <string name="widget_picker_loading">loading widgets…</string>
     <string name="cd_widget_icon">widget icon</string>
     <string name="cd_clock">clock component</string>
     <string name="cd_widget">widget component</string>

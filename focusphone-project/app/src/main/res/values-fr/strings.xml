@@ -421,6 +421,7 @@
     <string name="settings_work_keywords_section_desc">bloquer les apps par nom en mode travail</string>
     <string name="system_settings_title">système</string>
     <string name="widget_picker_empty">aucun widget disponible</string>
+    <string name="widget_picker_loading">chargement des widgets…</string>
     <string name="widget_picker_subtitle">choisir un widget à ajouter à l\'écran d\'accueil</string>
     <string name="widget_picker_title">sélectionner le widget</string>
     <string name="settings_wallpaper_blur_desc">adoucir l\'arrière-plan pour une meilleure lisibilité</string>

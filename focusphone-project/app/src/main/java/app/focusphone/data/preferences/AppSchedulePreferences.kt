@@ -126,12 +126,17 @@ object AppSchedulePreferences {
 
     /** Evaluates an already-loaded [rule] against the current time and usage. */
     fun evaluateRule(context: Context, rule: AppScheduleRule): ScheduleBlockReason? {
+        return evaluateRule(rule, getUsedSeconds(context, rule.packageName))
+    }
+
+    /** Evaluates [rule] using an already-cached usage value, without touching storage. */
+    fun evaluateRule(rule: AppScheduleRule, usedSecondsToday: Int): ScheduleBlockReason? {
         val calendar = Calendar.getInstance()
         return AppScheduleEvaluator.evaluate(
             rule = rule,
             minuteOfDay = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE),
             dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK),
-            usedMinutesToday = getUsedMinutes(context, rule.packageName)
+            usedMinutesToday = usedSecondsToday.coerceAtLeast(0) / 60
         )
     }
 
@@ -145,6 +150,10 @@ object AppSchedulePreferences {
     fun getUsedSeconds(context: Context, packageName: String): Int =
         readUsageCounters(context)?.get(packageName) ?: 0
 
+    /** One decrypted snapshot for services that keep the counters in memory. */
+    fun getUsageSecondsSnapshot(context: Context): Map<String, Int> =
+        readUsageCounters(context) ?: emptyMap()
+
     /**
      * Adds [seconds] of foreground time to [packageName]'s counter for today.
      * Counters from a previous day are discarded first, which is what resets every
@@ -152,10 +161,21 @@ object AppSchedulePreferences {
      * than reset, so a storage hiccup can never hand out a fresh allowance.
      */
     fun addUsageSeconds(context: Context, packageName: String, seconds: Int) {
-        if (seconds <= 0) return
-        val counters = readUsageCounters(context)?.toMutableMap() ?: return
-        counters[packageName] = (counters[packageName] ?: 0) + seconds
-        writeUsageCounters(context, counters)
+        addUsageSeconds(context, mapOf(packageName to seconds))
+    }
+
+    /**
+     * Atomically merges one in-memory batch with the encrypted counters. Callers must
+     * serialize concurrent batches; one read and one write are performed per batch.
+     */
+    fun addUsageSeconds(context: Context, additions: Map<String, Int>): Boolean {
+        val valid = additions.filterValues { it > 0 }
+        if (valid.isEmpty()) return true
+        val counters = readUsageCounters(context)?.toMutableMap() ?: return false
+        valid.forEach { (packageName, seconds) ->
+            counters[packageName] = (counters[packageName] ?: 0) + seconds
+        }
+        return writeUsageCounters(context, counters)
     }
 
     /**
@@ -163,8 +183,13 @@ object AppSchedulePreferences {
      * A fully consumed allowance returns 0.
      */
     fun getRemainingLimitSeconds(context: Context, rule: AppScheduleRule): Int? {
+        return getRemainingLimitSeconds(rule, getUsedSeconds(context, rule.packageName))
+    }
+
+    /** Remaining allowance using an already-cached usage value, without storage IO. */
+    fun getRemainingLimitSeconds(rule: AppScheduleRule, usedSecondsToday: Int): Int? {
         if (!rule.hasDailyLimit) return null
-        val remaining = rule.dailyLimitMinutes * 60 - getUsedSeconds(context, rule.packageName)
+        val remaining = rule.dailyLimitMinutes * 60 - usedSecondsToday.coerceAtLeast(0)
         return remaining.coerceAtLeast(0)
     }
 
@@ -189,14 +214,18 @@ object AppSchedulePreferences {
             .toMap()
     }
 
-    private fun writeUsageCounters(context: Context, counters: Map<String, Int>) {
+    private fun writeUsageCounters(context: Context, counters: Map<String, Int>): Boolean {
         val raw = counters.entries.joinToString("\n") { "${it.key}=${it.value}" }
+        if (!store.putString(context, KEY_USAGE_COUNTERS, raw.ifBlank { null })) return false
         store.putInt(context, KEY_USAGE_DAY, currentDayStamp())
-        store.putString(context, KEY_USAGE_COUNTERS, raw.ifBlank { null })
+        return true
     }
 
     /** Local calendar day encoded as `yyyyMMdd`, used to expire usage counters. */
     private fun currentDayStamp(): Int = dayStampOf(Calendar.getInstance())
+
+    /** Current local day key for an in-memory counter cache. */
+    fun currentUsageDayStamp(): Int = currentDayStamp()
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal fun dayStampOf(calendar: Calendar): Int =

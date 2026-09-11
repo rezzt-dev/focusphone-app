@@ -115,6 +115,7 @@ class HomeActivity : BaseActivity() {
     private var notificationWallpaperGeneration = 0
     private var hasNotificationWallpaper = false
     private var clockReceiverRegistered = false
+    private var homeInitialized = false
 
     /** [PackageChangeMonitor.version] at the last favourites check; -1 before the first. */
     private var verifiedPackageVersion = -1L
@@ -152,8 +153,15 @@ class HomeActivity : BaseActivity() {
 
         if (!ThemePreferences.isOnboardingComplete(this)) {
             startActivity(Intent(this, OnboardingActivity::class.java))
+            return
         }
 
+        initializeHome()
+    }
+
+    /** Completes the expensive launcher setup only when onboarding no longer covers it. */
+    private fun initializeHome() {
+        if (homeInitialized) return
         setupInsets()
         setupClockTap()
         setupRecyclerView()
@@ -170,6 +178,7 @@ class HomeActivity : BaseActivity() {
         binding.indicatorContainer.alpha = 0f
         binding.indicatorHome.contentDescription = getString(R.string.cd_home_indicator)
         binding.indicatorMenu.contentDescription = getString(R.string.cd_menu_indicator)
+        homeInitialized = true
     }
 
     private fun setupBackPress() {
@@ -185,6 +194,10 @@ class HomeActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (!homeInitialized) {
+            if (!ThemePreferences.isOnboardingComplete(this)) return
+            initializeHome()
+        }
         applyNotificationWallpaper()
         try {
             ContextCompat.registerReceiver(
@@ -359,11 +372,12 @@ class HomeActivity : BaseActivity() {
         val blurRadius = WallpaperUtils.getBlurRadius(WallpaperPreferences.getBlurIntensity(this))
         lifecycleScope.launch {
             val result = withContext(Dispatchers.IO) {
-                WallpaperStorage.load(this@HomeActivity, uri)
+                WallpaperStorage.load(this@HomeActivity, uri, blurEnabled, blurRadius)
             }
             if (generation != notificationWallpaperGeneration) return@launch
 
-            val bitmap = (result as? WallpaperStorage.LoadResult.Ready)?.bitmap
+            val ready = result as? WallpaperStorage.LoadResult.Ready
+            val bitmap = ready?.bitmap
             if (result == WallpaperStorage.LoadResult.Lost) {
                 Toast.makeText(
                     this@HomeActivity,
@@ -379,7 +393,7 @@ class HomeActivity : BaseActivity() {
                 binding.ivWallpaperNotifications,
                 bitmap,
                 blurRadius,
-                blurEnabled
+                blurEnabled && ready?.softwareBlurApplied != true
             )
             applyScrim()
         }
@@ -470,6 +484,13 @@ class HomeActivity : BaseActivity() {
                 }
             }
         })
+        // Only the empty/home surface owns launcher gestures. RecyclerViews, drawers and
+        // dialogs keep their flings without leaking them into this detector.
+        binding.rootHome.setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
+            if (event.action == MotionEvent.ACTION_UP) binding.rootHome.performClick()
+            false
+        }
     }
 
     private fun expandNotificationsPanel() {
@@ -481,11 +502,6 @@ class HomeActivity : BaseActivity() {
         } catch (e: Exception) {
             Log.w("HomeActivity", "Failed to expand notification panel", e)
         }
-    }
-
-    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        ev?.let { gestureDetector.onTouchEvent(it) }
-        return super.dispatchTouchEvent(ev)
     }
 
     // ── Clock tap → Alarm app ──────────────────────────────────────

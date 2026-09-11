@@ -17,6 +17,15 @@ import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.domain.model.AppScheduleRule
 import app.focusphone.ui.detox.DetoxBlockedActivity
 import app.focusphone.ui.schedule.ScheduleBlockedActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 /**
  * Accessibility service that intercepts app launches at the system level.
@@ -50,6 +59,14 @@ class FocusAccessibilityService : AccessibilityService() {
     private var cachedDetoxEndTime = 0L
     private var cachedProfile = ""
     private var lastCacheUpdate = 0L
+    private var cacheReady = false
+    private var cacheRefreshJob: Job? = null
+    private var packageWaitingForCache: String? = null
+
+    /** Usage is authoritative in memory while the service lives. */
+    private val cachedUsageSeconds = mutableMapOf<String, Int>()
+    private val pendingUsageSeconds = mutableMapOf<String, Int>()
+    private var cachedUsageDay = 0
 
     /** Foreground tracking used to accumulate per-app usage against the daily limits. */
     private var foregroundPackage: String? = null
@@ -57,7 +74,18 @@ class FocusAccessibilityService : AccessibilityService() {
 
     private val handler = Handler(Looper.getMainLooper())
     private val usageTick = Runnable { onUsageTick() }
+    private val diskFlushTick = object : Runnable {
+        override fun run() {
+            flushPendingUsageToDisk()
+            handler.postDelayed(this, DISK_FLUSH_INTERVAL_MS)
+        }
+    }
     private var screenReceiverRegistered = false
+    private var released = false
+
+    private val serviceJob = SupervisorJob()
+    private val serviceScope = CoroutineScope(serviceJob + Dispatchers.IO)
+    private val usageWriteMutex = Mutex()
 
     /**
      * Pauses usage accounting while the screen is off: an app left in the foreground
@@ -68,6 +96,7 @@ class FocusAccessibilityService : AccessibilityService() {
             when (intent?.action) {
                 Intent.ACTION_SCREEN_OFF -> {
                     flushForegroundUsage()
+                    flushPendingUsageToDisk()
                     cancelUsageTick()
                 }
 
@@ -81,7 +110,9 @@ class FocusAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        refreshCache()
+        refreshCache(force = true)
+        handler.removeCallbacks(diskFlushTick)
+        handler.postDelayed(diskFlushTick, DISK_FLUSH_INTERVAL_MS)
 
         // onServiceConnected can fire again after a reconnect; register only once.
         if (!screenReceiverRegistered) {
@@ -103,7 +134,19 @@ class FocusAccessibilityService : AccessibilityService() {
 
         val packageName = event.packageName?.toString() ?: return
 
+        if (!cacheReady) {
+            packageWaitingForCache = packageName
+            refreshCache(force = true)
+            return
+        }
         refreshCacheIfNeeded()
+
+        handleForegroundPackage(packageName)
+    }
+
+    /** Handles an event after the encrypted state has been loaded off the main thread. */
+    private fun handleForegroundPackage(packageName: String) {
+        ensureCurrentUsageDay()
 
         // A different app came to the front: settle the previous app's usage first.
         if (packageName != foregroundPackage) {
@@ -130,8 +173,10 @@ class FocusAccessibilityService : AccessibilityService() {
             }
             if (cachedProfile == ProfilePreferences.PROFILE_DETOX) {
                 // The session has just run out: end it for the whole app, not only here.
-                ProfilePreferences.expireDetoxIfNeeded(this)
-                refreshCache()
+                cachedProfile = ProfilePreferences.PROFILE_NORMAL
+                serviceScope.launch {
+                    ProfilePreferences.expireDetoxIfNeeded(this@FocusAccessibilityService)
+                }
             }
 
             // Work profile blocks manually blocked apps and apps matching keywords.
@@ -165,7 +210,10 @@ class FocusAccessibilityService : AccessibilityService() {
         // periodic tick and never have their usage written, so settle it here too.
         flushForegroundUsage()
 
-        val reason = AppSchedulePreferences.evaluateRule(this, rule)
+        val reason = AppSchedulePreferences.evaluateRule(
+            rule,
+            cachedUsageSeconds[packageName] ?: 0
+        )
         if (reason != null) {
             cancelUsageTick()
             startActivity(ScheduleBlockedActivity.newIntent(this, packageName, null, reason))
@@ -186,7 +234,10 @@ class FocusAccessibilityService : AccessibilityService() {
         flushForegroundUsage()
 
         val rule = cachedScheduleRules[packageName] ?: return
-        val reason = AppSchedulePreferences.evaluateRule(this, rule)
+        val reason = AppSchedulePreferences.evaluateRule(
+            rule,
+            cachedUsageSeconds[packageName] ?: 0
+        )
         if (reason != null) {
             startActivity(ScheduleBlockedActivity.newIntent(this, packageName, null, reason))
             return
@@ -201,7 +252,10 @@ class FocusAccessibilityService : AccessibilityService() {
         val rule = cachedScheduleRules[packageName] ?: return
         if (!rule.isActive) return
 
-        val remainingMs = AppSchedulePreferences.getRemainingLimitSeconds(this, rule)
+        val remainingMs = AppSchedulePreferences.getRemainingLimitSeconds(
+            rule,
+            cachedUsageSeconds[packageName] ?: 0
+        )
             ?.let { it * 1000L + 1_000L }
             ?: TICK_INTERVAL_MS
         handler.postDelayed(usageTick, remainingMs.coerceIn(1_000L, TICK_INTERVAL_MS))
@@ -227,7 +281,48 @@ class FocusAccessibilityService : AccessibilityService() {
         val rule = cachedScheduleRules[packageName] ?: return
         if (!rule.hasDailyLimit) return
 
-        AppSchedulePreferences.addUsageSeconds(this, packageName, elapsedSeconds)
+        cachedUsageSeconds[packageName] =
+            (cachedUsageSeconds[packageName] ?: 0) + elapsedSeconds
+        pendingUsageSeconds[packageName] =
+            (pendingUsageSeconds[packageName] ?: 0) + elapsedSeconds
+    }
+
+    /**
+     * Moves the current in-memory delta to one serialized IO transaction. If encrypted
+     * storage is temporarily unavailable, the batch is merged back on the main thread.
+     */
+    private fun flushPendingUsageToDisk(onComplete: (() -> Unit)? = null) {
+        ensureCurrentUsageDay()
+        val batch = pendingUsageSeconds.toMap()
+        pendingUsageSeconds.clear()
+        if (batch.isEmpty()) {
+            onComplete?.invoke()
+            return
+        }
+
+        serviceScope.launch {
+            val written = usageWriteMutex.withLock {
+                AppSchedulePreferences.addUsageSeconds(this@FocusAccessibilityService, batch)
+            }
+            withContext(Dispatchers.Main.immediate) {
+                if (!written && !released) {
+                    batch.forEach { (packageName, seconds) ->
+                        pendingUsageSeconds[packageName] =
+                            (pendingUsageSeconds[packageName] ?: 0) + seconds
+                    }
+                }
+                onComplete?.invoke()
+            }
+        }
+    }
+
+    /** Drops yesterday's in-memory values at local midnight before any evaluation. */
+    private fun ensureCurrentUsageDay() {
+        val today = AppSchedulePreferences.currentUsageDayStamp()
+        if (cachedUsageDay == today) return
+        cachedUsageDay = today
+        cachedUsageSeconds.clear()
+        pendingUsageSeconds.clear()
     }
 
     // ── Block screens ──────────────────────────────────────────────
@@ -249,17 +344,45 @@ class FocusAccessibilityService : AccessibilityService() {
     private fun refreshCacheIfNeeded() {
         val now = System.currentTimeMillis()
         if (now - lastCacheUpdate < CACHE_TTL_MS) return
-        refreshCache()
+        refreshCache(force = false)
     }
 
-    /** Force-refreshes the cache by reading encrypted preferences once. */
-    private fun refreshCache() {
-        lastCacheUpdate = System.currentTimeMillis()
-        cachedDetoxEndTime = ProfilePreferences.getDetoxEndTime(this)
-        cachedProfile = ProfilePreferences.getProfile(this)
-        cachedBlockedApps = ProfilePreferences.getBlockedApps(this)
-        cachedWorkKeywords = ProfilePreferences.getWorkKeywords(this)
-        cachedScheduleRules = AppSchedulePreferences.getRules(this).associateBy { it.packageName }
+    /** Reads encrypted preferences on IO and publishes one coherent snapshot on main. */
+    private fun refreshCache(force: Boolean) {
+        if (cacheRefreshJob?.isActive == true) return
+        if (!force && System.currentTimeMillis() - lastCacheUpdate < CACHE_TTL_MS) return
+        val loadUsage = !cacheReady
+        cacheRefreshJob = serviceScope.launch {
+            val detoxEndTime = ProfilePreferences.getDetoxEndTime(this@FocusAccessibilityService)
+            val profile = ProfilePreferences.getProfile(this@FocusAccessibilityService)
+            val blockedApps = ProfilePreferences.getBlockedApps(this@FocusAccessibilityService)
+            val workKeywords = ProfilePreferences.getWorkKeywords(this@FocusAccessibilityService)
+            val rules = AppSchedulePreferences.getRules(this@FocusAccessibilityService)
+                .associateBy { it.packageName }
+            val usage = if (loadUsage) {
+                AppSchedulePreferences.getUsageSecondsSnapshot(this@FocusAccessibilityService)
+            } else null
+
+            withContext(Dispatchers.Main.immediate) {
+                if (released) return@withContext
+                cachedDetoxEndTime = detoxEndTime
+                cachedProfile = profile
+                cachedBlockedApps = blockedApps
+                cachedWorkKeywords = workKeywords
+                cachedScheduleRules = rules
+                if (!cacheReady) {
+                    cachedUsageDay = AppSchedulePreferences.currentUsageDayStamp()
+                    cachedUsageSeconds.clear()
+                    cachedUsageSeconds.putAll(usage.orEmpty())
+                }
+                cacheReady = true
+                lastCacheUpdate = System.currentTimeMillis()
+                packageWaitingForCache?.also {
+                    packageWaitingForCache = null
+                    handleForegroundPackage(it)
+                }
+            }
+        }
     }
 
     override fun onInterrupt() {
@@ -278,12 +401,17 @@ class FocusAccessibilityService : AccessibilityService() {
     }
 
     private fun release() {
+        if (released) return
+        released = true
         flushForegroundUsage()
         cancelUsageTick()
+        handler.removeCallbacks(diskFlushTick)
         if (screenReceiverRegistered) {
             unregisterReceiver(screenReceiver)
             screenReceiverRegistered = false
         }
+        // Let the final encrypted write finish before cancelling the service scope.
+        flushPendingUsageToDisk { serviceScope.cancel() }
     }
 
     companion object {
@@ -292,6 +420,9 @@ class FocusAccessibilityService : AccessibilityService() {
 
         /** How often a scheduled app in the foreground is re-checked and its usage saved. */
         private const val TICK_INTERVAL_MS = 30_000L
+
+        /** Usage writes are batched so accessibility callbacks never touch disk. */
+        private const val DISK_FLUSH_INTERVAL_MS = 60_000L
 
         /**
          * Returns whether this accessibility service is currently enabled by the user.

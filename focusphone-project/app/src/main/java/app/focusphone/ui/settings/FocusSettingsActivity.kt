@@ -54,9 +54,11 @@ class FocusSettingsActivity : SettingsSubActivity() {
                 isEnabled = pauseEnabled
                 addOnChangeListener { _, value, _ ->
                     val duration = value.toInt()
-                    ConsciousPausePreferences.setDuration(this@FocusSettingsActivity, duration)
                     durationBinding.tvLabel.text =
                         getString(R.string.settings_conscious_pause_duration, duration)
+                }
+                persistOnStop { value ->
+                    ConsciousPausePreferences.setDuration(this@FocusSettingsActivity, value.toInt())
                 }
             }
             durationSlider = durationBinding.slider

@@ -12,6 +12,7 @@ import app.focusphone.databinding.ItemSettingsCategoryBinding
 import app.focusphone.databinding.ItemSettingsSwitchBinding
 import app.focusphone.databinding.ItemSettingsValueBinding
 import app.focusphone.databinding.SettingsSectionHeaderBinding
+import com.google.android.material.slider.Slider
 
 /**
  * Helper functions to inflate the reusable settings row layouts into a parent container.
@@ -79,7 +80,21 @@ private fun LinearLayout.insertRowSeparators() {
 
 private fun View.isSettingsRow(): Boolean = getTag(R.id.tag_settings_row) == true
 
-private fun View.markAsSettingsRow(): View = apply { setTag(R.id.tag_settings_row, true) }
+private fun View.markAsSettingsRow(): View = apply {
+    setTag(R.id.tag_settings_row, true)
+    setTag(R.id.tag_skip_recolor, true)
+}
+
+/** Persists a slider value once per drag instead of once per pixel of movement. */
+fun Slider.persistOnStop(persist: (Float) -> Unit) {
+    addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+        override fun onStartTrackingTouch(slider: Slider) = Unit
+
+        override fun onStopTrackingTouch(slider: Slider) {
+            persist(slider.value)
+        }
+    })
+}
 
 /**
  * Inflates a navigable category row:

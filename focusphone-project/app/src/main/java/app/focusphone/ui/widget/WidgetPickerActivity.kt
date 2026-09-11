@@ -10,10 +10,14 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.focusphone.R
 import app.focusphone.databinding.ActivityWidgetPickerBinding
 import app.focusphone.ui.base.BaseActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Built-in widget picker for FocusPhone.
@@ -88,32 +92,33 @@ class WidgetPickerActivity : BaseActivity() {
     // ── Load widgets ───────────────────────────────────────────────
 
     private fun loadWidgets() {
-        val providers = try {
-            appWidgetManager.getInstalledProviders()
-        } catch (e: RuntimeException) {
-            Log.e(TAG, "getInstalledProviders() failed", e)
-            emptyList()
+        binding.tvEmpty.setText(R.string.widget_picker_loading)
+        binding.tvEmpty.visibility = View.VISIBLE
+        binding.rvWidgets.visibility = View.INVISIBLE
+
+        lifecycleScope.launch {
+            val items = withContext(Dispatchers.IO) {
+                val providers = try {
+                    appWidgetManager.getInstalledProviders()
+                } catch (e: RuntimeException) {
+                    Log.e(TAG, "getInstalledProviders() failed", e)
+                    emptyList()
+                }
+                providers.map { info ->
+                    WidgetPickerAdapter.Item(
+                        provider = info.provider,
+                        label = info.loadLabel(packageManager).toString(),
+                        icon = info.loadIcon(this@WidgetPickerActivity, resources.displayMetrics.densityDpi),
+                        sizeLabel = formatWidgetSize(info.minWidth, info.minHeight)
+                    )
+                }.sortedBy { it.label.lowercase() }
+            }
+
+            binding.tvEmpty.setText(R.string.widget_picker_empty)
+            binding.tvEmpty.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
+            binding.rvWidgets.visibility = if (items.isEmpty()) View.GONE else View.VISIBLE
+            adapter.submitList(items)
         }
-
-        if (providers.isEmpty()) {
-            binding.tvEmpty.visibility = View.VISIBLE
-            binding.rvWidgets.visibility = View.GONE
-            return
-        }
-
-        binding.tvEmpty.visibility = View.GONE
-        binding.rvWidgets.visibility = View.VISIBLE
-
-        val items = providers.map { info ->
-            WidgetPickerAdapter.Item(
-                provider = info.provider,
-                label = info.loadLabel(packageManager).toString(),
-                icon = info.loadIcon(this, resources.displayMetrics.densityDpi),
-                sizeLabel = formatWidgetSize(info.minWidth, info.minHeight)
-            )
-        }.sortedBy { it.label.lowercase() }
-
-        adapter.submitList(items)
     }
 
     private fun formatWidgetSize(minWidth: Int, minHeight: Int): String {

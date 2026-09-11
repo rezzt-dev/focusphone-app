@@ -98,6 +98,19 @@ abstract class BaseActivity : AppCompatActivity() {
         private const val EMPHASIS_WEIGHT = 450
         private const val REGULAR_WEIGHT = 400
         private const val MEDIUM_WEIGHT = 500
+
+        /** Layout-owned surfaces whose drawable/background carries semantic styling. */
+        private val BACKGROUND_RECOLOR_EXCLUDED_IDS = intArrayOf(
+            R.id.drawer_layout,
+            R.id.home_content,
+            R.id.root_home,
+            R.id.drawer_notifications,
+            R.id.notification_content,
+            R.id.content_container,
+            R.id.scroll_content,
+            R.id.preview_container,
+            R.id.preview_root
+        )
     }
 
     override fun attachBaseContext(newBase: android.content.Context) {
@@ -226,8 +239,15 @@ abstract class BaseActivity : AppCompatActivity() {
         val blurRadius = WallpaperUtils.getBlurRadius(WallpaperPreferences.getBlurIntensity(this))
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val result = WallpaperStorage.load(this@BaseActivity, uri)
-            val bitmap = (result as? WallpaperStorage.LoadResult.Ready)?.bitmap
+            val result = WallpaperStorage.load(
+                this@BaseActivity,
+                uri,
+                blurEnabled,
+                blurRadius
+            )
+            val ready = result as? WallpaperStorage.LoadResult.Ready
+            val bitmap = ready?.bitmap
+            val applyRuntimeBlur = blurEnabled && ready?.softwareBlurApplied != true
 
             withContext(Dispatchers.Main) {
                 if (result == WallpaperStorage.LoadResult.Lost) {
@@ -235,10 +255,10 @@ abstract class BaseActivity : AppCompatActivity() {
                     currentHasWallpaper = false
                     Toast.makeText(this@BaseActivity, R.string.wallpaper_access_lost, Toast.LENGTH_LONG).show()
                 }
-                homeView?.let { WallpaperUtils.applyWallpaperToImageView(it, bitmap, blurRadius, blurEnabled) }
-                settingsView?.let { WallpaperUtils.applyWallpaperToImageView(it, bitmap, blurRadius, blurEnabled) }
+                homeView?.let { WallpaperUtils.applyWallpaperToImageView(it, bitmap, blurRadius, applyRuntimeBlur) }
+                settingsView?.let { WallpaperUtils.applyWallpaperToImageView(it, bitmap, blurRadius, applyRuntimeBlur) }
                 if (!hasDedicatedViews) {
-                    applyGlobalWallpaper(bitmap, blurRadius, blurEnabled)
+                    applyGlobalWallpaper(bitmap, blurRadius, applyRuntimeBlur)
                 }
 
                 // Keep the content frame transparent so the image behind it stays visible.
@@ -456,25 +476,9 @@ abstract class BaseActivity : AppCompatActivity() {
             }
 
             if (view is ViewGroup) {
-                val viewId = try {
-                    resources.getResourceEntryName(view.id)
-                } catch (e: Exception) {
-                    ""
-                }
-                val skipBg = viewId.startsWith("card_theme") ||
-                        viewId.startsWith("view_theme") ||
-                        viewId.contains("preview") ||
-                        viewId.contains("segmented") ||
-                        viewId.contains("wallpaper") ||
-                        viewId.contains("scrim") ||
-                        viewId == "root_home" ||
-                        viewId == "home_content" ||
-                        viewId == "drawer_notifications" ||
-                        viewId == "notification_content" ||
-                        viewId == "drawer_layout" ||
-                        viewId == "content_container" ||
-                        viewId == "scroll_content" ||
-                        view === root
+                val skipBg = view === root ||
+                        view.getTag(R.id.tag_skip_recolor) == true ||
+                        view.id in BACKGROUND_RECOLOR_EXCLUDED_IDS
 
                 if (applyBackgrounds && !skipBg && view.id != android.R.id.content) {
                     view.setBackgroundColor(colors.background)
@@ -744,6 +748,7 @@ abstract class BaseActivity : AppCompatActivity() {
      * @param segments the individual segment views, whose `isActivated` flag drives the fill.
      */
     protected fun applySegmentedControlColors(container: View, segments: List<ImageView>) {
+        container.setTag(R.id.tag_skip_recolor, true)
         val colors = palette
         val density = resources.displayMetrics.density
 

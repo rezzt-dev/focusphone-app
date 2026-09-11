@@ -84,6 +84,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
 
             // Custom theme panel (shown only when the custom theme is active)
             val customBinding = SettingsCustomThemePanelBinding.inflate(inflater, this, false)
+            customBinding.root.setTag(R.id.tag_skip_recolor, true)
             customThemeBinding = customBinding
             setupCustomThemePanel(customBinding)
             addView(customBinding.root)
@@ -118,8 +119,10 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
                 value = currentSize.toFloat().coerceIn(8f, 24f)
                 addOnChangeListener { _, value, _ ->
                     val size = value.toInt()
-                    FontPreferences.setFontSizePt(this@AppearanceSettingsActivity, size)
                     sizeBinding.tvLabel.text = getString(R.string.settings_text_size_pt, size)
+                }
+                persistOnStop { value ->
+                    FontPreferences.setFontSizePt(this@AppearanceSettingsActivity, value.toInt())
                 }
             }
             addView(sizeBinding.root)
@@ -173,6 +176,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
         )
 
         val preview = SettingsWallpaperPreviewBinding.inflate(inflater, container, false)
+        preview.root.setTag(R.id.tag_skip_recolor, true)
         previewBinding = preview
         wallpaperPreviewRoot = preview.root
         container.addView(preview.root)
@@ -230,8 +234,10 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
             value = currentBlur.toFloat().coerceIn(0f, 100f)
             addOnChangeListener { _, value, _ ->
                 val intensity = value.toInt()
-                WallpaperPreferences.setBlurIntensity(this@AppearanceSettingsActivity, intensity)
                 blurBinding.tvLabel.text = getString(R.string.settings_wallpaper_blur_intensity, intensity)
+            }
+            persistOnStop { value ->
+                WallpaperPreferences.setBlurIntensity(this@AppearanceSettingsActivity, value.toInt())
                 updateWallpaperPreview()
             }
         }
@@ -257,10 +263,11 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
             value = currentReadability.toFloat().coerceIn(0f, 100f)
             addOnChangeListener { _, value, _ ->
                 val level = value.toInt()
-                WallpaperPreferences.setReadability(this@AppearanceSettingsActivity, level)
                 readabilityBinding.tvLabel.text =
                     getString(R.string.settings_wallpaper_readability, level)
-                // Repaint this screen straight away so the slider previews its own effect.
+            }
+            persistOnStop { value ->
+                WallpaperPreferences.setReadability(this@AppearanceSettingsActivity, value.toInt())
                 applyScrim()
             }
         }
@@ -689,13 +696,18 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
 
         preview.tvWallpaperPreviewHint.visibility = View.GONE
         lifecycleScope.launch(Dispatchers.IO) {
-            val bitmap = WallpaperUtils.loadBitmap(this@AppearanceSettingsActivity, uri)
+            val prepared = WallpaperUtils.loadBitmap(
+                this@AppearanceSettingsActivity,
+                uri,
+                blurEnabled,
+                blurRadius
+            )
             withContext(Dispatchers.Main) {
                 WallpaperUtils.applyWallpaperToImageView(
                     preview.ivWallpaperPreview,
-                    bitmap,
+                    prepared?.bitmap,
                     blurRadius,
-                    blurEnabled
+                    blurEnabled && prepared?.softwareBlurApplied != true
                 )
             }
         }

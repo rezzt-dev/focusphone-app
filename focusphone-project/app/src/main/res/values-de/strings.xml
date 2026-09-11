@@ -421,6 +421,7 @@
     <string name="settings_work_keywords_section_desc">apps im arbeitsmodus nach namen blockieren</string>
     <string name="system_settings_title">system</string>
     <string name="widget_picker_empty">keine widgets verfügbar</string>
+    <string name="widget_picker_loading">widgets werden geladen…</string>
     <string name="widget_picker_subtitle">wähle ein widget für den startbildschirm</string>
     <string name="widget_picker_title">widget auswählen</string>
     <string name="settings_wallpaper_blur_desc">hintergrund weichzeichnen für bessere lesbarkeit</string>

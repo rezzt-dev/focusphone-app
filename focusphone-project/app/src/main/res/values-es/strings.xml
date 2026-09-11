@@ -284,6 +284,7 @@ facebook</string>
     <string name="widget_picker_title">seleccionar widget</string>
     <string name="widget_picker_subtitle">elige un widget para añadir a tu pantalla de inicio</string>
     <string name="widget_picker_empty">no hay widgets disponibles</string>
+    <string name="widget_picker_loading">cargando widgets…</string>
     <string name="cd_widget_icon">icono del widget</string>
 
     <!-- Settings: Permissions -->

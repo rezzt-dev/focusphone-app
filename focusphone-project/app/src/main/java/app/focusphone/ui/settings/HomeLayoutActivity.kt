@@ -797,16 +797,23 @@ class HomeLayoutActivity : BaseActivity() {
             when (selectedComponent) {
                 HomeLayoutPreferences.Component.CLOCK -> {
                     currentClockWeight = value.toInt()
-                    HomeLayoutPreferences.setClockWeightPercent(this, currentClockWeight)
                 }
                 HomeLayoutPreferences.Component.WIDGET -> {
                     currentWidgetWeight = value.toInt()
-                    HomeLayoutPreferences.setWidgetWeightPercent(this, currentWidgetWeight)
                 }
                 else -> {}
             }
             binding.tvSliderValue.text = "${value.toInt()}%"
             updateComponentWeights()
+        }
+        binding.sliderSize.persistOnStop {
+            when (selectedComponent) {
+                HomeLayoutPreferences.Component.CLOCK ->
+                    HomeLayoutPreferences.setClockWeightPercent(this, currentClockWeight)
+                HomeLayoutPreferences.Component.WIDGET ->
+                    HomeLayoutPreferences.setWidgetWeightPercent(this, currentWidgetWeight)
+                else -> Unit
+            }
         }
     }
 

@@ -59,7 +59,7 @@ class HomeSettingsActivity : SettingsSubActivity() {
                 valueTo = 100f
                 stepSize = 1f
                 value = currentClockSize.toFloat().coerceIn(0f, 100f)
-                addOnChangeListener { _, value, _ ->
+                persistOnStop { value ->
                     FontPreferences.setClockSizePercent(this@HomeSettingsActivity, value.toInt())
                 }
             }
@@ -92,9 +92,11 @@ class HomeSettingsActivity : SettingsSubActivity() {
                 value = currentSpacing.toFloat().coerceIn(0f, 40f)
                 addOnChangeListener { _, value, _ ->
                     val spacing = value.toInt()
-                    HomeLayoutPreferences.setAppSpacingDp(this@HomeSettingsActivity, spacing)
                     spacingBinding.tvLabel.text =
                         getString(R.string.settings_app_spacing_dp, spacing)
+                }
+                persistOnStop { value ->
+                    HomeLayoutPreferences.setAppSpacingDp(this@HomeSettingsActivity, value.toInt())
                 }
             }
             appSpacingSlider = spacingBinding.slider
