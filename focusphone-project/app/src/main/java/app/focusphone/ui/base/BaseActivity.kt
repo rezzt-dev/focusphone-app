@@ -402,15 +402,10 @@ abstract class BaseActivity : AppCompatActivity() {
      * is how a view's original semantic role is recovered after inflation.
      */
     protected fun colorizeViewTree(root: View, colors: FocusPalette, applyBackgrounds: Boolean) {
-        val themeAttrs = intArrayOf(
-            android.R.attr.textColorPrimary,
-            android.R.attr.textColorSecondary,
-            android.R.attr.colorBackground
-        )
-        val ta = obtainStyledAttributes(themeAttrs)
-        val basePrimary = ta.getColor(0, 0)
-        val baseSecondary = ta.getColor(1, 0)
-        val baseBg = ta.getColor(2, 0)
+        val ta = obtainStyledAttributes(R.styleable.FocusBaseThemeColors)
+        val basePrimary = ta.getColor(R.styleable.FocusBaseThemeColors_android_textColorPrimary, 0)
+        val baseSecondary = ta.getColor(R.styleable.FocusBaseThemeColors_android_textColorSecondary, 0)
+        val baseBg = ta.getColor(R.styleable.FocusBaseThemeColors_android_colorBackground, 0)
         ta.recycle()
 
         val stack = ArrayDeque<View>()

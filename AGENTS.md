@@ -9,14 +9,14 @@
 | Property | Value |
 |----------|-------|
 | **Package** | `app.focusphone` |
-| **Version** | 1.0.4 |
+| **Version** | 1.0.6 |
 | **Language** | Kotlin |
 | **Min SDK** | 24 |
 | **Target / Compile SDK** | 36 |
 | **Java Compatibility** | 11 |
 | **AGP** | 9.2.1 |
 
-The project is a single-module Android application (`:app`) with no library modules. It uses the **Android Gradle Plugin 9.x** and requires a **JDK 21** toolchain (path is pinned in `gradle.properties`).
+The project is a single-module Android application (`:app`) with no library modules. It uses the **Android Gradle Plugin 9.x** and requires a **JDK 21** toolchain, selected through Gradle's daemon toolchain criteria (`gradle/gradle-daemon-jvm.properties`) — never a machine-specific path.
 
 ---
 
@@ -171,6 +171,9 @@ app/src/main/java/app/focusphone/
 # Run instrumented tests
 ./gradlew :app:connectedDebugAndroidTest
 
+# Lint (must report 0 errors; release builds fail on any lint error)
+./gradlew :app:lintDebug
+
 # Clean
 ./gradlew clean
 ```
@@ -179,7 +182,10 @@ app/src/main/java/app/focusphone/
 - `viewBinding = true` and `buildConfig = true` are enabled.
 - Release builds use ProGuard (`proguard-rules.pro`) with `isMinifyEnabled = true` and `isShrinkResources = true`.
 - Room uses `kapt` (legacy annotation processor) because AGP 9.2.1 is used.
-- The project defines a fixed `org.gradle.java.home` pointing to `C:/Program Files/Android/openjdk/jdk-21.0.8`.
+- The Gradle daemon runs on a JDK 21 chosen by `gradle/gradle-daemon-jvm.properties` (regenerate with `./gradlew updateDaemonJvm --jvm-version=21`); do not reintroduce `org.gradle.java.home`.
+- Lint runs on release builds (`checkReleaseBuilds = true`, `abortOnError = true`) and there is no lint baseline: fix new errors at the source.
+- CI (`.github/workflows/android-ci.yml`) runs unit tests, `lintDebug` and an unsigned `assembleRelease` on every push and pull request.
+- The Gradle wrapper JAR is versioned; release outputs under `app/release/` are not.
 - Release signing config is conditional: set `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, and `RELEASE_KEY_PASSWORD` in `gradle.properties` (or as project properties) to enable release signing. Without these properties, the release build uses no signing config and can still be assembled for local testing.
 
 ---
@@ -220,12 +226,11 @@ app/src/main/java/app/focusphone/
 | Unit tests | `app/src/test/java/app/focusphone/` | JVM (JUnit 4) | MockK, Robolectric, Turbine, kotlinx-coroutines-test |
 | Instrumented | `app/src/androidTest/java/app/focusphone/` | AndroidJUnit4 via `TestRunner` | Espresso, ActivityScenario |
 
-**Note:** Legacy placeholder tests remain in `dev.rezzt` and should be removed in a future cleanup.
 
 ### Test Infrastructure
 - `FakeFavouriteAppRepository` — in-memory fake for unit tests.
 - `FakeAppRepository` — returns a fixed app list for instrumented tests.
-- `TestFocusPhoneApp` / `TestRunner` — custom application and runner that allow repository substitution before Activities launch.
+- `TestFocusPhoneApp` / `TestRunner` — custom application and runner that allow repository substitution before Activities launch. The test app keeps a single `AppContainer` (rebuilt only when a fake is swapped), mirroring production.
 - `AppContainer` supports constructor injection of fake repositories.
 
 ### Coverage (Fase 2)

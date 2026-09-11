@@ -189,7 +189,7 @@ toca el menú para añadir apps.</string>
     <!-- Settings Sections -->
     <string name="settings_section_tutorial">tutorial</string>
     <string name="settings_tutorial_title">tutorial interactivo</string>
-    <string name="settings_tutorial_desc">aprende a usar el 100%% de las funciones de focusphone</string>
+    <string name="settings_tutorial_desc" formatted="false">aprende a usar el 100% de las funciones de focusphone</string>
 
     <!-- Tutorial Slides -->
     <string name="tutorial_slide_1_title">minimalismo e inicio</string>

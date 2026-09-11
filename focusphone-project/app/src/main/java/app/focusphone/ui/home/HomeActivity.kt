@@ -1,5 +1,6 @@
 package app.focusphone.ui.home
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -196,7 +197,11 @@ class HomeActivity : BaseActivity() {
         super.onResume()
         if (!homeInitialized) {
             if (!ThemePreferences.isOnboardingComplete(this)) return
-            initializeHome()
+            // Onboarding has just finished on top of this instance. Recreate instead of
+            // initialising here: the observers use repeatOnLifecycle, which must be started
+            // from onCreate, and this happens once in the app's lifetime.
+            recreate()
+            return
         }
         applyNotificationWallpaper()
         try {
@@ -493,10 +498,14 @@ class HomeActivity : BaseActivity() {
         }
     }
 
+    // "statusbar" is the service name behind Context.STATUS_BAR_SERVICE, which only became
+    // public in API 33 and is absent from getSystemService's @StringDef; the reflective
+    // expand call itself is tracked separately (FP-038).
+    @SuppressLint("WrongConstant")
     private fun expandNotificationsPanel() {
         if (!GesturePreferences.isSwipeDownEnabled(this)) return
         try {
-            val statusBarService = getSystemService(Context.STATUS_BAR_SERVICE)
+            val statusBarService = getSystemService(STATUS_BAR_SERVICE_NAME)
             val method = statusBarService?.javaClass?.getMethod("expandNotificationsPanel")
             method?.invoke(statusBarService)
         } catch (e: Exception) {
@@ -1654,6 +1663,8 @@ class HomeActivity : BaseActivity() {
     companion object {
         private const val MENU_ID_SHORTCUT_BASE = 10_000
         private const val TAG = "HomeActivity"
+        /** Value of Context.STATUS_BAR_SERVICE, usable below API 33. */
+        private const val STATUS_BAR_SERVICE_NAME = "statusbar"
     }
 
     private fun haptic(view: View) = view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)

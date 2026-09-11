@@ -144,7 +144,7 @@
     <!-- Settings Sections -->
     <string name="settings_section_tutorial">anleitung</string>
     <string name="settings_tutorial_title">interaktive anleitung</string>
-    <string name="settings_tutorial_desc">lerne 100% der funktionen von focusphone kennen</string>
+    <string name="settings_tutorial_desc" formatted="false">lerne 100% der funktionen von focusphone kennen</string>
 
     <!-- Tutorial Slides -->
     <string name="tutorial_slide_1_title">minimalismus &amp; startseite</string>

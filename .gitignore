@@ -25,6 +25,7 @@ local.properties
 *.ap_
 *.aar
 *.jar
+!focusphone-project/gradle/wrapper/gradle-wrapper.jar
 *.class
 
 # Log files
@@ -43,5 +44,8 @@ ehthumbs.db
 # Kotlin / Compiler caches
 .kotlin/
 
-# Local working documentation and agent skills (not part of the published project)
-docs/
+# Local working documentation and agent skills (not part of the published project).
+# `docs/*` rather than `docs/`: git cannot re-include a file whose parent directory is
+# excluded, and the technical audit is the tracking document every fix is marked in.
+docs/*
+!docs/auditoria-tecnica-completa.md

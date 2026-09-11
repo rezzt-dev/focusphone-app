@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en">
     <string name="app_name">focusphone</string>
     <string name="calendar_date_format">%1$s %2$d | %3$d</string>
     <string name="app_label">focusphone</string>
@@ -238,7 +238,7 @@
     <!-- Settings Sections -->
     <string name="settings_section_tutorial">tutorial</string>
     <string name="settings_tutorial_title">interactive tutorial</string>
-    <string name="settings_tutorial_desc">learn how to use 100% of focusphone features</string>
+    <string name="settings_tutorial_desc" formatted="false">learn how to use 100% of focusphone features</string>
     <string name="settings_tutorial_restart_title">restart tutorial</string>
     <string name="settings_tutorial_restart_desc">experience the interactive contextual guide again</string>
     <string name="settings_restart_tutorial_confirm">this will restart the interactive tutorial. continue?</string>

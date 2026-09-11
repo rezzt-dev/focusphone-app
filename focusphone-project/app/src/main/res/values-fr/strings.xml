@@ -144,7 +144,7 @@
     <!-- Settings Sections -->
     <string name="settings_section_tutorial">tutoriel</string>
     <string name="settings_tutorial_title">tutoriel interactif</string>
-    <string name="settings_tutorial_desc">apprenez à utiliser 100% des fonctions de focusphone</string>
+    <string name="settings_tutorial_desc" formatted="false">apprenez à utiliser 100% des fonctions de focusphone</string>
 
     <!-- Tutorial Slides -->
     <string name="tutorial_slide_1_title">minimalisme &amp; accueil</string>
@@ -237,6 +237,7 @@
 
     <!-- Settings: Notifications -->
     <string name="settings_section_notifications">notifications</string>
+    <string name="settings_section_system">système</string>
     <string name="settings_notification_access_title">accès aux notifications</string>
     <string name="settings_notification_access_desc">autoriser focusphone à lire les notifications système</string>
     <string name="settings_notification_access_active">actif</string>
