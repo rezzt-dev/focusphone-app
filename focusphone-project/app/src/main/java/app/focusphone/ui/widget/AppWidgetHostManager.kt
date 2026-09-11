@@ -9,6 +9,8 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import app.focusphone.data.preferences.WidgetPreferences
+import java.util.Collections
+import java.util.IdentityHashMap
 
 /**
  * Singleton manager for the app's [AppWidgetHost].
@@ -26,19 +28,25 @@ class AppWidgetHostManager private constructor(context: Context) {
 
     private val appWidgetHost = AppWidgetHost(context.applicationContext, HOST_ID)
     private val appWidgetManager = AppWidgetManager.getInstance(context.applicationContext)
+    private val listeningOwners = Collections.newSetFromMap(IdentityHashMap<Any, Boolean>())
 
-    /** Start listening for widget update broadcasts. Safe to call multiple times. */
-    fun startListening() {
+    /** Starts listening while at least one lifecycle [owner] is visible. */
+    @Synchronized
+    fun startListening(owner: Any) {
+        if (!listeningOwners.add(owner) || listeningOwners.size > 1) return
         try {
             appWidgetHost.startListening()
         } catch (e: RuntimeException) {
+            listeningOwners.remove(owner)
             // TransactionTooLargeException or other binder failures from the system
             Log.e(TAG, "AppWidgetHost.startListening() failed — widgets may not update", e)
         }
     }
 
-    /** Stop listening. Called from [android.app.Activity.onStop]. */
-    fun stopListening() {
+    /** Stops listening after the last visible lifecycle [owner] leaves. */
+    @Synchronized
+    fun stopListening(owner: Any) {
+        if (!listeningOwners.remove(owner) || listeningOwners.isNotEmpty()) return
         try {
             appWidgetHost.stopListening()
         } catch (e: RuntimeException) {

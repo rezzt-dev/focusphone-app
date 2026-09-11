@@ -31,6 +31,7 @@ object ProfilePreferences {
     private const val KEY_DETOX_PASSWORD = "detox_password"
     private const val KEY_BLOCKED_APPS = "blocked_apps"
     private const val KEY_WORK_KEYWORDS = "work_keywords"
+    private const val EMPTY_WORK_KEYWORDS = "__focusphone_empty_work_keywords__"
     private const val KEY_ATTEMPTS = "detox_attempts"
     private const val KEY_LOCKOUT_UNTIL = "detox_lockout_until"
 
@@ -206,7 +207,7 @@ object ProfilePreferences {
      */
     fun getWorkKeywords(context: Context): Set<String> {
         val raw = store.getString(context, KEY_WORK_KEYWORDS, null)
-        return if (raw.isNullOrBlank()) DEFAULT_WORK_KEYWORDS else raw.split("\n").filter { it.isNotBlank() }.toSet()
+        return workKeywordsFromStored(raw)
     }
 
     /**
@@ -214,8 +215,19 @@ object ProfilePreferences {
      * Each keyword is stored newline-delimited and encrypted at rest.
      */
     fun setWorkKeywords(context: Context, keywords: Set<String>) {
-        val raw = if (keywords.isEmpty()) null else keywords.joinToString("\n")
+        // A non-empty encrypted marker means "the user configured no keywords". An
+        // actual empty plaintext cannot be used because the encrypted payload validator
+        // intentionally rejects zero-byte ciphertexts as malformed.
+        val raw = if (keywords.isEmpty()) EMPTY_WORK_KEYWORDS else keywords.joinToString("\n")
         store.putString(context, KEY_WORK_KEYWORDS, raw)
+    }
+
+    /** Converts the stored value while preserving the absent-vs-empty distinction. */
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    internal fun workKeywordsFromStored(raw: String?): Set<String> = when (raw) {
+        null -> DEFAULT_WORK_KEYWORDS
+        EMPTY_WORK_KEYWORDS -> emptySet()
+        else -> raw.split("\n").filter { it.isNotBlank() }.toSet()
     }
 
     // ── App blocking logic (public API delegates to pure functions) ─

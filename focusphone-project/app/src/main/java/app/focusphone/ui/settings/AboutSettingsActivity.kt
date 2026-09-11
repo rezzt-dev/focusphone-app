@@ -1,7 +1,6 @@
 package app.focusphone.ui.settings
 
 import android.content.Intent
-import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,8 +14,8 @@ import app.focusphone.R
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.TutorialPreferences
-import app.focusphone.domain.model.ClockType
 import app.focusphone.ui.base.BaseActivity
+import app.focusphone.ui.tutorial.TutorialContent
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
@@ -183,16 +182,7 @@ class AboutSettingsActivity : SettingsSubActivity() {
         val btnPrev = dialogView.findViewById<TextView>(R.id.btn_prev)
         val btnNext = dialogView.findViewById<TextView>(R.id.btn_next)
 
-        val slides = listOf(
-            Triple(R.drawable.ic_tutorial_home, R.string.tutorial_slide_1_title, R.string.tutorial_slide_1_desc),
-            Triple(R.drawable.ic_add, R.string.tutorial_slide_2_title, R.string.tutorial_slide_2_desc),
-            Triple(R.drawable.ic_tutorial_profiles, R.string.tutorial_slide_3_title, R.string.tutorial_slide_3_desc),
-            Triple(R.drawable.ic_tutorial_block, R.string.tutorial_slide_4_title, R.string.tutorial_slide_4_desc),
-            Triple(R.drawable.ic_tutorial_edit, R.string.tutorial_slide_5_title, R.string.tutorial_slide_5_desc),
-            Triple(R.drawable.ic_tutorial_detox, R.string.tutorial_slide_6_title, R.string.tutorial_slide_6_desc),
-            Triple(R.drawable.ic_tutorial_pause, R.string.tutorial_slide_7_title, R.string.tutorial_slide_7_desc),
-            Triple(R.drawable.ic_tutorial_clock, R.string.tutorial_slide_8_title, R.string.tutorial_slide_8_desc)
-        )
+        val slides = TutorialContent.guidePages
 
         var currentIndex = 0
 
@@ -200,13 +190,13 @@ class AboutSettingsActivity : SettingsSubActivity() {
         val secondaryColor = palette.textSecondary
 
         fun updateSlide() {
-            val (iconRes, titleRes, descRes) = slides[currentIndex]
+            val page = slides[currentIndex]
 
             tvCounter.text = "${currentIndex + 1} / ${slides.size}"
-            ivIcon.setImageResource(iconRes)
+            ivIcon.setImageResource(page.iconRes)
             ivIcon.imageTintList = android.content.res.ColorStateList.valueOf(primaryColor)
-            tvTitle.setText(titleRes)
-            tvDesc.setText(descRes)
+            tvTitle.setText(page.titleRes)
+            tvDesc.setText(page.bodyRes)
 
             btnPrev.visibility = if (currentIndex == 0) View.INVISIBLE else View.VISIBLE
             btnPrev.text = getString(R.string.tutorial_arrow_prev)

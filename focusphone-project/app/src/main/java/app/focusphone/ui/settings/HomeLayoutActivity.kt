@@ -1,8 +1,6 @@
 package app.focusphone.ui.settings
 
 import android.animation.ObjectAnimator
-import android.appwidget.AppWidgetHostView
-import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -11,7 +9,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.util.TypedValue
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
@@ -24,6 +21,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -42,12 +40,12 @@ import app.focusphone.domain.model.ClockType
 import app.focusphone.ui.base.BaseActivity
 import app.focusphone.ui.home.adapter.FavouriteAppsAdapter
 import app.focusphone.ui.widget.AppWidgetHostManager
+import app.focusphone.ui.widget.ClockRenderer
 import app.focusphone.ui.widget.WidgetPickerActivity
+import app.focusphone.ui.widget.WidgetSurface
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Collections
-import java.util.Date
-import java.util.Locale
 import androidx.core.view.updatePadding
 
 /**
@@ -79,8 +77,8 @@ class HomeLayoutActivity : BaseActivity() {
     }
 
     // Widget
-    private var widgetHostView: AppWidgetHostView? = null
-    private var lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
+    private lateinit var widgetSurface: WidgetSurface
+    private var timeTickReceiverRegistered = false
 
     // Wiggle
     private val wiggleAnimators = mutableMapOf<View, ObjectAnimator>()
@@ -106,6 +104,7 @@ class HomeLayoutActivity : BaseActivity() {
     private var currentClockContainer: FrameLayout? = null
     private var currentWidgetContainer: FrameLayout? = null
     private var currentAppsContainer: FrameLayout? = null
+    private var clockRenderer: ClockRenderer? = null
 
     // ═══════════════════════════════════════════════════════════════
     // Lifecycle
@@ -115,6 +114,7 @@ class HomeLayoutActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeLayoutBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        widgetSurface = WidgetSurface(this, WidgetSurface.EmptyBehavior.SHOW_ADD_BUTTON)
         setupInsets()
         binding.btnBack.setOnClickListener { finish() }
         binding.btnDone.setOnClickListener { exitEditMode() }
@@ -131,21 +131,37 @@ class HomeLayoutActivity : BaseActivity() {
 
     override fun onStart() {
         super.onStart()
-        AppWidgetHostManager.getInstance(this).startListening()
-        registerReceiver(timeTickReceiver, IntentFilter(Intent.ACTION_TIME_TICK))
+        AppWidgetHostManager.getInstance(this).startListening(this)
+        try {
+            ContextCompat.registerReceiver(
+                this,
+                timeTickReceiver,
+                IntentFilter(Intent.ACTION_TIME_TICK),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            timeTickReceiverRegistered = true
+        } catch (e: RuntimeException) {
+            Log.w(TAG, "Cannot register ACTION_TIME_TICK receiver", e)
+        }
         updateClock()
         scheduleClockUpdate()
         restoreWidget()
     }
 
     override fun onStop() {
-        super.onStop()
-        try {
-            unregisterReceiver(timeTickReceiver)
-        } catch (_: IllegalArgumentException) {
+        widgetSurface.releaseView()
+        if (timeTickReceiverRegistered) {
+            try {
+                unregisterReceiver(timeTickReceiver)
+            } catch (e: IllegalArgumentException) {
+                Log.w(TAG, "Time receiver was not registered", e)
+            } finally {
+                timeTickReceiverRegistered = false
+            }
         }
         handler.removeCallbacks(clockUpdateRunnable)
-        AppWidgetHostManager.getInstance(this).stopListening()
+        AppWidgetHostManager.getInstance(this).stopListening(this)
+        super.onStop()
     }
 
     @Suppress("DEPRECATION")
@@ -269,11 +285,13 @@ class HomeLayoutActivity : BaseActivity() {
 
     private fun rebuildPreview() {
         val root = binding.previewRoot
+        widgetSurface.releaseView()
         root.removeAllViews()
 
         currentClockContainer = null
         currentWidgetContainer = null
         currentAppsContainer = null
+        clockRenderer = null
 
         var remainingWeight = 100
         val visibleOrder = currentOrder.filter { component ->
@@ -314,6 +332,7 @@ class HomeLayoutActivity : BaseActivity() {
                     )
                     wrapper.addView(clockView)
                     currentClockContainer = wrapper
+                    clockRenderer = ClockRenderer(this, wrapper, showHiddenPlaceholder = true)
                     applyClockType()
                     applyClockScale()
                     updateClock()
@@ -410,85 +429,15 @@ class HomeLayoutActivity : BaseActivity() {
     // ═══════════════════════════════════════════════════════════════
 
     private fun applyClockType() {
-        val container = currentClockContainer ?: return
-        val type = FontPreferences.getClockType(this)
-        val isHidden = type == ClockType.HIDDEN
-
-        // In the preview we keep the container visible so "none" can be shown when hidden
-        container.visibility = View.VISIBLE
-        container.findViewById<View>(R.id.clock_type_digital)?.visibility =
-            if (type == ClockType.DIGITAL) View.VISIBLE else View.GONE
-        container.findViewById<View>(R.id.clock_type_stacked)?.visibility =
-            if (type == ClockType.STACKED) View.VISIBLE else View.GONE
-        container.findViewById<View>(R.id.clock_type_words)?.visibility =
-            if (type == ClockType.WORDS) View.VISIBLE else View.GONE
-        container.findViewById<View>(R.id.clock_type_analog)?.visibility =
-            if (type == ClockType.ANALOG) View.VISIBLE else View.GONE
-        container.findViewById<View>(R.id.clock_type_none)?.visibility =
-            if (isHidden) View.VISIBLE else View.GONE
+        clockRenderer?.applyType(FontPreferences.getClockType(this))
     }
 
     private fun applyClockScale() {
-        val container = currentClockContainer ?: return
-        val scale = FontPreferences.getClockSize(this)
-
-        container.findViewById<TextView>(R.id.tv_time)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 56f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_date)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 16f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_stacked_h)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 76f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_stacked_m)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 76f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_stacked_date)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 16f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_words_time)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 34f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_words_date)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 16f * scale
-        )
-        container.findViewById<TextView>(R.id.tv_analog_date)?.setTextSize(
-            TypedValue.COMPLEX_UNIT_SP, 16f * scale
-        )
-
-        container.findViewById<app.focusphone.ui.widget.AnalogClockView>(R.id.view_analog)?.let { view ->
-            val params = view.layoutParams
-            params.height = (140f * resources.displayMetrics.density * scale).toInt()
-            view.layoutParams = params
-        }
+        clockRenderer?.applyScale(FontPreferences.getClockSize(this))
     }
 
     private fun updateClock() {
-        val container = currentClockContainer ?: return
-        val now = Date()
-        val cal = Calendar.getInstance()
-        val h = cal.get(Calendar.HOUR_OF_DAY)
-        val m = cal.get(Calendar.MINUTE)
-        val dateStr = java.text.SimpleDateFormat("EEEE, d MMMM", Locale.getDefault()).format(now)
-        val timeStr = java.text.SimpleDateFormat("HH:mm", Locale.getDefault()).format(now)
-
-        container.findViewById<TextView>(R.id.tv_time)?.text = timeStr
-        container.findViewById<TextView>(R.id.tv_date)?.text = dateStr.lowercase(Locale.getDefault())
-        container.findViewById<TextView>(R.id.tv_stacked_h)?.text = String.format("%02d", h)
-        container.findViewById<TextView>(R.id.tv_stacked_m)?.text = String.format("%02d", m)
-        container.findViewById<TextView>(R.id.tv_stacked_date)?.text = dateStr.lowercase(Locale.getDefault())
-        container.findViewById<TextView>(R.id.tv_words_time)?.text = formatTimeWords(h, m)
-        container.findViewById<TextView>(R.id.tv_words_date)?.text = dateStr.lowercase(Locale.getDefault())
-        container.findViewById<app.focusphone.ui.widget.AnalogClockView>(R.id.view_analog)?.setTime(h, m)
-        container.findViewById<TextView>(R.id.tv_analog_date)?.text = dateStr.lowercase(Locale.getDefault())
-    }
-
-    private fun formatTimeWords(h: Int, m: Int): String {
-        val hours = resources.getStringArray(R.array.clock_words_hours)
-        val minutes = resources.getStringArray(R.array.clock_words_minutes)
-        val hour = hours[h % 12]
-        return "$hour\n${minutes[m]}"
+        clockRenderer?.render()
     }
 
     private fun scheduleClockUpdate() {
@@ -504,77 +453,7 @@ class HomeLayoutActivity : BaseActivity() {
 
     private fun restoreWidget() {
         val container = currentWidgetContainer ?: return
-        val widgetId = WidgetPreferences.getWidgetId(this)
-        val enabled = WidgetPreferences.isWidgetEnabled(this)
-        val hostManager = AppWidgetHostManager.getInstance(this)
-
-        if (!enabled || widgetId == WidgetPreferences.INVALID_WIDGET_ID) {
-            widgetHostView?.let { container.removeView(it) }
-            widgetHostView = null
-            lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
-            container.findViewById<View>(R.id.btn_add_widget)?.visibility = View.VISIBLE
-            return
-        }
-
-        if (widgetId == lastRestoredWidgetId && widgetHostView != null) {
-            container.findViewById<View>(R.id.btn_add_widget)?.visibility = View.GONE
-            return
-        }
-
-        val info = hostManager.getAppWidgetInfo(widgetId)
-        if (info == null || info.provider == null) {
-            // Provider may be temporarily unavailable; don't clear preferences aggressively.
-            widgetHostView?.let { container.removeView(it) }
-            widgetHostView = null
-            lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
-            container.findViewById<View>(R.id.btn_add_widget)?.visibility = View.VISIBLE
-            return
-        }
-
-        widgetHostView?.let { container.removeView(it) }
-        widgetHostView = null
-
-        // Update widget options with current container size for best compatibility
-        try {
-            val appWidgetManager = AppWidgetManager.getInstance(this)
-            val options = android.os.Bundle().apply {
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, container.width)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, container.width)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, container.height)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, container.height)
-            }
-            appWidgetManager.updateAppWidgetOptions(widgetId, options)
-        } catch (e: Exception) {
-            Log.w("HomeLayoutActivity", "Failed to update widget options", e)
-        }
-
-        var hostView = hostManager.createView(this, widgetId, info)
-        if (hostView == null) {
-            val repaired = hostManager.bindAppWidgetIdIfAllowed(widgetId, info.provider)
-            if (repaired) hostView = hostManager.createView(this, widgetId, info)
-            if (hostView == null) {
-                Log.w("HomeLayoutActivity", "createView failed for widget id=$widgetId")
-                container.findViewById<View>(R.id.btn_add_widget)?.visibility = View.VISIBLE
-                return
-            }
-        }
-
-        hostView.layoutParams = FrameLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        widgetHostView = hostView
-        lastRestoredWidgetId = widgetId
-
-        try {
-            container.addView(hostView, 0)
-            container.findViewById<View>(R.id.btn_add_widget)?.visibility = View.GONE
-        } catch (e: RuntimeException) {
-            Log.e("HomeLayoutActivity", "Failed to add widget view", e)
-            widgetHostView = null
-            lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
-            container.findViewById<View>(R.id.btn_add_widget)?.visibility = View.VISIBLE
-        }
+        widgetSurface.restore(container)
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -1026,6 +905,7 @@ class HomeLayoutActivity : BaseActivity() {
     }
 
     companion object {
+        private const val TAG = "HomeLayoutActivity"
         private const val REQUEST_PICK_WIDGET = 3001
     }
 }

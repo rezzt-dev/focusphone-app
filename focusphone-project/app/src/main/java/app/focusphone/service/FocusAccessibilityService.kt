@@ -2,6 +2,7 @@ package app.focusphone.service
 
 import android.accessibilityservice.AccessibilityService
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -9,7 +10,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
-import android.text.TextUtils
 import android.view.accessibility.AccessibilityEvent
 import androidx.core.content.ContextCompat
 import app.focusphone.data.preferences.AppSchedulePreferences
@@ -297,20 +297,19 @@ class FocusAccessibilityService : AccessibilityService() {
          * Returns whether this accessibility service is currently enabled by the user.
          */
         fun isEnabled(context: Context): Boolean {
-            val expectedService = "${context.packageName}/${FocusAccessibilityService::class.java.canonicalName}"
+            val expectedService = ComponentName(context, FocusAccessibilityService::class.java)
             val enabledServices = Settings.Secure.getString(
                 context.contentResolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
             ) ?: return false
 
-            val splitter = TextUtils.SimpleStringSplitter(':')
-            splitter.setString(enabledServices)
-            while (splitter.hasNext()) {
-                if (splitter.next().equals(expectedService, ignoreCase = true)) {
-                    return true
-                }
-            }
-            return false
+            // OEMs may persist either the long form
+            // `app.focusphone/app.focusphone.service.FocusAccessibilityService` or the
+            // short form `app.focusphone/.service.FocusAccessibilityService`.
+            return enabledServices
+                .split(':')
+                .mapNotNull(ComponentName::unflattenFromString)
+                .any { it == expectedService }
         }
 
         /**

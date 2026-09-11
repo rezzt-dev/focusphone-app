@@ -11,6 +11,7 @@ import app.focusphone.R
 import app.focusphone.databinding.ActivityPermissionsBinding
 import app.focusphone.service.FocusAccessibilityService
 import app.focusphone.ui.base.BaseActivity
+import app.focusphone.util.LauncherUtils
 import androidx.core.view.updatePadding
 
 class PermissionsActivity : BaseActivity() {
@@ -45,7 +46,7 @@ class PermissionsActivity : BaseActivity() {
         )
 
         // Default Launcher
-        val isDefault = isDefaultLauncher()
+        val isDefault = LauncherUtils.isDefaultLauncher(this)
         binding.tvLauncherStatus.text = getString(
             if (isDefault) R.string.permissions_status_active else R.string.permissions_status_inactive
         )
@@ -67,12 +68,6 @@ class PermissionsActivity : BaseActivity() {
 
     private fun isQueryAllPackagesGranted(): Boolean {
         return checkSelfPermission(android.Manifest.permission.QUERY_ALL_PACKAGES) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun isDefaultLauncher(): Boolean {
-        val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
-        val resolved = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
-        return resolved?.activityInfo?.packageName == packageName
     }
 
     private fun openAppDetailsSettings() {

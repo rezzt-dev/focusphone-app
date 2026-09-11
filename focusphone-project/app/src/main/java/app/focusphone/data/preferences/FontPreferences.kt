@@ -131,17 +131,17 @@ object FontPreferences {
     private const val KEY_FONT_SIZE_PT = "font_size_pt"
     private const val MIN_FONT_SIZE_PT = 8
     private const val MAX_FONT_SIZE_PT = 24
+    private const val DEFAULT_FONT_SIZE_PT = 14
 
     fun getFontSizePt(context: Context): Int {
-        val size = prefs(context).getInt(KEY_FONT_SIZE_PT, 14)
-        return if (size in MIN_FONT_SIZE_PT..MAX_FONT_SIZE_PT) {
-            size
-        } else {
-            // Recover from a corrupted/out-of-range value (e.g. 100) and save the sane default.
-            Log.w("FontPreferences", "font_size_pt was out of range ($size); resetting to $MAX_FONT_SIZE_PT")
-            setFontSizePt(context, MAX_FONT_SIZE_PT)
-            MAX_FONT_SIZE_PT
+        val stored = prefs(context).getInt(KEY_FONT_SIZE_PT, DEFAULT_FONT_SIZE_PT)
+        val size = sanitizeFontSize(stored)
+        if (size != stored) {
+            // Keep this getter side-effect free: it runs from attachBaseContext() on every
+            // Activity, before onCreate and on the main thread.
+            Log.w("FontPreferences", "font_size_pt was out of range ($stored); using $size")
         }
+        return size
     }
 
     fun setFontSizePt(context: Context, size: Int) {
@@ -151,8 +151,12 @@ object FontPreferences {
 
     fun getFontScale(context: Context): Float {
         val size = getFontSizePt(context)
-        return size / 14.0f
+        return size / DEFAULT_FONT_SIZE_PT.toFloat()
     }
+
+    /** Invalid persisted values recover to the calm default, never to an extreme. */
+    internal fun sanitizeFontSize(size: Int): Int =
+        if (size in MIN_FONT_SIZE_PT..MAX_FONT_SIZE_PT) size else DEFAULT_FONT_SIZE_PT
 
     // ── Internal ──────────────────────────────────────────────────
 

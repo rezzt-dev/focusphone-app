@@ -1,7 +1,5 @@
 package app.focusphone.ui.home
 
-import android.appwidget.AppWidgetHostView
-import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -29,6 +27,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -50,6 +49,7 @@ import app.focusphone.data.preferences.NotificationPanelPreferences
 import app.focusphone.data.preferences.HomeLayoutPreferences
 import app.focusphone.data.preferences.WidgetPreferences
 import app.focusphone.data.preferences.TutorialPreferences
+import app.focusphone.data.preferences.WallpaperPreferences
 import app.focusphone.data.repository.NotificationRepository
 import app.focusphone.data.repository.PackageChangeMonitor
 import app.focusphone.ui.home.adapter.NotificationsAdapter
@@ -68,14 +68,22 @@ import app.focusphone.ui.schedule.ScheduleDayLabels
 import app.focusphone.ui.settings.SettingsActivity
 import app.focusphone.ui.theme.ScrimSurface
 import app.focusphone.ui.theme.SurfaceScrim
+import app.focusphone.ui.tutorial.TutorialContent
 import app.focusphone.ui.tutorial.TutorialOverlayView
+import app.focusphone.ui.tutorial.TutorialPage
+import app.focusphone.ui.tutorial.TutorialTopic
+import app.focusphone.ui.wallpaper.WallpaperStorage
+import app.focusphone.ui.wallpaper.WallpaperUtils
+import app.focusphone.ui.widget.AppWidgetHostManager
+import app.focusphone.ui.widget.ClockRenderer
+import app.focusphone.ui.widget.WidgetSurface
+import app.focusphone.util.LauncherUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 import app.focusphone.ui.theme.FocusColors
 
@@ -84,8 +92,8 @@ class HomeActivity : BaseActivity() {
     private lateinit var binding: ActivityHomeBinding
     private lateinit var gestureDetector: GestureDetector
 
-    private var widgetHostView: AppWidgetHostView? = null
-    private var lastRestoredWidgetId: Int = WidgetPreferences.INVALID_WIDGET_ID
+    private lateinit var clockRenderer: ClockRenderer
+    private lateinit var widgetSurface: WidgetSurface
 
     private val viewModel: HomeViewModel by viewModels {
         HomeViewModel.factory(focusPhoneApp)
@@ -101,10 +109,12 @@ class HomeActivity : BaseActivity() {
         onDismiss = ::dismissNotification
     )
 
-    private var lastAppliedClockType: ClockType? = null
     private var lastVerifyTime = 0L
     private var appSpacingDecoration: RecyclerView.ItemDecoration? = null
     private var pendingVerify = false
+    private var notificationWallpaperGeneration = 0
+    private var hasNotificationWallpaper = false
+    private var clockReceiverRegistered = false
 
     /** [PackageChangeMonitor.version] at the last favourites check; -1 before the first. */
     private var verifiedPackageVersion = -1L
@@ -133,6 +143,12 @@ class HomeActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        clockRenderer = ClockRenderer(this, binding.clockContainer)
+        widgetSurface = WidgetSurface(
+            context = this,
+            emptyBehavior = WidgetSurface.EmptyBehavior.HIDE_CONTAINER,
+            onVisibilityChanged = ::applyClockType
+        )
 
         if (!ThemePreferences.isOnboardingComplete(this)) {
             startActivity(Intent(this, OnboardingActivity::class.java))
@@ -159,7 +175,7 @@ class HomeActivity : BaseActivity() {
     private fun setupBackPress() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (!isDefaultLauncher()) {
+                if (!LauncherUtils.isDefaultLauncher(this@HomeActivity)) {
                     isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
                 }
@@ -169,15 +185,17 @@ class HomeActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        applyNotificationWallpaper()
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                registerReceiver(clockReceiver, IntentFilter(Intent.ACTION_TIME_TICK), Context.RECEIVER_EXPORTED)
-            } else {
-                @Suppress("UNSAFE_CAST")
-                registerReceiver(clockReceiver, IntentFilter(Intent.ACTION_TIME_TICK))
-            }
-        } catch (e: Exception) {
-            // Some OEMs restrict ACTION_TIME_TICK; also IllegalArgumentException on old devices
+            ContextCompat.registerReceiver(
+                this,
+                clockReceiver,
+                IntentFilter(Intent.ACTION_TIME_TICK),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            clockReceiverRegistered = true
+        } catch (e: RuntimeException) {
+            // Some OEMs restrict ACTION_TIME_TICK.
             Log.w("HomeActivity", "Cannot register ACTION_TIME_TICK receiver", e)
         }
         applyClockType()
@@ -253,22 +271,29 @@ class HomeActivity : BaseActivity() {
 
     override fun onStart() {
         super.onStart()
-        val hostManager = app.focusphone.ui.widget.AppWidgetHostManager.getInstance(this)
-        hostManager.startListening()
+        val hostManager = AppWidgetHostManager.getInstance(this)
+        hostManager.startListening(this)
         // Frees IDs leaked by builds that never released removed or replaced widgets.
         hostManager.releaseOrphanedIds(this)
         restoreWidget()
     }
 
     override fun onStop() {
+        widgetSurface.releaseView()
+        AppWidgetHostManager.getInstance(this).stopListening(this)
         super.onStop()
-        app.focusphone.ui.widget.AppWidgetHostManager.getInstance(this).stopListening()
     }
 
     override fun onPause() {
         super.onPause()
-        try { unregisterReceiver(clockReceiver) } catch (e: IllegalArgumentException) {
-            Log.w("HomeActivity", "Clock receiver was not registered", e)
+        if (clockReceiverRegistered) {
+            try {
+                unregisterReceiver(clockReceiver)
+            } catch (e: IllegalArgumentException) {
+                Log.w("HomeActivity", "Clock receiver was not registered", e)
+            } finally {
+                clockReceiverRegistered = false
+            }
         }
         hintToastJob?.cancel()
         hideRunnable?.let { binding.indicatorContainer.removeCallbacks(it) }
@@ -276,17 +301,8 @@ class HomeActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
+        widgetSurface.releaseView()
         super.onDestroy()
-        widgetHostView?.let { binding.widgetContainer.removeView(it) }
-        widgetHostView = null
-    }
-
-
-
-    private fun isDefaultLauncher(): Boolean {
-        val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
-        val resolved = packageManager.resolveActivity(intent, 0)
-        return resolved?.activityInfo?.packageName == packageName
     }
 
     // ── Legibility scrims ──────────────────────────────────────────
@@ -308,8 +324,65 @@ class HomeActivity : BaseActivity() {
         SurfaceScrim.apply(binding.viewScrimHome, this, ScrimSurface.HOME, colors, hasWallpaper)
         SurfaceScrim.apply(binding.viewScrimMenu, this, ScrimSurface.PANEL, colors, hasWallpaper)
         SurfaceScrim.apply(
-            binding.viewScrimNotifications, this, ScrimSurface.PANEL, colors, hasWallpaper
+            binding.viewScrimNotifications,
+            this,
+            ScrimSurface.PANEL,
+            colors,
+            hasNotificationWallpaper
         )
+    }
+
+    /** Loads the wallpaper selected specifically for the notification drawer. */
+    private fun applyNotificationWallpaper() {
+        val uri = WallpaperPreferences.getNotificationsWallpaperUri(this)
+            ?.takeIf { WallpaperPreferences.isWallpaperEnabled(this) }
+        val generation = ++notificationWallpaperGeneration
+        hasNotificationWallpaper = uri != null
+        binding.drawerNotifications.setBackgroundColor(
+            if (uri == null) palette.background else Color.TRANSPARENT
+        )
+
+        if (uri == null) {
+            lifecycleScope.launch {
+                WallpaperUtils.applyWallpaperToImageView(
+                    binding.ivWallpaperNotifications,
+                    bitmap = null,
+                    blurRadius = 0f,
+                    blurEnabled = false
+                )
+                applyScrim()
+            }
+            return
+        }
+
+        val blurEnabled = WallpaperPreferences.isBlurEnabled(this)
+        val blurRadius = WallpaperUtils.getBlurRadius(WallpaperPreferences.getBlurIntensity(this))
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                WallpaperStorage.load(this@HomeActivity, uri)
+            }
+            if (generation != notificationWallpaperGeneration) return@launch
+
+            val bitmap = (result as? WallpaperStorage.LoadResult.Ready)?.bitmap
+            if (result == WallpaperStorage.LoadResult.Lost) {
+                Toast.makeText(
+                    this@HomeActivity,
+                    R.string.wallpaper_access_lost,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            hasNotificationWallpaper = bitmap != null
+            binding.drawerNotifications.setBackgroundColor(
+                if (bitmap == null) palette.background else Color.TRANSPARENT
+            )
+            WallpaperUtils.applyWallpaperToImageView(
+                binding.ivWallpaperNotifications,
+                bitmap,
+                blurRadius,
+                blurEnabled
+            )
+            applyScrim()
+        }
     }
 
     // ── Insets ─────────────────────────────────────────────────────
@@ -442,18 +515,7 @@ class HomeActivity : BaseActivity() {
 
     private fun applyClockType() {
         val type = FontPreferences.getClockType(this)
-        val isHidden = type == ClockType.HIDDEN
-
-        // Only mutate clock sub-views when the type actually changed
-        if (type != lastAppliedClockType) {
-            lastAppliedClockType = type
-
-            binding.clockContainer.visibility   = if (isHidden) View.GONE else View.VISIBLE
-            binding.clockTypeDigital.visibility = if (type == ClockType.DIGITAL) View.VISIBLE else View.GONE
-            binding.clockTypeStacked.visibility = if (type == ClockType.STACKED) View.VISIBLE else View.GONE
-            binding.clockTypeWords  .visibility = if (type == ClockType.WORDS)   View.VISIBLE else View.GONE
-            binding.clockTypeAnalog .visibility = if (type == ClockType.ANALOG)  View.VISIBLE else View.GONE
-        }
+        clockRenderer.applyType(type)
 
         // Adjust gravity for the RecyclerView and Empty state
         val rvParams = binding.rvFavouriteApps.layoutParams as android.widget.FrameLayout.LayoutParams
@@ -564,65 +626,11 @@ class HomeActivity : BaseActivity() {
     // ── Clock update (called every minute) ────────────────────────
 
     private fun applyClockScale() {
-        val scale = FontPreferences.getClockSize(this)
-
-        // Digital
-        binding.tvTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, 56f * scale)
-        binding.tvDate.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * scale)
-
-        // Stacked
-        binding.tvStackedH.setTextSize(TypedValue.COMPLEX_UNIT_SP, 76f * scale)
-        binding.tvStackedM.setTextSize(TypedValue.COMPLEX_UNIT_SP, 76f * scale)
-        binding.tvStackedDate.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * scale)
-
-        // Words
-        binding.tvWordsTime.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34f * scale)
-        binding.tvWordsDate.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * scale)
-
-        // Analog date
-        binding.tvAnalogDate.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * scale)
-
-        // Analog view height (base 140dp scaled)
-        val analogParams = binding.viewAnalog.layoutParams
-        analogParams.height = (140f * resources.displayMetrics.density * scale).toInt()
-        binding.viewAnalog.layoutParams = analogParams
-
-        binding.clockContainer.requestLayout()
+        clockRenderer.applyScale(FontPreferences.getClockSize(this))
     }
 
     private fun updateClock() {
-        val now  = Date()
-        val cal  = Calendar.getInstance()
-        val h    = cal.get(Calendar.HOUR_OF_DAY)
-        val m    = cal.get(Calendar.MINUTE)
-        val dateStr = SimpleDateFormat("EEEE, d MMMM", Locale.getDefault()).format(now)
-        val timeStr = SimpleDateFormat("HH:mm",        Locale.getDefault()).format(now)
-
-        // Digital
-        binding.tvTime.text = timeStr
-        binding.tvDate.text = dateStr.lowercase(Locale.getDefault())
-
-        // Stacked
-        binding.tvStackedH   .text = String.format("%02d", h)
-        binding.tvStackedM   .text = String.format("%02d", m)
-        binding.tvStackedDate.text = dateStr.lowercase(Locale.getDefault())
-
-        // Words
-        binding.tvWordsTime.text = formatTimeWords(h, m)
-        binding.tvWordsDate.text = dateStr.lowercase(Locale.getDefault())
-
-        // Analog
-        binding.viewAnalog   .setTime(h, m)
-        binding.tvAnalogDate .text = dateStr.lowercase(Locale.getDefault())
-    }
-
-    // ── "nine forty-one" format ────────────────────────────────────
-
-    private fun formatTimeWords(h: Int, m: Int): String {
-        val hours = resources.getStringArray(R.array.clock_words_hours)
-        val minutes = resources.getStringArray(R.array.clock_words_minutes)
-        val hour = hours[h % 12]
-        return "$hour\n${minutes[m]}"
+        clockRenderer.render()
     }
 
     // ── RecyclerView ───────────────────────────────────────────────
@@ -1511,92 +1519,7 @@ class HomeActivity : BaseActivity() {
      * If the provider was uninstalled, the preference is cleared automatically.
      */
     private fun restoreWidget() {
-        val widgetId = WidgetPreferences.getWidgetId(this)
-        val enabled = WidgetPreferences.isWidgetEnabled(this)
-        val hostManager = app.focusphone.ui.widget.AppWidgetHostManager.getInstance(this)
-
-        // Nothing configured — ensure container is hidden
-        if (!enabled || widgetId == WidgetPreferences.INVALID_WIDGET_ID) {
-            if (binding.widgetContainer.visibility != View.GONE) {
-                widgetHostView?.let { binding.widgetContainer.removeView(it) }
-                widgetHostView = null
-                lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
-                binding.widgetContainer.visibility = View.GONE
-                applyClockType()
-            }
-            return
-        }
-
-        // Same widget already restored — nothing to do
-        if (widgetId == lastRestoredWidgetId && widgetHostView != null) {
-            return
-        }
-
-        val info = hostManager.getAppWidgetInfo(widgetId)
-        if (info == null || info.provider == null) {
-            // Provider may be temporarily unavailable; don't clear preferences aggressively.
-            widgetHostView?.let { binding.widgetContainer.removeView(it) }
-            widgetHostView = null
-            lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
-            binding.widgetContainer.visibility = View.GONE
-            applyClockType()
-            return
-        }
-
-        // Remove previous widget before adding the new one
-        widgetHostView?.let { binding.widgetContainer.removeView(it) }
-        widgetHostView = null
-
-        // Update widget options with current container size for best compatibility
-        try {
-            val appWidgetManager = AppWidgetManager.getInstance(this)
-            val options = android.os.Bundle().apply {
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, binding.widgetContainer.width)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, binding.widgetContainer.width)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, binding.widgetContainer.height)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, binding.widgetContainer.height)
-            }
-            appWidgetManager.updateAppWidgetOptions(widgetId, options)
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to update widget options", e)
-        }
-
-        var hostView = hostManager.createView(this, widgetId, info)
-        if (hostView == null) {
-            // Auto-repair: widgets saved before the explicit-bind fix may be unbound.
-            // Attempt to bind and retry once.
-            val repaired = hostManager.bindAppWidgetIdIfAllowed(widgetId, info.provider)
-            if (repaired) {
-                hostView = hostManager.createView(this, widgetId, info)
-            }
-            if (hostView == null) {
-                Log.w(TAG, "createView failed for widget id=$widgetId; provider may not be bound to this host")
-                // Do NOT clear preferences here — the binding may recover after a reboot.
-                binding.widgetContainer.visibility = View.GONE
-                applyClockType()
-                return
-            }
-        }
-
-        // Ensure the widget fills the available width and measures correctly
-        hostView.layoutParams = android.widget.FrameLayout.LayoutParams(
-            android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
-            android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
-        )
-
-        widgetHostView = hostView
-        lastRestoredWidgetId = widgetId
-
-        try {
-            binding.widgetContainer.addView(hostView)
-            binding.widgetContainer.visibility = View.VISIBLE
-        } catch (e: RuntimeException) {
-            Log.e(TAG, "Failed to add widget view to container", e)
-            widgetHostView = null
-            lastRestoredWidgetId = WidgetPreferences.INVALID_WIDGET_ID
-            binding.widgetContainer.visibility = View.GONE
-        }
-        applyClockType()
+        widgetSurface.restore(binding.widgetContainer)
     }
 
     private class VerticalSpacingItemDecoration(
@@ -1625,7 +1548,7 @@ class HomeActivity : BaseActivity() {
         if (TutorialPreferences.isTutorialComplete(this)) return
 
         val step = TutorialPreferences.getCurrentStep(this)
-        if (step >= TUTORIAL_STEPS.size) {
+        if (step >= tutorialSteps.size) {
             TutorialPreferences.markTutorialComplete(this)
             return
         }
@@ -1635,13 +1558,13 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun showTutorialStep(step: Int) {
-        if (step >= TUTORIAL_STEPS.size) {
+        if (step >= tutorialSteps.size) {
             TutorialPreferences.markTutorialComplete(this)
             isTutorialActive = false
             return
         }
 
-        val config = TUTORIAL_STEPS[step]
+        val config = tutorialSteps[step]
         val targetView = config.viewProvider(this) ?: run {
             // Skip step if target view is not available
             TutorialPreferences.setCurrentStep(this, step + 1)
@@ -1664,10 +1587,10 @@ class HomeActivity : BaseActivity() {
         TutorialOverlayView.show(
             activityContent = content,
             targetView = targetView,
-            titleRes = config.titleRes,
-            descRes = config.descRes,
+            titleRes = config.page.titleRes,
+            descRes = config.page.bodyRes,
             step = step,
-            totalSteps = TUTORIAL_STEPS.size,
+            totalSteps = tutorialSteps.size,
             onDismiss = {
                 if (config.openMenuDrawer) {
                     binding.drawerLayout.closeDrawers()
@@ -1681,21 +1604,18 @@ class HomeActivity : BaseActivity() {
     }
 
     private data class TutorialStepConfig(
-        val titleRes: Int,
-        val descRes: Int,
+        val page: TutorialPage,
         val viewProvider: HomeActivity.() -> View?,
         val openMenuDrawer: Boolean = false
     )
 
-    private val TUTORIAL_STEPS = listOf(
+    private val tutorialSteps = listOf(
         TutorialStepConfig(
-            titleRes = R.string.tutorial_coach_home_title,
-            descRes = R.string.tutorial_coach_home_desc,
+            page = TutorialContent.guidePage(TutorialTopic.HOME),
             viewProvider = { binding.clockContainer }
         ),
         TutorialStepConfig(
-            titleRes = R.string.tutorial_coach_apps_title,
-            descRes = R.string.tutorial_coach_apps_desc,
+            page = TutorialContent.guidePage(TutorialTopic.APPS),
             viewProvider = {
                 if (adapter.itemCount > 0 && binding.rvFavouriteApps.childCount > 0) {
                     binding.rvFavouriteApps.getChildAt(0)
@@ -1705,13 +1625,11 @@ class HomeActivity : BaseActivity() {
             }
         ),
         TutorialStepConfig(
-            titleRes = R.string.tutorial_coach_menu_title,
-            descRes = R.string.tutorial_coach_menu_desc,
+            page = TutorialContent.guidePage(TutorialTopic.MENU),
             viewProvider = { binding.indicatorMenu }
         ),
         TutorialStepConfig(
-            titleRes = R.string.tutorial_coach_profile_title,
-            descRes = R.string.tutorial_coach_profile_desc,
+            page = TutorialContent.guidePage(TutorialTopic.PROFILE),
             viewProvider = { binding.tvMenuProfile },
             openMenuDrawer = true
         )

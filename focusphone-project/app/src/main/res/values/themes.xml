@@ -17,6 +17,16 @@
         <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="28">shortEdges</item>
         <!-- Global default font: regular weight throughout the entire app -->
         <item name="android:fontFamily">sans-serif</item>
+        <item name="materialAlertDialogTheme">@style/FocusPhone.MaterialAlertDialog</item>
+    </style>
+
+    <!-- Material's dark base plus the same FocusPhone window and typography contract. -->
+    <style name="Base.Theme.FocusPhone.Dark" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="28">shortEdges</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="materialAlertDialogTheme">@style/FocusPhone.MaterialAlertDialog</item>
     </style>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -79,7 +89,7 @@
     <!-- ═══════════════════════════════════════════════════════════════
          THEME 2: SLATE  (dark, deep charcoal) — DEFAULT
          ═══════════════════════════════════════════════════════════════ -->
-    <style name="Theme.FocusPhone.Slate" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="Theme.FocusPhone.Slate" parent="Base.Theme.FocusPhone.Dark">
         <item name="android:colorBackground">@color/sl_bg_primary</item>
         <item name="colorSurface">@color/sl_bg_secondary</item>
         <item name="colorOutline">@color/sl_accent</item>
@@ -90,8 +100,6 @@
         <item name="android:navigationBarColor">@color/transparent</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
-        <item name="android:windowTranslucentStatus">false</item>
-        <item name="android:windowTranslucentNavigation">false</item>
 
         <!-- Material 3 switch / control coloring — use direct @color refs, never ?attr -->
         <item name="colorPrimary">@color/sl_text_primary</item>
@@ -195,7 +203,7 @@
     <!-- ═══════════════════════════════════════════════════════════════
          THEME 4: NAVY  (dark, deep blue)
          ═══════════════════════════════════════════════════════════════ -->
-    <style name="Theme.FocusPhone.Navy" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="Theme.FocusPhone.Navy" parent="Base.Theme.FocusPhone.Dark">
         <item name="android:colorBackground">@color/nv_bg_primary</item>
         <item name="colorSurface">@color/nv_bg_secondary</item>
         <item name="colorOutline">@color/nv_accent</item>

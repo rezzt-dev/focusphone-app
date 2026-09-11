@@ -414,9 +414,15 @@
         android:layout_gravity="start"
         android:background="@android:color/transparent">
 
-        <!-- Wallpaper behind the notification drawer content -->
-        <!-- Notification drawer intentionally has no dedicated wallpaper: it reuses the home
-             wallpaper or the theme background so a per-screen image cannot render corrupted. -->
+        <!-- The notification panel is an independent wallpaper surface. -->
+        <ImageView
+            android:id="@+id/iv_wallpaper_notifications"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
         <!-- Panel scrim so notifications and the empty state stay readable over the wallpaper -->
         <View
             android:id="@+id/view_scrim_notifications"
