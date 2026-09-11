@@ -429,6 +429,9 @@ class HomeActivity : BaseActivity() {
 
     // ── Gestures ───────────────────────────────────────────────────
 
+    // performClick() is called on ACTION_UP below, but lint's static check does not follow
+    // it through the conditional inside this touch listener (FP-078).
+    @SuppressLint("ClickableViewAccessibility")
     private fun setupGestureDetector() {
         gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
             private val SWIPE_THRESHOLD = 120
@@ -1473,7 +1476,7 @@ class HomeActivity : BaseActivity() {
                 if (hasDay) {
                     val dayOfWeek = orderedDays[column]
                     val isWeekend = dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY
-                    dayView.text = dayCounter.toString()
+                    dayView.text = String.format(Locale.getDefault(), "%d", dayCounter)
 
                     if (dayCounter == currentDay) {
                         dayView.setTextColor(colors.onAccent)

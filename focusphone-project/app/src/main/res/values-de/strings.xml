@@ -22,8 +22,14 @@
     <string name="appselect_subtitle">wähle die apps, die dir am wichtigsten sind</string>
     <string name="appselect_search_hint">suchen…</string>
     <string name="appselect_done">fertig</string>
-    <string name="appselect_selected_count">%1$d von %2$d apps ausgewählt</string>
-    <string name="appselect_limit_reached">du hast das limit von %1$d apps erreicht</string>
+    <plurals name="appselect_selected_count">
+        <item quantity="one">%1$d von %2$d app ausgewählt</item>
+        <item quantity="other">%1$d von %2$d apps ausgewählt</item>
+    </plurals>
+    <plurals name="appselect_limit_reached">
+        <item quantity="one">du hast das limit von %1$d app erreicht</item>
+        <item quantity="other">du hast das limit von %1$d apps erreicht</item>
+    </plurals>
 
     <string name="settings_title">einstellungen</string>
     <string name="settings_section_appearance">aussehen</string>
@@ -176,7 +182,7 @@
 
     <!-- Misc -->
     <string name="action_cancel">abbrechen</string>
-    <string name="action_ok">ok</string>
+    <string name="action_ok">OK</string>
     <string name="action_reset">zurücksetzen</string>
     <string name="action_save">speichern</string>
     <string name="allapps_dialog_rename">umbenennen</string>
@@ -317,11 +323,15 @@
     <string name="detox_accessibility_desc">damit detox apps aus benachrichtigungen oder recents blockiert, aktiviere den focusphone-barrierefreiheitsdienst.</string>
     <string name="detox_accessibility_enable">aktivieren</string>
     <string name="detox_accessibility_continue">trotzdem fortfahren</string>
+    <string name="tutorial_slide_counter">%1$d / %2$d</string>
 
     <!-- Conscious Pause -->
     <string name="settings_section_conscious_pause">bewusste pause</string>
     <string name="settings_conscious_pause_desc">atme tief durch, bevor du eine app öffnest</string>
-    <string name="settings_conscious_pause_duration">pausendauer: %1$d sekunden</string>
+    <plurals name="settings_conscious_pause_duration">
+        <item quantity="one">pausendauer: %1$d sekunde</item>
+        <item quantity="other">pausendauer: %1$d sekunden</item>
+    </plurals>
     <string name="settings_conscious_pause_title">bewusste pause aktivieren</string>
     <string name="pause_inhale">einatmen…</string>
     <string name="pause_exhale">ausatmen…</string>
@@ -330,9 +340,6 @@
     <string name="pause_cancel">abbrechen</string>
 
     <!-- Tutorial Arrows -->
-    <string name="tutorial_arrow_prev">←</string>
-    <string name="tutorial_arrow_next">→</string>
-    <string name="tutorial_arrow_finish">✓</string>
 
     <!-- Custom App Names -->
     <string name="customize_name_title">name anpassen</string>
@@ -578,7 +585,10 @@ einundvierzig</string>
     <string name="schedule_password_remove_confirm">damit werden das passwort und alle zeitpläne gelöscht. fortfahren?</string>
     <string name="schedule_password_removed">schutz entfernt</string>
     <string name="schedule_password_confirm_hint">passwort wiederholen</string>
-    <string name="schedule_password_too_short">verwende mindestens %1$d zeichen</string>
+    <plurals name="schedule_password_too_short">
+        <item quantity="one">verwende mindestens %1$d zeichen</item>
+        <item quantity="other">verwende mindestens %1$d zeichen</item>
+    </plurals>
     <string name="schedule_password_mismatch">die passwörter stimmen nicht überein</string>
     <string name="schedule_create_password_title">zeitpläne schützen</string>
     <string name="schedule_create_password_desc">lege ein passwort fest, damit zeitpläne nicht spontan geändert werden.</string>
@@ -592,7 +602,10 @@ einundvierzig</string>
     <string name="schedule_blocked_window_title">außerhalb der erlaubten zeit</string>
     <string name="schedule_blocked_window_desc">diese app ist zwischen %1$s und %2$s verfügbar.</string>
     <string name="schedule_blocked_limit_title">tageslimit erreicht</string>
-    <string name="schedule_blocked_limit_desc">du hast heute %1$d von %2$d minuten genutzt. das guthaben startet um mitternacht neu.</string>
+    <plurals name="schedule_blocked_limit_desc">
+        <item quantity="one">du hast heute %1$d von %2$d minute genutzt. das guthaben startet um mitternacht neu.</item>
+        <item quantity="other">du hast heute %1$d von %2$d minuten genutzt. das guthaben startet um mitternacht neu.</item>
+    </plurals>
 
     <!-- Shared password lock (detox and schedules) -->
     <plurals name="password_attempts_left">

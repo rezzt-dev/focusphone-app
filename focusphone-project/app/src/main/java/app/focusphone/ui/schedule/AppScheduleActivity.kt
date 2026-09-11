@@ -98,7 +98,11 @@ class AppScheduleActivity : SettingsSubActivity() {
         ) { password, confirmation ->
             when {
                 password.length < AppSchedulePreferences.MIN_PASSWORD_LENGTH ->
-                    getString(R.string.schedule_password_too_short, AppSchedulePreferences.MIN_PASSWORD_LENGTH)
+                    resources.getQuantityString(
+                        R.plurals.schedule_password_too_short,
+                        AppSchedulePreferences.MIN_PASSWORD_LENGTH,
+                        AppSchedulePreferences.MIN_PASSWORD_LENGTH
+                    )
 
                 password != confirmation ->
                     getString(R.string.schedule_password_mismatch)

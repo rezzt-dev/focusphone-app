@@ -43,8 +43,9 @@ class FocusSettingsActivity : SettingsSubActivity() {
             val durationBinding = SettingsSliderRowBinding.inflate(inflater, this, false)
             durationBinding.ivIcon.setImageResource(R.drawable.ic_settings_timer)
             durationBinding.ivIcon.visibility = View.VISIBLE
-            durationBinding.tvLabel.text =
-                getString(R.string.settings_conscious_pause_duration, currentDuration)
+            durationBinding.tvLabel.text = resources.getQuantityString(
+                R.plurals.settings_conscious_pause_duration, currentDuration, currentDuration
+            )
             durationBinding.slider.apply {
                 valueFrom = 3f
                 valueTo = 10f
@@ -53,8 +54,9 @@ class FocusSettingsActivity : SettingsSubActivity() {
                 isEnabled = pauseEnabled
                 addOnChangeListener { _, value, _ ->
                     val duration = value.toInt()
-                    durationBinding.tvLabel.text =
-                        getString(R.string.settings_conscious_pause_duration, duration)
+                    durationBinding.tvLabel.text = resources.getQuantityString(
+                        R.plurals.settings_conscious_pause_duration, duration, duration
+                    )
                 }
                 persistOnStop { value ->
                     ConsciousPausePreferences.setDuration(this@FocusSettingsActivity, value.toInt())

@@ -497,7 +497,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
         AppFont.entries.forEachIndexed { index, font ->
             val item = ItemSettingsFontBinding.inflate(inflater, container, false)
             item.tvFontName.text = getFontDisplayName(font).lowercase()
-            item.tvFontSample.text = "focusphone"
+            item.tvFontSample.text = getString(R.string.settings_font_sample_text)
 
             if (font == AppFont.SYSTEM) {
                 item.tvFontSample.typeface = Typeface.create("sans-serif", Typeface.BOLD)

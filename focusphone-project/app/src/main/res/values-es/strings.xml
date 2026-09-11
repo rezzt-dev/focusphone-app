@@ -23,8 +23,16 @@ toca el menú para añadir apps.</string>
     <string name="appselect_subtitle">elige las apps que más importan</string>
     <string name="appselect_search_hint">buscar…</string>
     <string name="appselect_done">listo</string>
-    <string name="appselect_selected_count">%1$d de %2$d apps seleccionadas</string>
-    <string name="appselect_limit_reached">has alcanzado el límite de %1$d apps</string>
+    <plurals name="appselect_selected_count">
+        <item quantity="one">%1$d de %2$d app seleccionada</item>
+        <item quantity="many">%1$d de %2$d apps seleccionadas</item>
+        <item quantity="other">%1$d de %2$d apps seleccionadas</item>
+    </plurals>
+    <plurals name="appselect_limit_reached">
+        <item quantity="one">has alcanzado el límite de %1$d app</item>
+        <item quantity="many">has alcanzado el límite de %1$d apps</item>
+        <item quantity="other">has alcanzado el límite de %1$d apps</item>
+    </plurals>
 
     <string name="settings_title">ajustes</string>
     <string name="settings_section_appearance">apariencia</string>
@@ -148,7 +156,11 @@ toca el menú para añadir apps.</string>
     <string name="settings_section_conscious_pause">pausa consciente</string>
     <string name="settings_conscious_pause_title">activar pausa consciente</string>
     <string name="settings_conscious_pause_desc">toma un respiro profundo antes de abrir cualquier app</string>
-    <string name="settings_conscious_pause_duration">duración de la pausa: %1$d segundos</string>
+    <plurals name="settings_conscious_pause_duration">
+        <item quantity="one">duración de la pausa: %1$d segundo</item>
+        <item quantity="many">duración de la pausa: %1$d segundos</item>
+        <item quantity="other">duración de la pausa: %1$d segundos</item>
+    </plurals>
     <string name="pause_inhale">inhala…</string>
     <string name="pause_exhale">exhala…</string>
     <string name="pause_hold">mantén…</string>
@@ -322,13 +334,11 @@ facebook</string>
     <string name="detox_accessibility_desc">para que el detox bloquee apps lanzadas desde notificaciones o recientes, activa el servicio de accesibilidad de focusphone.</string>
     <string name="detox_accessibility_enable">activar</string>
     <string name="detox_accessibility_continue">continuar de todos modos</string>
+    <string name="tutorial_slide_counter">%1$d / %2$d</string>
 
     <!-- Conscious Pause -->
 
     <!-- Tutorial Arrows -->
-    <string name="tutorial_arrow_prev">←</string>
-    <string name="tutorial_arrow_next">→</string>
-    <string name="tutorial_arrow_finish">✓</string>
 
     <!-- App Dialogs -->
     <string name="allapps_dialog_uninstall">desinstalar</string>
@@ -505,11 +515,11 @@ cuarenta y uno</string>
         <item>diecinueve</item>
         <item>veinte</item>
         <item>veintiuno</item>
-        <item>veintidos</item>
-        <item>veintitres</item>
+        <item>veintidós</item>
+        <item>veintitrés</item>
         <item>veinticuatro</item>
         <item>veinticinco</item>
-        <item>veintiseis</item>
+        <item>veintiséis</item>
         <item>veintisiete</item>
         <item>veintiocho</item>
         <item>veintinueve</item>
@@ -588,7 +598,11 @@ cuarenta y uno</string>
     <string name="schedule_password_remove_confirm">esto borra la contraseña y todos los horarios. ¿continuar?</string>
     <string name="schedule_password_removed">protección eliminada</string>
     <string name="schedule_password_confirm_hint">repite la contraseña</string>
-    <string name="schedule_password_too_short">usa al menos %1$d caracteres</string>
+    <plurals name="schedule_password_too_short">
+        <item quantity="one">usa al menos %1$d carácter</item>
+        <item quantity="many">usa al menos %1$d caracteres</item>
+        <item quantity="other">usa al menos %1$d caracteres</item>
+    </plurals>
     <string name="schedule_password_mismatch">las contraseñas no coinciden</string>
     <string name="schedule_create_password_title">proteger los horarios</string>
     <string name="schedule_create_password_desc">define una contraseña para que los horarios no se puedan cambiar por impulso.</string>
@@ -602,15 +616,21 @@ cuarenta y uno</string>
     <string name="schedule_blocked_window_title">fuera del horario permitido</string>
     <string name="schedule_blocked_window_desc">esta app está disponible entre las %1$s y las %2$s.</string>
     <string name="schedule_blocked_limit_title">límite diario alcanzado</string>
-    <string name="schedule_blocked_limit_desc">has usado %1$d de tus %2$d minutos de hoy. el límite se reinicia a medianoche.</string>
+    <plurals name="schedule_blocked_limit_desc">
+        <item quantity="one">has usado %1$d de tu %2$d minuto de hoy. el límite se reinicia a medianoche.</item>
+        <item quantity="many">has usado %1$d de tus %2$d minutos de hoy. el límite se reinicia a medianoche.</item>
+        <item quantity="other">has usado %1$d de tus %2$d minutos de hoy. el límite se reinicia a medianoche.</item>
+    </plurals>
 
     <!-- Shared password lock (detox and schedules) -->
     <plurals name="password_attempts_left">
         <item quantity="one">contraseña incorrecta. queda %1$d intento</item>
+        <item quantity="many">contraseña incorrecta. quedan %1$d intentos</item>
         <item quantity="other">contraseña incorrecta. quedan %1$d intentos</item>
     </plurals>
     <plurals name="password_locked_out_minutes">
         <item quantity="one">demasiados intentos. inténtalo en %1$d minuto</item>
+        <item quantity="many">demasiados intentos. inténtalo en %1$d minutos</item>
         <item quantity="other">demasiados intentos. inténtalo en %1$d minutos</item>
     </plurals>
     <string name="error_save_failed">no se pudo guardar. inténtalo de nuevo</string>

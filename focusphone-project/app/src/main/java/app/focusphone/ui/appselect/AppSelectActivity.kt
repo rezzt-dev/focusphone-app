@@ -175,8 +175,9 @@ class AppSelectActivity : BaseActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.filteredApps.collect { apps ->
                     adapter.submitList(apps)
-                    binding.tvSelectedCount.text = getString(
-                        R.string.appselect_selected_count,
+                    binding.tvSelectedCount.text = resources.getQuantityString(
+                        R.plurals.appselect_selected_count,
+                        viewModel.selectedCount(),
                         viewModel.selectedCount(),
                         viewModel.maxApps()
                     )
@@ -196,7 +197,7 @@ class AppSelectActivity : BaseActivity() {
                         is AppSelectEvent.LimitReached ->
                             Toast.makeText(
                                 this@AppSelectActivity,
-                                getString(R.string.appselect_limit_reached, event.limit),
+                                resources.getQuantityString(R.plurals.appselect_limit_reached, event.limit, event.limit),
                                 Toast.LENGTH_SHORT
                             ).show()
                     }

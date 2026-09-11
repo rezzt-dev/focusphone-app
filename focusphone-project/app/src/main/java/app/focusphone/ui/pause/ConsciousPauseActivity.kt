@@ -16,6 +16,7 @@ import app.focusphone.ui.base.BaseActivity
 import app.focusphone.ui.home.HomeActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 /**
  * Conscious pause screen.
@@ -80,7 +81,7 @@ class ConsciousPauseActivity : BaseActivity() {
     }
 
     private fun render(remaining: Int) {
-        binding.tvCountdown.text = remaining.toString()
+        binding.tvCountdown.text = String.format(Locale.getDefault(), "%d", remaining)
         binding.tvBreathingState.text = getString(
             when (remaining % 4) {
                 0, 3 -> R.string.pause_inhale

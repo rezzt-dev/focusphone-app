@@ -175,7 +175,7 @@ class AboutSettingsActivity : SettingsSubActivity() {
         fun updateSlide() {
             val page = slides[currentIndex]
 
-            tvCounter.text = "${currentIndex + 1} / ${slides.size}"
+            tvCounter.text = getString(R.string.tutorial_slide_counter, currentIndex + 1, slides.size)
             ivIcon.setImageResource(page.iconRes)
             ivIcon.imageTintList = android.content.res.ColorStateList.valueOf(primaryColor)
             tvTitle.setText(page.titleRes)

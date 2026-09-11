@@ -269,6 +269,9 @@ class HomeLayoutActivity : BaseActivity() {
     // Preview (real home screen replica)
     // ═══════════════════════════════════════════════════════════════
 
+    // The drag handle's touch listener calls performClick() on ACTION_UP, but lint's static
+    // check does not follow it through the nested `when` branch below (FP-078).
+    @android.annotation.SuppressLint("ClickableViewAccessibility")
     private fun rebuildPreview() {
         val root = binding.previewRoot
         widgetSurface.releaseView()
@@ -378,7 +381,7 @@ class HomeLayoutActivity : BaseActivity() {
                 }
                 wrapper.addView(dragHandle)
 
-                dragHandle.setOnTouchListener { _, event ->
+                dragHandle.setOnTouchListener { v, event ->
                     when (event.actionMasked) {
                         MotionEvent.ACTION_DOWN -> {
                             if (!isEditMode) enterEditMode()
@@ -391,6 +394,7 @@ class HomeLayoutActivity : BaseActivity() {
                         }
                         MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                             endDrag(wrapper)
+                            if (event.actionMasked == MotionEvent.ACTION_UP) v.performClick()
                             true
                         }
                         else -> false
@@ -548,11 +552,14 @@ class HomeLayoutActivity : BaseActivity() {
     // Drag & drop
     // ═══════════════════════════════════════════════════════════════
 
+    // performClick() is called on ACTION_UP below, but lint's static check does not follow
+    // it through the nested `when` branch (FP-078).
+    @android.annotation.SuppressLint("ClickableViewAccessibility")
     private fun setupWrapperTouch(wrapper: FrameLayout, component: HomeLayoutPreferences.Component) {
         var startRawY = 0f
         var startRawX = 0f
 
-        wrapper.setOnTouchListener { _, event ->
+        wrapper.setOnTouchListener { v, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     startRawY = event.rawY
@@ -577,6 +584,7 @@ class HomeLayoutActivity : BaseActivity() {
                     longPressRunnable = null
                     wrapper.parent.requestDisallowInterceptTouchEvent(false)
                     if (!isEditMode) {
+                        v.performClick()
                         onWrapperClicked(component)
                     }
                 }
