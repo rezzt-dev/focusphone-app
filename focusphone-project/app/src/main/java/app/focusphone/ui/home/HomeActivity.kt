@@ -429,9 +429,6 @@ class HomeActivity : BaseActivity() {
 
     // ── Gestures ───────────────────────────────────────────────────
 
-    // performClick() is called on ACTION_UP below, but lint's static check does not follow
-    // it through the conditional inside this touch listener (FP-078).
-    @SuppressLint("ClickableViewAccessibility")
     private fun setupGestureDetector() {
         gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
             private val SWIPE_THRESHOLD = 120
@@ -483,13 +480,15 @@ class HomeActivity : BaseActivity() {
                 }
             }
         })
-        // Only the empty/home surface owns launcher gestures. RecyclerViews, drawers and
-        // dialogs keep their flings without leaking them into this detector.
-        binding.rootHome.setOnTouchListener { _, event ->
-            gestureDetector.onTouchEvent(event)
-            if (event.action == MotionEvent.ACTION_UP) binding.rootHome.performClick()
-            false
-        }
+    }
+
+    // The detector must observe the whole gesture stream at the activity level: a view
+    // touch listener that returns false on ACTION_DOWN never receives the MOVE/UP events
+    // a fling needs, and children (clock, app list) consume touches before their parent.
+    // Dialogs live in their own window, and onFling ignores flings while a drawer is open.
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (::gestureDetector.isInitialized) gestureDetector.onTouchEvent(ev)
+        return super.dispatchTouchEvent(ev)
     }
 
     // "statusbar" is the service name behind Context.STATUS_BAR_SERVICE, which only became
