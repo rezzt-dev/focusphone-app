@@ -89,9 +89,9 @@ Actualizar esta tabla cada vez que se cierre un bloque de trabajo.
 | **Fase 3** — Coherencia interna | 12 | 12 | ✅ Completada |
 | **Fase 4** — Rendimiento | 10 | 10 | ✅ Completada |
 | **Fase 5** — Build, calidad y CI | 15 | 15 | ✅ Completada |
-| **Fase 6** — Limpieza y código muerto | 11 | 0 | ⬜ Pendiente |
+| **Fase 6** — Limpieza y código muerto | 11 | 9 | 🟡 En curso |
 | **Fase 7** — Localización y accesibilidad | 12 | 0 | ⬜ Pendiente |
-| **TOTAL** | **83** | **60** | **72 %** |
+| **TOTAL** | **83** | **69** | **83 %** |
 
 **Por severidad:**
 
@@ -101,7 +101,7 @@ Actualizar esta tabla cada vez que se cierre un bloque de trabajo.
 | 🟧 CRÍTICO | 9 | 9 |
 | 🟨 ALTO | 21 | 21 |
 | 🟦 MEDIO | 26 | 17 |
-| ⬜ BAJO | 24 | 10 |
+| ⬜ BAJO | 24 | 19 |
 
 > **Criterio de release:** no se publica ninguna build mientras queden hallazgos 🟥 o 🟧 sin cerrar.
 
@@ -216,19 +216,19 @@ Actualizar esta tabla cada vez que se cierre un bloque de trabajo.
 
 *Sin riesgo funcional. Hacer después de las fases anteriores para no reintroducir lo eliminado.*
 
-**Progreso: 0 / 11**
+**Progreso: 9 / 11**
 
-- [ ] ⬜ **FP-060** — [Clases y ficheros completamente muertos](#fp-060--clases-y-ficheros-completamente-muertos)
-- [ ] ⬜ **FP-061** — [Los deslizadores de tamaño de `HomeLayoutActivity` son inalcanzables](#fp-061--los-deslizadores-de-tamaño-de-homelayoutactivity-son-inalcanzables)
-- [ ] ⬜ **FP-062** — [Métodos públicos sin uso](#fp-062--métodos-públicos-sin-uso)
-- [ ] ⬜ **FP-063** — [Constantes y variables sin usar](#fp-063--constantes-y-variables-sin-usar)
-- [ ] ⬜ **FP-064** — [Código duplicado literal dentro de `HomeActivity.onResume`](#fp-064--código-duplicado-literal-dentro-de-homeactivityonresume)
-- [ ] ⬜ **FP-065** — [Ficheros de configuración de backup muertos](#fp-065--ficheros-de-configuración-de-backup-muertos)
-- [ ] ⬜ **FP-066** — [`values-night/themes.xml` vacío](#fp-066--values-nightthemesxml-vacío)
+- [x] ⬜ **FP-060** — [Clases y ficheros completamente muertos](#fp-060--clases-y-ficheros-completamente-muertos) (b6db552)
+- [x] ⬜ **FP-061** — [Los deslizadores de tamaño de `HomeLayoutActivity` son inalcanzables](#fp-061--los-deslizadores-de-tamaño-de-homelayoutactivity-son-inalcanzables) (b6db552)
+- [x] ⬜ **FP-062** — [Métodos públicos sin uso](#fp-062--métodos-públicos-sin-uso) (b6db552)
+- [x] ⬜ **FP-063** — [Constantes y variables sin usar](#fp-063--constantes-y-variables-sin-usar) (b6db552)
+- [x] ⬜ **FP-064** — [Código duplicado literal dentro de `HomeActivity.onResume`](#fp-064--código-duplicado-literal-dentro-de-homeactivityonresume) (b6db552)
+- [x] ⬜ **FP-065** — [Ficheros de configuración de backup muertos](#fp-065--ficheros-de-configuración-de-backup-muertos) (b6db552)
+- [x] ⬜ **FP-066** — [`values-night/themes.xml` vacío](#fp-066--values-nightthemesxml-vacío) (b6db552)
 - [ ] ⬜ **FP-067** — [66 strings sin usar](#fp-067--66-strings-sin-usar)
 - [ ] ⬜ **FP-068** — [19 recursos sin usar](#fp-068--19-recursos-sin-usar)
-- [ ] ⬜ **FP-069** — [APIs deprecadas (avisos del compilador)](#fp-069--apis-deprecadas-avisos-del-compilador)
-- [ ] ⬜ **FP-070** — [85 avisos `UseKtx`](#fp-070--85-avisos-usektx)
+- [x] ⬜ **FP-069** — [APIs deprecadas (avisos del compilador)](#fp-069--apis-deprecadas-avisos-del-compilador) (b6db552)
+- [x] ⬜ **FP-070** — [85 avisos `UseKtx`](#fp-070--85-avisos-usektx) (b6db552)
 
 ---
 
@@ -262,7 +262,7 @@ Marcar solo cuando la fase entera esté cerrada y las comprobaciones pasen.
 - [x] **Fase 3 cerrada** — un único helper de "launcher por defecto" · una única política de contraseña · ningún ajuste visible sin efecto (2e4989a)
 - [x] **Fase 4 cerrada** — sin decodificación de bitmap por `onResume` · sin lecturas de preferencias en `onBindViewHolder` ni en `onChildDraw`
 - [x] **Fase 5 cerrada** — `./gradlew :app:lintDebug` con **0 errores** · `checkReleaseBuilds = true` · clon limpio ejecuta `./gradlew` (eb4ba0e; 149 tests unitarios en verde)
-- [ ] **Fase 6 cerrada** — `compileDebugKotlin` sin warnings · 0 `UnusedResources` en lint
+- [ ] **Fase 6 cerrada** — pendiente FP-067/FP-068 (poda de recursos sin usar; lint sigue reportando 133 `UnusedResources`). El resto de la fase está cerrado (b6db552; `compileDebugKotlin` sin warnings, 156/156 tests, `lintDebug` 0 errores)
 - [ ] **Fase 7 cerrada** — 0 `MissingTranslation` · 0 `ContentDescription` · 0 `HardcodedText`
 
 ---
@@ -287,6 +287,8 @@ encontrados durante la corrección. Un hallazgo nuevo se numera `FP-082` en adel
 | 2026-09-11 | FP-055 | `settings_tutorial_desc` pasa a `formatted="false"` en los cuatro idiomas | La cadena nunca se formatea: el `100%%` español se mostraba literalmente como "100%%". `allapps_folder_caret`/`allapps_new_folder_symbol` ya eran `translatable="false"` | Claude |
 | 2026-09-11 | FP-073 | El JAR del wrapper se regenera con la tarea `wrapper` antes de versionarlo (SHA-256 `7a9ce74c…`, idéntico al oficial de Gradle 9.7.1) | El JAR local no coincidía con el oficial de la versión declarada; versionar un binario sin verificar sería un riesgo de cadena de suministro. CI lo valida con `setup-gradle` | Claude |
 | 2026-09-11 | FP-072 | `versionCode` 3 / `versionName` 1.0.6, fijados a mano | No hay tags de git y CI trabaja en HEAD desacoplado: derivar la versión de la rama sería frágil | Claude |
+| 2026-09-11 | Fase 6 (b6db552) | FP-067/FP-068 quedan fuera de este cierre; el resto de la fase (FP-060 a FP-066, FP-069, FP-070) se cierra en el mismo commit | Podar strings/recursos sin uso en los 4 idiomas es mecánico pero extenso; se hace en un pase propio para no mezclar la eliminación de código muerto con la de recursos | Claude |
+| 2026-09-11 | FP-070 (alcance ampliado) | El pase `UseKtx` detectó y corrigió un bug real: `EncryptedPrefs.commitString` usaba `edit(commit = true) { }`, que devuelve `Unit`, no el `Boolean` que la firma promete a sus llamadores | Sin la corrección el código no compilaba; se deja registrado porque no estaba en la ficha original | Claude |
 | 2026-09-11 | FP-083 (nuevo) | Añadido a la Fase 5: al terminar el onboarding, `HomeActivity.onResume` hace `recreate()` en lugar de llamar a `initializeHome()` | El diferido de FP-034 lanzaba `repeatOnLifecycle` desde `onResume` (error de lint `RepeatOnLifecycleWrongUsage`); recrear una única vez en la vida de la app mantiene toda la inicialización en `onCreate` | Claude |
 | 2026-09-11 | Alcance ampliado | Nuevo workflow `.github/workflows/android-ci.yml` (tests unitarios, `lintDebug`, `assembleRelease` sin firmar) | La fase es "Build, calidad y CI" y su criterio es que un clon limpio ejecute `./gradlew`; CI lo comprueba en cada push | Claude |
 ---
