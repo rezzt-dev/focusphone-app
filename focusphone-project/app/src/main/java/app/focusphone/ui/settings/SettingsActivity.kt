@@ -2,7 +2,6 @@ package app.focusphone.ui.settings
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.LinearLayout
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.view.ViewCompat

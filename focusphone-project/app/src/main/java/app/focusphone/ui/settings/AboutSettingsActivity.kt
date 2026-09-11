@@ -143,14 +143,8 @@ class AboutSettingsActivity : SettingsSubActivity() {
         val font = FontPreferences.getTypefaceOrNull(this)
         val textView = TextView(this).apply {
             typeface = font
-            text = if (htmlText != null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                android.text.Html.fromHtml(htmlText, android.text.Html.FROM_HTML_MODE_LEGACY)
-            } else if (htmlText != null) {
-                @Suppress("DEPRECATION")
-                android.text.Html.fromHtml(htmlText)
-            } else {
-                getString(R.string.settings_privacy_policy_fallback)
-            }
+            text = htmlText?.let { android.text.Html.fromHtml(it, android.text.Html.FROM_HTML_MODE_LEGACY) }
+                ?: getString(R.string.settings_privacy_policy_fallback)
             textSize = 14f
             setLineSpacing(1.2f, 1.2f)
         }

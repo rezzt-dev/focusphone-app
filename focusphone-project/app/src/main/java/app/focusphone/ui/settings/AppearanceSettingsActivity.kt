@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
 import app.focusphone.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.WallpaperPreferences
@@ -31,6 +32,8 @@ import app.focusphone.ui.wallpaper.WallpaperUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.core.graphics.toColorInt
+import androidx.core.graphics.drawable.toDrawable
 
 /**
  * Appearance screen: theme (with custom colours), font, text size,
@@ -186,7 +189,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
             subtitleResId = if (useShared) R.string.settings_wallpaper_shared_hint else R.string.settings_wallpaper_home_desc,
             initialValue = getWallpaperStatus(WallpaperTarget.HOME),
             iconResId = R.drawable.ic_settings_wallpaper,
-            onClick = { launchWallpaperPicker(WallpaperTarget.HOME) }
+            onClick = { onWallpaperRowClicked(WallpaperTarget.HOME) }
         )
         homeValueView = homeValue
         wallpaperHomeRowRoot = homeRoot
@@ -196,7 +199,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
             subtitleResId = if (useShared) R.string.settings_wallpaper_shared_hint else R.string.settings_wallpaper_notifications_desc,
             initialValue = getWallpaperStatus(WallpaperTarget.NOTIFICATIONS),
             iconResId = R.drawable.ic_settings_wallpaper,
-            onClick = { launchWallpaperPicker(WallpaperTarget.NOTIFICATIONS) }
+            onClick = { onWallpaperRowClicked(WallpaperTarget.NOTIFICATIONS) }
         )
         notificationsValueView = notificationsValue
         wallpaperNotificationsRowRoot = notificationsRoot
@@ -206,7 +209,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
             subtitleResId = if (useShared) R.string.settings_wallpaper_shared_hint else R.string.settings_wallpaper_settings_desc,
             initialValue = getWallpaperStatus(WallpaperTarget.SETTINGS),
             iconResId = R.drawable.ic_settings_wallpaper,
-            onClick = { launchWallpaperPicker(WallpaperTarget.SETTINGS) }
+            onClick = { onWallpaperRowClicked(WallpaperTarget.SETTINGS) }
         )
         settingsValueView = settingsValue
         wallpaperSettingsRowRoot = settingsRoot
@@ -303,10 +306,9 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
      */
     private fun relaunchForThemeChange() {
         val relaunch = Intent(this, AppearanceSettingsActivity::class.java)
+        // BaseActivity.finish() and startActivity() already apply the fade transition.
         finish()
         startActivity(relaunch)
-        @Suppress("DEPRECATION")
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     private fun getThemeDisplayName(theme: String): String = when (theme) {
@@ -333,14 +335,14 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
             .create()
 
         dialog.window?.setBackgroundDrawable(
-            android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+            android.graphics.Color.TRANSPARENT.toDrawable()
         )
 
         val customColor = ThemePreferences.getCustomBackgroundColor(this)
         val customDrawable = android.graphics.drawable.GradientDrawable().apply {
             shape = android.graphics.drawable.GradientDrawable.OVAL
             setColor(customColor)
-            setStroke((1.5f * resources.displayMetrics.density).toInt(), android.graphics.Color.parseColor("#3A3A3A"))
+            setStroke((1.5f * resources.displayMetrics.density).toInt(), "#3A3A3A".toColorInt())
         }
         view.findViewById<View>(R.id.view_theme_custom_circle_dialog).background = customDrawable
         view.findViewById<View>(R.id.view_theme_custom_circle_dialog).backgroundTintList = null
@@ -381,12 +383,12 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
         binding.etCustomFgColor.setText(currentFgHex)
 
         try {
-            val bgCol = android.graphics.Color.parseColor(currentBgHex)
+            val bgCol = currentBgHex.toColorInt()
             binding.viewCustomBgPreview.backgroundTintList = android.content.res.ColorStateList.valueOf(bgCol)
         } catch (_: Exception) {}
 
         try {
-            val fgCol = android.graphics.Color.parseColor(currentFgHex)
+            val fgCol = currentFgHex.toColorInt()
             binding.viewCustomFgPreview.backgroundTintList = android.content.res.ColorStateList.valueOf(fgCol)
         } catch (_: Exception) {}
 
@@ -412,7 +414,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
             private fun updateBgPreview(hex: String) {
                 if (hex.length == 7) {
                     try {
-                        val col = android.graphics.Color.parseColor(hex)
+                        val col = hex.toColorInt()
                         binding.viewCustomBgPreview.backgroundTintList = android.content.res.ColorStateList.valueOf(col)
                     } catch (_: Exception) {}
                 }
@@ -442,7 +444,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
             private fun updateFgPreview(hex: String) {
                 if (hex.length == 7) {
                     try {
-                        val col = android.graphics.Color.parseColor(hex)
+                        val col = hex.toColorInt()
                         binding.viewCustomFgPreview.backgroundTintList = android.content.res.ColorStateList.valueOf(col)
                     } catch (_: Exception) {}
                 }
@@ -486,7 +488,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
             .create()
 
         dialog.window?.setBackgroundDrawable(
-            android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+            android.graphics.Color.TRANSPARENT.toDrawable()
         )
 
         val container = view.findViewById<LinearLayout>(R.id.font_options_container)
@@ -596,22 +598,11 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
      * copied into private storage rather than referenced by its `content://` URI.
      */
     private fun handleWallpaperSelected(uri: Uri, target: WallpaperTarget) {
-        val shared = WallpaperPreferences.isUseSharedWallpaper(this)
         lifecycleScope.launch {
             val stored = WallpaperStorage.replace(this@AppearanceSettingsActivity, uri) { copy ->
-                if (shared) {
-                    WallpaperPreferences.setSharedWallpaperUri(this@AppearanceSettingsActivity, copy)
-                } else {
-                    when (target) {
-                        WallpaperTarget.HOME ->
-                            WallpaperPreferences.setHomeWallpaperUri(this@AppearanceSettingsActivity, copy)
-                        WallpaperTarget.NOTIFICATIONS ->
-                            WallpaperPreferences.setNotificationsWallpaperUri(this@AppearanceSettingsActivity, copy)
-                        WallpaperTarget.SETTINGS ->
-                            WallpaperPreferences.setSettingsWallpaperUri(this@AppearanceSettingsActivity, copy)
-                    }
-                }
+                WallpaperPreferences.assignWallpaper(this@AppearanceSettingsActivity, target, copy)
             }
+            if (isDestroyed) return@launch
             if (!stored) {
                 Toast.makeText(
                     this@AppearanceSettingsActivity,
@@ -620,12 +611,54 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
                 ).show()
                 return@launch
             }
-
-            updateWallpaperValueLabels()
-            updateWallpaperPreview()
-            applyCustomThemeColors()
-            applyWallpaper()
+            onWallpaperChanged()
         }
+    }
+
+    /** Picks an image straight away, or offers to change or remove the one already set. */
+    private fun onWallpaperRowClicked(target: WallpaperTarget) {
+        if (WallpaperUtils.getWallpaperUri(this, target).isNullOrBlank()) {
+            launchWallpaperPicker(target)
+            return
+        }
+        val title = if (WallpaperPreferences.isUseSharedWallpaper(this)) {
+            R.string.settings_wallpaper_shared_hint
+        } else {
+            when (target) {
+                WallpaperTarget.HOME -> R.string.settings_wallpaper_home
+                WallpaperTarget.NOTIFICATIONS -> R.string.settings_wallpaper_notifications
+                WallpaperTarget.SETTINGS -> R.string.settings_wallpaper_settings
+            }
+        }
+        val options = arrayOf(
+            getString(R.string.settings_wallpaper_change),
+            getString(R.string.settings_wallpaper_remove)
+        )
+        MaterialAlertDialogBuilder(this)
+            .setTitle(title)
+            .setItems(options) { _, which ->
+                if (which == 0) launchWallpaperPicker(target) else removeWallpaper(target)
+            }
+            .create()
+            .also { showStyledDialog(it) }
+    }
+
+    /** Forgets the image of [target] (every surface in shared mode) and deletes its copy. */
+    private fun removeWallpaper(target: WallpaperTarget) {
+        lifecycleScope.launch {
+            WallpaperStorage.remove(this@AppearanceSettingsActivity) {
+                WallpaperPreferences.assignWallpaper(this@AppearanceSettingsActivity, target, null)
+            }
+            if (isDestroyed) return@launch
+            onWallpaperChanged()
+        }
+    }
+
+    private fun onWallpaperChanged() {
+        updateWallpaperValueLabels()
+        updateWallpaperPreview()
+        applyCustomThemeColors()
+        applyWallpaper()
     }
 
     private fun getWallpaperStatus(target: WallpaperTarget): String {

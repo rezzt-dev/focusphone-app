@@ -1,6 +1,5 @@
 package app.focusphone.ui.settings
 
-import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.TextView
 import app.focusphone.R

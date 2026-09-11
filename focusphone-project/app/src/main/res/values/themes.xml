@@ -41,7 +41,7 @@
         <item name="colorOnBackground">@color/ow_text_primary</item>
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:navigationBarColor">@color/transparent</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
 
         <!-- Material 3 switch / control coloring — use direct @color refs, never ?attr -->
@@ -98,7 +98,7 @@
         <item name="colorOnBackground">@color/sl_text_primary</item>
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:navigationBarColor">@color/transparent</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
 
         <!-- Material 3 switch / control coloring — use direct @color refs, never ?attr -->
@@ -155,7 +155,7 @@
         <item name="colorOnBackground">@color/wb_text_primary</item>
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:navigationBarColor">@color/transparent</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
 
         <!-- Material 3 switch / control coloring — use direct @color refs, never ?attr -->
@@ -212,7 +212,7 @@
         <item name="colorOnBackground">@color/nv_text_primary</item>
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:navigationBarColor">@color/transparent</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
 
         <!-- Material 3 switch / control coloring — use direct @color refs, never ?attr -->

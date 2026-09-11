@@ -45,6 +45,7 @@ import com.google.android.material.slider.Slider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.core.graphics.drawable.toDrawable
 
 /**
  * Base class for all FocusPhone activities.
@@ -764,7 +765,7 @@ abstract class BaseActivity : AppCompatActivity() {
                         setColor(colors.accent)
                     }
                 )
-                addState(intArrayOf(), ColorDrawable(Color.TRANSPARENT))
+                addState(intArrayOf(), Color.TRANSPARENT.toDrawable())
             }
             segment.imageTintList =
                 ColorStateList(states, intArrayOf(colors.onAccent, colors.textSecondary))
@@ -798,7 +799,7 @@ abstract class BaseActivity : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this).setView(view).create()
 
         dialog.window?.apply {
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
             // Passwords are typed here: keep them out of screenshots and screen recordings.
             addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }

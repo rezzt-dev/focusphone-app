@@ -605,5 +605,7 @@ einundvierzig</string>
     </plurals>
     <string name="error_save_failed">speichern fehlgeschlagen. bitte erneut versuchen</string>
     <string name="settings_wallpaper_import_failed">dieses bild kann nicht verwendet werden</string>
+    <string name="settings_wallpaper_change">anderes bild wählen</string>
+    <string name="settings_wallpaper_remove">hintergrund entfernen</string>
     <string name="wallpaper_access_lost">ein hintergrundbild war nicht mehr lesbar und wurde entfernt. bitte wähle es erneut</string>
 </resources>

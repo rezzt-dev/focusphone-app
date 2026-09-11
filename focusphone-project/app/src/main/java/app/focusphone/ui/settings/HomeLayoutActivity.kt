@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -19,6 +20,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.content.ContextCompat
@@ -50,8 +52,8 @@ import androidx.core.view.updatePadding
 
 /**
  * Activity that lets the user reorder the three home-screen components
- * (clock, external widget, apps list), toggle their visibility and
- * adjust their relative sizes. Shows a **real, functional preview**
+ * (clock, external widget, apps list) and toggle their visibility. Shows a
+ * **real, functional preview**
  * of the home screen with live clock, rendered widget and favourite apps.
  */
 class HomeLayoutActivity : BaseActivity() {
@@ -63,13 +65,9 @@ class HomeLayoutActivity : BaseActivity() {
     private var currentOrder = listOf<HomeLayoutPreferences.Component>()
     private var currentClockEnabled = true
     private var currentWidgetEnabled = true
-    private var currentClockWeight = 38
-    private var currentWidgetWeight = 25
     private var isEditMode = false
-    private var selectedComponent: HomeLayoutPreferences.Component? = null
 
     // Drag & drop state
-    private var draggedView: FrameLayout? = null
     private var dragStartRawY = 0f
     private var longPressRunnable: Runnable? = null
     private val touchSlop by lazy {
@@ -106,6 +104,17 @@ class HomeLayoutActivity : BaseActivity() {
     private var currentAppsContainer: FrameLayout? = null
     private var clockRenderer: ClockRenderer? = null
 
+    private val widgetPickerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            currentWidgetEnabled = true
+            WidgetPreferences.setWidgetEnabled(this, true)
+            saveVisibility()
+            rebuildPreview()
+        }
+    }
+
     // ═══════════════════════════════════════════════════════════════
     // Lifecycle
     // ═══════════════════════════════════════════════════════════════
@@ -120,7 +129,6 @@ class HomeLayoutActivity : BaseActivity() {
         binding.btnDone.setOnClickListener { exitEditMode() }
 
         loadState()
-        setupSliderSheet()
         setupVisibilityToggles()
         observeApps()
         updateVisibilityToggles()
@@ -164,21 +172,10 @@ class HomeLayoutActivity : BaseActivity() {
         super.onStop()
     }
 
-    @Suppress("DEPRECATION")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_PICK_WIDGET && resultCode == RESULT_OK) {
-            currentWidgetEnabled = true
-            WidgetPreferences.setWidgetEnabled(this, true)
-            rebuildPreview()
-        }
-    }
-
     // ═══════════════════════════════════════════════════════════════
     // Insets
     // ═══════════════════════════════════════════════════════════════
 
-    private val sliderSection by lazy { findViewById<LinearLayout>(R.id.slider_section) }
     private val toggleClock by lazy { findViewById<LinearLayout>(R.id.toggle_clock) }
     private val toggleWidget by lazy { findViewById<LinearLayout>(R.id.toggle_widget) }
     private val toggleApps by lazy { findViewById<LinearLayout>(R.id.toggle_apps) }
@@ -191,12 +188,7 @@ class HomeLayoutActivity : BaseActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             binding.toolbar.updatePadding(top = bars.top)
-            binding.sliderSheet.setPadding(
-                binding.sliderSheet.paddingLeft,
-                binding.sliderSheet.paddingTop,
-                binding.sliderSheet.paddingRight,
-                bars.bottom + dp(8)
-            )
+            binding.controlSheet.updatePadding(bottom = bars.bottom + dp(8))
             insets
         }
     }
@@ -250,8 +242,6 @@ class HomeLayoutActivity : BaseActivity() {
         currentOrder = HomeLayoutPreferences.getOrder(this)
         currentClockEnabled = HomeLayoutPreferences.isClockEnabled(this)
         currentWidgetEnabled = HomeLayoutPreferences.isWidgetEnabled(this)
-        currentClockWeight = HomeLayoutPreferences.getClockWeightPercent(this)
-        currentWidgetWeight = HomeLayoutPreferences.getWidgetWeightPercent(this)
 
         // If the clock type is HIDDEN, treat it as disabled here for consistency
         if (FontPreferences.getClockType(this) == ClockType.HIDDEN) {
@@ -266,11 +256,6 @@ class HomeLayoutActivity : BaseActivity() {
     private fun saveVisibility() {
         HomeLayoutPreferences.setClockEnabled(this, currentClockEnabled)
         HomeLayoutPreferences.setWidgetEnabled(this, currentWidgetEnabled)
-    }
-
-    private fun saveSizes() {
-        HomeLayoutPreferences.setClockWeightPercent(this, currentClockWeight)
-        HomeLayoutPreferences.setWidgetWeightPercent(this, currentWidgetWeight)
     }
 
     private fun isComponentEnabled(component: HomeLayoutPreferences.Component): Boolean = when (component) {
@@ -305,14 +290,14 @@ class HomeLayoutActivity : BaseActivity() {
         for (component in visibleOrder) {
             val weight = when (component) {
                 HomeLayoutPreferences.Component.CLOCK -> {
-                    remainingWeight -= currentClockWeight
-                    if (currentClockEnabled) currentClockWeight else 0
+                    remainingWeight -= CLOCK_PREVIEW_WEIGHT
+                    if (currentClockEnabled) CLOCK_PREVIEW_WEIGHT else 0
                 }
                 HomeLayoutPreferences.Component.WIDGET -> {
-                    remainingWeight -= currentWidgetWeight
-                    if (currentWidgetEnabled) currentWidgetWeight else 0
+                    remainingWeight -= WIDGET_PREVIEW_WEIGHT
+                    if (currentWidgetEnabled) WIDGET_PREVIEW_WEIGHT else 0
                 }
-                HomeLayoutPreferences.Component.APPS -> remainingWeight.coerceAtLeast(20)
+                HomeLayoutPreferences.Component.APPS -> remainingWeight.coerceAtLeast(MIN_APPS_PREVIEW_WEIGHT)
             }
 
             val wrapper = FrameLayout(this).apply {
@@ -366,6 +351,7 @@ class HomeLayoutActivity : BaseActivity() {
                     marginEnd = dp(4)
                 }
                 background = null
+                contentDescription = getString(R.string.cd_toggle_visibility)
                 scaleType = android.widget.ImageView.ScaleType.CENTER_INSIDE
                 setImageResource(
                     if (isComponentEnabled(component)) R.drawable.ic_eye_open
@@ -385,6 +371,7 @@ class HomeLayoutActivity : BaseActivity() {
                         topMargin = dp(4)
                     }
                     setImageResource(R.drawable.ic_drag_handle)
+                    contentDescription = getString(R.string.cd_drag_handle)
                     alpha = 0.6f
                     tag = "drag_handle"
                 }
@@ -603,7 +590,6 @@ class HomeLayoutActivity : BaseActivity() {
     }
 
     private fun beginDrag(wrapper: FrameLayout, rawY: Float) {
-        draggedView = wrapper
         dragStartRawY = rawY
         wrapper.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
         wrapper.animate()
@@ -646,7 +632,6 @@ class HomeLayoutActivity : BaseActivity() {
                     add(i, comp)
                 }
                 currentOrder = newOrder
-                saveOrder()
 
                 parent.removeView(dragged)
                 parent.addView(dragged, i)
@@ -668,8 +653,14 @@ class HomeLayoutActivity : BaseActivity() {
             .setDuration(200)
             .setInterpolator(DecelerateInterpolator())
             .start()
-        binding.previewRoot.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
-        draggedView = null
+        val feedback = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            HapticFeedbackConstants.CONFIRM
+        } else {
+            HapticFeedbackConstants.VIRTUAL_KEY
+        }
+        binding.previewRoot.performHapticFeedback(feedback)
+        // Persisted once per gesture rather than on every crossing during the drag.
+        saveOrder()
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -679,8 +670,6 @@ class HomeLayoutActivity : BaseActivity() {
     private fun enterEditMode(rebuild: Boolean = true) {
         if (isEditMode) return
         isEditMode = true
-        selectedComponent = null
-        hideSliderSheet()
         binding.btnDone.visibility = View.VISIBLE
         binding.previewRoot.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
         if (rebuild) {
@@ -713,6 +702,7 @@ class HomeLayoutActivity : BaseActivity() {
                         marginEnd = dp(4)
                     }
                     background = null
+                    contentDescription = getString(R.string.cd_toggle_visibility)
                     scaleType = android.widget.ImageView.ScaleType.CENTER_INSIDE
                     alpha = 0.9f
                     tag = "eye_button"
@@ -759,8 +749,7 @@ class HomeLayoutActivity : BaseActivity() {
 
     private fun onWrapperClicked(component: HomeLayoutPreferences.Component) {
         if (isEditMode) return
-        // Size adjustment is no longer offered from this screen;
-        // only allow picking a widget when none is configured.
+        // Outside edit mode a tap only offers to pick a widget when none is configured.
         if (component == HomeLayoutPreferences.Component.WIDGET &&
             WidgetPreferences.getWidgetId(this) == WidgetPreferences.INVALID_WIDGET_ID) {
             launchWidgetPicker()
@@ -788,110 +777,11 @@ class HomeLayoutActivity : BaseActivity() {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // Slider sheet
-    // ═══════════════════════════════════════════════════════════════
-
-    private fun setupSliderSheet() {
-        binding.sliderSize.addOnChangeListener { _, value, fromUser ->
-            if (!fromUser) return@addOnChangeListener
-            when (selectedComponent) {
-                HomeLayoutPreferences.Component.CLOCK -> {
-                    currentClockWeight = value.toInt()
-                }
-                HomeLayoutPreferences.Component.WIDGET -> {
-                    currentWidgetWeight = value.toInt()
-                }
-                else -> {}
-            }
-            binding.tvSliderValue.text = "${value.toInt()}%"
-            updateComponentWeights()
-        }
-        binding.sliderSize.persistOnStop {
-            when (selectedComponent) {
-                HomeLayoutPreferences.Component.CLOCK ->
-                    HomeLayoutPreferences.setClockWeightPercent(this, currentClockWeight)
-                HomeLayoutPreferences.Component.WIDGET ->
-                    HomeLayoutPreferences.setWidgetWeightPercent(this, currentWidgetWeight)
-                else -> Unit
-            }
-        }
-    }
-
-    private fun showSliderSheet(component: HomeLayoutPreferences.Component) {
-        if (component == HomeLayoutPreferences.Component.APPS) {
-            hideSliderSheet()
-            return
-        }
-        selectedComponent = component
-        val (value, titleRes) = when (component) {
-            HomeLayoutPreferences.Component.CLOCK ->
-                currentClockWeight to R.string.home_layout_clock_size
-            HomeLayoutPreferences.Component.WIDGET ->
-                currentWidgetWeight to R.string.home_layout_widget_size
-            else -> return
-        }
-        binding.tvSliderTitle.text = getString(titleRes).lowercase()
-        binding.tvSliderValue.text = "$value%"
-        binding.sliderSize.value = value.toFloat()
-
-        if (sliderSection.visibility != View.VISIBLE) {
-            sliderSection.visibility = View.VISIBLE
-            sliderSection.alpha = 0f
-            sliderSection.animate()
-                .alpha(1f)
-                .setDuration(200)
-                .start()
-        }
-    }
-
-    private fun hideSliderSheet() {
-        selectedComponent = null
-        if (sliderSection.visibility == View.VISIBLE) {
-            sliderSection.animate()
-                .alpha(0f)
-                .setDuration(150)
-                .withEndAction { sliderSection.visibility = View.GONE }
-                .start()
-        }
-    }
-
-    private fun updateComponentWeights() {
-        val root = binding.previewRoot
-        var remainingWeight = 100
-
-        for (i in 0 until root.childCount) {
-            val child = root.getChildAt(i) as? FrameLayout ?: continue
-            val component = child.tag as? HomeLayoutPreferences.Component ?: continue
-            val weight = when (component) {
-                HomeLayoutPreferences.Component.CLOCK -> {
-                    remainingWeight -= currentClockWeight
-                    if (currentClockEnabled) currentClockWeight else 0
-                }
-                HomeLayoutPreferences.Component.WIDGET -> {
-                    remainingWeight -= currentWidgetWeight
-                    if (currentWidgetEnabled) currentWidgetWeight else 0
-                }
-                HomeLayoutPreferences.Component.APPS -> remainingWeight.coerceAtLeast(20)
-            }
-            val params = child.layoutParams as LinearLayout.LayoutParams
-            params.weight = weight.toFloat()
-            child.layoutParams = params
-        }
-        // Recalculate app item heights since the apps container may have changed size
-        val appCount = favouriteAppsAdapter.itemCount
-        if (appCount > 0) updateAppsItemHeight(appCount)
-    }
-
-    // ═══════════════════════════════════════════════════════════════
     // Widget picker launcher
     // ═══════════════════════════════════════════════════════════════
 
     private fun launchWidgetPicker() {
-        @Suppress("DEPRECATION")
-        startActivityForResult(
-            Intent(this, WidgetPickerActivity::class.java),
-            REQUEST_PICK_WIDGET
-        )
+        widgetPickerLauncher.launch(Intent(this, WidgetPickerActivity::class.java))
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -904,15 +794,13 @@ class HomeLayoutActivity : BaseActivity() {
     private fun dpF(value: Int): Float =
         value * resources.displayMetrics.density
 
-    private fun isTouchInsideView(event: MotionEvent, view: View): Boolean {
-        val loc = IntArray(2)
-        view.getLocationOnScreen(loc)
-        return event.rawX >= loc[0] && event.rawX <= loc[0] + view.width &&
-               event.rawY >= loc[1] && event.rawY <= loc[1] + view.height
-    }
-
     companion object {
         private const val TAG = "HomeLayoutActivity"
-        private const val REQUEST_PICK_WIDGET = 3001
+
+        // Share of the preview's height given to each component. The preview only has to
+        // convey the order and visibility; the real home screen sizes them by content.
+        private const val CLOCK_PREVIEW_WEIGHT = 38
+        private const val WIDGET_PREVIEW_WEIGHT = 25
+        private const val MIN_APPS_PREVIEW_WEIGHT = 20
     }
 }

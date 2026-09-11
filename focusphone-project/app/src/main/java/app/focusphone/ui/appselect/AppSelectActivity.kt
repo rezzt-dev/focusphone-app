@@ -1,11 +1,8 @@
 package app.focusphone.ui.appselect
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -25,6 +22,7 @@ import app.focusphone.domain.util.normalizeAppName
 import android.view.ViewGroup
 import kotlinx.coroutines.launch
 import androidx.core.view.updatePadding
+import app.focusphone.util.LauncherUtils
 
 class AppSelectActivity : BaseActivity() {
 
@@ -54,26 +52,9 @@ class AppSelectActivity : BaseActivity() {
                     1 -> {
                         focusPhoneApp.container.appRepository.invalidateCache()
 
-                        val uri = Uri.fromParts("package", app.packageName, null)
                         Toast.makeText(this@AppSelectActivity, R.string.uninstall_progress, Toast.LENGTH_SHORT).show()
-                        try {
-                            startActivity(
-                                Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
-                                    data = uri
-                                }
-                            )
-                        } catch (e: Exception) {
-                            Log.w("AppSelectActivity", "ACTION_UNINSTALL_PACKAGE failed for ${app.packageName}", e)
-                            try {
-                                startActivity(
-                                    Intent(Intent.ACTION_DELETE).apply {
-                                        data = uri
-                                    }
-                                )
-                            } catch (e2: Exception) {
-                                Log.e("AppSelectActivity", "ACTION_DELETE also failed for ${app.packageName}", e2)
-                                Toast.makeText(this@AppSelectActivity, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
-                            }
+                        if (!LauncherUtils.requestUninstall(this@AppSelectActivity, app.packageName)) {
+                            Toast.makeText(this@AppSelectActivity, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
                         }
                     }
                 }

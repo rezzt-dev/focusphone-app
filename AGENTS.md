@@ -150,7 +150,7 @@ app/src/main/java/app/focusphone/
 - `res/values/themes.xml` — 4 built-in themes + `Base.Theme.FocusPhone` + custom widget/dialog styles.
   Each theme also redirects the Material 3 roles it does not define to its own colours, so the M3
   baseline (purple) never leaks into the monochrome UI.
-- `res/values-night/themes.xml` — intentionally empty; day/night is handled manually via `THEME_AUTO` resolving to explicit themes.
+- There is no `values-night/`: day/night is handled manually via `THEME_AUTO` resolving to explicit themes.
 - `res/drawable/` — custom shapes, theme preview circles, tutorial icons.
 - `res/anim/fp_fade_in.xml` & `fp_fade_out.xml` — used by `BaseActivity` for consistent Activity transitions.
 
@@ -329,6 +329,9 @@ every match flat.
 - Picked images are copied (downscaled, EXIF-rotated) into `filesDir/wallpapers` by
   `WallpaperStorage`; preferences store the `file://` URI of the copy. The Photo Picker
   grant dies with the process, so a `content://` URI must never be stored.
+- Assign or remove an image only through `WallpaperPreferences.assignWallpaper` (it honours
+  the shared-wallpaper mode) inside `WallpaperStorage.replace`/`remove`, which delete the
+  copies no preference refers to any more.
 - The password dialogs set `FLAG_SECURE`, and the rule list is not rendered at all until
   the password check succeeds.
 - `ScheduleBlockedActivity` intentionally offers no unlock button: rules can only be
@@ -344,6 +347,7 @@ every match flat.
 
 ### Backup Policy
 - `android:allowBackup="false"` is set globally to prevent `adb backup` and cloud backup from leaking user metadata (favourite apps, themes, custom labels, profile state).
+- From Android 12 `allowBackup` no longer covers device-to-device transfer, so `res/xml/data_extraction_rules.xml` (referenced by `android:dataExtractionRules`) excludes every domain from both cloud backup and device transfer. Encrypted values are bound to a Keystore key that never leaves the device, so a restored copy could not be read anyway.
 
 ### Custom Theme Colors
 - Custom hex colors are validated with a strict regex (`^#[0-9A-Fa-f]{6}$`) before parsing. Invalid values fall back to safe defaults (`#181818` / `#FAFAFA`).

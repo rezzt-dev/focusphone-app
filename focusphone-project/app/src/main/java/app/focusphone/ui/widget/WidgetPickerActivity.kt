@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.os.BundleCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -43,6 +45,14 @@ class WidgetPickerActivity : BaseActivity() {
 
     private val appWidgetManager by lazy { AppWidgetManager.getInstance(this) }
 
+    private val bindLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result -> handleBindResult(result.resultCode) }
+
+    private val configureLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result -> handleConfigureResult(result.resultCode) }
+
     // ── Lifecycle ──────────────────────────────────────────────────
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +62,9 @@ class WidgetPickerActivity : BaseActivity() {
         setContentView(binding.root)
 
         allocatedWidgetId = savedInstanceState?.getInt(KEY_ALLOCATED_WIDGET_ID, INVALID_WIDGET_ID) ?: INVALID_WIDGET_ID
-        pendingProvider = savedInstanceState?.getParcelable(KEY_PENDING_PROVIDER)
+        pendingProvider = savedInstanceState?.let {
+            BundleCompat.getParcelable(it, KEY_PENDING_PROVIDER, ComponentName::class.java)
+        }
 
         setupInsets()
         setupRecyclerView()
@@ -146,8 +158,7 @@ class WidgetPickerActivity : BaseActivity() {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider)
             }
             try {
-                @Suppress("DEPRECATION")
-                startActivityForResult(bindIntent, REQUEST_BIND_WIDGET)
+                bindLauncher.launch(bindIntent)
                 return
             } catch (e: Exception) {
                 Log.e(TAG, "Unable to start bind activity", e)
@@ -175,8 +186,7 @@ class WidgetPickerActivity : BaseActivity() {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
             }
             try {
-                @Suppress("DEPRECATION")
-                startActivityForResult(configureIntent, REQUEST_CONFIGURE_WIDGET)
+                configureLauncher.launch(configureIntent)
                 return
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to launch widget configuration", e)
@@ -188,16 +198,6 @@ class WidgetPickerActivity : BaseActivity() {
     }
 
     // ── Activity results ───────────────────────────────────────────
-
-    @Suppress("DEPRECATION")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        when (requestCode) {
-            REQUEST_BIND_WIDGET -> handleBindResult(resultCode)
-            REQUEST_CONFIGURE_WIDGET -> handleConfigureResult(resultCode)
-        }
-    }
 
     private fun handleBindResult(resultCode: Int) {
         val widgetId = allocatedWidgetId
@@ -259,8 +259,6 @@ class WidgetPickerActivity : BaseActivity() {
 
     companion object {
         private const val TAG = "WidgetPickerActivity"
-        private const val REQUEST_BIND_WIDGET = 2001
-        private const val REQUEST_CONFIGURE_WIDGET = 2002
         private const val INVALID_WIDGET_ID = -1
 
         private const val KEY_ALLOCATED_WIDGET_ID = "allocated_widget_id"

@@ -615,5 +615,7 @@ cuarenta y uno</string>
     </plurals>
     <string name="error_save_failed">no se pudo guardar. inténtalo de nuevo</string>
     <string name="settings_wallpaper_import_failed">no se pudo usar esta imagen</string>
+    <string name="settings_wallpaper_change">elegir otra imagen</string>
+    <string name="settings_wallpaper_remove">quitar fondo</string>
     <string name="wallpaper_access_lost">no se pudo leer un fondo de pantalla y se ha quitado. vuelve a elegirlo</string>
 </resources>

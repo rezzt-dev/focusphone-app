@@ -1,7 +1,6 @@
 package app.focusphone.ui.allapps
 
 import android.graphics.Canvas
-import android.graphics.drawable.ColorDrawable
 import android.view.HapticFeedbackConstants
 import android.view.ViewConfiguration
 import androidx.core.graphics.ColorUtils
@@ -10,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import app.focusphone.domain.model.AppInfo
 import app.focusphone.ui.theme.FocusPalette
 import kotlin.math.abs
+import androidx.core.graphics.drawable.toDrawable
 
 /**
  * Drag & drop of apps into folders in the "all apps" drawer.
@@ -176,7 +176,7 @@ class FolderDragCallback(
 
     /** Tints every visible row of [folderId] so the drop target is obvious. */
     private fun highlight(recyclerView: RecyclerView, folderId: String?) {
-        val tint = if (folderId == null) null else ColorDrawable(dragHighlightColor)
+        val tint = if (folderId == null) null else dragHighlightColor.toDrawable()
         for (i in 0 until recyclerView.childCount) {
             val child = recyclerView.getChildAt(i)
             val row = rowAt(recyclerView.getChildAdapterPosition(child))

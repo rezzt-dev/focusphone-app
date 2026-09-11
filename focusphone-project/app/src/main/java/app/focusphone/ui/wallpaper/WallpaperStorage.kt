@@ -6,6 +6,7 @@ import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import app.focusphone.data.preferences.WallpaperPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -73,6 +74,20 @@ object WallpaperStorage {
             }
         }
 
+    /**
+     * Runs [unassign], which must remove a reference from the preferences, and deletes the
+     * copies nothing refers to any more. Holding the lock keeps a concurrent import from
+     * seeing its fresh copy deleted.
+     */
+    suspend fun remove(context: Context, unassign: () -> Unit) =
+        withContext(Dispatchers.IO) {
+            val appContext = context.applicationContext
+            lock.withLock {
+                unassign()
+                pruneUnreferenced(appContext)
+            }
+        }
+
     /** Loads the wallpaper stored as [uriString], migrating a legacy reference first. */
     suspend fun load(
         context: Context,
@@ -107,7 +122,7 @@ object WallpaperStorage {
     private suspend fun migrateLegacy(context: Context, uriString: String): String? = lock.withLock {
         migrated[uriString]?.let { return@withLock it }
 
-        val copy = copyToPrivateStorage(context, Uri.parse(uriString))
+        val copy = copyToPrivateStorage(context, uriString.toUri())
         if (copy == null) {
             Log.w(TAG, "Legacy wallpaper is no longer readable; forgetting it")
             WallpaperPreferences.removeUri(context, uriString)
@@ -124,7 +139,7 @@ object WallpaperStorage {
     private fun directory(context: Context): File = File(context.filesDir, DIRECTORY)
 
     private fun fileOf(uriString: String): File? =
-        Uri.parse(uriString).takeIf { it.scheme == "file" }?.path?.let(::File)
+        uriString.toUri().takeIf { it.scheme == "file" }?.path?.let(::File)
 
     private fun isPrivate(context: Context, uriString: String): Boolean {
         val file = fileOf(uriString) ?: return false

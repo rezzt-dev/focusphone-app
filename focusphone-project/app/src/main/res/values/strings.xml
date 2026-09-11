@@ -605,5 +605,7 @@ forty-one</string>
     </plurals>
     <string name="error_save_failed">could not save. please try again</string>
     <string name="settings_wallpaper_import_failed">could not use this image</string>
+    <string name="settings_wallpaper_change">choose another image</string>
+    <string name="settings_wallpaper_remove">remove wallpaper</string>
     <string name="wallpaper_access_lost">a wallpaper could no longer be read and was removed. please choose it again</string>
 </resources>

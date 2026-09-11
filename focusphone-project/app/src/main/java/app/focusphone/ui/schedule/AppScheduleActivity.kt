@@ -1,6 +1,5 @@
 package app.focusphone.ui.schedule
 
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
@@ -24,6 +23,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.core.graphics.drawable.toDrawable
 
 /**
  * Password-protected screen listing every app with a time restriction.
@@ -140,7 +140,7 @@ class AppScheduleActivity : SettingsSubActivity() {
         val dialog = AlertDialog.Builder(this).setView(view).setCancelable(false).create()
 
         dialog.window?.apply {
-            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+            setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
             // Passwords are typed here: keep them out of screenshots and screen recordings.
             addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
@@ -395,11 +395,5 @@ class AppScheduleActivity : SettingsSubActivity() {
             }
             .create()
             .also { showStyledDialog(it) }
-    }
-
-    companion object {
-        /** Opens the schedule settings from anywhere in the app. */
-        fun newIntent(context: android.content.Context): Intent =
-            Intent(context, AppScheduleActivity::class.java)
     }
 }

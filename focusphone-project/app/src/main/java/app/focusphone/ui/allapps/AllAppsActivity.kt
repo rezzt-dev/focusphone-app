@@ -1,7 +1,6 @@
 package app.focusphone.ui.allapps
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -54,6 +53,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.core.view.updatePadding
+import app.focusphone.util.LauncherUtils
 
 // ── ViewModel ──────────────────────────────────────────────────────
 
@@ -407,18 +407,9 @@ class AllAppsActivity : BaseActivity() {
     focusPhoneApp.container.appRepository.invalidateCache()
     pendingRefresh = true
 
-    val uri = Uri.fromParts("package", app.packageName, null)
     toast(getString(R.string.uninstall_progress))
-    try {
-      startActivity(Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply { data = uri })
-    } catch (e: Exception) {
-      Log.w("AllAppsActivity", "ACTION_UNINSTALL_PACKAGE failed for ${app.packageName}", e)
-      try {
-        startActivity(Intent(Intent.ACTION_DELETE).apply { data = uri })
-      } catch (e2: Exception) {
-        Log.e("AllAppsActivity", "ACTION_DELETE also failed for ${app.packageName}", e2)
-        Toast.makeText(this, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
-      }
+    if (!LauncherUtils.requestUninstall(this, app.packageName)) {
+      Toast.makeText(this, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
     }
   }
 

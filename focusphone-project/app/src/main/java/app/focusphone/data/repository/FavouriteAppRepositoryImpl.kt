@@ -1,5 +1,6 @@
 package app.focusphone.data.repository
 
+import androidx.core.content.edit
 import android.content.Context
 import android.util.Log
 import app.focusphone.data.local.FavouriteAppDao
@@ -58,7 +59,7 @@ class FavouriteAppRepositoryImpl(
                         .take(ToggleFavouriteAppUseCase.MAX_FAVOURITES)
                         .mapIndexed { index, app -> app.copy(sortOrder = index) }
                     dao.insertAll(apps)
-                    oldPrefs.edit().remove("apps").apply()
+                    oldPrefs.edit { remove("apps") }
                 } catch (e: Exception) {
                     Log.e("FavRepo", "Migration failed", e)
                 }

@@ -1,5 +1,6 @@
 package app.focusphone.data.preferences
 
+import androidx.core.content.edit
 import android.content.Context
 
 /**
@@ -24,14 +25,14 @@ object TutorialPreferences {
 
     /** Marks the entire tutorial as completed. */
     fun markTutorialComplete(context: Context) =
-        prefs(context).edit().putBoolean(KEY_TUTORIAL_COMPLETED, true).apply()
+        prefs(context).edit { putBoolean(KEY_TUTORIAL_COMPLETED, true) }
 
     /** Resets the tutorial so it can be shown again from the beginning. */
     fun resetTutorial(context: Context) =
-        prefs(context).edit()
-            .putBoolean(KEY_TUTORIAL_COMPLETED, false)
-            .putInt(KEY_CURRENT_STEP, 0)
-            .apply()
+        prefs(context).edit {
+            putBoolean(KEY_TUTORIAL_COMPLETED, false)
+            putInt(KEY_CURRENT_STEP, 0)
+        }
 
     /** The current tutorial step index (0-based). Defaults to 0. */
     fun getCurrentStep(context: Context): Int =
@@ -39,9 +40,9 @@ object TutorialPreferences {
 
     /** Advances to the next step. */
     fun setCurrentStep(context: Context, step: Int) =
-        prefs(context).edit().putInt(KEY_CURRENT_STEP, step).apply()
+        prefs(context).edit { putInt(KEY_CURRENT_STEP, step) }
 
     /** Resets the contextual tutorial state when onboarding is restarted. */
     fun clearAll(context: Context) =
-        prefs(context).edit().clear().apply()
+        prefs(context).edit { clear() }
 }

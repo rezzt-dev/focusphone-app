@@ -1,5 +1,6 @@
 package app.focusphone.ui.home
 
+import androidx.core.content.edit
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -87,6 +88,9 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import app.focusphone.ui.theme.FocusColors
+import androidx.core.view.isVisible
+import androidx.core.view.isNotEmpty
+import androidx.core.graphics.drawable.toDrawable
 
 class HomeActivity : BaseActivity() {
 
@@ -234,21 +238,7 @@ class HomeActivity : BaseActivity() {
         applyHomeLayout()
         refreshNotificationPanelState()
         adapter.updateTypeface(FontPreferences.getTypeface(this))
-
-        val gravity = when (app.focusphone.data.preferences.ThemePreferences.getAlignment(this)) {
-            app.focusphone.data.preferences.ThemePreferences.ALIGN_LEFT -> android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
-            app.focusphone.data.preferences.ThemePreferences.ALIGN_RIGHT -> android.view.Gravity.END or android.view.Gravity.CENTER_VERTICAL
-            else -> android.view.Gravity.CENTER_HORIZONTAL or android.view.Gravity.CENTER_VERTICAL
-        }
-        adapter.updateAlignment(gravity)
-        val emptyGravity = when (app.focusphone.data.preferences.ThemePreferences.getAlignment(this)) {
-            app.focusphone.data.preferences.ThemePreferences.ALIGN_LEFT -> android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
-            app.focusphone.data.preferences.ThemePreferences.ALIGN_RIGHT -> android.view.Gravity.END or android.view.Gravity.CENTER_VERTICAL
-            else -> android.view.Gravity.CENTER_HORIZONTAL or android.view.Gravity.CENTER_VERTICAL
-        }
-        val emptyParams = binding.tvEmpty.layoutParams as android.widget.FrameLayout.LayoutParams
-        emptyParams.gravity = emptyGravity
-        binding.tvEmpty.layoutParams = emptyParams
+        applyAlignment()
         populateCalendar()
         updateGestureExclusionRects()
         applyAppSpacing()
@@ -546,9 +536,18 @@ class HomeActivity : BaseActivity() {
         val rvParams = binding.rvFavouriteApps.layoutParams as android.widget.FrameLayout.LayoutParams
         rvParams.gravity = android.view.Gravity.CENTER_VERTICAL
         binding.rvFavouriteApps.layoutParams = rvParams
+    }
 
+    /** Aligns the favourite list and its empty-state message with the user's setting. */
+    private fun applyAlignment() {
+        val gravity = when (ThemePreferences.getAlignment(this)) {
+            ThemePreferences.ALIGN_LEFT -> Gravity.START or Gravity.CENTER_VERTICAL
+            ThemePreferences.ALIGN_RIGHT -> Gravity.END or Gravity.CENTER_VERTICAL
+            else -> Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL
+        }
+        adapter.updateAlignment(gravity)
         val emptyParams = binding.tvEmpty.layoutParams as android.widget.FrameLayout.LayoutParams
-        emptyParams.gravity = android.view.Gravity.CENTER_VERTICAL
+        emptyParams.gravity = gravity
         binding.tvEmpty.layoutParams = emptyParams
     }
 
@@ -606,9 +605,9 @@ class HomeActivity : BaseActivity() {
      */
     private fun adjustRootGravity() {
         val fixedTop = HomeLayoutPreferences.isClockFixedTop(this)
-        val noApps = binding.tvEmpty.visibility == View.VISIBLE
-        val noWidget = binding.widgetContainer.visibility != View.VISIBLE
-        val clockVisible = binding.clockContainer.visibility == View.VISIBLE
+        val noApps = binding.tvEmpty.isVisible
+        val noWidget = !binding.widgetContainer.isVisible
+        val clockVisible = binding.clockContainer.isVisible
 
         val isSeparatedMode = fixedTop || (clockVisible && noApps && noWidget)
 
@@ -720,12 +719,12 @@ class HomeActivity : BaseActivity() {
 
         // Calculate available vertical space for the apps section.
         val rootHeight = binding.rootHome.height - binding.rootHome.paddingTop - binding.rootHome.paddingBottom
-        val clockHeight = if (binding.clockContainer.visibility == View.VISIBLE) binding.clockContainer.height else 0
-        val widgetHeight = if (binding.widgetContainer.visibility == View.VISIBLE) binding.widgetContainer.height else 0
+        val clockHeight = if (binding.clockContainer.isVisible) binding.clockContainer.height else 0
+        val widgetHeight = if (binding.widgetContainer.isVisible) binding.widgetContainer.height else 0
         val availableHeight = rootHeight - clockHeight - widgetHeight
 
         // Estimate each item's natural height (wrap_content).
-        val estimatedItemHeight = if (binding.rvFavouriteApps.childCount > 0) {
+        val estimatedItemHeight = if (binding.rvFavouriteApps.isNotEmpty()) {
             binding.rvFavouriteApps.getChildAt(0).height
         } else {
             dp(56)
@@ -807,7 +806,7 @@ class HomeActivity : BaseActivity() {
     private fun showIndicatorsWithTimeout() {
         hideRunnable?.let { binding.indicatorContainer.removeCallbacks(it) }
         
-        if (binding.indicatorContainer.visibility != View.VISIBLE) {
+        if (!binding.indicatorContainer.isVisible) {
             binding.indicatorContainer.visibility = View.VISIBLE
             binding.indicatorContainer.alpha = 0f
             binding.indicatorContainer.animate()
@@ -912,7 +911,7 @@ class HomeActivity : BaseActivity() {
             .setView(view)
             .create()
 
-        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        dialog.window?.setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
 
         view.findViewById<View>(R.id.btn_profile_normal).setOnClickListener {
             changeProfileWithDetoxCheck(ProfilePreferences.PROFILE_NORMAL) {
@@ -955,7 +954,7 @@ class HomeActivity : BaseActivity() {
             .setView(view)
             .create()
 
-        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        dialog.window?.setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
 
         val durationMs = arrayOf(
             15 * 60 * 1000L,
@@ -1014,7 +1013,7 @@ class HomeActivity : BaseActivity() {
             .setView(view)
             .create()
 
-        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        dialog.window?.setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
 
         val etHours = view.findViewById<android.widget.EditText>(R.id.et_hours)
         val etMinutes = view.findViewById<android.widget.EditText>(R.id.et_minutes)
@@ -1047,7 +1046,7 @@ class HomeActivity : BaseActivity() {
             .create()
 
         dialog.window?.apply {
-            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+            setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
             addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
 
@@ -1095,7 +1094,7 @@ class HomeActivity : BaseActivity() {
                 delay(1500)
                 if (isFinishing || isDestroyed) return@launch
                 Toast.makeText(this@HomeActivity, R.string.home_long_press_hint, Toast.LENGTH_LONG).show()
-                prefs.edit().putBoolean("hint_long_press_shown", true).apply()
+                prefs.edit { putBoolean("hint_long_press_shown", true) }
             }
         }
     }
@@ -1333,26 +1332,9 @@ class HomeActivity : BaseActivity() {
                     focusPhoneApp.container.appRepository.invalidateCache()
                     pendingVerify = true // force verify on next resume
 
-                    val uri = Uri.fromParts("package", app.packageName, null)
                     Toast.makeText(this@HomeActivity, R.string.uninstall_progress, Toast.LENGTH_SHORT).show()
-                    try {
-                        startActivity(
-                            Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
-                                data = uri
-                            }
-                        )
-                    } catch (e: Exception) {
-                        Log.w("HomeActivity", "ACTION_UNINSTALL_PACKAGE failed for ${app.packageName}", e)
-                        try {
-                            startActivity(
-                                Intent(Intent.ACTION_DELETE).apply {
-                                    data = uri
-                                }
-                            )
-                        } catch (e2: Exception) {
-                            Log.e("HomeActivity", "ACTION_DELETE also failed for ${app.packageName}", e2)
-                            Toast.makeText(this@HomeActivity, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
-                        }
+                    if (!LauncherUtils.requestUninstall(this@HomeActivity, app.packageName)) {
+                        Toast.makeText(this@HomeActivity, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
                     }
                 }
                 else -> {
@@ -1642,7 +1624,7 @@ class HomeActivity : BaseActivity() {
         TutorialStepConfig(
             page = TutorialContent.guidePage(TutorialTopic.APPS),
             viewProvider = {
-                if (adapter.itemCount > 0 && binding.rvFavouriteApps.childCount > 0) {
+                if (adapter.itemCount > 0 && binding.rvFavouriteApps.isNotEmpty()) {
                     binding.rvFavouriteApps.getChildAt(0)
                 } else {
                     binding.tvEmpty

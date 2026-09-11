@@ -15,6 +15,8 @@ import app.focusphone.data.preferences.WallpaperPreferences
 import app.focusphone.data.preferences.WallpaperTarget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.core.net.toUri
+import androidx.core.graphics.scale
 
 /**
  * Helper for loading, blurring and applying user-selected wallpapers.
@@ -73,7 +75,7 @@ object WallpaperUtils {
             bitmapCache.get(key)?.takeUnless { it.bitmap.isRecycled }
         }?.let { return@withContext it }
 
-        val decoded = decodeSampled(context, Uri.parse(uriString)) ?: return@withContext null
+        val decoded = decodeSampled(context, uriString.toUri()) ?: return@withContext null
         val useSoftwareBlur = blurEnabled && blurRadius > 0.5f && Build.VERSION.SDK_INT < Build.VERSION_CODES.S
         val prepared = if (useSoftwareBlur) {
             val blurred = blurBitmap(decoded, blurRadius)
@@ -176,7 +178,7 @@ object WallpaperUtils {
         val scaleFactor = (1 + radius / 8).coerceIn(1f, 16f)
         val scaledWidth = (source.width / scaleFactor).toInt().coerceAtLeast(1)
         val scaledHeight = (source.height / scaleFactor).toInt().coerceAtLeast(1)
-        val scaled = Bitmap.createScaledBitmap(source, scaledWidth, scaledHeight, true)
+        val scaled = source.scale(scaledWidth, scaledHeight)
         val result = Bitmap.createScaledBitmap(scaled, source.width, source.height, true)
         if (scaled !== source && scaled !== result) scaled.recycle()
         return result
