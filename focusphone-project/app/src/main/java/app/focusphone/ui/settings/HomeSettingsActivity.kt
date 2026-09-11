@@ -13,6 +13,7 @@ import app.focusphone.databinding.ItemSettingsClockTypeBinding
 import app.focusphone.databinding.SettingsSliderRowBinding
 import app.focusphone.domain.model.ClockType
 import app.focusphone.ui.widget.AppWidgetHostManager
+import app.focusphone.ui.util.currentWindowWidthPx
 import app.focusphone.ui.widget.WidgetPickerActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
@@ -164,7 +165,7 @@ class HomeSettingsActivity : SettingsSubActivity() {
      * no layout pass that resizes the tiles under the user.
      */
     private fun clockTilePreviewWidthPx(): Int {
-        val rowWidth = resources.displayMetrics.widthPixels - 2 * dp(CLOCK_ROW_PADDING_DP)
+        val rowWidth = currentWindowWidthPx() - 2 * dp(CLOCK_ROW_PADDING_DP)
         val tileWidth = rowWidth / ClockType.entries.size
         return tileWidth - dp(CLOCK_TILE_MARGIN_DP) - 2 * dp(CLOCK_TILE_PADDING_DP)
     }

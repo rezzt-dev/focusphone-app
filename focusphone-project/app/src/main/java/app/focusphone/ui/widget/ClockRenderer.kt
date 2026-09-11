@@ -26,6 +26,12 @@ class ClockRenderer(
 
     private var appliedType: ClockType? = null
 
+    // Cached rather than instantiated on every render() call (each tick of the clock).
+    // The time format defers to the system's 12/24-hour setting instead of hardcoding
+    // "HH:mm", which always rendered 24-hour time even in 12-hour locales (FP-057).
+    private val timeFormat: java.text.DateFormat by lazy { android.text.format.DateFormat.getTimeFormat(context) }
+    private val dateFormat: SimpleDateFormat by lazy { SimpleDateFormat("EEEE, d MMMM", Locale.getDefault()) }
+
     /** Applies the selected clock variant without touching unrelated home layout state. */
     fun applyType(type: ClockType) {
         if (type == appliedType) return
@@ -67,8 +73,8 @@ class ClockRenderer(
         val calendar = Calendar.getInstance().apply { time = now }
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
-        val date = SimpleDateFormat("EEEE, d MMMM", locale).format(now).lowercase(locale)
-        val time = SimpleDateFormat("HH:mm", locale).format(now)
+        val date = dateFormat.format(now).lowercase(locale)
+        val time = timeFormat.format(now)
 
         setText(R.id.tv_time, time)
         setText(R.id.tv_date, date)

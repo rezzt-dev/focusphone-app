@@ -13,6 +13,7 @@ import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
@@ -559,7 +560,7 @@ class HomeLayoutActivity : BaseActivity() {
                     wrapper.parent.requestDisallowInterceptTouchEvent(true)
                     longPressRunnable = Runnable {
                         if (!isEditMode) enterEditMode()
-                    }.also { handler.postDelayed(it, 200) }
+                    }.also { handler.postDelayed(it, ViewConfiguration.getLongPressTimeout().toLong()) }
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (longPressRunnable != null) {

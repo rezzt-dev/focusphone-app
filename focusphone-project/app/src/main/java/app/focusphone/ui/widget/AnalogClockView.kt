@@ -83,9 +83,14 @@ class AnalogClockView @JvmOverloads constructor(
     }
 
     private fun updateContentDescription() {
-        val displayHour = if (hours % 12 == 0) 12 else hours % 12
-        val amPm = if (hours >= 12) context.getString(R.string.clock_pm) else context.getString(R.string.clock_am)
-        val desc = String.format("%02d:%02d %s", displayHour, minutes, amPm)
+        val locale = context.resources.configuration.locales[0]
+        val desc = if (android.text.format.DateFormat.is24HourFormat(context)) {
+            String.format(locale, "%02d:%02d", hours, minutes)
+        } else {
+            val displayHour = if (hours % 12 == 0) 12 else hours % 12
+            val amPm = if (hours >= 12) context.getString(R.string.clock_pm) else context.getString(R.string.clock_am)
+            String.format(locale, "%02d:%02d %s", displayHour, minutes, amPm)
+        }
         ViewCompat.setStateDescription(this, desc)
         contentDescription = desc
     }

@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
+import java.lang.ref.WeakReference
 import android.view.accessibility.AccessibilityEvent
 import androidx.core.content.ContextCompat
 import app.focusphone.data.preferences.AppSchedulePreferences
@@ -110,6 +111,7 @@ class FocusAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        activeInstance = WeakReference(this)
         refreshCache(force = true)
         handler.removeCallbacks(diskFlushTick)
         handler.postDelayed(diskFlushTick, DISK_FLUSH_INTERVAL_MS)
@@ -403,6 +405,7 @@ class FocusAccessibilityService : AccessibilityService() {
     private fun release() {
         if (released) return
         released = true
+        if (activeInstance?.get() === this) activeInstance = null
         flushForegroundUsage()
         cancelUsageTick()
         handler.removeCallbacks(diskFlushTick)
@@ -415,6 +418,22 @@ class FocusAccessibilityService : AccessibilityService() {
     }
 
     companion object {
+
+        /** Currently connected instance, if any. Used to expand the notification shade
+         * via the officially supported [performGlobalAction] route instead of the
+         * reflection-based [android.app.StatusBarManager] call, which is blocked by the
+         * non-SDK interface restrictions on modern Android (see FP-038). */
+        private var activeInstance: WeakReference<FocusAccessibilityService>? = null
+
+        /**
+         * Expands the system notification shade using [AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS]
+         * if the service is currently connected. Returns `false` when the service is not
+         * enabled, so the caller can fall back to another mechanism.
+         */
+        fun expandNotifications(): Boolean {
+            val service = activeInstance?.get() ?: return false
+            return service.performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
+        }
 
         private const val CACHE_TTL_MS = 3000L
 

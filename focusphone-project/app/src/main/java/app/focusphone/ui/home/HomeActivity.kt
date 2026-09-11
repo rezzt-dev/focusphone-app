@@ -71,6 +71,7 @@ import app.focusphone.ui.settings.SettingsActivity
 import app.focusphone.ui.theme.ScrimSurface
 import app.focusphone.ui.theme.SurfaceScrim
 import app.focusphone.ui.tutorial.TutorialContent
+import app.focusphone.ui.util.currentWindowWidthPx
 import app.focusphone.ui.tutorial.TutorialOverlayView
 import app.focusphone.ui.tutorial.TutorialPage
 import app.focusphone.ui.tutorial.TutorialTopic
@@ -489,11 +490,15 @@ class HomeActivity : BaseActivity() {
     }
 
     // "statusbar" is the service name behind Context.STATUS_BAR_SERVICE, which only became
-    // public in API 33 and is absent from getSystemService's @StringDef; the reflective
-    // expand call itself is tracked separately (FP-038).
+    // public in API 33 and is absent from getSystemService's @StringDef.
     @SuppressLint("WrongConstant")
     private fun expandNotificationsPanel() {
         if (!GesturePreferences.isSwipeDownEnabled(this)) return
+        // Preferred, officially supported route: GLOBAL_ACTION_NOTIFICATIONS via our own
+        // accessibility service. Falls back to reflection only when that service is not
+        // enabled — reflection into StatusBarManager is blocked by the non-SDK interface
+        // list on API 31+ and only works, if at all, on older devices (FP-038).
+        if (FocusAccessibilityService.expandNotifications()) return
         try {
             val statusBarService = getSystemService(STATUS_BAR_SERVICE_NAME)
             val method = statusBarService?.javaClass?.getMethod("expandNotificationsPanel")
@@ -745,14 +750,14 @@ class HomeActivity : BaseActivity() {
     // ── Drawer Menu ────────────────────────────────────────────────
 
     private fun setupDrawerPushEffect() {
-        // Force both drawers to take up the full screen width so text centers perfectly
-        val menuParams = binding.drawerMenu.layoutParams as androidx.drawerlayout.widget.DrawerLayout.LayoutParams
-        menuParams.width = resources.displayMetrics.widthPixels
-        binding.drawerMenu.layoutParams = menuParams
-
-        val notifParams = binding.drawerNotifications.layoutParams as androidx.drawerlayout.widget.DrawerLayout.LayoutParams
-        notifParams.width = resources.displayMetrics.widthPixels
-        binding.drawerNotifications.layoutParams = notifParams
+        // Force both drawers to take up the full window width so text centers perfectly.
+        // The window's own layout pass (not the display size) is the source of truth, so
+        // this stays correct across multi-window resizes and foldable posture changes
+        // (FP-039).
+        applyDrawerWidths()
+        binding.drawerLayout.addOnLayoutChangeListener { _, left, _, right, _, oldLeft, _, oldRight, _ ->
+            if (right - left != oldRight - oldLeft) applyDrawerWidths()
+        }
 
         binding.drawerLayout.setScrimColor(Color.TRANSPARENT)
         binding.drawerLayout.drawerElevation = 0f
@@ -799,6 +804,17 @@ class HomeActivity : BaseActivity() {
 
             override fun onDrawerStateChanged(newState: Int) {}
         })
+    }
+
+    private fun applyDrawerWidths() {
+        val width = currentWindowWidthPx()
+        val menuParams = binding.drawerMenu.layoutParams as androidx.drawerlayout.widget.DrawerLayout.LayoutParams
+        menuParams.width = width
+        binding.drawerMenu.layoutParams = menuParams
+
+        val notifParams = binding.drawerNotifications.layoutParams as androidx.drawerlayout.widget.DrawerLayout.LayoutParams
+        notifParams.width = width
+        binding.drawerNotifications.layoutParams = notifParams
     }
 
     private var hideRunnable: Runnable? = null

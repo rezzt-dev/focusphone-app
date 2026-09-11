@@ -279,17 +279,23 @@ class AllAppsActivity : BaseActivity() {
     val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
       .setTitle(R.string.allapps_new_folder)
       .setView(inputContainer(input))
-      .setPositiveButton(R.string.action_save) { _, _ ->
+      // No listener here: AlertDialog dismisses before invoking it, which would discard
+      // whatever the user typed on a duplicate name. The click is intercepted below instead.
+      .setPositiveButton(R.string.action_save, null)
+      .setNegativeButton(R.string.action_cancel, null)
+      .create()
+    dialog.setOnShowListener {
+      dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
         val folder = folderPreferences.createFolder(input.text.toString())
         if (folder == null) {
-          toast(getString(R.string.allapps_folder_name_taken))
-          return@setPositiveButton
+          input.error = getString(R.string.allapps_folder_name_taken)
+          return@setOnClickListener
         }
         appToMove?.let { folderPreferences.moveAppToFolder(it.packageName, folder.id) }
         toast(getString(R.string.allapps_toast_folder_created, folder.name))
+        dialog.dismiss()
       }
-      .setNegativeButton(R.string.action_cancel, null)
-      .create()
+    }
     showStyled(dialog)
   }
 
@@ -317,13 +323,20 @@ class AllAppsActivity : BaseActivity() {
     val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
       .setTitle(R.string.allapps_folder_rename_title)
       .setView(inputContainer(input))
-      .setPositiveButton(R.string.action_save) { _, _ ->
-        if (!folderPreferences.renameFolder(folder.id, input.text.toString())) {
-          toast(getString(R.string.allapps_folder_name_taken))
-        }
-      }
+      // No listener here: AlertDialog dismisses before invoking it, which would discard
+      // whatever the user typed on a duplicate name. The click is intercepted below instead.
+      .setPositiveButton(R.string.action_save, null)
       .setNegativeButton(R.string.action_cancel, null)
       .create()
+    dialog.setOnShowListener {
+      dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        if (folderPreferences.renameFolder(folder.id, input.text.toString())) {
+          dialog.dismiss()
+        } else {
+          input.error = getString(R.string.allapps_folder_name_taken)
+        }
+      }
+    }
     showStyled(dialog)
   }
 

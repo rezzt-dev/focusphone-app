@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import app.focusphone.BuildConfig
 import app.focusphone.R
 import app.focusphone.data.preferences.FontPreferences
@@ -17,6 +18,9 @@ import app.focusphone.data.preferences.TutorialPreferences
 import app.focusphone.ui.base.BaseActivity
 import app.focusphone.ui.tutorial.TutorialContent
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * About screen: version info, privacy policy, interactive tutorial,
@@ -102,60 +106,45 @@ class AboutSettingsActivity : SettingsSubActivity() {
     }
 
     private fun showOpenSourceLicencesDialog() {
-        val htmlText = try {
-            assets.open("open_source_licenses.html").bufferedReader().use { it.readText() }
-        } catch (e: Exception) {
-            Log.w("AboutSettings", "Failed to load open_source_licenses.html from assets", e)
-            null
-        }
-
-        val scrollView = android.widget.ScrollView(this).apply {
-            setPadding(dp(24), dp(16), dp(24), dp(16))
-        }
-        val font = FontPreferences.getTypefaceOrNull(this)
-        val textView = TextView(this).apply {
-            typeface = font
-            text = htmlText ?: getString(R.string.settings_privacy_policy_fallback)
-            textSize = 14f
-            setLineSpacing(1.2f, 1.2f)
-        }
-        scrollView.addView(textView)
-
-        val dialog = AlertDialog.Builder(this)
-            .setTitle(R.string.settings_open_source)
-            .setView(scrollView)
-            .setPositiveButton(R.string.action_ok, null)
-            .create()
-        showExclusiveDialog(dialog)
+        showHtmlAssetDialog(assetName = "open_source_licenses.html", titleRes = R.string.settings_open_source)
     }
 
     private fun showPrivacyPolicyDialog() {
-        val htmlText = try {
-            assets.open("privacy_policy.html").bufferedReader().use { it.readText() }
-        } catch (e: Exception) {
-            Log.w("AboutSettings", "Failed to load privacy_policy.html from assets", e)
-            null
-        }
+        showHtmlAssetDialog(assetName = "privacy_policy.html", titleRes = R.string.settings_privacy_policy)
+    }
 
-        val scrollView = android.widget.ScrollView(this).apply {
-            setPadding(dp(24), dp(16), dp(24), dp(16))
-        }
-        val font = FontPreferences.getTypefaceOrNull(this)
-        val textView = TextView(this).apply {
-            typeface = font
-            text = htmlText?.let { android.text.Html.fromHtml(it, android.text.Html.FROM_HTML_MODE_LEGACY) }
-                ?: getString(R.string.settings_privacy_policy_fallback)
-            textSize = 14f
-            setLineSpacing(1.2f, 1.2f)
-        }
-        scrollView.addView(textView)
+    /** Reads an HTML asset off the main thread, renders it, and shows it in a scrollable dialog. */
+    private fun showHtmlAssetDialog(assetName: String, titleRes: Int) {
+        lifecycleScope.launch {
+            val htmlText = withContext(Dispatchers.IO) {
+                try {
+                    assets.open(assetName).bufferedReader().use { it.readText() }
+                } catch (e: Exception) {
+                    Log.w("AboutSettings", "Failed to load $assetName from assets", e)
+                    null
+                }
+            }
 
-        val dialog = AlertDialog.Builder(this)
-            .setTitle(R.string.settings_privacy_policy)
-            .setView(scrollView)
-            .setPositiveButton(R.string.action_ok, null)
-            .create()
-        showExclusiveDialog(dialog)
+            val scrollView = android.widget.ScrollView(this@AboutSettingsActivity).apply {
+                setPadding(dp(24), dp(16), dp(24), dp(16))
+            }
+            val font = FontPreferences.getTypefaceOrNull(this@AboutSettingsActivity)
+            val textView = TextView(this@AboutSettingsActivity).apply {
+                typeface = font
+                text = htmlText?.let { android.text.Html.fromHtml(it, android.text.Html.FROM_HTML_MODE_LEGACY) }
+                    ?: getString(R.string.settings_privacy_policy_fallback)
+                textSize = 14f
+                setLineSpacing(1.2f, 1.2f)
+            }
+            scrollView.addView(textView)
+
+            val dialog = AlertDialog.Builder(this@AboutSettingsActivity)
+                .setTitle(titleRes)
+                .setView(scrollView)
+                .setPositiveButton(R.string.action_ok, null)
+                .create()
+            showExclusiveDialog(dialog)
+        }
     }
 
     private fun showTutorialDialog() {
