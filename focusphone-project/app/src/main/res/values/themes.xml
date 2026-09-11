@@ -328,14 +328,24 @@
         <item name="buttonBarNeutralButtonStyle">@style/FocusPhone.DialogButton</item>
     </style>
 
-    <style name="FocusPhone.DialogTitleTextStyle" parent="TextAppearance.Material3.TitleMedium">
+    <!--
+        materialAlertDialogTitleTextStyle and materialAlertDialogBodyTextStyle are *view*
+        styles, not text appearances: the title TextView in m3_alert_dialog_title.xml declares
+        no layout_width/layout_height and takes them from this style. Parenting it on a
+        TextAppearance made every MaterialAlertDialog crash on inflation ("You must supply a
+        layout_width attribute"). Keep both parented on the Material dialog widget styles;
+        MaterialAlertDialogThemeTest guards this for every theme.
+    -->
+    <style name="FocusPhone.DialogTitleTextStyle" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textAppearance">@style/TextAppearance.Material3.TitleMedium</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textSize">20sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textAllCaps">false</item>
     </style>
 
-    <style name="FocusPhone.DialogBodyTextStyle" parent="TextAppearance.Material3.BodyMedium">
+    <style name="FocusPhone.DialogBodyTextStyle" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textAppearance">@style/TextAppearance.Material3.BodyMedium</item>
         <item name="android:textColor">?android:attr/textColorSecondary</item>
         <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">sans-serif</item>

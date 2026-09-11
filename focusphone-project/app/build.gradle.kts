@@ -60,6 +60,12 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    testOptions {
+        // Robolectric tests that inflate layouts need the app's merged resources (themes,
+        // styles); without them a broken style only shows up as a crash on a device.
+        unitTests.isIncludeAndroidResources = true
+    }
+
     lint {
         // Release builds run lint-vital and any lint error fails the build. On Windows,
         // if Android Studio holds a lock on the lint cache JARs (FileSystemException),

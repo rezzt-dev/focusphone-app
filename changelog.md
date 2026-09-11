@@ -40,6 +40,7 @@
 - descartar las cargas de fondo obsoletas para que una imagen quitada u oculta no reaparezca al terminar de decodificarse
 - conservar el destino del selector de imagenes al rotar la pantalla o si el sistema cierra la app mientras se elige
 - tintar los interruptores con el tema personalizado, que se trataban como texto y conservaban los colores del tema base
+- evitar el cierre de la app al cambiar un fondo ya elegido y al abrir cualquier dialogo de material: `FocusPhone.DialogTitleTextStyle` heredaba de un `TextAppearance` sin `layout_width` y el titulo de `m3_alert_dialog` no se podia inflar; ahora los estilos de titulo y cuerpo heredan de `MaterialAlertDialog.Material3.*.Text` y `MaterialAlertDialogThemeTest` lo comprueba para cada tema
 
 #### ELIMINADO
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` y el subsistema de tamaño de icono inalcanzable, junto con `backup_rules.xml` y el `values-night/themes.xml` vacio
@@ -87,6 +88,7 @@
 - drop stale wallpaper loads so a removed or hidden image never reappears when its decode finishes
 - keep the image picker's target across rotation or process death while choosing
 - tint switches under the custom theme, which were matched as text and kept the base theme's colours
+- stop the app crashing when changing an already chosen wallpaper and when opening any material dialog: `FocusPhone.DialogTitleTextStyle` inherited from a `TextAppearance` with no `layout_width`, so the `m3_alert_dialog` title could not be inflated; the title and body styles now inherit from `MaterialAlertDialog.Material3.*.Text` and `MaterialAlertDialogThemeTest` checks it for every theme
 
 #### REMOVED
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` and the unreachable icon-size-slider subsystem, along with `backup_rules.xml` and the empty `values-night/themes.xml`
