@@ -145,14 +145,17 @@ class OnboardingActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Polls for the default-launcher choice only until it is confirmed. Returning from the
+     * system settings is already covered by [onResume], so there is no reason to keep
+     * waking up every second afterwards.
+     */
     private fun observeLauncherState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                while (true) {
+                while (!isLauncherVerified) {
                     delay(1000)
-                    if (!isLauncherVerified) {
-                        checkLauncherStatus()
-                    }
+                    checkLauncherStatus()
                 }
             }
         }

@@ -6,7 +6,9 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
+import android.os.Build
 import android.util.Log
+import app.focusphone.data.preferences.WidgetPreferences
 
 /**
  * Singleton manager for the app's [AppWidgetHost].
@@ -79,6 +81,54 @@ class AppWidgetHostManager private constructor(context: Context) {
         }
     }
 
+    // ── Home widget slot ───────────────────────────────────────────
+
+    /**
+     * Makes [widgetId] the home-screen widget, releasing the one it replaces.
+     *
+     * A released ID lets the old provider receive `onDeleted()` and stop scheduling updates
+     * for a widget nobody displays.
+     */
+    fun assignHomeWidget(context: Context, widgetId: Int) {
+        val previous = WidgetPreferences.getWidgetId(context)
+        WidgetPreferences.setWidgetId(context, widgetId)
+        WidgetPreferences.setWidgetEnabled(context, true)
+        if (previous != WidgetPreferences.INVALID_WIDGET_ID && previous != widgetId) {
+            deleteAppWidgetId(previous)
+        }
+    }
+
+    /** Removes the home-screen widget and releases its ID back to the system. */
+    fun removeHomeWidget(context: Context) {
+        val widgetId = WidgetPreferences.getWidgetId(context)
+        WidgetPreferences.clearWidget(context)
+        if (widgetId != WidgetPreferences.INVALID_WIDGET_ID) {
+            deleteAppWidgetId(widgetId)
+        }
+    }
+
+    /**
+     * Releases every ID allocated to this host except the configured home widget.
+     *
+     * Cleans up IDs leaked by builds that never released removed or replaced widgets.
+     * Skipped while the picker is binding a new widget, whose ID is not saved yet.
+     */
+    fun releaseOrphanedIds(context: Context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        if (WidgetPickerActivity.isSelectionInProgress) return
+        val keep = WidgetPreferences.getWidgetId(context)
+        val allocated = try {
+            appWidgetHost.appWidgetIds
+        } catch (e: RuntimeException) {
+            Log.e(TAG, "AppWidgetHost.getAppWidgetIds() failed", e)
+            return
+        }
+        allocated.filter { it != keep }.forEach { orphan ->
+            Log.i(TAG, "Releasing orphaned widget id=$orphan")
+            deleteAppWidgetId(orphan)
+        }
+    }
+
     /**
      * Attempts to bind [widgetId] to [provider].
      *
@@ -95,7 +145,7 @@ class AppWidgetHostManager private constructor(context: Context) {
     }
 
     companion object {
-        private const val HOST_ID = 1024
+        internal const val HOST_ID = 1024
         private const val TAG = "AppWidgetHostManager"
 
         @Volatile

@@ -1,5 +1,6 @@
 package app.focusphone.ui.base
 
+import android.app.Dialog
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
@@ -22,6 +23,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import app.focusphone.FocusPhoneApp
 import app.focusphone.R
@@ -566,10 +568,13 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onResume()
         applyStatusBarVisibility()
         applySystemBarContrast()
-        applyWallpaper()
 
         // System-wide dynamic theme, font scale, font family, wallpaper or legibility
         // changes are detected here and require a full recreate to take effect.
+        //
+        // The wallpaper state must be compared *before* applyWallpaper() runs: that call
+        // records the new state, which used to make this comparison always equal, so
+        // screens inflated with (or without) a wallpaper never picked up the change.
         val activeTheme = ThemePreferences.getEffectiveTheme(this)
         val activeFontScale = FontPreferences.getFontScale(this)
         val activeFontFamily = FontPreferences.getFont(this).key
@@ -586,12 +591,6 @@ abstract class BaseActivity : AppCompatActivity() {
             return
         }
 
-        if (activeReadability != currentReadability) {
-            currentReadability = activeReadability
-            applyScrim()
-            applyWallpaperLegibility()
-        }
-
         if (ThemePreferences.getTheme(this) == ThemePreferences.THEME_CUSTOM) {
             val bg = ThemePreferences.getCustomBackgroundColor(this)
             val fg = ThemePreferences.getCustomForegroundColor(this)
@@ -601,9 +600,69 @@ abstract class BaseActivity : AppCompatActivity() {
             }
         }
 
+        applyWallpaper()
+
+        if (activeReadability != currentReadability) {
+            currentReadability = activeReadability
+            applyScrim()
+            applyWallpaperLegibility()
+        }
+
         // Re-apply font family to catch dynamically created views (e.g. calendars, dialogs)
         applyFontFamily()
     }
+
+    override fun onDestroy() {
+        // A dialog still attached to a destroyed window leaks the Activity.
+        openDialogs.forEach { if (it.isShowing) it.dismiss() }
+        openDialogs.clear()
+        exclusiveDialog = null
+        super.onDestroy()
+    }
+
+    // ── Dialogs ────────────────────────────────────────────────────
+
+    private val openDialogs = mutableSetOf<Dialog>()
+    private var exclusiveDialog: Dialog? = null
+
+    /** Registers [dialog] so it is dismissed with this screen instead of leaking it. */
+    protected fun trackDialog(dialog: Dialog) {
+        openDialogs.removeAll { !it.isShowing && it !== exclusiveDialog }
+        openDialogs += dialog
+    }
+
+    /**
+     * Shows [dialog] as this screen's single foreground dialog, dismissing the previous
+     * one. Chained flows (options → folder picker → new folder) used to overwrite the
+     * reference to the dialog still on screen, which then leaked its window.
+     */
+    protected fun showExclusiveDialog(dialog: Dialog) {
+        exclusiveDialog?.takeIf { it !== dialog && it.isShowing }?.dismiss()
+        exclusiveDialog = dialog
+        trackDialog(dialog)
+        dialog.show()
+    }
+
+    /** [showExclusiveDialog] for Material dialogs, restyled with the FocusPhone palette. */
+    protected fun showStyledDialog(dialog: AlertDialog) {
+        showExclusiveDialog(dialog)
+        styleMaterialDialog(dialog)
+    }
+
+    /** Dismisses the dialog shown through [showExclusiveDialog], if any. */
+    protected fun dismissExclusiveDialog() {
+        exclusiveDialog?.dismiss()
+        exclusiveDialog = null
+    }
+
+    /**
+     * Whether this screen may still put UI on screen. Work resumed after a suspension
+     * (loading shortcuts, the app list…) must check it: `lifecycleScope` outlives
+     * `onStop`, and showing a popup on a stopped or dead window crashes with
+     * `BadTokenException`.
+     */
+    protected fun canShowUi(): Boolean =
+        !isFinishing && !isDestroyed && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
 
     protected fun applyStatusBarVisibility() {
         val hideStatusBar = ThemePreferences.isStatusBarHidden(this)
@@ -789,6 +848,7 @@ abstract class BaseActivity : AppCompatActivity() {
             }
         }
 
+        trackDialog(dialog)
         dialog.show()
     }
 

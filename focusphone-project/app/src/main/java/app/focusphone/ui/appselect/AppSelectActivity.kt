@@ -29,7 +29,6 @@ import androidx.core.view.updatePadding
 class AppSelectActivity : BaseActivity() {
 
     private lateinit var binding: ActivityAppSelectBinding
-    private var activeDialog: androidx.appcompat.app.AlertDialog? = null
     private var searchTextWatcher: android.text.TextWatcher? = null
 
     private val viewModel: AppSelectViewModel by viewModels {
@@ -47,7 +46,7 @@ class AppSelectActivity : BaseActivity() {
             getString(R.string.allapps_dialog_uninstall)
         )
 
-        activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle(app.label)
             .setItems(options) { _, which ->
                 when (which) {
@@ -80,8 +79,7 @@ class AppSelectActivity : BaseActivity() {
                 }
             }
             .create()
-        activeDialog?.show()
-        styleMaterialDialog(activeDialog)
+        showStyledDialog(dialog)
     }
 
     private fun showRenameDialog(app: AppInfo) {
@@ -119,7 +117,7 @@ class AppSelectActivity : BaseActivity() {
             })
         }
 
-        activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AppSelectActivity)
+        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AppSelectActivity)
             .setTitle(R.string.customize_name_title)
             .setMessage(getString(R.string.customize_name_message, app.label))
             .setView(container)
@@ -138,8 +136,7 @@ class AppSelectActivity : BaseActivity() {
             }
             .setNegativeButton(R.string.action_cancel, null)
             .create()
-        activeDialog?.show()
-        styleMaterialDialog(activeDialog)
+        showStyledDialog(dialog)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -157,12 +154,10 @@ class AppSelectActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        focusPhoneApp.container.appRepository.invalidateCache()
         viewModel.loadApps()
     }
 
     override fun onDestroy() {
-        activeDialog?.dismiss()
         searchTextWatcher?.let { binding.etSearch.removeTextChangedListener(it) }
         super.onDestroy()
     }

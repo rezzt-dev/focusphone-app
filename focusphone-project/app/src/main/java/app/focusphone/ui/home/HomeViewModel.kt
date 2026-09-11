@@ -8,7 +8,7 @@ import app.focusphone.FocusPhoneApp
 import app.focusphone.data.model.FavouriteApp
 import app.focusphone.domain.model.ToggleResult
 import app.focusphone.domain.usecase.GetFavouriteAppsUseCase
-import app.focusphone.domain.usecase.ToggleFavouriteAppUseCase
+import app.focusphone.domain.usecase.RemoveFavouriteAppUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.SharedFlow
@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     getFavouriteApps: GetFavouriteAppsUseCase,
-    private val toggleFavourite: ToggleFavouriteAppUseCase,
+    private val removeFavouriteApp: RemoveFavouriteAppUseCase,
     private val updateAppsOrder: app.focusphone.domain.usecase.UpdateAppsOrderUseCase
 ) : ViewModel() {
 
@@ -34,9 +34,9 @@ class HomeViewModel(
     private val _events = MutableSharedFlow<HomeEvent>()
     val events: SharedFlow<HomeEvent> = _events.asSharedFlow()
 
-    fun removeFavourite(packageName: String, label: String) {
+    fun removeFavourite(packageName: String) {
         viewModelScope.launch {
-            try { toggleFavourite(packageName, label) } catch (e: Exception) {
+            try { removeFavouriteApp(packageName) } catch (e: Exception) {
                 Log.e("HomeViewModel", "Failed to remove favourite $packageName", e)
             }
         }
@@ -58,7 +58,7 @@ class HomeViewModel(
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
                     HomeViewModel(
                         app.container.getFavouriteAppsUseCase,
-                        app.container.toggleFavouriteAppUseCase,
+                        app.container.removeFavouriteAppUseCase,
                         app.container.updateAppsOrderUseCase
                     ) as T
             }

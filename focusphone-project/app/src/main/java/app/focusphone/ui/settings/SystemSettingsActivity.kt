@@ -1,6 +1,5 @@
 package app.focusphone.ui.settings
 
-import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -17,7 +16,6 @@ import app.focusphone.service.FocusAccessibilityService
  */
 class SystemSettingsActivity : SettingsSubActivity() {
 
-    private var activeDialog: Dialog? = null
     private var accessibilityValueView: TextView? = null
 
     private data class LangOption(val tag: String, val labelResId: Int)
@@ -75,11 +73,6 @@ class SystemSettingsActivity : SettingsSubActivity() {
         accessibilityValueView?.text = getAccessibilityStatusText()
     }
 
-    override fun onDestroy() {
-        activeDialog?.dismiss()
-        super.onDestroy()
-    }
-
     private fun getAccessibilityStatusText(): String =
         getString(
             if (FocusAccessibilityService.isEnabled(this)) R.string.settings_accessibility_active
@@ -116,12 +109,8 @@ class SystemSettingsActivity : SettingsSubActivity() {
             }
             .setNegativeButton(R.string.action_cancel, null)
             .create()
-            .also {
-                activeDialog = it
-                it.show()
-                // Without this the single-choice list keeps the style theme's colours and
-                // ignores both the custom theme and the user's font.
-                styleMaterialDialog(it)
-            }
+            // Styled: without it the single-choice list keeps the style theme's colours and
+            // ignores both the custom theme and the user's font.
+            .also { showStyledDialog(it) }
     }
 }

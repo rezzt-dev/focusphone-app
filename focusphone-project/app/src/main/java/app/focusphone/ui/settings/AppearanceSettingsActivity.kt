@@ -1,6 +1,5 @@
 package app.focusphone.ui.settings
 
-import android.app.Dialog
 import android.content.Intent
 import android.graphics.Typeface
 import android.net.Uri
@@ -39,7 +38,6 @@ import kotlinx.coroutines.withContext
  */
 class AppearanceSettingsActivity : SettingsSubActivity() {
 
-    private var activeDialog: Dialog? = null
     private var themeValueView: TextView? = null
     private var fontValueView: TextView? = null
     private var customThemeBinding: SettingsCustomThemePanelBinding? = null
@@ -279,7 +277,6 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
     }
 
     override fun onDestroy() {
-        activeDialog?.dismiss()
         bgTextWatcher?.let { customThemeBinding?.etCustomBgColor?.removeTextChangedListener(it) }
         fgTextWatcher?.let { customThemeBinding?.etCustomFgColor?.removeTextChangedListener(it) }
         super.onDestroy()
@@ -324,11 +321,11 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
         val view = inflater.inflate(R.layout.dialog_theme_select, null)
         applyDialogSurface(view)
         applyFontFamilyToView(view)
-        activeDialog = AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setView(view)
             .create()
 
-        activeDialog?.window?.setBackgroundDrawable(
+        dialog.window?.setBackgroundDrawable(
             android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
         )
 
@@ -343,30 +340,30 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
 
         view.findViewById<View>(R.id.btn_theme_off_white).setOnClickListener {
             applyTheme(ThemePreferences.THEME_OFF_WHITE)
-            activeDialog?.dismiss()
+            dialog.dismiss()
         }
         view.findViewById<View>(R.id.btn_theme_slate).setOnClickListener {
             applyTheme(ThemePreferences.THEME_SLATE)
-            activeDialog?.dismiss()
+            dialog.dismiss()
         }
         view.findViewById<View>(R.id.btn_theme_warm_beige).setOnClickListener {
             applyTheme(ThemePreferences.THEME_WARM_BEIGE)
-            activeDialog?.dismiss()
+            dialog.dismiss()
         }
         view.findViewById<View>(R.id.btn_theme_navy).setOnClickListener {
             applyTheme(ThemePreferences.THEME_NAVY)
-            activeDialog?.dismiss()
+            dialog.dismiss()
         }
         view.findViewById<View>(R.id.btn_theme_auto).setOnClickListener {
             applyTheme(ThemePreferences.THEME_AUTO)
-            activeDialog?.dismiss()
+            dialog.dismiss()
         }
         view.findViewById<View>(R.id.btn_theme_custom).setOnClickListener {
             applyTheme(ThemePreferences.THEME_CUSTOM)
-            activeDialog?.dismiss()
+            dialog.dismiss()
         }
 
-        activeDialog?.show()
+        showExclusiveDialog(dialog)
     }
 
     private fun setupCustomThemePanel(binding: SettingsCustomThemePanelBinding) {
@@ -477,11 +474,11 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
         val view = inflater.inflate(R.layout.dialog_font_select, null)
         applyDialogSurface(view)
         applyFontFamilyToView(view)
-        activeDialog = AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setView(view)
             .create()
 
-        activeDialog?.window?.setBackgroundDrawable(
+        dialog.window?.setBackgroundDrawable(
             android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
         )
 
@@ -514,7 +511,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
             item.root.setOnClickListener {
                 if (FontPreferences.getFont(this) != font) {
                     FontPreferences.setFont(this, font)
-                    activeDialog?.dismiss()
+                    dialog.dismiss()
                     recreate()
                 }
             }
@@ -537,7 +534,7 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
             }
         }
 
-        activeDialog?.show()
+        showExclusiveDialog(dialog)
     }
 
     // ── Alignment ──────────────────────────────────────────────────

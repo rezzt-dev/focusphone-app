@@ -54,11 +54,18 @@ class AppFolderPreferences private constructor(
     /** true while the stored folders exist but cannot be decrypted yet. */
     private var foldersUnavailable = false
 
+    /** true when the last load had to de-duplicate memberships that are still on disk. */
+    private var repairPending = false
+
     private val _foldersFlow = MutableStateFlow(loadFolders())
     val foldersFlow: StateFlow<List<AppFolder>> = _foldersFlow.asStateFlow()
 
     private val _expandedFlow = MutableStateFlow(loadExpanded())
     val expandedFlow: StateFlow<Set<String>> = _expandedFlow.asStateFlow()
+
+    init {
+        persistRepairIfPending()
+    }
 
     // ── Folders ────────────────────────────────────────────────────
 
@@ -186,7 +193,18 @@ class AppFolderPreferences private constructor(
         // Still unavailable (EncryptedPrefs has logged why): refuse rather than overwrite.
         if (foldersUnavailable) return false
         _foldersFlow.value = reloaded
+        persistRepairIfPending()
         return true
+    }
+
+    /**
+     * Writes back a membership list that [loadFolders] had to de-duplicate, so the fix is
+     * made once instead of being recomputed — possibly differently — on every start.
+     */
+    private fun persistRepairIfPending() {
+        if (!repairPending) return
+        repairPending = false
+        persist(_foldersFlow.value)
     }
 
     private fun persist(folders: List<AppFolder>): Boolean {
@@ -211,11 +229,11 @@ class AppFolderPreferences private constructor(
         // Defensive de-duplication: a package must live in a single folder even if an
         // interrupted write left it in two.
         val seen = mutableSetOf<String>()
-        return parsed
-            .map { folder ->
-                folder.copy(packageNames = folder.packageNames.filter { seen.add(it) })
-            }
-            .sortedWith(AppFolderSerializer.NAME_ORDER)
+        val deduplicated = parsed.map { folder ->
+            folder.copy(packageNames = folder.packageNames.filter { seen.add(it) })
+        }
+        repairPending = deduplicated != parsed
+        return deduplicated.sortedWith(AppFolderSerializer.NAME_ORDER)
     }
 
     private fun loadExpanded(): Set<String> =

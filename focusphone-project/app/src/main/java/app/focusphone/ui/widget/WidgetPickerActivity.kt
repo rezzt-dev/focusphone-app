@@ -12,7 +12,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.focusphone.R
-import app.focusphone.data.preferences.WidgetPreferences
 import app.focusphone.databinding.ActivityWidgetPickerBinding
 import app.focusphone.ui.base.BaseActivity
 
@@ -44,6 +43,7 @@ class WidgetPickerActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        isSelectionInProgress = true
         binding = ActivityWidgetPickerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -53,6 +53,11 @@ class WidgetPickerActivity : BaseActivity() {
         setupInsets()
         setupRecyclerView()
         loadWidgets()
+    }
+
+    override fun onDestroy() {
+        isSelectionInProgress = false
+        super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -229,8 +234,8 @@ class WidgetPickerActivity : BaseActivity() {
     // ── Persistence ────────────────────────────────────────────────
 
     private fun saveWidgetAndFinish(widgetId: Int) {
-        WidgetPreferences.setWidgetId(this, widgetId)
-        WidgetPreferences.setWidgetEnabled(this, true)
+        // Releases the widget being replaced, if any, so its ID does not leak.
+        AppWidgetHostManager.getInstance(this).assignHomeWidget(this, widgetId)
         setResult(RESULT_OK)
         finish()
     }
@@ -255,5 +260,13 @@ class WidgetPickerActivity : BaseActivity() {
 
         private const val KEY_ALLOCATED_WIDGET_ID = "allocated_widget_id"
         private const val KEY_PENDING_PROVIDER = "pending_provider"
+
+        /**
+         * true while a picker is alive, i.e. an allocated ID may not be saved yet. The
+         * orphan clean-up in [AppWidgetHostManager.releaseOrphanedIds] must leave it alone.
+         */
+        @Volatile
+        var isSelectionInProgress = false
+            private set
     }
 }

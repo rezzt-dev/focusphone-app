@@ -47,7 +47,7 @@ class FocusAccessibilityService : AccessibilityService() {
     private var cachedBlockedApps: Set<String> = emptySet()
     private var cachedWorkKeywords: Set<String> = emptySet()
     private var cachedScheduleRules: Map<String, AppScheduleRule> = emptyMap()
-    private var cachedIsDetoxActive = false
+    private var cachedDetoxEndTime = 0L
     private var cachedProfile = ""
     private var lastCacheUpdate = 0L
 
@@ -120,10 +120,18 @@ class FocusAccessibilityService : AccessibilityService() {
 
         // Normal profile never blocks by profile, but schedules still apply.
         if (cachedProfile != ProfilePreferences.PROFILE_NORMAL) {
-            // Detox blocks everything except FocusPhone.
-            if (cachedIsDetoxActive) {
+            // Detox blocks everything except FocusPhone. Whether it is active depends on
+            // the clock, so it is evaluated on every event from the cached inputs: a cached
+            // boolean kept blocking for up to CACHE_TTL_MS after the session had ended.
+            val now = System.currentTimeMillis()
+            if (ProfilePreferences.isDetoxActivePure(cachedProfile, cachedDetoxEndTime, now)) {
                 launchBlockScreen()
                 return
+            }
+            if (cachedProfile == ProfilePreferences.PROFILE_DETOX) {
+                // The session has just run out: end it for the whole app, not only here.
+                ProfilePreferences.expireDetoxIfNeeded(this)
+                refreshCache()
             }
 
             // Work profile blocks manually blocked apps and apps matching keywords.
@@ -247,7 +255,7 @@ class FocusAccessibilityService : AccessibilityService() {
     /** Force-refreshes the cache by reading encrypted preferences once. */
     private fun refreshCache() {
         lastCacheUpdate = System.currentTimeMillis()
-        cachedIsDetoxActive = ProfilePreferences.isDetoxActive(this)
+        cachedDetoxEndTime = ProfilePreferences.getDetoxEndTime(this)
         cachedProfile = ProfilePreferences.getProfile(this)
         cachedBlockedApps = ProfilePreferences.getBlockedApps(this)
         cachedWorkKeywords = ProfilePreferences.getWorkKeywords(this)
@@ -259,13 +267,23 @@ class FocusAccessibilityService : AccessibilityService() {
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
+        release()
+        return super.onUnbind(intent)
+    }
+
+    /** The service can be destroyed without onUnbind; the receiver must not outlive it. */
+    override fun onDestroy() {
+        release()
+        super.onDestroy()
+    }
+
+    private fun release() {
         flushForegroundUsage()
         cancelUsageTick()
         if (screenReceiverRegistered) {
             unregisterReceiver(screenReceiver)
             screenReceiverRegistered = false
         }
-        return super.onUnbind(intent)
     }
 
     companion object {

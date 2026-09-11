@@ -1,6 +1,5 @@
 package app.focusphone.ui.settings
 
-import android.app.Dialog
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
@@ -25,8 +24,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
  * onboarding restart and open-source licences.
  */
 class AboutSettingsActivity : SettingsSubActivity() {
-
-    private var activeDialog: Dialog? = null
 
     override fun getScreenTitleRes(): Int = R.string.about_settings_title
 
@@ -87,8 +84,8 @@ class AboutSettingsActivity : SettingsSubActivity() {
                 finish()
             }
             .setNegativeButton(R.string.action_cancel, null)
-            .show()
-            .let { styleMaterialDialog(it) }
+            .create()
+            .also { showStyledDialog(it) }
     }
 
     private fun confirmRestartOnboarding() {
@@ -101,8 +98,8 @@ class AboutSettingsActivity : SettingsSubActivity() {
                 startActivity(Intent(this, app.focusphone.ui.onboarding.OnboardingActivity::class.java))
             }
             .setNegativeButton(R.string.action_cancel, null)
-            .show()
-            .let { styleMaterialDialog(it) }
+            .create()
+            .also { showStyledDialog(it) }
     }
 
     private fun showOpenSourceLicencesDialog() {
@@ -125,12 +122,12 @@ class AboutSettingsActivity : SettingsSubActivity() {
         }
         scrollView.addView(textView)
 
-        activeDialog = AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(R.string.settings_open_source)
             .setView(scrollView)
             .setPositiveButton(R.string.action_ok, null)
             .create()
-        activeDialog?.show()
+        showExclusiveDialog(dialog)
     }
 
     private fun showPrivacyPolicyDialog() {
@@ -160,23 +157,23 @@ class AboutSettingsActivity : SettingsSubActivity() {
         }
         scrollView.addView(textView)
 
-        activeDialog = AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(R.string.settings_privacy_policy)
             .setView(scrollView)
             .setPositiveButton(R.string.action_ok, null)
             .create()
-        activeDialog?.show()
+        showExclusiveDialog(dialog)
     }
 
     private fun showTutorialDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_tutorial_carousel, null)
         applyDialogSurface(dialogView)
         applyFontFamilyToView(dialogView)
-        activeDialog = AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
 
-        activeDialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         val tvCounter = dialogView.findViewById<TextView>(R.id.tv_slide_counter)
         val ivIcon = dialogView.findViewById<ImageView>(R.id.iv_tutorial_icon)
@@ -254,17 +251,12 @@ class AboutSettingsActivity : SettingsSubActivity() {
                 currentIndex++
                 updateSlide()
             } else {
-                activeDialog?.dismiss()
+                dialog.dismiss()
             }
         }
 
         updateSlide()
-        activeDialog?.show()
-    }
-
-    override fun onDestroy() {
-        activeDialog?.dismiss()
-        super.onDestroy()
+        showExclusiveDialog(dialog)
     }
 
     private fun dp(value: Int): Int =

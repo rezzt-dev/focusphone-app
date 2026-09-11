@@ -24,7 +24,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -582,6 +584,7 @@ class HomeLayoutActivity : BaseActivity() {
     private fun observeApps() {
         val app = application as app.focusphone.FocusPhoneApp
         lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
             app.container.getFavouriteAppsUseCase().collect { apps ->
                 favouriteAppsAdapter.submitList(apps)
                 val container = currentAppsContainer
@@ -597,6 +600,7 @@ class HomeLayoutActivity : BaseActivity() {
                         updateAppsItemHeight(apps.size)
                     }
                 }
+            }
             }
         }
     }
@@ -623,9 +627,7 @@ class HomeLayoutActivity : BaseActivity() {
                 val from = viewHolder.bindingAdapterPosition
                 val to = target.bindingAdapterPosition
                 if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) return false
-                favouriteAppsAdapter.moveItem(from, to)
-                favouriteAppsAdapter.notifyItemMoved(from, to)
-                return true
+                return favouriteAppsAdapter.moveItem(from, to)
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
@@ -633,6 +635,7 @@ class HomeLayoutActivity : BaseActivity() {
             override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
                 super.onSelectedChanged(viewHolder, actionState)
                 if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                    favouriteAppsAdapter.beginDrag()
                     if (!isEditMode) {
                         enterEditMode(rebuild = false)
                     }

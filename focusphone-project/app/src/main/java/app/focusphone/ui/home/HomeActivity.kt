@@ -51,6 +51,7 @@ import app.focusphone.data.preferences.HomeLayoutPreferences
 import app.focusphone.data.preferences.WidgetPreferences
 import app.focusphone.data.preferences.TutorialPreferences
 import app.focusphone.data.repository.NotificationRepository
+import app.focusphone.data.repository.PackageChangeMonitor
 import app.focusphone.ui.home.adapter.NotificationsAdapter
 import app.focusphone.ui.pause.ConsciousPauseActivity
 import app.focusphone.ui.detox.DetoxBlockedActivity
@@ -104,6 +105,9 @@ class HomeActivity : BaseActivity() {
     private var lastVerifyTime = 0L
     private var appSpacingDecoration: RecyclerView.ItemDecoration? = null
     private var pendingVerify = false
+
+    /** [PackageChangeMonitor.version] at the last favourites check; -1 before the first. */
+    private var verifiedPackageVersion = -1L
 
     /** Day of the month the calendar grid was last built for, or 0 when never built. */
     private var renderedCalendarDay = 0
@@ -179,7 +183,10 @@ class HomeActivity : BaseActivity() {
         applyClockType()
         applyClockScale()
         updateClock()
-        if (pendingVerify) {
+        // A package change since the last check (e.g. an uninstall from the system settings)
+        // forces a fresh check instead of waiting for the hourly one.
+        val packagesChanged = PackageChangeMonitor.version.value != verifiedPackageVersion
+        if (pendingVerify || packagesChanged) {
             pendingVerify = false
             verifyInstalledApps(force = true)
         } else {
@@ -189,7 +196,7 @@ class HomeActivity : BaseActivity() {
         updateProfileLabel()
         restoreWidget()
         applyHomeLayout()
-        setupNotificationPanel()
+        refreshNotificationPanelState()
         adapter.updateTypeface(FontPreferences.getTypeface(this))
 
         val gravity = when (app.focusphone.data.preferences.ThemePreferences.getAlignment(this)) {
@@ -215,12 +222,13 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun verifyInstalledApps(force: Boolean = false) {
-        val currentApps = adapter.currentList.toList() // snapshot
+        val currentApps = adapter.currentList // snapshot
         if (currentApps.isEmpty()) return
 
         val now = System.currentTimeMillis()
         if (!force && now - lastVerifyTime < 60 * 60 * 1000L) return
         lastVerifyTime = now
+        verifiedPackageVersion = PackageChangeMonitor.version.value
 
         lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             val pm = packageManager
@@ -237,7 +245,7 @@ class HomeActivity : BaseActivity() {
                     false
                 }
                 if (!exists) {
-                    viewModel.removeFavourite(app.packageName, app.label)
+                    viewModel.removeFavourite(app.packageName)
                 }
             }
         }
@@ -245,7 +253,10 @@ class HomeActivity : BaseActivity() {
 
     override fun onStart() {
         super.onStart()
-        app.focusphone.ui.widget.AppWidgetHostManager.getInstance(this).startListening()
+        val hostManager = app.focusphone.ui.widget.AppWidgetHostManager.getInstance(this)
+        hostManager.startListening()
+        // Frees IDs leaked by builds that never released removed or replaced widgets.
+        hostManager.releaseOrphanedIds(this)
         restoreWidget()
     }
 
@@ -634,9 +645,14 @@ class HomeActivity : BaseActivity() {
                     val from = viewHolder.bindingAdapterPosition
                     val to = target.bindingAdapterPosition
                     if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) return false
-                    adapter.moveItem(from, to)
-                    adapter.notifyItemMoved(from, to)
-                    return true
+                    return adapter.moveItem(from, to)
+                }
+
+                override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                    super.onSelectedChanged(viewHolder, actionState)
+                    if (actionState == androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_DRAG) {
+                        adapter.beginDrag()
+                    }
                 }
 
                 override fun onSwiped(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, direction: Int) {}
@@ -1074,26 +1090,13 @@ class HomeActivity : BaseActivity() {
 
     // ── Notification Panel ─────────────────────────────────────────
 
+    /**
+     * One-time set-up of the notification drawer: list, swipe-to-dismiss and a single
+     * observer of [NotificationRepository]. Called from [onCreate] only — running it on
+     * every resume stacked a new collector and a new swipe helper each time, so after a
+     * day of use one swipe dismissed the same notification dozens of times.
+     */
     private fun setupNotificationPanel() {
-        val enabled = NotificationPanelPreferences.isEnabled(this)
-        binding.indicatorNotifications.visibility = if (enabled) View.VISIBLE else View.GONE
-        if (enabled) {
-            binding.drawerLayout.setDrawerLockMode(
-                DrawerLayout.LOCK_MODE_UNLOCKED,
-                androidx.core.view.GravityCompat.START
-            )
-        } else {
-            binding.drawerLayout.setDrawerLockMode(
-                DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
-                androidx.core.view.GravityCompat.START
-            )
-        }
-
-        // Remove the default grey scrim and shadow so the wallpaper stays fully visible behind
-        // the notification (and menu) drawers, without dark borders around the edges.
-        binding.drawerLayout.setScrimColor(Color.TRANSPARENT)
-        binding.drawerLayout.setDrawerElevation(0f)
-
         binding.rvNotifications.layoutManager = LinearLayoutManager(this)
         binding.rvNotifications.adapter = notificationsAdapter
         binding.rvNotifications.itemAnimator = null
@@ -1132,17 +1135,37 @@ class HomeActivity : BaseActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                NotificationRepository.notifications.collect { notifications ->
-                    if (enabled) {
-                        val empty = notifications.isEmpty()
-                        binding.tvNotificationsEmpty.visibility = if (empty) View.VISIBLE else View.GONE
-                        binding.rvNotifications.visibility = if (empty) View.GONE else View.VISIBLE
-                        binding.btnClearAllNotifications.visibility = if (empty) View.GONE else View.VISIBLE
-                        notificationsAdapter.submitList(notifications)
-                    }
-                }
+                NotificationRepository.notifications.collect { renderNotifications(it) }
             }
         }
+        refreshNotificationPanelState()
+    }
+
+    /**
+     * Applies the notification-panel setting, which can change while the home screen sits
+     * in the back stack. Cheap enough to run on every resume.
+     */
+    private fun refreshNotificationPanelState() {
+        val enabled = NotificationPanelPreferences.isEnabled(this)
+        binding.indicatorNotifications.visibility = if (enabled) View.VISIBLE else View.GONE
+        binding.drawerLayout.setDrawerLockMode(
+            if (enabled) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
+            androidx.core.view.GravityCompat.START
+        )
+        renderNotifications(NotificationRepository.notifications.value)
+    }
+
+    /** Reads the setting at render time so a change is never applied with a stale value. */
+    private fun renderNotifications(notifications: List<app.focusphone.data.repository.NotificationItem>) {
+        if (!NotificationPanelPreferences.isEnabled(this)) {
+            notificationsAdapter.submitList(emptyList())
+            return
+        }
+        val empty = notifications.isEmpty()
+        binding.tvNotificationsEmpty.visibility = if (empty) View.VISIBLE else View.GONE
+        binding.rvNotifications.visibility = if (empty) View.GONE else View.VISIBLE
+        binding.btnClearAllNotifications.visibility = if (empty) View.GONE else View.VISIBLE
+        notificationsAdapter.submitList(notifications)
     }
 
     private fun dismissNotification(key: String) {
@@ -1241,6 +1264,9 @@ class HomeActivity : BaseActivity() {
             val shortcuts = withContext(Dispatchers.IO) {
                 focusPhoneApp.container.getAppShortcutsUseCase(app.packageName)
             }
+            // The user may have left while the shortcuts were loading; a popup on a
+            // stopped window crashes with BadTokenException.
+            if (!canShowUi()) return@launch
             showAppContextMenuWithShortcuts(app, shortcuts)
         }
         return true
@@ -1262,7 +1288,7 @@ class HomeActivity : BaseActivity() {
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_open       -> launchApp(app)
-                R.id.action_remove     -> viewModel.removeFavourite(app.packageName, app.label)
+                R.id.action_remove     -> viewModel.removeFavourite(app.packageName)
                 R.id.action_app_info   -> startActivity(
                     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                         .apply { data = Uri.fromParts("package", app.packageName, null) }

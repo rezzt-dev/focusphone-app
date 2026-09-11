@@ -1,5 +1,6 @@
 package app.focusphone.data.preferences
 
+import app.focusphone.domain.util.AppFolderSerializer
 import app.focusphone.security.EncryptedPrefs.StoredValue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -82,6 +83,29 @@ class AppFolderPreferencesTest {
         )
 
         assertNotNull(preferences.createFolder("work"))
+    }
+
+    @Test
+    fun `a package left in two folders is repaired on disk`() {
+        val stored = mutableMapOf<String, String>()
+        val preferences = preferencesBackedBy(stored)
+        val first = requireNotNull(preferences.createFolder("a"))
+        val second = requireNotNull(preferences.createFolder("b"))
+        preferences.moveAppToFolder("com.example.mail", first.id)
+
+        // Simulate an interrupted write that left the app in both folders.
+        val healthy = AppFolderSerializer.serializeAll(preferences.getFolders())
+        val key = stored.entries.first { it.value == healthy }.key
+        stored[key] = AppFolderSerializer.serializeAll(
+            preferences.getFolders().map {
+                if (it.id == second.id) it.copy(packageNames = listOf("com.example.mail")) else it
+            }
+        )
+
+        val repaired = preferencesBackedBy(stored)
+
+        assertEquals(1, repaired.getFolders().count { "com.example.mail" in it.packageNames })
+        assertEquals(AppFolderSerializer.serializeAll(repaired.getFolders()), stored[key])
     }
 
     private fun preferencesBackedBy(stored: MutableMap<String, String>): AppFolderPreferences =

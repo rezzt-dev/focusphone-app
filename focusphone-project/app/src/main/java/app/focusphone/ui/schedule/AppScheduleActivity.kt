@@ -35,7 +35,6 @@ import kotlinx.coroutines.withContext
  */
 class AppScheduleActivity : SettingsSubActivity() {
 
-    private var activeDialog: AlertDialog? = null
     private var installedApps: List<AppInfo> = emptyList()
 
     override fun getScreenTitleRes(): Int = R.string.schedule_title
@@ -50,8 +49,8 @@ class AppScheduleActivity : SettingsSubActivity() {
 
     override fun onPause() {
         super.onPause()
-        activeDialog?.dismiss()
-        activeDialog = null
+        // onResume asks for the password again, so no dialog survives leaving the screen.
+        dismissExclusiveDialog()
     }
 
     // ── Password gate ──────────────────────────────────────────────
@@ -174,8 +173,7 @@ class AppScheduleActivity : SettingsSubActivity() {
             onCancel()
         }
 
-        activeDialog = dialog
-        dialog.show()
+        showExclusiveDialog(dialog)
         applyFontFamilyToView(view)
     }
 
@@ -314,6 +312,8 @@ class AppScheduleActivity : SettingsSubActivity() {
                     focusPhoneApp.container.getInstalledAppsUseCase()
                 }
             }
+            // The user may have left while the list was loading.
+            if (!canShowUi()) return@launch
 
             val configured = AppSchedulePreferences.getRules(this@AppScheduleActivity)
                 .map { it.packageName }
@@ -327,15 +327,14 @@ class AppScheduleActivity : SettingsSubActivity() {
                 return@launch
             }
 
-            activeDialog = MaterialAlertDialogBuilder(this@AppScheduleActivity)
+            val dialog = MaterialAlertDialogBuilder(this@AppScheduleActivity)
                 .setTitle(R.string.schedule_add_app)
                 .setItems(candidates.map { it.label }.toTypedArray()) { _, which ->
                     val app = candidates[which]
                     startActivity(AppScheduleEditActivity.newIntent(this@AppScheduleActivity, app.packageName, app.label))
                 }
                 .create()
-            activeDialog?.show()
-            styleMaterialDialog(activeDialog)
+            showStyledDialog(dialog)
         }
     }
 
@@ -345,7 +344,7 @@ class AppScheduleActivity : SettingsSubActivity() {
             getString(R.string.schedule_password_remove)
         )
 
-        activeDialog = MaterialAlertDialogBuilder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.schedule_password_row_title)
             .setItems(options) { _, which ->
                 when (which) {
@@ -354,8 +353,7 @@ class AppScheduleActivity : SettingsSubActivity() {
                 }
             }
             .create()
-        activeDialog?.show()
-        styleMaterialDialog(activeDialog)
+        showStyledDialog(dialog)
     }
 
     /**
@@ -396,7 +394,7 @@ class AppScheduleActivity : SettingsSubActivity() {
                 finish()
             }
             .create()
-            .also { activeDialog = it; it.show(); styleMaterialDialog(it) }
+            .also { showStyledDialog(it) }
     }
 
     companion object {

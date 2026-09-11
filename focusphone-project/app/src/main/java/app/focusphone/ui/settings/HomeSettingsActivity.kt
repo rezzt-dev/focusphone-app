@@ -13,6 +13,7 @@ import app.focusphone.data.preferences.WidgetPreferences
 import app.focusphone.databinding.ItemSettingsClockTypeBinding
 import app.focusphone.databinding.SettingsSliderRowBinding
 import app.focusphone.domain.model.ClockType
+import app.focusphone.ui.widget.AppWidgetHostManager
 import app.focusphone.ui.widget.WidgetPickerActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
@@ -221,12 +222,13 @@ class HomeSettingsActivity : SettingsSubActivity() {
             .setTitle(R.string.settings_widget_title)
             .setMessage(R.string.settings_widget_remove_confirm)
             .setPositiveButton(R.string.settings_widget_remove) { _, _ ->
-                WidgetPreferences.clearWidget(this)
+                // Releases the ID too, so the provider stops updating a widget nobody shows.
+                AppWidgetHostManager.getInstance(this).removeHomeWidget(this)
                 updateWidgetStatus()
             }
             .setNegativeButton(R.string.action_cancel, null)
-            .show()
-            .let { styleMaterialDialog(it) }
+            .create()
+            .also { showStyledDialog(it) }
     }
 
     private fun dp(value: Int): Int =
