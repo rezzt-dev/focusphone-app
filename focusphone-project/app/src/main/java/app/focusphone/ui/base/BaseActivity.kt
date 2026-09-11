@@ -7,6 +7,8 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.ColorStateListDrawable
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
@@ -74,8 +76,17 @@ abstract class BaseActivity : AppCompatActivity() {
     private var currentFontScale: Float? = null
     private var currentFontFamily: String? = null
     private var currentHasWallpaper: Boolean = false
-    private var currentReadability: Int = WallpaperPreferences.DEFAULT_READABILITY
+    private var currentScrimAlpha: Float = 0f
     private var paletteCache: FocusPalette? = null
+
+    /** Incremented by every [applyWallpaper] call; a load finishing under an older one is dropped. */
+    private var wallpaperGeneration = 0
+
+    /** Whether [applySurfaceColors] has run on this view tree yet. */
+    private var surfaceColorsApplied = false
+
+    /** Whether a built-in theme's supporting colours are currently tuned for a wallpaper. */
+    private var legibilityApplied = false
 
     /**
      * Colours of the active theme, custom themes included. Resolved once per Activity
@@ -131,7 +142,6 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         currentFontScale = FontPreferences.getFontScale(this)
         currentFontFamily = FontPreferences.getFont(this).key
-        currentReadability = WallpaperPreferences.getReadability(this)
         applyTheme()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -174,13 +184,10 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        currentHasWallpaper = hasSurfaceWallpaper()
-        applyCustomThemeColors()
-        // Paint the scrim synchronously so the first frame is already protected; the
-        // wallpaper itself then loads off the main thread.
-        applyScrim()
-        applyWallpaperLegibility()
+        currentScrimAlpha = contentScrimAlpha()
         applySystemBarContrast()
+        // Colours and scrim are settled synchronously inside applyWallpaper(), so the first
+        // frame is already protected; only the image itself loads off the main thread.
         applyWallpaper()
     }
 
@@ -212,63 +219,81 @@ abstract class BaseActivity : AppCompatActivity() {
     /** true when an image is painted behind this screen's content. */
     protected fun hasSurfaceWallpaper(): Boolean = surfaceWallpaperUri() != null
 
+    /**
+     * Shows, swaps or hides this screen's wallpaper according to the current preferences.
+     *
+     * Safe to call at any time on a live screen — the appearance settings call it right
+     * after every change — because everything that depends on the image being there (the
+     * content background, the scrim, the colours tuned to it) is settled here, in place,
+     * without recreating the Activity.
+     */
     protected fun applyWallpaper() {
         val homeView = findViewById<ImageView?>(R.id.iv_wallpaper_home)
         val settingsView = findViewById<ImageView?>(R.id.iv_wallpaper_settings)
         val hasDedicatedViews = homeView != null || settingsView != null
+        val globalView: ImageView? =
+            if (hasDedicatedViews) null else contentFrame()?.findViewWithTag(GLOBAL_WALLPAPER_TAG)
 
         val uri = surfaceWallpaperUri()
-        currentHasWallpaper = uri != null
+        // Supersedes any load still in flight, so a slow decode can never bring back an
+        // image that was removed or hidden in the meantime.
+        val generation = ++wallpaperGeneration
+        updateWallpaperPresence(uri != null)
 
         // No wallpaper on this surface: clear every image and let the theme background
-        // show through untouched. Scrims collapse to GONE in the same pass.
+        // show through untouched. Scrims have already collapsed to GONE above.
         if (uri == null) {
-            lifecycleScope.launch(Dispatchers.Main) {
-                homeView?.let { WallpaperUtils.applyWallpaperToImageView(it, null, 0f, false) }
-                settingsView?.let { WallpaperUtils.applyWallpaperToImageView(it, null, 0f, false) }
-                if (!hasDedicatedViews) {
-                    contentFrame()?.findViewWithTag<ImageView>(GLOBAL_WALLPAPER_TAG)?.let {
-                        WallpaperUtils.applyWallpaperToImageView(it, null, 0f, false)
-                    }
-                }
-                applyScrim()
-            }
+            listOfNotNull(homeView, settingsView, globalView).forEach(WallpaperUtils::clearWallpaperEffect)
             return
         }
 
         val blurEnabled = WallpaperPreferences.isBlurEnabled(this)
         val blurRadius = WallpaperUtils.getBlurRadius(WallpaperPreferences.getBlurIntensity(this))
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            val result = WallpaperStorage.load(
-                this@BaseActivity,
-                uri,
-                blurEnabled,
-                blurRadius
-            )
+        lifecycleScope.launch {
+            val result = WallpaperStorage.load(this@BaseActivity, uri, blurEnabled, blurRadius)
+            if (generation != wallpaperGeneration) return@launch
+
             val ready = result as? WallpaperStorage.LoadResult.Ready
             val bitmap = ready?.bitmap
             val applyRuntimeBlur = blurEnabled && ready?.softwareBlurApplied != true
 
-            withContext(Dispatchers.Main) {
-                if (result == WallpaperStorage.LoadResult.Lost) {
-                    // The reference is gone for good; say so instead of dropping it silently.
-                    currentHasWallpaper = false
-                    Toast.makeText(this@BaseActivity, R.string.wallpaper_access_lost, Toast.LENGTH_LONG).show()
-                }
-                homeView?.let { WallpaperUtils.applyWallpaperToImageView(it, bitmap, blurRadius, applyRuntimeBlur) }
-                settingsView?.let { WallpaperUtils.applyWallpaperToImageView(it, bitmap, blurRadius, applyRuntimeBlur) }
-                if (!hasDedicatedViews) {
-                    applyGlobalWallpaper(bitmap, blurRadius, applyRuntimeBlur)
-                }
-
-                // Keep the content frame transparent so the image behind it stays visible.
-                contentFrame()?.setBackgroundColor(Color.TRANSPARENT)
-                applyScrim()
-                applyWallpaperLegibility()
+            if (result == WallpaperStorage.LoadResult.Lost) {
+                // The reference is gone for good; say so instead of dropping it silently.
+                Toast.makeText(this@BaseActivity, R.string.wallpaper_access_lost, Toast.LENGTH_LONG).show()
+                updateWallpaperPresence(false)
+            }
+            homeView?.let { WallpaperUtils.applyWallpaperToImageView(it, bitmap, blurRadius, applyRuntimeBlur) }
+            settingsView?.let { WallpaperUtils.applyWallpaperToImageView(it, bitmap, blurRadius, applyRuntimeBlur) }
+            if (!hasDedicatedViews) {
+                applyGlobalWallpaper(bitmap, blurRadius, applyRuntimeBlur)
             }
         }
     }
+
+    /**
+     * Records whether an image is painted behind this screen and settles what depends on it.
+     * The colour pass walks the whole tree, so it only runs when the answer changes.
+     */
+    private fun updateWallpaperPresence(hasWallpaper: Boolean) {
+        val changed = hasWallpaper != currentHasWallpaper || !surfaceColorsApplied
+        currentHasWallpaper = hasWallpaper
+        if (changed) applySurfaceColors()
+        applyScrim()
+    }
+
+    /**
+     * Re-applies the scrim and the colours tuned to it after the legibility or blur
+     * settings changed, which alters how much of the wallpaper shows through.
+     */
+    protected fun refreshWallpaperLegibility() {
+        currentScrimAlpha = contentScrimAlpha()
+        applySurfaceColors()
+        applyScrim()
+    }
+
+    /** Scrim strength behind this screen's text if a wallpaper were showing. */
+    private fun contentScrimAlpha(): Float = SurfaceScrim.alphaFor(this, contentSurface(), true)
 
     /**
      * Positions the legibility scrim for this screen.
@@ -351,63 +376,105 @@ abstract class BaseActivity : AppCompatActivity() {
             palette
         }
 
+    // ── Surface colouring ──────────────────────────────────────────
+
     /**
-     * Strengthens supporting text once a wallpaper is showing behind the content.
+     * Settles every colour that depends on the theme and on whether a wallpaper is showing.
      *
-     * The style themes pick their secondary colour against a solid background; several of
-     * them sit right at the WCAG threshold there, so any wallpaper visible through the
-     * scrim pushes them under it. This repaints the tree with [effectivePalette] — for
-     * every theme, not only the custom one — and is skipped entirely when there is no
-     * wallpaper, which is the common case.
+     * The custom theme is defined by two user colours rather than by a style, so it cannot
+     * be resolved at inflation time and the whole tree is repainted here. Built-in themes
+     * only strengthen their supporting colours while an image shows through the scrim —
+     * several of them sit right at the WCAG threshold on a solid background — and give
+     * them back once it is gone.
+     *
+     * Reversible by design: it runs again whenever a wallpaper appears, disappears or its
+     * legibility changes on a live screen, and every run starts from each view's original
+     * colour role rather than from what the previous run left behind.
      */
-    protected fun applyWallpaperLegibility() {
-        if (!currentHasWallpaper) return
-        if (ThemePreferences.getTheme(this) == ThemePreferences.THEME_CUSTOM) return
-        val adjusted = effectivePalette
-        if (adjusted == palette) return
-        contentFrame()?.let { colorizeViewTree(it, adjusted, applyBackgrounds = false) }
-    }
-
-    // ── Custom theme colouring ─────────────────────────────────────
-
-    /**
-     * Repaints the view tree for the custom theme, which is defined by two user colours
-     * rather than by a style and therefore cannot be resolved at inflation time.
-     */
-    protected fun applyCustomThemeColors() {
-        if (ThemePreferences.getTheme(this) != ThemePreferences.THEME_CUSTOM) return
-
+    protected fun applySurfaceColors() {
+        surfaceColorsApplied = true
+        val content = contentFrame() ?: return
         val colors = effectivePalette
-        window.decorView.setBackgroundColor(colors.background)
 
-        val contentFrame = contentFrame()
-        val hasWallpaper = hasSurfaceWallpaper()
-        currentHasWallpaper = hasWallpaper
-
-        if (hasWallpaper) {
-            contentFrame?.setBackgroundColor(Color.TRANSPARENT)
-        } else {
-            contentFrame?.setBackgroundColor(colors.background)
+        if (ThemePreferences.getTheme(this) == ThemePreferences.THEME_CUSTOM) {
+            window.decorView.setBackgroundColor(colors.background)
+            // The content frame carries the custom background, unless an image is painted
+            // inside it: then it must stay clear or it would hide that image.
+            content.setBackgroundColor(if (currentHasWallpaper) Color.TRANSPARENT else colors.background)
+            colorizeViewTree(content, colors, applyBackgrounds = true)
+            return
         }
 
-        // With a wallpaper active, container backgrounds stay transparent so the image
-        // remains visible behind the content; only text and controls are recoloured.
-        contentFrame?.let { colorizeViewTree(it, colors, applyBackgrounds = !hasWallpaper) }
+        if (colors == palette && !legibilityApplied) return
+        colorizeViewTree(content, colors, applyBackgrounds = false, secondaryOnly = true)
+        legibilityApplied = colors != palette
     }
 
     /**
      * Walks [root] and rewrites every colour that came from the *style* theme so it matches
-     * the custom [colors] instead.
+     * [colors] instead.
      *
-     * Views are matched against the style's own primary/secondary/background values, which
-     * is how a view's original semantic role is recovered after inflation.
+     * Views are matched against the style's own primary/secondary/background/surface
+     * values, which is how a view's original semantic role is recovered after inflation.
+     * The role is remembered on the view, so the walk can run any number of times.
+     *
+     * Only backgrounds that were drawn in one of those theme colours are repainted. An
+     * earlier version filled *every* container with the custom background whenever no
+     * wallpaper was showing; nothing ever cleared that fill, so a wallpaper chosen or shown
+     * again later stayed hidden behind opaque sections under the custom theme.
+     *
+     * @param applyBackgrounds whether theme-coloured container backgrounds are repainted.
+     * @param secondaryOnly repaint only supporting colours, leaving primary text, switches
+     *   and backgrounds as the style drew them.
      */
-    protected fun colorizeViewTree(root: View, colors: FocusPalette, applyBackgrounds: Boolean) {
+    protected fun colorizeViewTree(
+        root: View,
+        colors: FocusPalette,
+        applyBackgrounds: Boolean,
+        secondaryOnly: Boolean = false
+    ) {
         val ta = obtainStyledAttributes(R.styleable.FocusBaseThemeColors)
         val basePrimary = ta.getColor(R.styleable.FocusBaseThemeColors_android_textColorPrimary, 0)
         val baseSecondary = ta.getColor(R.styleable.FocusBaseThemeColors_android_textColorSecondary, 0)
         val baseBg = ta.getColor(R.styleable.FocusBaseThemeColors_android_colorBackground, 0)
         ta.recycle()
+        val surfaceAttrs = obtainStyledAttributes(intArrayOf(com.google.android.material.R.attr.colorSurface))
+        val baseSurface = surfaceAttrs.getColor(0, baseBg)
+        surfaceAttrs.recycle()
+
+        val roleOf = { color: Int ->
+            when (color) {
+                basePrimary -> ColorRole.PRIMARY
+                baseSecondary -> ColorRole.SECONDARY
+                baseBg -> ColorRole.BACKGROUND
+                baseSurface -> ColorRole.SURFACE
+                else -> ColorRole.OTHER
+            }
+        }
+        // Text and icons in an unrecognised colour were written for the style theme, so
+        // they are treated as primary content.
+        val contentRoleOf = { color: Int ->
+            when (color) {
+                baseSecondary -> ColorRole.SECONDARY
+                baseBg -> ColorRole.BACKGROUND
+                else -> ColorRole.PRIMARY
+            }
+        }
+        val colorFor = { role: ColorRole ->
+            when (role) {
+                ColorRole.SECONDARY -> colors.textSecondary
+                ColorRole.PRIMARY -> colors.textPrimary.takeUnless { secondaryOnly }
+                ColorRole.BACKGROUND -> colors.background.takeUnless { secondaryOnly }
+                ColorRole.SURFACE -> colors.surface.takeUnless { secondaryOnly }
+                ColorRole.OTHER -> null
+            }
+        }
+        val backgroundColorFor = { role: ColorRole ->
+            when (role) {
+                ColorRole.BACKGROUND, ColorRole.SURFACE -> if (applyBackgrounds) colorFor(role) else null
+                else -> colorFor(role)
+            }
+        }
 
         val stack = ArrayDeque<View>()
         stack.add(root)
@@ -415,31 +482,9 @@ abstract class BaseActivity : AppCompatActivity() {
             val view = stack.removeFirst()
 
             when (view) {
-                is TextView -> {
-                    when (view.currentTextColor) {
-                        baseSecondary -> view.setTextColor(colors.textSecondary)
-                        baseBg -> view.setTextColor(colors.background)
-                        else -> view.setTextColor(colors.textPrimary)
-                    }
-                    view.highlightColor = FocusColors.withAlpha(colors.accent, 0.30f)
-                    if (view is EditText) {
-                        view.setHintTextColor(FocusColors.withAlpha(colors.textSecondary, 0.75f))
-                    }
-                }
-
-                is ImageView -> {
-                    val tintList = view.imageTintList
-                    // Stateful tints encode selected/activated semantics that a single
-                    // colour cannot express; those views recolour themselves instead.
-                    if (tintList != null && !tintList.isStateful) {
-                        val currentTint = tintList.getColorForState(intArrayOf(), basePrimary)
-                        view.imageTintList = ColorStateList.valueOf(
-                            if (currentTint == baseSecondary) colors.textSecondary else colors.textPrimary
-                        )
-                    }
-                }
-
-                is MaterialSwitch -> {
+                // Before TextView: a MaterialSwitch is one, and matching it as text used to
+                // leave every switch in the style theme's colours.
+                is MaterialSwitch -> if (!secondaryOnly) {
                     val states = arrayOf(
                         intArrayOf(android.R.attr.state_checked),
                         intArrayOf(-android.R.attr.state_checked)
@@ -458,6 +503,29 @@ abstract class BaseActivity : AppCompatActivity() {
                     )
                 }
 
+                is TextView -> {
+                    recolor(view, R.id.tag_recolor_text, view.currentTextColor, contentRoleOf, colorFor) {
+                        view.setTextColor(it)
+                    }
+                    view.highlightColor = FocusColors.withAlpha(colors.accent, 0.30f)
+                    if (view is EditText) {
+                        view.setHintTextColor(FocusColors.withAlpha(colors.textSecondary, 0.75f))
+                    }
+                }
+
+                is ImageView -> {
+                    val tintList = view.imageTintList
+                    // Stateful tints encode selected/activated semantics that a single
+                    // colour cannot express; those views recolour themselves instead.
+                    if (tintList != null && !tintList.isStateful) {
+                        recolor(view, R.id.tag_recolor_tint, tintList.defaultColor, {
+                            if (it == baseSecondary) ColorRole.SECONDARY else ColorRole.PRIMARY
+                        }, colorFor) {
+                            view.imageTintList = ColorStateList.valueOf(it)
+                        }
+                    }
+                }
+
                 is Slider -> {
                     view.thumbTintList = ColorStateList.valueOf(colors.accent)
                     view.trackActiveTintList = ColorStateList.valueOf(colors.accent)
@@ -471,29 +539,62 @@ abstract class BaseActivity : AppCompatActivity() {
                 is AnalogClockView -> view.updateColors()
             }
 
-            if (view is ViewGroup) {
-                val skipBg = view === root ||
-                        view.getTag(R.id.tag_skip_recolor) == true ||
-                        view.id in BACKGROUND_RECOLOR_EXCLUDED_IDS
-
-                if (applyBackgrounds && !skipBg && view.id != android.R.id.content) {
-                    view.setBackgroundColor(colors.background)
-                }
-                for (i in 0 until view.childCount) {
-                    stack.addLast(view.getChildAt(i))
-                }
-            } else {
-                // Leaf views: recolour hairline dividers, which are drawn as flat colours.
-                val background = view.background
-                if (background is ColorDrawable) {
-                    val currentColor = background.color
-                    when (currentColor) {
-                        basePrimary -> view.setBackgroundColor(colors.textPrimary)
-                        baseSecondary -> view.setBackgroundColor(colors.textSecondary)
+            // Leaf views are mostly hairline dividers drawn as flat theme colours; containers
+            // are only touched when they were painted in a theme colour themselves.
+            val recolorBackground = view !is ViewGroup || (
+                    applyBackgrounds &&
+                            view !== root &&
+                            view.id != android.R.id.content &&
+                            view.getTag(R.id.tag_skip_recolor) != true &&
+                            view.id !in BACKGROUND_RECOLOR_EXCLUDED_IDS
+                    )
+            if (recolorBackground) {
+                solidColorOf(view.background)?.let { current ->
+                    recolor(view, R.id.tag_recolor_background, current, roleOf, backgroundColorFor) {
+                        view.setBackgroundColor(it)
                     }
                 }
             }
+
+            if (view is ViewGroup) {
+                for (i in 0 until view.childCount) {
+                    stack.addLast(view.getChildAt(i))
+                }
+            }
         }
+    }
+
+    /**
+     * Rewrites one colour of [view] according to its semantic role.
+     *
+     * The role is recognised once, from the style colour the view was inflated with, and
+     * remembered under [key] together with the colour written. Later passes reuse it, so a
+     * secondary label stays secondary however often the tree is repainted — re-detecting it
+     * from an already rewritten colour used to turn it into primary text on the second
+     * pass. A colour that no longer matches the one written was changed by the screen
+     * itself and is recognised afresh.
+     */
+    private inline fun recolor(
+        view: View,
+        key: Int,
+        current: Int,
+        detect: (Int) -> ColorRole,
+        resolve: (ColorRole) -> Int?,
+        write: (Int) -> Unit
+    ) {
+        val memo = view.getTag(key) as? RecolorMemo
+        val role = if (memo != null && memo.applied == current) memo.role else detect(current)
+        val target = resolve(role) ?: return
+        view.setTag(key, RecolorMemo(role, target))
+        if (target != current) write(target)
+    }
+
+    /** The colour of a flat background, or null when it is a shape, ripple or image. */
+    private fun solidColorOf(drawable: Drawable?): Int? = when {
+        drawable is ColorDrawable -> drawable.color
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && drawable is ColorStateListDrawable ->
+            drawable.colorStateList.defaultColor
+        else -> null
     }
 
     // ── Font family ────────────────────────────────────────────────
@@ -579,7 +680,6 @@ abstract class BaseActivity : AppCompatActivity() {
         val activeFontScale = FontPreferences.getFontScale(this)
         val activeFontFamily = FontPreferences.getFont(this).key
         val activeHasWallpaper = hasSurfaceWallpaper()
-        val activeReadability = WallpaperPreferences.getReadability(this)
         val fontScaleChanged = kotlin.math.abs(activeFontScale - (currentFontScale ?: 0f)) > 0.01f
 
         if (activeTheme != currentTheme ||
@@ -602,10 +702,10 @@ abstract class BaseActivity : AppCompatActivity() {
 
         applyWallpaper()
 
-        if (activeReadability != currentReadability) {
-            currentReadability = activeReadability
-            applyScrim()
-            applyWallpaperLegibility()
+        // Legibility or blur changed on another screen: the scrim follows, and so do the
+        // colours tuned to how much of the wallpaper it lets through.
+        if (contentScrimAlpha() != currentScrimAlpha) {
+            refreshWallpaperLegibility()
         }
 
         // Re-apply font family to catch dynamically created views (e.g. calendars, dialogs)
@@ -870,3 +970,9 @@ abstract class BaseActivity : AppCompatActivity() {
         return true
     }
 }
+
+/** What a colour means on screen, recovered from the style theme it was inflated with. */
+private enum class ColorRole { PRIMARY, SECONDARY, BACKGROUND, SURFACE, OTHER }
+
+/** A view's recognised [role] and the colour last written for it. */
+private class RecolorMemo(val role: ColorRole, val applied: Int)

@@ -69,6 +69,54 @@ class WallpaperPreferencesTest {
         assertEquals(emptySet<String>(), WallpaperPreferences.storedUris(context))
     }
 
+    @Test
+    fun `turning the shared mode on keeps the home image on screen`() {
+        WallpaperPreferences.assignWallpaper(context, WallpaperTarget.HOME, HOME_COPY)
+        WallpaperPreferences.assignWallpaper(context, WallpaperTarget.SETTINGS, SETTINGS_COPY)
+
+        WallpaperPreferences.setSharedMode(context, true)
+
+        assertEquals(HOME_COPY, WallpaperPreferences.getHomeWallpaperUri(context))
+        assertEquals(HOME_COPY, WallpaperPreferences.getNotificationsWallpaperUri(context))
+        assertEquals(HOME_COPY, WallpaperPreferences.getSettingsWallpaperUri(context))
+    }
+
+    @Test
+    fun `turning the shared mode on without a home image uses another screen's`() {
+        WallpaperPreferences.assignWallpaper(context, WallpaperTarget.SETTINGS, SETTINGS_COPY)
+
+        WallpaperPreferences.setSharedMode(context, true)
+
+        assertEquals(SETTINGS_COPY, WallpaperPreferences.getHomeWallpaperUri(context))
+    }
+
+    @Test
+    fun `turning the shared mode off restores own images and fills the empty screens`() {
+        WallpaperPreferences.assignWallpaper(context, WallpaperTarget.SETTINGS, SETTINGS_COPY)
+        WallpaperPreferences.setSharedMode(context, true)
+        WallpaperPreferences.assignWallpaper(context, WallpaperTarget.HOME, SHARED_COPY)
+
+        WallpaperPreferences.setSharedMode(context, false)
+
+        assertEquals(SHARED_COPY, WallpaperPreferences.getHomeWallpaperUri(context))
+        assertEquals(SHARED_COPY, WallpaperPreferences.getNotificationsWallpaperUri(context))
+        assertEquals(SETTINGS_COPY, WallpaperPreferences.getSettingsWallpaperUri(context))
+        assertNull(WallpaperPreferences.getSharedWallpaperUri(context))
+    }
+
+    @Test
+    fun `a shared image no screen keeps is released when the shared mode is turned off`() {
+        WallpaperPreferences.assignWallpaper(context, WallpaperTarget.HOME, HOME_COPY)
+        WallpaperPreferences.assignWallpaper(context, WallpaperTarget.NOTIFICATIONS, HOME_COPY)
+        WallpaperPreferences.assignWallpaper(context, WallpaperTarget.SETTINGS, SETTINGS_COPY)
+        WallpaperPreferences.setSharedMode(context, true)
+        WallpaperPreferences.assignWallpaper(context, WallpaperTarget.HOME, SHARED_COPY)
+
+        WallpaperPreferences.setSharedMode(context, false)
+
+        assertEquals(setOf(HOME_COPY, SETTINGS_COPY), WallpaperPreferences.storedUris(context))
+    }
+
     private companion object {
         const val HOME_COPY = "file:///data/wallpapers/home.jpg"
         const val SETTINGS_COPY = "file:///data/wallpapers/settings.jpg"

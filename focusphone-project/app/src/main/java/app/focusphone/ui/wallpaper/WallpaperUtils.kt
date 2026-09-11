@@ -185,6 +185,24 @@ object WallpaperUtils {
     }
 
     /**
+     * Re-blurs an image already on screen without decoding it again, so a preview can follow
+     * the blur slider live. Only possible where blur is a render effect (Android 12+).
+     *
+     * @return false when this device blurs in software and the image must be reloaded.
+     */
+    fun updateLiveBlur(imageView: ImageView, blurRadius: Float, blurEnabled: Boolean): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return false
+        imageView.setRenderEffectCompat(
+            if (blurEnabled && blurRadius > 0.5f) {
+                RenderEffect.createBlurEffect(blurRadius, blurRadius, Shader.TileMode.CLAMP)
+            } else {
+                null
+            }
+        )
+        return true
+    }
+
+    /**
      * Clear a wallpaper [ImageView] and remove any blur effect.
      */
     fun clearWallpaperEffect(imageView: ImageView) {

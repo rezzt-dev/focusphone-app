@@ -119,6 +119,21 @@ class SurfaceScrimTest {
     }
 
     @Test
+    fun `live slider values give the same alpha as the stored settings`() {
+        WallpaperPreferences.setReadability(context, 35)
+        WallpaperPreferences.setBlurEnabled(context, true)
+        WallpaperPreferences.setBlurIntensity(context, 70)
+
+        ScrimSurface.entries.forEach { surface ->
+            assertEquals(
+                SurfaceScrim.alphaFor(context, surface, hasWallpaper = true),
+                SurfaceScrim.alphaFor(surface, legibility = 35, blurEnabled = true, blurIntensity = 70),
+                0.0001f
+            )
+        }
+    }
+
+    @Test
     fun `readability is clamped to a sane range`() {
         WallpaperPreferences.setReadability(context, 500)
         assertEquals(100, WallpaperPreferences.getReadability(context))

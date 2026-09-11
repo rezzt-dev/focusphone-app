@@ -8,8 +8,12 @@
 - añadir `FocusColors`, `FocusPalette` y `SurfaceScrim` como fuente unica de color en tiempo de ejecucion del tema, sustituyendo las resoluciones de atributo que devolvian un id de recurso en vez de un color
 - añadir `ensureContrast` para garantizar contraste wcag en el tema personalizado cuando el usuario elige un fondo y un primer plano poco legibles
 - añadir un scrim de legibilidad adaptativo sobre el fondo de pantalla, con un nuevo slider "legibilidad de texto" en ajustes, para todos los temas
+- añadir una vista previa del fondo en ajustes que se toca para elegir la imagen y refleja en vivo el desenfoque y la legibilidad sobre un reloj de muestra
+- añadir la opcion "usar el fondo de inicio" en notificaciones y ajustes para reutilizar la misma imagen sin volver a elegirla
 
 #### CAMBIADO
+- reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
+- abrir el selector de imagenes directamente cuando elegir es la unica opcion y mostrar "aplicando…" mientras se copia la imagen
 - renombrar la accion "editar aplicaciones" a "editar dashboard" en ingles, español, frances y aleman
 - reestructurar las pantallas de ajustes (apariencia, inicio, enfoque, notificaciones, sistema y acerca de) alrededor de un `settingsSection` comun que gestiona cabeceras y separadores
 - optimizar el rendimiento en tiempo de ejecucion y el proceso de build/ci: lint sin errores en release, dependencias actualizadas, wrapper de gradle versionado y un workflow de ci
@@ -29,6 +33,13 @@
 - mostrar un error en linea al crear o renombrar una carpeta con un nombre duplicado, en vez de cerrar el dialogo silenciosamente
 - respetar el formato de 12/24 horas del sistema en el reloj y corregir el informe de estado del permiso `QUERY_ALL_PACKAGES`
 - corregir `EncryptedPrefs.commitString`, que devolvia `Unit` en vez del `Boolean` prometido tras la limpieza `UseKtx`
+- permitir establecer y ver un fondo con el tema personalizado: `colorizeViewTree` pintaba todos los contenedores de un color opaco que nunca se deshacia y tapaba la imagen; ahora solo repinta los fondos que usaban un color del tema
+- evitar que el texto secundario pasara a primario al repintar la vista mas de una vez, recordando el rol de color de cada vista
+- no dejar todas las pantallas sin fondo al activar "mismo fondo en todas las pantallas": se parte de la imagen de inicio, y al desactivarlo cada pantalla recupera la suya o conserva la compartida
+- aplicar al momento en la propia pantalla de ajustes los cambios de mostrar/ocultar, elegir, quitar, modo compartido, desenfoque y legibilidad, sin recrearla
+- descartar las cargas de fondo obsoletas para que una imagen quitada u oculta no reaparezca al terminar de decodificarse
+- conservar el destino del selector de imagenes al rotar la pantalla o si el sistema cierra la app mientras se elige
+- tintar los interruptores con el tema personalizado, que se trataban como texto y conservaban los colores del tema base
 
 #### ELIMINADO
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` y el subsistema de tamaño de icono inalcanzable, junto con `backup_rules.xml` y el `values-night/themes.xml` vacio
@@ -44,8 +55,12 @@
 - add `FocusColors`, `FocusPalette` and `SurfaceScrim` as the single source of runtime theme colour, replacing attribute resolutions that returned a resource id instead of a colour
 - add `ensureContrast` to guarantee wcag contrast for the custom theme when the user picks a hard-to-read background/foreground pair
 - add an adaptive legibility scrim over the wallpaper, with a new "text legibility" slider in settings, for every theme
+- add a tappable wallpaper preview in settings that picks the image and follows blur and legibility live over a sample clock
+- add a "use the home wallpaper" option for notifications and settings to reuse the same image without picking it again
 
 #### CHANGED
+- reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone
+- open the image picker straight away when choosing is the only option, and show "applying…" while the image is copied
 - rename the "edit applications" action to "edit dashboard" across english, spanish, french and german
 - restructure the settings screens (appearance, home, focus, notifications, system and about) around a shared `settingsSection` helper that owns headers and separators
 - optimize runtime performance and the build/ci pipeline: lint runs clean on release builds, dependencies updated, gradle wrapper jar versioned and a ci workflow added
@@ -65,6 +80,13 @@
 - show an inline error when creating or renaming a folder with a duplicate name instead of silently dismissing the dialog
 - honour the system's 12/24-hour clock setting and fix the `QUERY_ALL_PACKAGES` permission status report
 - fix `EncryptedPrefs.commitString`, which returned `Unit` instead of the promised `Boolean` after the `UseKtx` cleanup
+- allow setting and seeing a wallpaper under the custom theme: `colorizeViewTree` filled every container with an opaque colour that was never undone and hid the image; it now only repaints backgrounds drawn in a theme colour
+- stop secondary text turning primary when the view tree is repainted more than once, by remembering each view's colour role
+- stop "same wallpaper everywhere" from blanking every screen: it starts from the home image, and turning it off gives each screen back its own image or keeps the shared one
+- apply show/hide, choose, remove, shared mode, blur and legibility changes immediately on the settings screen itself, without recreating it
+- drop stale wallpaper loads so a removed or hidden image never reappears when its decode finishes
+- keep the image picker's target across rotation or process death while choosing
+- tint switches under the custom theme, which were matched as text and kept the base theme's colours
 
 #### REMOVED
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` and the unreachable icon-size-slider subsystem, along with `backup_rules.xml` and the empty `values-night/themes.xml`

@@ -75,15 +75,16 @@ object WallpaperStorage {
         }
 
     /**
-     * Runs [unassign], which must remove a reference from the preferences, and deletes the
+     * Runs [change], which rearranges or removes references in the preferences (removing an
+     * image, reusing one on another screen, switching the shared mode), and deletes the
      * copies nothing refers to any more. Holding the lock keeps a concurrent import from
      * seeing its fresh copy deleted.
      */
-    suspend fun remove(context: Context, unassign: () -> Unit) =
+    suspend fun update(context: Context, change: () -> Unit) =
         withContext(Dispatchers.IO) {
             val appContext = context.applicationContext
             lock.withLock {
-                unassign()
+                change()
                 pruneUnreferenced(appContext)
             }
         }

@@ -60,13 +60,25 @@ object SurfaceScrim {
      */
     fun alphaFor(context: Context, surface: ScrimSurface, hasWallpaper: Boolean): Float {
         if (!hasWallpaper || !WallpaperPreferences.isWallpaperEnabled(context)) return 0f
+        return alphaFor(
+            surface,
+            legibility = WallpaperPreferences.getReadability(context),
+            blurEnabled = WallpaperPreferences.isBlurEnabled(context),
+            blurIntensity = WallpaperPreferences.getBlurIntensity(context)
+        )
+    }
 
-        val legibility = WallpaperPreferences.getReadability(context) / 100f
-        var alpha = surface.floor + surface.range * legibility
-
-        if (WallpaperPreferences.isBlurEnabled(context)) {
-            val blur = WallpaperPreferences.getBlurIntensity(context) / 100f
-            alpha *= (1f - BLUR_RELIEF * blur)
+    /**
+     * Alpha for [surface] over a visible wallpaper with explicit settings, so a preview can
+     * follow a slider while it is being dragged, before anything is stored.
+     *
+     * @param legibility 0-100, as stored by [WallpaperPreferences.setReadability].
+     * @param blurIntensity 0-100, as stored by [WallpaperPreferences.setBlurIntensity].
+     */
+    fun alphaFor(surface: ScrimSurface, legibility: Int, blurEnabled: Boolean, blurIntensity: Int): Float {
+        var alpha = surface.floor + surface.range * (legibility.coerceIn(0, 100) / 100f)
+        if (blurEnabled) {
+            alpha *= (1f - BLUR_RELIEF * (blurIntensity.coerceIn(0, 100) / 100f))
         }
         return alpha.coerceIn(0f, 1f)
     }

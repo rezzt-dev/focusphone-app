@@ -330,8 +330,14 @@ every match flat.
   `WallpaperStorage`; preferences store the `file://` URI of the copy. The Photo Picker
   grant dies with the process, so a `content://` URI must never be stored.
 - Assign or remove an image only through `WallpaperPreferences.assignWallpaper` (it honours
-  the shared-wallpaper mode) inside `WallpaperStorage.replace`/`remove`, which delete the
-  copies no preference refers to any more.
+  the shared-wallpaper mode) inside `WallpaperStorage.replace`/`update`, which delete the
+  copies no preference refers to any more. Switch the shared mode with
+  `WallpaperPreferences.setSharedMode` (never the raw flag): it seeds the shared slot from the
+  image on screen and hands it back to each screen when turned off.
+- `BaseActivity.applyWallpaper()` can be called on a live screen after any wallpaper change:
+  it settles the content background, scrim and colours in place. `colorizeViewTree` only
+  repaints backgrounds drawn in a theme colour and remembers each view's colour role, so it
+  is safe to run repeatedly — never paint every container opaque again.
 - The password dialogs set `FLAG_SECURE`, and the rule list is not rendered at all until
   the password check succeeds.
 - `ScheduleBlockedActivity` intentionally offers no unlock button: rules can only be

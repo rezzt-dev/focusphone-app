@@ -8,4 +8,11 @@
     <item name="tag_settings_row" type="id" />
     <!-- Opts a custom-drawn ViewGroup out of BaseActivity's background recolouring. -->
     <item name="tag_skip_recolor" type="id" />
+    <!--
+        Remember the colour role BaseActivity recognised for a view's text, icon tint and
+        background, so repainting the tree after a wallpaper change is repeatable.
+    -->
+    <item name="tag_recolor_text" type="id" />
+    <item name="tag_recolor_tint" type="id" />
+    <item name="tag_recolor_background" type="id" />
 </resources>

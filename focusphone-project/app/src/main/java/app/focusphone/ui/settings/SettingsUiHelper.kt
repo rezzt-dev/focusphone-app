@@ -161,7 +161,17 @@ fun LinearLayout.addValueRow(
     @DrawableRes iconResId: Int? = null,
     showChevron: Boolean = true,
     onClick: () -> Unit
-): TextView {
+): TextView = addValueRowBinding(titleResId, subtitleResId, initialValue, iconResId, showChevron, onClick).tvValue
+
+/** [addValueRow] returning the whole row, for screens that also relabel its title or subtitle. */
+fun LinearLayout.addValueRowBinding(
+    @StringRes titleResId: Int,
+    @StringRes subtitleResId: Int,
+    initialValue: String?,
+    @DrawableRes iconResId: Int? = null,
+    showChevron: Boolean = true,
+    onClick: () -> Unit
+): ItemSettingsValueBinding {
     val binding = ItemSettingsValueBinding.inflate(LayoutInflater.from(context), this, false)
     if (iconResId != null) {
         binding.ivIcon.setImageResource(iconResId)
@@ -178,7 +188,7 @@ fun LinearLayout.addValueRow(
     binding.root.setOnClickListener { onClick() }
     addView(binding.root)
     binding.root.markAsSettingsRow()
-    return binding.tvValue
+    return binding
 }
 
 /** Inflates a simple clickable info/action row with no chevron (e.g. version). */
