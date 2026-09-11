@@ -25,7 +25,12 @@ local.properties
 *.ap_
 *.aar
 *.jar
+# The wrapper JAR must be versioned: without it a clean clone cannot run ./gradlew.
+!gradle/wrapper/gradle-wrapper.jar
 *.class
+
+# Release outputs (APK, output metadata, baseline profiles) are build artifacts
+/app/release/
 
 # Log files
 *.log

@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import app.focusphone.data.model.FavouriteApp
+import app.focusphone.domain.util.FavouriteOrdering
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -31,20 +32,25 @@ interface FavouriteAppDao {
     @Query("DELETE FROM favourite_apps WHERE packageName = :packageName")
     suspend fun delete(packageName: String)
 
-    @Query("DELETE FROM favourite_apps")
-    suspend fun deleteAll()
+    @Query("UPDATE favourite_apps SET sortOrder = :sortOrder WHERE packageName = :packageName")
+    suspend fun updateSortOrder(packageName: String, sortOrder: Int)
 
     @Transaction
     suspend fun deleteAndReorder(packageName: String) {
         delete(packageName)
-        val remaining = getAll().mapIndexed { index, app -> app.copy(sortOrder = index) }
-        insertAll(remaining)
+        getAll().forEachIndexed { index, app -> updateSortOrder(app.packageName, index) }
     }
 
+    /**
+     * Applies [requestedOrder] by rewriting `sortOrder` only.
+     *
+     * No row is ever deleted here: favourites the request does not mention keep their
+     * relative order after the requested ones (see [FavouriteOrdering.merge]).
+     */
     @Transaction
-    suspend fun replaceAllOrdered(apps: List<FavouriteApp>) {
-        deleteAll()
-        insertAll(apps)
+    suspend fun applyOrder(requestedOrder: List<String>) {
+        val merged = FavouriteOrdering.merge(getAll().map { it.packageName }, requestedOrder)
+        merged.forEachIndexed { index, packageName -> updateSortOrder(packageName, index) }
     }
 
     /**

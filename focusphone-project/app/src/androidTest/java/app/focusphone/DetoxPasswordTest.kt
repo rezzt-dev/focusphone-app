@@ -13,7 +13,9 @@ import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.ui.home.HomeActivity
 import org.junit.Assert.assertEquals
+import app.focusphone.security.PasswordAttemptPolicy
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -68,7 +70,7 @@ class DetoxPasswordTest {
     }
 
     @Test
-    fun detox_lockout_after_4_failed_attempts() {
+    fun wrong_passwords_start_a_cooldown_and_never_end_the_session() {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         // Activate detox with a known password
@@ -89,16 +91,20 @@ class DetoxPasswordTest {
         onView(withId(app.focusphone.R.id.btn_profile_normal))
             .perform(click())
 
-        // Enter wrong password 4 times
-        repeat(4) {
+        // One more wrong password than the policy tolerates.
+        repeat(PasswordAttemptPolicy.DEFAULT_MAX_FAILED_ATTEMPTS + 1) {
             onView(withId(app.focusphone.R.id.et_detox_password_verify))
                 .perform(typeText("wrong"))
             onView(withId(app.focusphone.R.id.btn_ok))
                 .perform(click())
         }
 
-        // After 4 failed attempts detox should be force-disabled
-        assertEquals(ProfilePreferences.PROFILE_NORMAL, ProfilePreferences.getProfile(context))
+        // The session survives and the lock only cools down: wrong guesses are never a bypass.
+        assertEquals(ProfilePreferences.PROFILE_DETOX, ProfilePreferences.getProfile(context))
+        assertTrue(ProfilePreferences.isDetoxActive(context))
         assertTrue(ProfilePreferences.isPasswordLockedOut(context))
+        assertNotNull(ProfilePreferences.getDetoxPassword(context))
+        // Even the right password is refused until the cooldown ends.
+        assertFalse(ProfilePreferences.verifyDetoxPassword(context, "secret"))
     }
 }

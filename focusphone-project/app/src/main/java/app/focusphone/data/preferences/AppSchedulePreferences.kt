@@ -6,6 +6,7 @@ import app.focusphone.domain.model.AppScheduleRule
 import app.focusphone.domain.model.ScheduleBlockReason
 import app.focusphone.domain.util.AppScheduleEvaluator
 import app.focusphone.security.EncryptedPrefs
+import app.focusphone.security.PasswordAttemptPolicy
 import app.focusphone.security.PasswordHasher
 import java.util.Calendar
 
@@ -18,12 +19,15 @@ import java.util.Calendar
  *  - the password that guards those rules (PBKDF2 hash, never plain text),
  *  - the per-app usage counters of the current calendar day.
  *
- * **Lockout policy.** Detox force-disables itself after repeated wrong passwords so a
- * user can never be trapped by a session they no longer remember the password for.
- * Schedules deliberately behave the *opposite* way: wrong attempts trigger a
- * [LOCKOUT_DURATION_MS] cooldown and nothing is erased, because clearing the rules on
- * failed attempts would turn the lock into a one-minute bypass. Rules are a standing
- * configuration, not a timed session, so waiting out the cooldown is always enough.
+ * **Lockout policy.** Wrong passwords follow the shared [PasswordAttemptPolicy], exactly
+ * like detox: after [MAX_FAILED_ATTEMPTS] failures every attempt is refused for
+ * [LOCKOUT_DURATION_MS] and nothing is erased, because clearing the rules on failed
+ * attempts would turn the lock into a one-minute bypass.
+ *
+ * **Unreadable storage.** While the Keystore key is temporarily unavailable, writers refuse
+ * to run instead of treating the rules as empty — otherwise the next save would replace
+ * every rule the user configured with a single one. Rules that can never be decrypted
+ * again are treated as gone, so the user can configure them anew.
  */
 object AppSchedulePreferences {
 
@@ -37,25 +41,37 @@ object AppSchedulePreferences {
     private const val KEY_USAGE_COUNTERS = "schedule_usage_counters"
 
     /** Wrong attempts tolerated before the settings screen enters its cooldown. */
-    const val MAX_FAILED_ATTEMPTS = 5
+    const val MAX_FAILED_ATTEMPTS = PasswordAttemptPolicy.DEFAULT_MAX_FAILED_ATTEMPTS
 
     /** How long the schedule settings stay locked after [MAX_FAILED_ATTEMPTS]. */
-    const val LOCKOUT_DURATION_MS = 15 * 60 * 1000L
+    const val LOCKOUT_DURATION_MS = PasswordAttemptPolicy.DEFAULT_LOCKOUT_DURATION_MS
 
     /** Minimum length accepted when the user creates the schedule password. */
     const val MIN_PASSWORD_LENGTH = 4
 
     private val store = EncryptedPrefs(PREF_FILE)
 
+    private fun attemptPolicy(context: Context) = PasswordAttemptPolicy.encrypted(
+        context = context.applicationContext,
+        prefs = store,
+        attemptsKey = KEY_FAILED_ATTEMPTS,
+        lockoutKey = KEY_LOCKOUT_UNTIL
+    )
+
     // ── Rules ──────────────────────────────────────────────────────
 
     /** Returns every stored rule, skipping entries that fail to parse. */
-    fun getRules(context: Context): List<AppScheduleRule> {
-        val raw = store.getString(context, KEY_RULES, null) ?: return emptyList()
-        return raw.split("\n")
-            .filter { it.isNotBlank() }
-            .mapNotNull { AppScheduleEvaluator.parse(it) }
-    }
+    fun getRules(context: Context): List<AppScheduleRule> = readRules(context) ?: emptyList()
+
+    /** The stored rules, or null while they exist but cannot be decrypted yet. */
+    private fun readRules(context: Context): List<AppScheduleRule>? =
+        when (val stored = store.read(context, KEY_RULES)) {
+            EncryptedPrefs.StoredValue.Absent, EncryptedPrefs.StoredValue.Lost -> emptyList()
+            EncryptedPrefs.StoredValue.Unavailable -> null
+            is EncryptedPrefs.StoredValue.Present -> stored.value.split("\n")
+                .filter { it.isNotBlank() }
+                .mapNotNull { AppScheduleEvaluator.parse(it) }
+        }
 
     /** Returns the rule for [packageName], or null when the app is unrestricted. */
     fun getRule(context: Context, packageName: String): AppScheduleRule? =
@@ -64,27 +80,37 @@ object AppSchedulePreferences {
     /**
      * Persists [rule], replacing any existing rule for the same package.
      * A rule that restricts nothing is removed instead of stored.
+     *
+     * @return false when nothing was saved because the stored rules are unreadable or
+     * the write failed.
      */
-    fun saveRule(context: Context, rule: AppScheduleRule) {
-        val updated = getRules(context).filterNot { it.packageName == rule.packageName }.toMutableList()
+    fun saveRule(context: Context, rule: AppScheduleRule): Boolean {
+        val current = readRules(context) ?: return false
+        val updated = current.filterNot { it.packageName == rule.packageName }.toMutableList()
         if (rule.isActive) updated.add(rule)
-        writeRules(context, updated)
+        return writeRules(context, updated)
     }
 
-    /** Removes the rule for [packageName] and its accumulated usage for today. */
-    fun removeRule(context: Context, packageName: String) {
-        writeRules(context, getRules(context).filterNot { it.packageName == packageName })
-        val counters = readUsageCounters(context).toMutableMap()
-        if (counters.remove(packageName) != null) {
-            writeUsageCounters(context, counters)
+    /**
+     * Removes the rule for [packageName] and its accumulated usage for today.
+     *
+     * @return false when nothing was removed because the stored rules are unreadable or
+     * the write failed.
+     */
+    fun removeRule(context: Context, packageName: String): Boolean {
+        val current = readRules(context) ?: return false
+        if (!writeRules(context, current.filterNot { it.packageName == packageName })) return false
+        readUsageCounters(context)?.let { counters ->
+            if (packageName in counters) writeUsageCounters(context, counters - packageName)
         }
+        return true
     }
 
-    private fun writeRules(context: Context, rules: List<AppScheduleRule>) {
+    private fun writeRules(context: Context, rules: List<AppScheduleRule>): Boolean {
         val raw = rules
             .sortedBy { it.packageName }
             .joinToString("\n") { AppScheduleEvaluator.serialize(it) }
-        store.putString(context, KEY_RULES, raw.ifBlank { null })
+        return store.putString(context, KEY_RULES, raw.ifBlank { null })
     }
 
     // ── Blocking decision ──────────────────────────────────────────
@@ -100,12 +126,17 @@ object AppSchedulePreferences {
 
     /** Evaluates an already-loaded [rule] against the current time and usage. */
     fun evaluateRule(context: Context, rule: AppScheduleRule): ScheduleBlockReason? {
+        return evaluateRule(rule, getUsedSeconds(context, rule.packageName))
+    }
+
+    /** Evaluates [rule] using an already-cached usage value, without touching storage. */
+    fun evaluateRule(rule: AppScheduleRule, usedSecondsToday: Int): ScheduleBlockReason? {
         val calendar = Calendar.getInstance()
         return AppScheduleEvaluator.evaluate(
             rule = rule,
             minuteOfDay = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE),
             dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK),
-            usedMinutesToday = getUsedMinutes(context, rule.packageName)
+            usedMinutesToday = usedSecondsToday.coerceAtLeast(0) / 60
         )
     }
 
@@ -117,18 +148,34 @@ object AppSchedulePreferences {
 
     /** Seconds [packageName] has been used during the current calendar day. */
     fun getUsedSeconds(context: Context, packageName: String): Int =
-        readUsageCounters(context)[packageName] ?: 0
+        readUsageCounters(context)?.get(packageName) ?: 0
+
+    /** One decrypted snapshot for services that keep the counters in memory. */
+    fun getUsageSecondsSnapshot(context: Context): Map<String, Int> =
+        readUsageCounters(context) ?: emptyMap()
 
     /**
      * Adds [seconds] of foreground time to [packageName]'s counter for today.
      * Counters from a previous day are discarded first, which is what resets every
-     * daily allowance at local midnight.
+     * daily allowance at local midnight. Unreadable counters are left untouched rather
+     * than reset, so a storage hiccup can never hand out a fresh allowance.
      */
     fun addUsageSeconds(context: Context, packageName: String, seconds: Int) {
-        if (seconds <= 0) return
-        val counters = readUsageCounters(context).toMutableMap()
-        counters[packageName] = (counters[packageName] ?: 0) + seconds
-        writeUsageCounters(context, counters)
+        addUsageSeconds(context, mapOf(packageName to seconds))
+    }
+
+    /**
+     * Atomically merges one in-memory batch with the encrypted counters. Callers must
+     * serialize concurrent batches; one read and one write are performed per batch.
+     */
+    fun addUsageSeconds(context: Context, additions: Map<String, Int>): Boolean {
+        val valid = additions.filterValues { it > 0 }
+        if (valid.isEmpty()) return true
+        val counters = readUsageCounters(context)?.toMutableMap() ?: return false
+        valid.forEach { (packageName, seconds) ->
+            counters[packageName] = (counters[packageName] ?: 0) + seconds
+        }
+        return writeUsageCounters(context, counters)
     }
 
     /**
@@ -136,16 +183,26 @@ object AppSchedulePreferences {
      * A fully consumed allowance returns 0.
      */
     fun getRemainingLimitSeconds(context: Context, rule: AppScheduleRule): Int? {
+        return getRemainingLimitSeconds(rule, getUsedSeconds(context, rule.packageName))
+    }
+
+    /** Remaining allowance using an already-cached usage value, without storage IO. */
+    fun getRemainingLimitSeconds(rule: AppScheduleRule, usedSecondsToday: Int): Int? {
         if (!rule.hasDailyLimit) return null
-        val remaining = rule.dailyLimitMinutes * 60 - getUsedSeconds(context, rule.packageName)
+        val remaining = rule.dailyLimitMinutes * 60 - usedSecondsToday.coerceAtLeast(0)
         return remaining.coerceAtLeast(0)
     }
 
-    private fun readUsageCounters(context: Context): Map<String, Int> {
+    /** Today's counters, an empty map on a new day, or null while they cannot be read yet. */
+    private fun readUsageCounters(context: Context): Map<String, Int>? {
         val storedDay = store.getInt(context, KEY_USAGE_DAY, 0)
         if (storedDay != currentDayStamp()) return emptyMap()
 
-        val raw = store.getString(context, KEY_USAGE_COUNTERS, null) ?: return emptyMap()
+        val raw = when (val stored = store.read(context, KEY_USAGE_COUNTERS)) {
+            EncryptedPrefs.StoredValue.Absent, EncryptedPrefs.StoredValue.Lost -> return emptyMap()
+            EncryptedPrefs.StoredValue.Unavailable -> return null
+            is EncryptedPrefs.StoredValue.Present -> stored.value
+        }
         return raw.split("\n")
             .filter { it.isNotBlank() }
             .mapNotNull { line ->
@@ -157,14 +214,18 @@ object AppSchedulePreferences {
             .toMap()
     }
 
-    private fun writeUsageCounters(context: Context, counters: Map<String, Int>) {
+    private fun writeUsageCounters(context: Context, counters: Map<String, Int>): Boolean {
         val raw = counters.entries.joinToString("\n") { "${it.key}=${it.value}" }
+        if (!store.putString(context, KEY_USAGE_COUNTERS, raw.ifBlank { null })) return false
         store.putInt(context, KEY_USAGE_DAY, currentDayStamp())
-        store.putString(context, KEY_USAGE_COUNTERS, raw.ifBlank { null })
+        return true
     }
 
     /** Local calendar day encoded as `yyyyMMdd`, used to expire usage counters. */
     private fun currentDayStamp(): Int = dayStampOf(Calendar.getInstance())
+
+    /** Current local day key for an in-memory counter cache. */
+    fun currentUsageDayStamp(): Int = currentDayStamp()
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal fun dayStampOf(calendar: Calendar): Int =
@@ -174,74 +235,69 @@ object AppSchedulePreferences {
 
     // ── Password protection ────────────────────────────────────────
 
-    /** Whether a password has been set for editing schedules. */
-    fun hasPassword(context: Context): Boolean =
-        !store.getString(context, KEY_PASSWORD, null).isNullOrBlank()
+    /**
+     * Whether a password has been set for editing schedules.
+     *
+     * A password that is only temporarily unreadable still counts, so the screen stays
+     * locked instead of offering to create a new one on top of it.
+     */
+    fun hasPassword(context: Context): Boolean = when (store.read(context, KEY_PASSWORD)) {
+        EncryptedPrefs.StoredValue.Absent, EncryptedPrefs.StoredValue.Lost -> false
+        EncryptedPrefs.StoredValue.Unavailable, is EncryptedPrefs.StoredValue.Present -> true
+    }
 
-    /** Stores [password] as a PBKDF2 hash. Passing null clears the protection. */
-    fun setPassword(context: Context, password: String?) {
-        store.putString(context, KEY_PASSWORD, password?.let { PasswordHasher.hash(it) })
-        clearFailedAttempts(context)
+    /**
+     * Stores [password] as a PBKDF2 hash. Passing null clears the protection.
+     *
+     * @return false when the new password could not be stored.
+     */
+    fun setPassword(context: Context, password: String?): Boolean {
+        val saved = store.putString(context, KEY_PASSWORD, password?.let { PasswordHasher.hash(it) })
+        if (saved) attemptPolicy(context).reset()
+        return saved
     }
 
     /**
      * Verifies [input] against the stored hash.
      *
      * Returns false without consuming an attempt while the cooldown is active.
-     * A successful attempt clears the failure counter; a failed one increments it and
-     * starts the cooldown once [MAX_FAILED_ATTEMPTS] is reached. Neither the password
-     * nor the rules are ever cleared here — see the class documentation.
+     * A successful attempt clears the failure counter; a failed one consumes an attempt.
+     * Neither the password nor the rules are ever cleared here — see the class
+     * documentation. PBKDF2 is deliberately slow; call this off the main thread.
      */
     fun verifyPassword(context: Context, input: String): Boolean {
+        val policy = attemptPolicy(context)
         // Enforced here rather than only in the UI so no caller can spend attempts
         // while the cooldown is running.
-        if (isLockedOut(context)) return false
+        if (policy.isLockedOut()) return false
 
         val stored = store.getString(context, KEY_PASSWORD, null) ?: return false
 
         return when (PasswordHasher.verify(stored, input)) {
             PasswordHasher.VerifyResult.Match -> {
-                clearFailedAttempts(context)
+                policy.reset()
                 true
             }
 
             PasswordHasher.VerifyResult.MatchNeedsUpgrade -> {
                 store.putString(context, KEY_PASSWORD, PasswordHasher.hash(input))
-                clearFailedAttempts(context)
+                policy.reset()
                 true
             }
 
             PasswordHasher.VerifyResult.Mismatch -> {
-                recordFailedAttempt(context)
+                policy.recordFailure()
                 false
             }
         }
     }
 
     /** Milliseconds left before password attempts are accepted again (0 when unlocked). */
-    fun getLockoutRemainingMs(context: Context): Long {
-        val until = store.getLong(context, KEY_LOCKOUT_UNTIL, 0L)
-        return (until - System.currentTimeMillis()).coerceAtLeast(0L)
-    }
+    fun getLockoutRemainingMs(context: Context): Long = attemptPolicy(context).lockoutRemainingMs()
 
     /** Whether password attempts are currently rejected because of the cooldown. */
-    fun isLockedOut(context: Context): Boolean = getLockoutRemainingMs(context) > 0L
+    fun isLockedOut(context: Context): Boolean = attemptPolicy(context).isLockedOut()
 
-    /** Attempts remaining before the cooldown starts. */
-    fun getRemainingAttempts(context: Context): Int =
-        (MAX_FAILED_ATTEMPTS - store.getInt(context, KEY_FAILED_ATTEMPTS, 0)).coerceAtLeast(0)
-
-    private fun recordFailedAttempt(context: Context) {
-        val attempts = store.getInt(context, KEY_FAILED_ATTEMPTS, 0) + 1
-        if (attempts >= MAX_FAILED_ATTEMPTS) {
-            store.putInt(context, KEY_FAILED_ATTEMPTS, 0)
-            store.putLong(context, KEY_LOCKOUT_UNTIL, System.currentTimeMillis() + LOCKOUT_DURATION_MS)
-        } else {
-            store.putInt(context, KEY_FAILED_ATTEMPTS, attempts)
-        }
-    }
-
-    private fun clearFailedAttempts(context: Context) {
-        store.remove(context, KEY_FAILED_ATTEMPTS, KEY_LOCKOUT_UNTIL)
-    }
+    /** Attempts remaining before the cooldown starts; 0 while it is running. */
+    fun getRemainingAttempts(context: Context): Int = attemptPolicy(context).remainingAttempts()
 }

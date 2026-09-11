@@ -2,21 +2,27 @@ package app.focusphone.ui.settings
 
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import app.focusphone.R
 import app.focusphone.databinding.ItemSettingsCategoryBinding
 import app.focusphone.databinding.ItemSettingsSwitchBinding
 import app.focusphone.databinding.ItemSettingsValueBinding
 import app.focusphone.databinding.SettingsSectionHeaderBinding
-import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.android.material.slider.Slider
 
 /**
  * Helper functions to inflate the reusable settings row layouts into a parent container.
  *
  * All helpers return the created root [View] so callers can store references if needed
- * (e.g. to update a value label later in [onResume]).
+ * (e.g. to update a value label later in [android.app.Activity.onResume]).
+ *
+ * Rows are grouped with [settingsSection], which owns the header and the separators.
+ * Screens therefore never inflate `settings_divider` by hand, which is what previously
+ * left some screens with separators between every row and others with none at all.
  */
 
 /** Inflates a section header (e.g. "APPEARANCE"). */
@@ -25,6 +31,69 @@ fun LinearLayout.addSectionHeader(@StringRes titleResId: Int): View {
     binding.tvHeader.setText(titleResId)
     addView(binding.root)
     return binding.root
+}
+
+/**
+ * Builds one settings section: an optional header, the rows produced by [content], and a
+ * hairline between consecutive rows.
+ *
+ * Separators are only drawn between two standard rows. A slider, a selector or an inline
+ * panel sits flush against its neighbour, because a rule above a slider reads as a divider
+ * for a control that has no top edge of its own.
+ *
+ * @return the group that holds the rows, so callers can show or hide a whole section.
+ */
+fun LinearLayout.settingsSection(
+    @StringRes titleResId: Int? = null,
+    content: LinearLayout.() -> Unit
+): LinearLayout {
+    titleResId?.let { addSectionHeader(it) }
+
+    val group = LinearLayout(context).apply {
+        orientation = LinearLayout.VERTICAL
+        layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+    }
+    group.content()
+    group.insertRowSeparators()
+    addView(group)
+    return group
+}
+
+/** Inserts a hairline between every pair of adjacent standard rows in this group. */
+private fun LinearLayout.insertRowSeparators() {
+    val inflater = LayoutInflater.from(context)
+    var index = 1
+    while (index < childCount) {
+        val previous = getChildAt(index - 1)
+        val current = getChildAt(index)
+        if (previous.isSettingsRow() && current.isSettingsRow()) {
+            addView(inflater.inflate(R.layout.settings_divider, this, false), index)
+            index += 2
+        } else {
+            index++
+        }
+    }
+}
+
+private fun View.isSettingsRow(): Boolean = getTag(R.id.tag_settings_row) == true
+
+private fun View.markAsSettingsRow(): View = apply {
+    setTag(R.id.tag_settings_row, true)
+    setTag(R.id.tag_skip_recolor, true)
+}
+
+/** Persists a slider value once per drag instead of once per pixel of movement. */
+fun Slider.persistOnStop(persist: (Float) -> Unit) {
+    addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+        override fun onStartTrackingTouch(slider: Slider) = Unit
+
+        override fun onStopTrackingTouch(slider: Slider) {
+            persist(slider.value)
+        }
+    })
 }
 
 /**
@@ -45,7 +114,7 @@ fun LinearLayout.addCategoryRow(
     binding.tvSubtitle.setText(subtitleResId)
     binding.root.setOnClickListener { onClick() }
     addView(binding.root)
-    return binding.root
+    return binding.root.markAsSettingsRow()
 }
 
 /**
@@ -71,8 +140,11 @@ fun LinearLayout.addSwitchRow(
     binding.switchToggle.setOnCheckedChangeListener { _, checked ->
         onCheckedChanged(checked)
     }
+    // The whole row is a 64dp target and already looks tappable; without this, only the
+    // switch itself responded and every tap on the label was silently dropped.
+    binding.root.setOnClickListener { binding.switchToggle.toggle() }
     addView(binding.root)
-    return binding.root
+    return binding.root.markAsSettingsRow()
 }
 
 /**
@@ -105,6 +177,7 @@ fun LinearLayout.addValueRow(
     binding.tvChevron.visibility = if (showChevron) View.VISIBLE else View.GONE
     binding.root.setOnClickListener { onClick() }
     addView(binding.root)
+    binding.root.markAsSettingsRow()
     return binding.tvValue
 }
 
@@ -126,5 +199,21 @@ fun LinearLayout.addInfoRow(
     binding.tvChevron.visibility = View.GONE
     binding.root.setOnClickListener { onClick() }
     addView(binding.root)
-    return binding.root
+    return binding.root.markAsSettingsRow()
 }
+
+/**
+ * Enables or disables a settings row, dimming it so the state is visible rather than only
+ * discoverable by tapping.
+ */
+fun View.setRowEnabled(enabled: Boolean) {
+    isEnabled = enabled
+    alpha = if (enabled) 1f else DISABLED_ALPHA
+    if (this is ViewGroup) {
+        for (index in 0 until childCount) {
+            getChildAt(index).isEnabled = enabled
+        }
+    }
+}
+
+private const val DISABLED_ALPHA = 0.45f

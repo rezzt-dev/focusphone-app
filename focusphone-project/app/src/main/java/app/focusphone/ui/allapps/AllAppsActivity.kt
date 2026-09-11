@@ -1,7 +1,6 @@
 package app.focusphone.ui.allapps
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -27,6 +26,7 @@ import app.focusphone.R
 import app.focusphone.data.preferences.AppFolderPreferences
 import app.focusphone.data.preferences.ConsciousPausePreferences
 import app.focusphone.data.preferences.ProfilePreferences
+import app.focusphone.data.repository.PackageChangeMonitor
 import app.focusphone.ui.pause.ConsciousPauseActivity
 import app.focusphone.ui.detox.DetoxBlockedActivity
 import app.focusphone.databinding.ActivityAllAppsBinding
@@ -41,20 +41,27 @@ import app.focusphone.ui.base.BaseActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.core.view.updatePadding
+import app.focusphone.util.LauncherUtils
 
 // ── ViewModel ──────────────────────────────────────────────────────
 
 class AllAppsViewModel(
   private val getInstalledApps: GetInstalledAppsUseCase,
-  private val folderPreferences: AppFolderPreferences
+  private val folderPreferences: AppFolderPreferences,
+  /** Emits whenever apps are installed, removed or updated; see [PackageChangeMonitor]. */
+  private val packageChanges: Flow<Long> = emptyFlow()
 ) : ViewModel() {
 
   private val _allApps = MutableStateFlow<List<AppInfo>>(emptyList())
@@ -78,7 +85,13 @@ class AllAppsViewModel(
 
   private var searchJob: Job? = null
 
-  init { load() }
+  init {
+    load()
+    // An app installed from the store while the drawer is open (or in the back stack)
+    // appears without leaving the screen. The current value is skipped: load() above
+    // already reflects it.
+    viewModelScope.launch { packageChanges.drop(1).collect { load() } }
+  }
 
   fun load() {
     viewModelScope.launch {
@@ -88,8 +101,10 @@ class AllAppsViewModel(
         emptyList()
       }
       _allApps.value = apps
-      // Uninstalled apps must not linger inside folders as invisible members.
-      folderPreferences.retainInstalled(apps.mapTo(mutableSetOf()) { it.packageName })
+      // The PackageManager result is a display snapshot, not an authoritative uninstall
+      // signal. It can be empty or incomplete during boot and package/profile changes.
+      // Folder membership therefore stays untouched; unavailable apps are simply omitted
+      // by buildRows and reappear in their folder when Android reports them again.
       _isLoading.value = false
     }
   }
@@ -152,7 +167,8 @@ class AllAppsViewModel(
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
           AllAppsViewModel(
             app.container.getInstalledAppsUseCase,
-            app.container.appFolderPreferences
+            app.container.appFolderPreferences,
+            PackageChangeMonitor.version
           ) as T
       }
   }
@@ -164,7 +180,6 @@ class AllAppsActivity : BaseActivity() {
 
   private lateinit var binding: ActivityAllAppsBinding
   private val viewModel: AllAppsViewModel by viewModels { AllAppsViewModel.factory(focusPhoneApp) }
-  private var activeDialog: androidx.appcompat.app.AlertDialog? = null
   private var searchTextWatcher: TextWatcher? = null
   private var pendingRefresh = false
 
@@ -238,7 +253,7 @@ class AllAppsActivity : BaseActivity() {
     val folders = folderPreferences.getFolders().filter { it.id != currentFolderId }
     val labels = folders.map { it.name } + getString(R.string.allapps_folder_choose_new)
 
-    activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+    val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
       .setTitle(getString(R.string.allapps_folder_choose_title, app.label))
       .setItems(labels.toTypedArray()) { _, which ->
         val folder = folders.getOrNull(which)
@@ -251,7 +266,7 @@ class AllAppsActivity : BaseActivity() {
       }
       .setNegativeButton(R.string.action_cancel, null)
       .create()
-    showStyled()
+    showStyled(dialog)
   }
 
   /**
@@ -261,21 +276,27 @@ class AllAppsActivity : BaseActivity() {
   private fun showCreateFolderDialog(appToMove: AppInfo? = null) {
     val input = styledInput(prefill = "", hint = getString(R.string.allapps_folder_name_hint))
 
-    activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+    val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
       .setTitle(R.string.allapps_new_folder)
       .setView(inputContainer(input))
-      .setPositiveButton(R.string.action_save) { _, _ ->
+      // No listener here: AlertDialog dismisses before invoking it, which would discard
+      // whatever the user typed on a duplicate name. The click is intercepted below instead.
+      .setPositiveButton(R.string.action_save, null)
+      .setNegativeButton(R.string.action_cancel, null)
+      .create()
+    dialog.setOnShowListener {
+      dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
         val folder = folderPreferences.createFolder(input.text.toString())
         if (folder == null) {
-          toast(getString(R.string.allapps_folder_name_taken))
-          return@setPositiveButton
+          input.error = getString(R.string.allapps_folder_name_taken)
+          return@setOnClickListener
         }
         appToMove?.let { folderPreferences.moveAppToFolder(it.packageName, folder.id) }
         toast(getString(R.string.allapps_toast_folder_created, folder.name))
+        dialog.dismiss()
       }
-      .setNegativeButton(R.string.action_cancel, null)
-      .create()
-    showStyled()
+    }
+    showStyled(dialog)
   }
 
   private fun showFolderOptionsDialog(folder: AppFolder) {
@@ -284,7 +305,7 @@ class AllAppsActivity : BaseActivity() {
       getString(R.string.allapps_folder_delete_title)
     )
 
-    activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+    val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
       .setTitle(folder.name)
       .setItems(options) { _, which ->
         when (which) {
@@ -293,27 +314,34 @@ class AllAppsActivity : BaseActivity() {
         }
       }
       .create()
-    showStyled()
+    showStyled(dialog)
   }
 
   private fun showRenameFolderDialog(folder: AppFolder) {
     val input = styledInput(prefill = folder.name, hint = getString(R.string.allapps_folder_name_hint))
 
-    activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+    val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
       .setTitle(R.string.allapps_folder_rename_title)
       .setView(inputContainer(input))
-      .setPositiveButton(R.string.action_save) { _, _ ->
-        if (!folderPreferences.renameFolder(folder.id, input.text.toString())) {
-          toast(getString(R.string.allapps_folder_name_taken))
-        }
-      }
+      // No listener here: AlertDialog dismisses before invoking it, which would discard
+      // whatever the user typed on a duplicate name. The click is intercepted below instead.
+      .setPositiveButton(R.string.action_save, null)
       .setNegativeButton(R.string.action_cancel, null)
       .create()
-    showStyled()
+    dialog.setOnShowListener {
+      dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        if (folderPreferences.renameFolder(folder.id, input.text.toString())) {
+          dialog.dismiss()
+        } else {
+          input.error = getString(R.string.allapps_folder_name_taken)
+        }
+      }
+    }
+    showStyled(dialog)
   }
 
   private fun showDeleteFolderDialog(folder: AppFolder) {
-    activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+    val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
       .setTitle(R.string.allapps_folder_delete_title)
       .setMessage(getString(R.string.allapps_folder_delete_message, folder.name))
       .setPositiveButton(R.string.allapps_folder_delete_confirm) { _, _ ->
@@ -322,7 +350,7 @@ class AllAppsActivity : BaseActivity() {
       }
       .setNegativeButton(R.string.action_cancel, null)
       .create()
-    showStyled()
+    showStyled(dialog)
   }
 
   // ── App options ──────────────────────────────────────────────────
@@ -332,6 +360,8 @@ class AllAppsActivity : BaseActivity() {
       val shortcuts = withContext(Dispatchers.IO) {
         focusPhoneApp.container.getAppShortcutsUseCase(app.packageName)
       }
+      // The user may have left while the shortcuts were loading.
+      if (!canShowUi()) return@launch
       showAppOptionsDialogWithShortcuts(app, shortcuts)
     }
   }
@@ -361,17 +391,20 @@ class AllAppsActivity : BaseActivity() {
       actions += shortcut.shortLabel to { launchShortcut(app, shortcut) }
     }
 
-    activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+    val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
       .setTitle(app.label)
       .setItems(actions.map { it.first }.toTypedArray()) { _, which ->
         actions.getOrNull(which)?.second?.invoke()
       }
       .create()
-    showStyled()
+    showStyled(dialog)
   }
 
   private fun toggleBlocked(app: AppInfo, isBlocked: Boolean) {
-    ProfilePreferences.setAppBlockedState(this, app.packageName, !isBlocked)
+    if (!ProfilePreferences.setAppBlockedState(this, app.packageName, !isBlocked)) {
+      toast(getString(R.string.error_save_failed))
+      return
+    }
     val toastFormat = if (isBlocked) {
       R.string.allapps_toast_unblocked
     } else {
@@ -387,18 +420,9 @@ class AllAppsActivity : BaseActivity() {
     focusPhoneApp.container.appRepository.invalidateCache()
     pendingRefresh = true
 
-    val uri = Uri.fromParts("package", app.packageName, null)
     toast(getString(R.string.uninstall_progress))
-    try {
-      startActivity(Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply { data = uri })
-    } catch (e: Exception) {
-      Log.w("AllAppsActivity", "ACTION_UNINSTALL_PACKAGE failed for ${app.packageName}", e)
-      try {
-        startActivity(Intent(Intent.ACTION_DELETE).apply { data = uri })
-      } catch (e2: Exception) {
-        Log.e("AllAppsActivity", "ACTION_DELETE also failed for ${app.packageName}", e2)
-        Toast.makeText(this, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
-      }
+    if (!LauncherUtils.requestUninstall(this, app.packageName)) {
+      Toast.makeText(this, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
     }
   }
 
@@ -414,14 +438,16 @@ class AllAppsActivity : BaseActivity() {
   private fun showRenameDialog(app: AppInfo) {
     val input = styledInput(prefill = app.label, hint = null)
 
-    activeDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+    val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
       .setTitle(R.string.customize_name_title)
       .setMessage(getString(R.string.customize_name_message, app.label))
       .setView(inputContainer(input))
       .setPositiveButton(R.string.action_save) { _, _ ->
         val newLabel = input.text.toString().trim().normalizeAppName()
         val prefs = focusPhoneApp.container.customAppLabelsPreferences
-        prefs.setCustomLabel(app.packageName, newLabel.ifEmpty { null })
+        if (!prefs.setCustomLabel(app.packageName, newLabel.ifEmpty { null })) {
+          toast(getString(R.string.error_save_failed))
+        }
         viewModel.load()
       }
       .setNeutralButton(R.string.action_reset) { _, _ ->
@@ -430,7 +456,7 @@ class AllAppsActivity : BaseActivity() {
       }
       .setNegativeButton(R.string.action_cancel, null)
       .create()
-    showStyled()
+    showStyled(dialog)
   }
 
   // ── Dialog helpers ───────────────────────────────────────────────
@@ -444,22 +470,18 @@ class AllAppsActivity : BaseActivity() {
       hint?.let { this.hint = it }
       filters = arrayOf(android.text.InputFilter.LengthFilter(INPUT_MAX_LENGTH))
 
-      val typedValue = android.util.TypedValue()
+      val colors = palette
       background = android.graphics.drawable.GradientDrawable().apply {
         shape = android.graphics.drawable.GradientDrawable.RECTANGLE
         cornerRadius = dp(16).toFloat()
-
-        theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-        setColor(typedValue.data)
-
-        theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-        setStroke(dp(1), typedValue.data)
+        // Opaque fill: a text field must stay solid even when a wallpaper shows behind
+        // the dialog, and a hairline outline reads better than a full-strength border.
+        setColor(colors.surface)
+        setStroke(dp(1), colors.divider)
       }
 
-      theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-      setTextColor(typedValue.data)
-      theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-      setHintTextColor(typedValue.data)
+      setTextColor(colors.textPrimary)
+      setHintTextColor(colors.textSecondary)
 
       textSize = 15f
       setPadding(dp(16), dp(14), dp(16), dp(14))
@@ -481,10 +503,7 @@ class AllAppsActivity : BaseActivity() {
       )
     }
 
-  private fun showStyled() {
-    activeDialog?.show()
-    styleMaterialDialog(activeDialog)
-  }
+  private fun showStyled(dialog: androidx.appcompat.app.AlertDialog) = showStyledDialog(dialog)
 
   private fun toast(message: String) =
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
@@ -542,7 +561,6 @@ class AllAppsActivity : BaseActivity() {
   }
 
   override fun onDestroy() {
-    activeDialog?.dismiss()
     searchTextWatcher?.let { binding.etSearch.removeTextChangedListener(it) }
     super.onDestroy()
   }
@@ -550,9 +568,12 @@ class AllAppsActivity : BaseActivity() {
   private fun setupInsets() {
     ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
       val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-      binding.header.setPadding(0, bars.top + dp(12), 0, 0)
-      binding.btnClose.setPadding(0, 0, 0, bars.bottom)
-      binding.rvApps.setPadding(0, 0, 0, bars.bottom)
+      // updatePadding, not setPadding: these views declare their own horizontal and
+      // vertical padding in XML, and overwriting all four edges pushed the search field
+      // and the close button flush against the screen edges.
+      binding.header.updatePadding(top = bars.top + dp(12))
+      binding.btnClose.updatePadding(bottom = bars.bottom)
+      binding.rvApps.updatePadding(bottom = bars.bottom)
       insets
     }
   }

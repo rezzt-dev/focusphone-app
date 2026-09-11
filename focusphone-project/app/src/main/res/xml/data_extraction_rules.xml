@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    FocusPhone keeps no backups (see android:allowBackup="false" in the manifest): its
+    data holds user metadata — favourite apps, custom labels, schedules, detox state — and
+    the encrypted values are bound to a Keystore key that never leaves the device, so a
+    restored copy could not be decrypted anyway.
+
+    allowBackup="false" only covers Android 11 and lower. From Android 12 it still allows
+    device-to-device transfer, so these rules exclude every domain from both flows.
+-->
 <data-extraction-rules>
     <cloud-backup>
-        <include domain="sharedpref" path="."/>
-        <exclude domain="sharedpref" path="focusphone_profile"/>
-        <include domain="database" path="focusphone_database"/>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
     </cloud-backup>
     <device-transfer>
-        <include domain="sharedpref" path="."/>
-        <exclude domain="sharedpref" path="focusphone_profile"/>
-        <include domain="database" path="focusphone_database"/>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
     </device-transfer>
 </data-extraction-rules>

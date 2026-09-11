@@ -16,12 +16,16 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import app.focusphone.R
 import app.focusphone.data.preferences.ThemePreferences
-import app.focusphone.data.preferences.TutorialPreferences
 import app.focusphone.databinding.ActivityOnboardingBinding
 import app.focusphone.ui.appselect.AppSelectActivity
 import app.focusphone.ui.base.BaseActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import app.focusphone.ui.theme.FocusPalette
+import app.focusphone.ui.tutorial.TutorialAction
+import app.focusphone.ui.tutorial.TutorialContent
+import app.focusphone.ui.tutorial.TutorialPage
+import app.focusphone.util.LauncherUtils
 
 /**
  * Enhanced onboarding flow for first-time users.
@@ -39,42 +43,7 @@ class OnboardingActivity : BaseActivity() {
     private var pageChangeCallback: ViewPager2.OnPageChangeCallback? = null
     private var isLauncherVerified = false
 
-    private val pages = listOf(
-        OnboardingPage(
-            iconRes = R.drawable.ic_tutorial_home,
-            titleRes = R.string.onboarding_step_welcome_title,
-            bodyRes = R.string.onboarding_step_welcome_body,
-            taglineRes = R.string.onboarding_step_welcome_tagline,
-            type = OnboardingPageType.INFO
-        ),
-        OnboardingPage(
-            iconRes = R.drawable.ic_tutorial_pause,
-            titleRes = R.string.onboarding_step_philosophy_title,
-            bodyRes = R.string.onboarding_step_philosophy_body,
-            type = OnboardingPageType.INFO
-        ),
-        OnboardingPage(
-            iconRes = R.drawable.ic_tutorial_home,
-            titleRes = R.string.onboarding_step_launcher_title,
-            bodyRes = R.string.onboarding_step_launcher_body,
-            actionRes = R.string.onboarding_step_launcher_action,
-            type = OnboardingPageType.LAUNCHER
-        ),
-        OnboardingPage(
-            iconRes = R.drawable.ic_tutorial_edit,
-            titleRes = R.string.onboarding_step_apps_title,
-            bodyRes = R.string.onboarding_step_apps_body,
-            actionRes = R.string.onboarding_step_apps_action,
-            type = OnboardingPageType.APPS
-        ),
-        OnboardingPage(
-            iconRes = R.drawable.ic_tutorial_home,
-            titleRes = R.string.onboarding_step_complete_title,
-            bodyRes = R.string.onboarding_step_complete_body,
-            actionRes = R.string.onboarding_step_complete_action,
-            type = OnboardingPageType.COMPLETE
-        )
-    )
+    private val pages = TutorialContent.onboardingPages
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,13 +99,15 @@ class OnboardingActivity : BaseActivity() {
 
     private fun checkLauncherStatus() {
         val wasVerified = isLauncherVerified
-        isLauncherVerified = isDefaultLauncher()
+        isLauncherVerified = LauncherUtils.isDefaultLauncher(this)
         if (wasVerified != isLauncherVerified) {
             // Refresh the launcher page if it is currently visible
             val adapter = binding.vpOnboarding.adapter as? OnboardingPagerAdapter
-            val launcherPosition = pages.indexOfFirst { it.type == OnboardingPageType.LAUNCHER }
+            val launcherPosition = pages.indexOfFirst {
+                it.action == TutorialAction.OPEN_LAUNCHER_SETTINGS
+            }
             if (launcherPosition >= 0) {
-                adapter?.notifyItemChanged(launcherPosition)
+                adapter?.setLauncherVerified(isLauncherVerified)
                 if (binding.vpOnboarding.currentItem == launcherPosition) {
                     updateUi(launcherPosition)
                 }
@@ -144,23 +115,20 @@ class OnboardingActivity : BaseActivity() {
         }
     }
 
+    /**
+     * Polls for the default-launcher choice only until it is confirmed. Returning from the
+     * system settings is already covered by [onResume], so there is no reason to keep
+     * waking up every second afterwards.
+     */
     private fun observeLauncherState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                while (true) {
+                while (!isLauncherVerified) {
                     delay(1000)
-                    if (!isLauncherVerified) {
-                        checkLauncherStatus()
-                    }
+                    checkLauncherStatus()
                 }
             }
         }
-    }
-
-    private fun isDefaultLauncher(): Boolean {
-        val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
-        val resolved = packageManager.resolveActivity(intent, 0)
-        return resolved?.activityInfo?.packageName == packageName
     }
 
     // ── Dots indicator ─────────────────────────────────────────────────────────────
@@ -225,63 +193,58 @@ class OnboardingActivity : BaseActivity() {
         binding.btnNext.text = getString(
             when {
                 isLast -> R.string.onboarding_step_complete_action
-                page.type == OnboardingPageType.LAUNCHER && !isLauncherVerified -> R.string.onboarding_next
+                page.action == TutorialAction.OPEN_LAUNCHER_SETTINGS && !isLauncherVerified -> R.string.onboarding_next
                 else -> R.string.onboarding_next
             }
         )
         binding.btnSkip.visibility = if (isLast) View.INVISIBLE else View.VISIBLE
 
         // When on launcher page and verified, allow skipping directly to completion
-        if (page.type == OnboardingPageType.LAUNCHER && isLauncherVerified) {
+        if (page.action == TutorialAction.OPEN_LAUNCHER_SETTINGS && isLauncherVerified) {
             binding.btnNext.text = getString(R.string.onboarding_next)
         }
     }
 
-    private fun resolveColorAttr(attrId: Int): Int {
-        val typedValue = android.util.TypedValue()
-        theme.resolveAttribute(attrId, typedValue, true)
-        return typedValue.data
+    private fun resolveColorAttr(attrId: Int): Int = when (attrId) {
+        android.R.attr.textColorSecondary -> palette.textSecondary
+        android.R.attr.colorBackground -> palette.background
+        else -> palette.textPrimary
     }
 
     // ── Page actions ───────────────────────────────────────────────────────────────
 
-    private fun onPageAction(page: OnboardingPage) {
-        when (page.type) {
-            OnboardingPageType.LAUNCHER -> startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
-            OnboardingPageType.APPS -> startActivity(Intent(this, AppSelectActivity::class.java))
-            OnboardingPageType.COMPLETE -> finishOnboarding()
-            else -> Unit
+    private fun onPageAction(page: TutorialPage) {
+        when (page.action) {
+            TutorialAction.OPEN_LAUNCHER_SETTINGS -> startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
+            TutorialAction.OPEN_APP_SELECTOR -> startActivity(Intent(this, AppSelectActivity::class.java))
+            TutorialAction.COMPLETE -> finishOnboarding()
+            TutorialAction.NONE -> Unit
         }
     }
 
     private fun finishOnboarding() {
         ThemePreferences.markOnboardingComplete(this)
-        TutorialPreferences.setOnboardingFlowCompleted(this)
         finish()
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 }
 
-// ── Data model ───────────────────────────────────────────────────────────────────
-
-data class OnboardingPage(
-    val iconRes: Int,
-    val titleRes: Int,
-    val bodyRes: Int,
-    val actionRes: Int? = null,
-    val taglineRes: Int? = null,
-    val type: OnboardingPageType = OnboardingPageType.INFO
-)
-
-enum class OnboardingPageType { INFO, LAUNCHER, APPS, COMPLETE }
-
 // ── Adapter ──────────────────────────────────────────────────────────────────────
 
 private class OnboardingPagerAdapter(
-    private val pages: List<OnboardingPage>,
-    private val onAction: (OnboardingPage) -> Unit
+    private val pages: List<TutorialPage>,
+    private val onAction: (TutorialPage) -> Unit
 ) : RecyclerView.Adapter<OnboardingPagerAdapter.PageViewHolder>() {
+
+    private var launcherVerified = false
+
+    fun setLauncherVerified(verified: Boolean) {
+        if (verified == launcherVerified) return
+        launcherVerified = verified
+        val position = pages.indexOfFirst { it.action == TutorialAction.OPEN_LAUNCHER_SETTINGS }
+        if (position >= 0) notifyItemChanged(position)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PageViewHolder =
         PageViewHolder(
@@ -289,7 +252,7 @@ private class OnboardingPagerAdapter(
         )
 
     override fun onBindViewHolder(holder: PageViewHolder, position: Int) =
-        holder.bind(pages[position], onAction)
+        holder.bind(pages[position], launcherVerified, onAction)
 
     override fun getItemCount() = pages.size
 
@@ -301,7 +264,7 @@ private class OnboardingPagerAdapter(
         private val tvStatus: TextView = itemView.findViewById(R.id.tv_page_status)
         private val btnAction: TextView = itemView.findViewById(R.id.btn_page_action)
 
-        fun bind(page: OnboardingPage, onAction: (OnboardingPage) -> Unit) {
+        fun bind(page: TutorialPage, launcherVerified: Boolean, onAction: (TutorialPage) -> Unit) {
             val context = itemView.context
 
             ivIcon.setImageResource(page.iconRes)
@@ -332,16 +295,9 @@ private class OnboardingPagerAdapter(
             tvBody.setText(page.bodyRes)
 
             // Launcher page shows verification status
-            if (page.type == OnboardingPageType.LAUNCHER) {
-                val activity = context as? OnboardingActivity
-                val verified = activity?.let {
-                    val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
-                    val resolved = it.packageManager.resolveActivity(intent, 0)
-                    resolved?.activityInfo?.packageName == it.packageName
-                } ?: false
-
+            if (page.action == TutorialAction.OPEN_LAUNCHER_SETTINGS) {
                 tvStatus.visibility = View.VISIBLE
-                if (verified) {
+                if (launcherVerified) {
                     tvStatus.setText(R.string.onboarding_step_launcher_verified)
                     tvStatus.setTextColor(resolveColor(context, android.R.attr.textColorPrimary))
                     btnAction.visibility = View.GONE
@@ -365,9 +321,12 @@ private class OnboardingPagerAdapter(
         }
 
         private fun resolveColor(context: android.content.Context, attrId: Int): Int {
-            val typedValue = android.util.TypedValue()
-            context.theme.resolveAttribute(attrId, typedValue, true)
-            return typedValue.data
+            val colors = FocusPalette.of(context)
+            return when (attrId) {
+                android.R.attr.textColorSecondary -> colors.textSecondary
+                android.R.attr.colorBackground -> colors.background
+                else -> colors.textPrimary
+            }
         }
     }
 }

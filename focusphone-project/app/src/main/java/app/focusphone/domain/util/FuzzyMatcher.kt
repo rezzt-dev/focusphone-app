@@ -28,8 +28,8 @@ object FuzzyMatcher {
      * closer to O(|target|) because the inner loop advances monotonically.
      */
     fun score(query: String, target: String): Int {
-        val q = query.lowercase()
-        val t = target.lowercase()
+        val q = query.normalizeForSearch()
+        val t = target.normalizeForSearch()
 
         // Early exit: not enough characters in target to form the subsequence.
         if (q.length > t.length) return 0

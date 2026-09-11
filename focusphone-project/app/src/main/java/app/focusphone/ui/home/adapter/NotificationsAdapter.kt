@@ -1,7 +1,7 @@
 package app.focusphone.ui.home.adapter
 
 import android.graphics.drawable.GradientDrawable
-import android.util.TypedValue
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import app.focusphone.ui.theme.FocusColors
+import app.focusphone.ui.theme.FocusPalette
 
 class NotificationsAdapter(
     private val onClick: (NotificationItem) -> Unit = {},
@@ -21,6 +23,9 @@ class NotificationsAdapter(
 ) : RecyclerView.Adapter<NotificationsAdapter.ViewHolder>() {
 
     private var items: List<NotificationItem> = emptyList()
+    private var cachedTypeface: Typeface? = null
+    private var cachedPalette: FocusPalette? = null
+    private var styleCached = false
 
     fun submitList(newItems: List<NotificationItem>) {
         val diff = DiffUtil.calculateDiff(NotificationDiffCallback(items, newItems))
@@ -36,7 +41,15 @@ class NotificationsAdapter(
         val binding = ItemNotificationBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
-        return ViewHolder(binding, onClick)
+        val context = parent.context
+        if (!styleCached) {
+            cachedTypeface = FontPreferences.getTypefaceOrNull(context)
+            cachedPalette = FocusPalette.of(context)
+            styleCached = true
+        }
+        val typeface = cachedTypeface
+        val colors = checkNotNull(cachedPalette)
+        return ViewHolder(binding, onClick, typeface, colors)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -45,35 +58,31 @@ class NotificationsAdapter(
 
     class ViewHolder(
         private val binding: ItemNotificationBinding,
-        private val onClick: (NotificationItem) -> Unit
+        private val onClick: (NotificationItem) -> Unit,
+        typeface: Typeface?,
+        private val colors: FocusPalette
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: NotificationItem) {
-            val context = binding.root.context
-            val typeface = FontPreferences.getTypefaceOrNull(context)
-
-            // Apply theme font to all text views
+        init {
             binding.tvNotificationApp.typeface = typeface
             binding.tvNotificationTitle.typeface = typeface
             binding.tvNotificationText.typeface = typeface
             binding.tvNotificationTime.typeface = typeface
 
-            // Build a subtle card background with rounded corners and a faint border
-            val typedValue = TypedValue()
-            context.theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-            val primaryColor = typedValue.data
-            val density = context.resources.displayMetrics.density
-
-            val bgDrawable = GradientDrawable().apply {
+            val density = binding.root.resources.displayMetrics.density
+            binding.cardContainer.background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = 12f * density
-                setColor((primaryColor and 0x00FFFFFF) or (0x08 shl 24)) // ~3% alpha fill
+                setColor(FocusColors.withAlpha(this@ViewHolder.colors.background, 0.55f))
                 setStroke(
-                    (1f * density).toInt().coerceAtLeast(1),
-                    (primaryColor and 0x00FFFFFF) or (0x12 shl 24) // ~7% alpha stroke
+                    (density).toInt().coerceAtLeast(1),
+                    FocusColors.withAlpha(this@ViewHolder.colors.textPrimary, 0.10f)
                 )
             }
-            binding.cardContainer.background = bgDrawable
+        }
+
+        fun bind(item: NotificationItem) {
+            val primaryColor = colors.textPrimary
 
             // Accent bar: subtle variation derived from the package name so each
             // app feels visually distinct without breaking the minimalist palette.

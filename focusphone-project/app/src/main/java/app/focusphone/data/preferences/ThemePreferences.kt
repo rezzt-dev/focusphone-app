@@ -1,10 +1,12 @@
 package app.focusphone.data.preferences
 
+import androidx.core.content.edit
 import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
 import androidx.annotation.StyleRes
 import app.focusphone.R
+import androidx.core.graphics.toColorInt
 
 /**
  * Synchronous theme preference using SharedPreferences.
@@ -37,7 +39,7 @@ object ThemePreferences {
         prefs(context).getString(KEY_THEME, THEME_SLATE) ?: THEME_SLATE
 
     fun setTheme(context: Context, theme: String) =
-        prefs(context).edit().putString(KEY_THEME, theme).apply()
+        prefs(context).edit { putString(KEY_THEME, theme) }
 
     /**
      * Resolves the effective theme identifier.
@@ -60,31 +62,31 @@ object ThemePreferences {
         prefs(context).getString(KEY_CUSTOM_BG, "#181818") ?: "#181818"
 
     fun setCustomBackgroundColorHex(context: Context, hex: String) =
-        prefs(context).edit().putString(KEY_CUSTOM_BG, hex).apply()
+        prefs(context).edit { putString(KEY_CUSTOM_BG, hex) }
 
     fun getCustomForegroundColorHex(context: Context): String =
         prefs(context).getString(KEY_CUSTOM_FG, "#FAFAFA") ?: "#FAFAFA"
 
     fun setCustomForegroundColorHex(context: Context, hex: String) =
-        prefs(context).edit().putString(KEY_CUSTOM_FG, hex).apply()
+        prefs(context).edit { putString(KEY_CUSTOM_FG, hex) }
 
     fun getCustomBackgroundColor(context: Context): Int {
         val hex = getCustomBackgroundColorHex(context)
         return try {
-            android.graphics.Color.parseColor(hex)
+            hex.toColorInt()
         } catch (e: Exception) {
             Log.w("ThemePreferences", "Invalid custom background hex '$hex', falling back to default")
-            android.graphics.Color.parseColor("#181818")
+            "#181818".toColorInt()
         }
     }
 
     fun getCustomForegroundColor(context: Context): Int {
         val hex = getCustomForegroundColorHex(context)
         return try {
-            android.graphics.Color.parseColor(hex)
+            hex.toColorInt()
         } catch (e: Exception) {
             Log.w("ThemePreferences", "Invalid custom foreground hex '$hex', falling back to default")
-            android.graphics.Color.parseColor("#FAFAFA")
+            "#FAFAFA".toColorInt()
         }
     }
 
@@ -112,7 +114,7 @@ object ThemePreferences {
         prefs(context).getString(KEY_ALIGNMENT, ALIGN_CENTER) ?: ALIGN_CENTER
 
     fun setAlignment(context: Context, alignment: String) =
-        prefs(context).edit().putString(KEY_ALIGNMENT, alignment).apply()
+        prefs(context).edit { putString(KEY_ALIGNMENT, alignment) }
 
     // ── Onboarding ────────────────────────────────────────────────
 
@@ -120,10 +122,10 @@ object ThemePreferences {
         prefs(context).getBoolean(KEY_ONBOARDING, false)
 
     fun markOnboardingComplete(context: Context) =
-        prefs(context).edit().putBoolean(KEY_ONBOARDING, true).apply()
+        prefs(context).edit { putBoolean(KEY_ONBOARDING, true) }
 
     fun clearOnboardingComplete(context: Context) =
-        prefs(context).edit().putBoolean(KEY_ONBOARDING, false).apply()
+        prefs(context).edit { putBoolean(KEY_ONBOARDING, false) }
 
     // ── Status Bar ────────────────────────────────────────────────
 
@@ -133,5 +135,5 @@ object ThemePreferences {
         prefs(context).getBoolean(KEY_STATUS_BAR, false)
 
     fun setStatusBarHidden(context: Context, hide: Boolean) =
-        prefs(context).edit().putBoolean(KEY_STATUS_BAR, hide).apply()
+        prefs(context).edit { putBoolean(KEY_STATUS_BAR, hide) }
 }

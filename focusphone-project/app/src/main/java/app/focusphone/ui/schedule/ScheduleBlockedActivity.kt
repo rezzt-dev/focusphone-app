@@ -79,7 +79,9 @@ class ScheduleBlockedActivity : BaseActivity() {
                 val used = intent.getIntExtra(EXTRA_USED_MINUTES, 0)
                 val limit = intent.getIntExtra(EXTRA_LIMIT_MINUTES, 0)
                 binding.tvScheduleTitle.setText(R.string.schedule_blocked_limit_title)
-                binding.tvScheduleDesc.text = getString(R.string.schedule_blocked_limit_desc, used, limit)
+                binding.tvScheduleDesc.text = resources.getQuantityString(
+                    R.plurals.schedule_blocked_limit_desc, limit, used, limit
+                )
             }
 
             else -> {

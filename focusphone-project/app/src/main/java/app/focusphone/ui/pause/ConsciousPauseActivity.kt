@@ -3,26 +3,33 @@ package app.focusphone.ui.pause
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import app.focusphone.R
 import app.focusphone.data.preferences.ConsciousPausePreferences
 import app.focusphone.databinding.ActivityConsciousPauseBinding
 import app.focusphone.ui.base.BaseActivity
 import app.focusphone.ui.home.HomeActivity
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 /**
  * Conscious pause screen.
  * Displays a calm countdown before launching the target app,
  * giving the user a moment to reflect.
+ *
+ * The countdown only runs while the screen is in the foreground. Leaving it pauses the
+ * countdown instead of letting it finish in the background, where Android 10+ silently
+ * refuses to start the target app.
  */
 class ConsciousPauseActivity : BaseActivity() {
 
     private lateinit var binding: ActivityConsciousPauseBinding
-    private var countdownJob: Job? = null
     private var remainingSeconds: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,14 +46,10 @@ class ConsciousPauseActivity : BaseActivity() {
         }
 
         remainingSeconds = savedInstanceState?.getInt(KEY_REMAINING, -1) ?: -1
+        if (remainingSeconds <= 0) {
+            remainingSeconds = ConsciousPausePreferences.getDuration(this)
+        }
         startCountdown()
-
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                isEnabled = false
-                onBackPressedDispatcher.onBackPressed()
-            }
-        })
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -55,32 +58,36 @@ class ConsciousPauseActivity : BaseActivity() {
     }
 
     private fun setupInsets() {
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
-            val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            binding.root.setPadding(0, bars.top, 0, bars.bottom)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            binding.root.updatePadding(top = bars.top, bottom = bars.bottom)
             insets
         }
     }
 
     private fun startCountdown() {
-        countdownJob = lifecycleScope.launch {
-            var remaining = if (remainingSeconds > 0) remainingSeconds else ConsciousPausePreferences.getDuration(this@ConsciousPauseActivity)
-            while (remaining > 0) {
-                remainingSeconds = remaining
-                binding.tvCountdown.text = remaining.toString()
-
-                val stateText = when (remaining % 4) {
-                    0, 3 -> getString(R.string.pause_inhale)
-                    else -> getString(R.string.pause_exhale)
+        lifecycleScope.launch {
+            // Cancelled when the screen leaves the foreground and restarted from the
+            // remaining seconds when it comes back.
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (remainingSeconds > 0) {
+                    render(remainingSeconds)
+                    delay(1000)
+                    remainingSeconds--
                 }
-                binding.tvBreathingState.text = stateText
-
-                delay(1000)
-                remaining--
+                launchTargetApp()
             }
-
-            launchTargetApp()
         }
+    }
+
+    private fun render(remaining: Int) {
+        binding.tvCountdown.text = String.format(Locale.getDefault(), "%d", remaining)
+        binding.tvBreathingState.text = getString(
+            when (remaining % 4) {
+                0, 3 -> R.string.pause_inhale
+                else -> R.string.pause_exhale
+            }
+        )
     }
 
     private fun launchTargetApp() {
@@ -111,10 +118,5 @@ class ConsciousPauseActivity : BaseActivity() {
 
     companion object {
         private const val KEY_REMAINING = "remaining_seconds"
-    }
-
-    override fun onDestroy() {
-        countdownJob?.cancel()
-        super.onDestroy()
     }
 }

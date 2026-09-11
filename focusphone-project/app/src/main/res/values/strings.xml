@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en">
     <string name="app_name">focusphone</string>
     <string name="calendar_date_format">%1$s %2$d | %3$d</string>
     <string name="app_label">focusphone</string>
@@ -7,7 +7,7 @@
     <!-- Home screen -->
     <string name="home_all_apps">all applications</string>
     <string name="home_settings">focus settings</string>
-    <string name="home_edit_apps">edit applications</string>
+    <string name="home_edit_apps">edit dashboard</string>
     <string name="home_long_press_hint">hold an app to remove it from your list</string>
     <string name="home_no_apps">no apps selected.\ntap the menu to add apps.</string>
     <string name="home_menu_desc">open menu</string>
@@ -28,8 +28,14 @@
     <string name="appselect_subtitle">choose the apps that matter most</string>
     <string name="appselect_search_hint">search…</string>
     <string name="appselect_done">done</string>
-    <string name="appselect_selected_count">%1$d of %2$d apps selected</string>
-    <string name="appselect_limit_reached">you\'ve reached the limit of %1$d apps</string>
+    <plurals name="appselect_selected_count">
+        <item quantity="one">%1$d of %2$d app selected</item>
+        <item quantity="other">%1$d of %2$d apps selected</item>
+    </plurals>
+    <plurals name="appselect_limit_reached">
+        <item quantity="one">you\'ve reached the limit of %1$d app</item>
+        <item quantity="other">you\'ve reached the limit of %1$d apps</item>
+    </plurals>
 
     <!-- Settings screen -->
     <string name="settings_title">settings</string>
@@ -68,6 +74,7 @@
     <string name="settings_clock_analog">analog</string>
     <string name="settings_clock_hidden">hidden</string>
     <string name="settings_section_font">font</string>
+    <string name="settings_section_text_layout">text and layout</string>
     <string name="settings_font_label">launcher font</string>
     <string name="font_select_title">select font</string>
     <string name="settings_font_system">system</string>
@@ -81,6 +88,7 @@
     <string name="settings_custom_theme_bg">background color</string>
     <string name="settings_custom_theme_fg">foreground color</string>
     <string name="settings_custom_theme_apply">apply</string>
+    <string name="settings_custom_theme_invalid">enter two colors as #rrggbb</string>
     <string name="settings_chevron">›</string>
 
     <!-- Settings: Language -->
@@ -173,7 +181,7 @@
     <string name="action_reset">reset</string>
     <string name="action_cancel">cancel</string>
     <string name="nav_back">back</string>
-    <string name="action_ok">ok</string>
+    <string name="action_ok">OK</string>
     <string name="settings_privacy_policy_fallback">see privacy_policy.html in app assets.</string>
     <string name="settings_clock_size">clock size</string>
     <string name="settings_text_size">text size</string>
@@ -187,7 +195,10 @@
     <string name="settings_section_conscious_pause">conscious pause</string>
     <string name="settings_conscious_pause_title">enable conscious pause</string>
     <string name="settings_conscious_pause_desc">take a deep breath before opening any app</string>
-    <string name="settings_conscious_pause_duration">pause duration: %1$d seconds</string>
+    <plurals name="settings_conscious_pause_duration">
+        <item quantity="one">pause duration: %1$d second</item>
+        <item quantity="other">pause duration: %1$d seconds</item>
+    </plurals>
     <string name="pause_inhale">inhale…</string>
     <string name="pause_exhale">exhale…</string>
     <string name="pause_hold">hold…</string>
@@ -219,7 +230,6 @@
     <string name="detox_unlock_desc">enter password to deactivate detox mode:</string>
     <string name="detox_btn_unlock">unlock</string>
     <string name="error_incorrect_password">incorrect password</string>
-    <string name="detox_force_disabled">detox mode automatically deactivated for safety</string>
     <string name="error_min_characters">minimum 4 characters</string>
     <string name="error_invalid_duration">invalid duration</string>
     <string name="detox_blocked_title">detox active</string>
@@ -230,14 +240,20 @@
     <string name="detox_accessibility_desc">for detox to block apps launched from notifications or recents, please enable the focusphone accessibility service.</string>
     <string name="detox_accessibility_enable">enable</string>
     <string name="detox_accessibility_continue">continue anyway</string>
-    <string name="tutorial_arrow_prev">←</string>
-    <string name="tutorial_arrow_next">→</string>
-    <string name="tutorial_arrow_finish">✓</string>
+    <string name="settings_font_selected_mark" translatable="false">✓</string>
+    <string name="detox_custom_time_separator" translatable="false">:</string>
+    <string name="tutorial_slide_counter">%1$d / %2$d</string>
+    <string name="settings_font_sample_text" translatable="false">focusphone</string>
+    <string name="settings_custom_theme_bg_hint" translatable="false">#181818</string>
+    <string name="settings_custom_theme_fg_hint" translatable="false">#FAFAFA</string>
+    <string name="tutorial_arrow_prev" translatable="false">←</string>
+    <string name="tutorial_arrow_next" translatable="false">→</string>
+    <string name="tutorial_arrow_finish" translatable="false">✓</string>
 
     <!-- Settings Sections -->
     <string name="settings_section_tutorial">tutorial</string>
     <string name="settings_tutorial_title">interactive tutorial</string>
-    <string name="settings_tutorial_desc">learn how to use 100% of focusphone features</string>
+    <string name="settings_tutorial_desc" formatted="false">learn how to use 100% of focusphone features</string>
     <string name="settings_tutorial_restart_title">restart tutorial</string>
     <string name="settings_tutorial_restart_desc">experience the interactive contextual guide again</string>
     <string name="settings_restart_tutorial_confirm">this will restart the interactive tutorial. continue?</string>
@@ -336,6 +352,7 @@
     <string name="widget_picker_title">select widget</string>
     <string name="widget_picker_subtitle">choose a widget to add to your home screen</string>
     <string name="widget_picker_empty">no widgets available</string>
+    <string name="widget_picker_loading">loading widgets…</string>
     <string name="cd_widget_icon">widget icon</string>
     <string name="cd_clock">clock component</string>
     <string name="cd_widget">widget component</string>
@@ -510,6 +527,10 @@ forty-one</string>
     <string name="settings_section_wallpaper">wallpaper</string>
     <string name="settings_wallpaper_blur_desc">blur the background for better readability</string>
     <string name="settings_wallpaper_blur_intensity">blur intensity: %1$d%%</string>
+
+    <!-- Legibility: how strongly panels are dimmed over a wallpaper -->
+    <string name="settings_wallpaper_readability">text legibility: %1$d%%</string>
+    <string name="settings_wallpaper_readability_hint">how strongly panels are dimmed so text stays readable over your wallpaper</string>
     <string name="settings_wallpaper_blur_label">blur background</string>
     <string name="settings_wallpaper_disabled_info">wallpaper hidden</string>
     <string name="settings_wallpaper_disabled_info_desc">enable the switch above to choose a background image</string>
@@ -572,7 +593,10 @@ forty-one</string>
     <string name="schedule_password_remove_confirm">this deletes the password and every app schedule. continue?</string>
     <string name="schedule_password_removed">protection removed</string>
     <string name="schedule_password_confirm_hint">repeat password</string>
-    <string name="schedule_password_too_short">use at least %1$d characters</string>
+    <plurals name="schedule_password_too_short">
+        <item quantity="one">use at least %1$d character</item>
+        <item quantity="other">use at least %1$d characters</item>
+    </plurals>
     <string name="schedule_password_mismatch">the passwords do not match</string>
     <string name="schedule_create_password_title">protect schedules</string>
     <string name="schedule_create_password_desc">set a password so app schedules cannot be changed on impulse.</string>
@@ -580,13 +604,29 @@ forty-one</string>
     <string name="schedule_unlock_desc">enter your password to view and edit app schedules:</string>
     <string name="schedule_confirm_password_title">confirm password</string>
     <string name="schedule_confirm_password_desc">enter your current password to continue:</string>
-    <string name="schedule_wrong_password">incorrect password. %1$d attempts left</string>
-    <string name="schedule_locked_out">too many attempts. try again in %1$d min</string>
 
     <!-- Schedule block screen -->
     <string name="schedule_blocked_label">scheduled</string>
     <string name="schedule_blocked_window_title">outside allowed hours</string>
     <string name="schedule_blocked_window_desc">this app is available between %1$s and %2$s.</string>
     <string name="schedule_blocked_limit_title">daily limit reached</string>
-    <string name="schedule_blocked_limit_desc">you have used %1$d of your %2$d minutes today. the allowance resets at midnight.</string>
+    <plurals name="schedule_blocked_limit_desc">
+        <item quantity="one">you have used %1$d of your %2$d minute today. the allowance resets at midnight.</item>
+        <item quantity="other">you have used %1$d of your %2$d minutes today. the allowance resets at midnight.</item>
+    </plurals>
+
+    <!-- Shared password lock (detox and schedules) -->
+    <plurals name="password_attempts_left">
+        <item quantity="one">incorrect password. %1$d attempt left</item>
+        <item quantity="other">incorrect password. %1$d attempts left</item>
+    </plurals>
+    <plurals name="password_locked_out_minutes">
+        <item quantity="one">too many attempts. try again in %1$d minute</item>
+        <item quantity="other">too many attempts. try again in %1$d minutes</item>
+    </plurals>
+    <string name="error_save_failed">could not save. please try again</string>
+    <string name="settings_wallpaper_import_failed">could not use this image</string>
+    <string name="settings_wallpaper_change">choose another image</string>
+    <string name="settings_wallpaper_remove">remove wallpaper</string>
+    <string name="wallpaper_access_lost">a wallpaper could no longer be read and was removed. please choose it again</string>
 </resources>

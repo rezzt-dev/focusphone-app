@@ -1,5 +1,6 @@
 package app.focusphone.data.preferences
 
+import androidx.core.content.edit
 import android.content.Context
 
 /**
@@ -22,5 +23,5 @@ object GesturePreferences {
         prefs(context).getBoolean(KEY_SWIPE_DOWN_NOTIFICATIONS, true)
 
     fun setSwipeDownEnabled(context: Context, enabled: Boolean) =
-        prefs(context).edit().putBoolean(KEY_SWIPE_DOWN_NOTIFICATIONS, enabled).apply()
+        prefs(context).edit { putBoolean(KEY_SWIPE_DOWN_NOTIFICATIONS, enabled) }
 }

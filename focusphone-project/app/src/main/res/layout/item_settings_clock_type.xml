@@ -11,27 +11,36 @@
     android:background="@drawable/bg_settings_tile"
     android:padding="6dp">
 
+    <!--
+        The preview text is localized and the tile is one fifth of the screen, so the size is
+        computed in HomeSettingsActivity from the longest word it has to fit. `textSize` here
+        is only the starting point and the value the designer sees in the preview.
+    -->
     <TextView
         android:id="@+id/tv_preview"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
         android:includeFontPadding="false"
+        android:lineSpacingMultiplier="0.88"
+        android:maxLines="4"
         android:textColor="?android:attr/textColorPrimary"
         android:textSize="18sp"
-        android:lineSpacingMultiplier="0.88"
         tools:text="09:41" />
 
     <TextView
         android:id="@+id/tv_label"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:ellipsize="end"
         android:fontFamily="sans-serif"
+        android:gravity="center"
         android:letterSpacing="0.04"
+        android:maxLines="1"
         android:textColor="?android:attr/textColorSecondary"
-        android:textSize="10sp"
+        android:textSize="11sp"
         tools:text="digital" />
 
 </LinearLayout>

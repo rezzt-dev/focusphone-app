@@ -157,14 +157,14 @@ class AppScheduleEditActivity : SettingsSubActivity() {
         applyChipColors(chip)
     }
 
+    /**
+     * An activated chip is filled with the accent colour, so its label has to use the
+     * contrast-checked [FocusPalette.onAccent] rather than the raw theme background —
+     * which is unreadable on a light custom accent.
+     */
     private fun applyChipColors(chip: TextView) {
-        val typedValue = TypedValue()
-        if (chip.isActivated) {
-            theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-        } else {
-            theme.resolveAttribute(android.R.attr.textColorSecondary, typedValue, true)
-        }
-        chip.setTextColor(typedValue.data)
+        val colors = palette
+        chip.setTextColor(if (chip.isActivated) colors.onAccent else colors.textSecondary)
     }
 
     private fun buildDailyLimitSection(container: LinearLayout) {
@@ -223,7 +223,10 @@ class AppScheduleEditActivity : SettingsSubActivity() {
         removeButton.visibility =
             if (AppSchedulePreferences.getRule(this, packageNameArg) != null) View.VISIBLE else View.GONE
         removeButton.setOnClickListener {
-            AppSchedulePreferences.removeRule(this, packageNameArg)
+            if (!AppSchedulePreferences.removeRule(this, packageNameArg)) {
+                Toast.makeText(this, R.string.error_save_failed, Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
             Toast.makeText(this, R.string.schedule_rule_removed, Toast.LENGTH_SHORT).show()
             finish()
         }
@@ -279,7 +282,12 @@ class AppScheduleEditActivity : SettingsSubActivity() {
             return
         }
 
-        AppSchedulePreferences.saveRule(this, draft)
+        if (!AppSchedulePreferences.saveRule(this, draft)) {
+            // The stored rules could not be read or written; keep the editor open so
+            // nothing the user entered is lost.
+            Toast.makeText(this, R.string.error_save_failed, Toast.LENGTH_LONG).show()
+            return
+        }
         Toast.makeText(this, R.string.schedule_rule_saved, Toast.LENGTH_SHORT).show()
         finish()
     }
