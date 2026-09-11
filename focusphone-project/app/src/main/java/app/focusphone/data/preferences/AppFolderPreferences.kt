@@ -21,13 +21,29 @@ import kotlinx.coroutines.flow.asStateFlow
  *  - folder names are unique (case-insensitively), so the chooser dialog is never
  *    ambiguous.
  *
+ * Membership is not reconciled against a launcher-app query. Android may return an
+ * incomplete result during boot, package replacement, or managed-profile changes; an
+ * unavailable package remains stored and is hidden by the drawer until it is available
+ * again.
+ *
  * State is exposed as [StateFlow]s because the drawer rebuilds its rows from the
  * folder set, the expanded set and the installed apps together.
  */
-class AppFolderPreferences(context: Context) {
+class AppFolderPreferences private constructor(
+    private val store: AppFolderStore
+) {
 
-    private val appContext = context.applicationContext
-    private val store = EncryptedPrefs(PREF_FILE)
+    constructor(context: Context) : this(
+        EncryptedAppFolderStore(
+            context = context.applicationContext,
+            encryptedPrefs = EncryptedPrefs(PREF_FILE)
+        )
+    )
+
+    internal constructor(
+        readString: (String) -> String?,
+        writeString: (String, String?) -> Boolean
+    ) : this(LambdaAppFolderStore(readString, writeString))
 
     private val _foldersFlow = MutableStateFlow(loadFolders())
     val foldersFlow: StateFlow<List<AppFolder>> = _foldersFlow.asStateFlow()
@@ -64,7 +80,7 @@ class AppFolderPreferences(context: Context) {
         if (clean.isEmpty() || isNameTaken(clean)) return null
 
         val folder = AppFolder(id = AppFolderSerializer.newId(), name = clean)
-        persist(_foldersFlow.value + folder)
+        if (!persist(_foldersFlow.value + folder)) return null
         setExpanded(folder.id, true)
         return folder
     }
@@ -75,14 +91,16 @@ class AppFolderPreferences(context: Context) {
         if (clean.isEmpty() || isNameTaken(clean, excludeId = folderId)) return false
         if (_foldersFlow.value.none { it.id == folderId }) return false
 
-        persist(_foldersFlow.value.map { if (it.id == folderId) it.copy(name = clean) else it })
-        return true
+        return persist(
+            _foldersFlow.value.map { if (it.id == folderId) it.copy(name = clean) else it }
+        )
     }
 
     /** Deletes [folderId]; the apps it held simply return to the root list. */
     fun deleteFolder(folderId: String) {
-        persist(_foldersFlow.value.filterNot { it.id == folderId })
-        setExpanded(folderId, false)
+        if (persist(_foldersFlow.value.filterNot { it.id == folderId })) {
+            setExpanded(folderId, false)
+        }
     }
 
     // ── Membership ─────────────────────────────────────────────────
@@ -94,7 +112,7 @@ class AppFolderPreferences(context: Context) {
     fun moveAppToFolder(packageName: String, folderId: String) {
         if (_foldersFlow.value.none { it.id == folderId }) return
 
-        persist(
+        val moved = persist(
             _foldersFlow.value.map { folder ->
                 when {
                     folder.id == folderId ->
@@ -108,7 +126,7 @@ class AppFolderPreferences(context: Context) {
                 }
             }
         )
-        setExpanded(folderId, true)
+        if (moved) setExpanded(folderId, true)
     }
 
     /** Removes [packageName] from whichever folder holds it. */
@@ -125,20 +143,6 @@ class AppFolderPreferences(context: Context) {
         )
     }
 
-    /**
-     * Drops references to apps that are no longer installed.
-     * Called after the drawer loads its app list so uninstalls do not leave ghosts.
-     */
-    fun retainInstalled(installedPackages: Set<String>) {
-        val current = _foldersFlow.value
-        if (current.isEmpty()) return
-
-        val cleaned = current.map { folder ->
-            folder.copy(packageNames = folder.packageNames.filter { it in installedPackages })
-        }
-        if (cleaned != current) persist(cleaned)
-    }
-
     // ── Expanded state ─────────────────────────────────────────────
 
     fun isExpanded(folderId: String): Boolean = folderId in _expandedFlow.value
@@ -148,22 +152,24 @@ class AppFolderPreferences(context: Context) {
         val updated = if (expanded) current + folderId else current - folderId
         if (updated == current) return
 
-        _expandedFlow.value = updated
-        store.putString(appContext, KEY_EXPANDED, updated.joinToString(EXPANDED_SEPARATOR))
+        if (store.putString(KEY_EXPANDED, updated.joinToString(EXPANDED_SEPARATOR))) {
+            _expandedFlow.value = updated
+        }
     }
 
     fun toggleExpanded(folderId: String) = setExpanded(folderId, !isExpanded(folderId))
 
     // ── Persistence ────────────────────────────────────────────────
 
-    private fun persist(folders: List<AppFolder>) {
+    private fun persist(folders: List<AppFolder>): Boolean {
         val ordered = folders.sortedWith(AppFolderSerializer.NAME_ORDER)
-        store.putString(appContext, KEY_FOLDERS, AppFolderSerializer.serializeAll(ordered))
+        if (!store.putString(KEY_FOLDERS, AppFolderSerializer.serializeAll(ordered))) return false
         _foldersFlow.value = ordered
+        return true
     }
 
     private fun loadFolders(): List<AppFolder> {
-        val parsed = AppFolderSerializer.parseAll(store.getString(appContext, KEY_FOLDERS, null))
+        val parsed = AppFolderSerializer.parseAll(store.getString(KEY_FOLDERS))
 
         // Defensive de-duplication: a package must live in a single folder even if an
         // interrupted write left it in two.
@@ -176,7 +182,7 @@ class AppFolderPreferences(context: Context) {
     }
 
     private fun loadExpanded(): Set<String> =
-        store.getString(appContext, KEY_EXPANDED, null)
+        store.getString(KEY_EXPANDED)
             ?.split(EXPANDED_SEPARATOR)
             ?.filter { it.isNotBlank() }
             ?.toSet()
@@ -188,4 +194,30 @@ class AppFolderPreferences(context: Context) {
         private const val KEY_EXPANDED = "expanded_folders"
         private const val EXPANDED_SEPARATOR = ","
     }
+}
+
+/** Minimal store boundary that keeps folder-state tests independent of Android Keystore. */
+internal interface AppFolderStore {
+    fun getString(key: String): String?
+    fun putString(key: String, value: String?): Boolean
+}
+
+private class EncryptedAppFolderStore(
+    private val context: Context,
+    private val encryptedPrefs: EncryptedPrefs
+) : AppFolderStore {
+    override fun getString(key: String): String? =
+        encryptedPrefs.getString(context, key, null)
+
+    override fun putString(key: String, value: String?): Boolean =
+        encryptedPrefs.commitString(context, key, value)
+}
+
+private class LambdaAppFolderStore(
+    private val readString: (String) -> String?,
+    private val writeString: (String, String?) -> Boolean
+) : AppFolderStore {
+    override fun getString(key: String): String? = readString(key)
+
+    override fun putString(key: String, value: String?): Boolean = writeString(key, value)
 }

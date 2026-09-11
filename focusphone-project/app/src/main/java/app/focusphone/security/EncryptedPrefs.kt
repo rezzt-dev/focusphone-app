@@ -39,6 +39,21 @@ class EncryptedPrefs(private val fileName: String) {
         prefs(context).edit().putString(key, encrypted).apply()
     }
 
+    /**
+     * Encrypts and commits [value] before returning.
+     *
+     * This is reserved for small, user-authored configuration whose in-memory state
+     * must never get ahead of the value on disk (for example app-folder membership).
+     * Returns false when encryption or the disk commit fails.
+     */
+    fun commitString(context: Context, key: String, value: String?): Boolean {
+        val preferences = prefs(context)
+        if (value == null) return preferences.edit().remove(key).commit()
+
+        val encrypted = SecureStorageHelper.encrypt(context, value) ?: return false
+        return preferences.edit().putString(key, encrypted).commit()
+    }
+
     fun getLong(context: Context, key: String, default: Long): Long =
         getString(context, key, null)?.toLongOrNull() ?: default
 

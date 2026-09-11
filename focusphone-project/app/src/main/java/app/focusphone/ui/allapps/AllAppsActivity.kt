@@ -89,8 +89,10 @@ class AllAppsViewModel(
         emptyList()
       }
       _allApps.value = apps
-      // Uninstalled apps must not linger inside folders as invisible members.
-      folderPreferences.retainInstalled(apps.mapTo(mutableSetOf()) { it.packageName })
+      // The PackageManager result is a display snapshot, not an authoritative uninstall
+      // signal. It can be empty or incomplete during boot and package/profile changes.
+      // Folder membership therefore stays untouched; unavailable apps are simply omitted
+      // by buildRows and reappear in their folder when Android reports them again.
       _isLoading.value = false
     }
   }

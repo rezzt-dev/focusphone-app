@@ -6,7 +6,7 @@
 
     <string name="home_all_apps">toutes les apps</string>
     <string name="home_settings">réglages</string>
-    <string name="home_edit_apps">modifier les apps</string>
+    <string name="home_edit_apps">modifier le dashboard</string>
     <string name="home_long_press_hint">maintenez une app pour la retirer de la liste</string>
     <string name="home_no_apps">aucune app sélectionnée.\nappuyez sur le menu pour ajouter des apps.</string>
     <string name="home_menu_desc">ouvrir le menu</string>

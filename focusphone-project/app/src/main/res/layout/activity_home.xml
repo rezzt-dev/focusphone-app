@@ -370,7 +370,7 @@
                 android:textColor="?android:attr/textColorPrimary"
                 android:textSize="26sp" />
 
-            <!-- "editar apps" -->
+            <!-- "edit dashboard" -->
             <TextView
                 android:id="@+id/tv_menu_select_apps"
                 android:layout_width="match_parent"
