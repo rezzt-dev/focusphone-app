@@ -67,6 +67,10 @@ class AppContainer(
         ToggleFavouriteAppUseCase(favouriteAppRepository)
     }
 
+    val removeFavouriteAppUseCase: app.focusphone.domain.usecase.RemoveFavouriteAppUseCase by lazy {
+        app.focusphone.domain.usecase.RemoveFavouriteAppUseCase(favouriteAppRepository)
+    }
+
     val updateAppsOrderUseCase: app.focusphone.domain.usecase.UpdateAppsOrderUseCase by lazy {
         app.focusphone.domain.usecase.UpdateAppsOrderUseCase(favouriteAppRepository)
     }

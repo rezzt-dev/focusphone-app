@@ -1,6 +1,5 @@
 package app.focusphone.ui.schedule
 
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
@@ -24,7 +23,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
+import androidx.core.graphics.drawable.toDrawable
 
 /**
  * Password-protected screen listing every app with a time restriction.
@@ -36,7 +35,6 @@ import java.util.concurrent.TimeUnit
  */
 class AppScheduleActivity : SettingsSubActivity() {
 
-    private var activeDialog: AlertDialog? = null
     private var installedApps: List<AppInfo> = emptyList()
 
     override fun getScreenTitleRes(): Int = R.string.schedule_title
@@ -51,8 +49,8 @@ class AppScheduleActivity : SettingsSubActivity() {
 
     override fun onPause() {
         super.onPause()
-        activeDialog?.dismiss()
-        activeDialog = null
+        // onResume asks for the password again, so no dialog survives leaving the screen.
+        dismissExclusiveDialog()
     }
 
     // ── Password gate ──────────────────────────────────────────────
@@ -60,14 +58,17 @@ class AppScheduleActivity : SettingsSubActivity() {
     private fun requestAccess() {
         val lockoutMs = AppSchedulePreferences.getLockoutRemainingMs(this)
         if (lockoutMs > 0) {
-            val minutes = TimeUnit.MILLISECONDS.toMinutes(lockoutMs) + 1
-            Toast.makeText(this, getString(R.string.schedule_locked_out, minutes), Toast.LENGTH_LONG).show()
+            Toast.makeText(this, passwordLockoutMessage(lockoutMs), Toast.LENGTH_LONG).show()
             finish()
             return
         }
 
         if (AppSchedulePreferences.hasPassword(this)) showVerifyDialog() else showCreatePasswordDialog()
     }
+
+    /** PBKDF2 is deliberately slow, so every hash runs off the main thread. */
+    private suspend fun verifyPassword(password: String): Boolean =
+        withContext(Dispatchers.Default) { AppSchedulePreferences.verifyPassword(applicationContext, password) }
 
     private fun showVerifyDialog() {
         showPasswordDialog(
@@ -77,7 +78,7 @@ class AppScheduleActivity : SettingsSubActivity() {
             confirmLabelRes = R.string.detox_btn_unlock,
             onCancel = { finish() }
         ) { password, _ ->
-            if (AppSchedulePreferences.verifyPassword(this, password)) {
+            if (verifyPassword(password)) {
                 ScheduleAccessGate.unlock()
                 render()
                 null
@@ -97,17 +98,27 @@ class AppScheduleActivity : SettingsSubActivity() {
         ) { password, confirmation ->
             when {
                 password.length < AppSchedulePreferences.MIN_PASSWORD_LENGTH ->
-                    getString(R.string.schedule_password_too_short, AppSchedulePreferences.MIN_PASSWORD_LENGTH)
+                    resources.getQuantityString(
+                        R.plurals.schedule_password_too_short,
+                        AppSchedulePreferences.MIN_PASSWORD_LENGTH,
+                        AppSchedulePreferences.MIN_PASSWORD_LENGTH
+                    )
 
                 password != confirmation ->
                     getString(R.string.schedule_password_mismatch)
 
                 else -> {
-                    AppSchedulePreferences.setPassword(this, password)
-                    ScheduleAccessGate.unlock()
-                    render()
-                    onDone?.invoke()
-                    null
+                    val saved = withContext(Dispatchers.Default) {
+                        AppSchedulePreferences.setPassword(applicationContext, password)
+                    }
+                    if (!saved) {
+                        getString(R.string.error_save_failed)
+                    } else {
+                        ScheduleAccessGate.unlock()
+                        render()
+                        onDone?.invoke()
+                        null
+                    }
                 }
             }
         }
@@ -117,7 +128,8 @@ class AppScheduleActivity : SettingsSubActivity() {
      * Shows the shared password dialog.
      *
      * [onSubmit] receives the entered values and returns an error message to display
-     * inline, or null when the action succeeded and the dialog should close.
+     * inline, or null when the action succeeded and the dialog should close. It runs in
+     * a coroutine so slow password hashing never blocks the main thread.
      */
     private fun showPasswordDialog(
         titleRes: Int,
@@ -125,13 +137,14 @@ class AppScheduleActivity : SettingsSubActivity() {
         requireConfirm: Boolean,
         confirmLabelRes: Int,
         onCancel: () -> Unit,
-        onSubmit: (password: String, confirmation: String) -> String?
+        onSubmit: suspend (password: String, confirmation: String) -> String?
     ) {
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_schedule_password, null)
+        applyDialogSurface(view)
         val dialog = AlertDialog.Builder(this).setView(view).setCancelable(false).create()
 
         dialog.window?.apply {
-            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+            setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
             // Passwords are typed here: keep them out of screenshots and screen recordings.
             addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
@@ -146,12 +159,16 @@ class AppScheduleActivity : SettingsSubActivity() {
         val btnOk = view.findViewById<TextView>(R.id.btn_ok)
         btnOk.setText(confirmLabelRes)
         btnOk.setOnClickListener {
-            val error = onSubmit(etPassword.text.toString(), etConfirm.text.toString())
-            if (error == null) {
-                dialog.dismiss()
-            } else {
-                tvError.text = error
-                tvError.visibility = View.VISIBLE
+            btnOk.isEnabled = false
+            lifecycleScope.launch {
+                val error = onSubmit(etPassword.text.toString(), etConfirm.text.toString())
+                btnOk.isEnabled = true
+                if (error == null) {
+                    dialog.dismiss()
+                } else {
+                    tvError.text = error
+                    tvError.visibility = View.VISIBLE
+                }
             }
         }
 
@@ -160,8 +177,7 @@ class AppScheduleActivity : SettingsSubActivity() {
             onCancel()
         }
 
-        activeDialog = dialog
-        dialog.show()
+        showExclusiveDialog(dialog)
         applyFontFamilyToView(view)
     }
 
@@ -173,17 +189,13 @@ class AppScheduleActivity : SettingsSubActivity() {
      */
     private fun onWrongPassword(closeScreenOnLockout: Boolean): String? {
         if (AppSchedulePreferences.isLockedOut(this)) {
-            val minutes = TimeUnit.MILLISECONDS.toMinutes(
-                AppSchedulePreferences.getLockoutRemainingMs(this)
-            ) + 1
-            Toast.makeText(this, getString(R.string.schedule_locked_out, minutes), Toast.LENGTH_LONG).show()
-            if (closeScreenOnLockout) finish()
+            val message = passwordLockoutMessage(AppSchedulePreferences.getLockoutRemainingMs(this))
+            if (!closeScreenOnLockout) return message
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+            finish()
             return null
         }
-        return getString(
-            R.string.schedule_wrong_password,
-            AppSchedulePreferences.getRemainingAttempts(this)
-        )
+        return passwordAttemptsLeftMessage(AppSchedulePreferences.getRemainingAttempts(this))
     }
 
     // ── Rendering ──────────────────────────────────────────────────
@@ -304,6 +316,8 @@ class AppScheduleActivity : SettingsSubActivity() {
                     focusPhoneApp.container.getInstalledAppsUseCase()
                 }
             }
+            // The user may have left while the list was loading.
+            if (!canShowUi()) return@launch
 
             val configured = AppSchedulePreferences.getRules(this@AppScheduleActivity)
                 .map { it.packageName }
@@ -317,15 +331,14 @@ class AppScheduleActivity : SettingsSubActivity() {
                 return@launch
             }
 
-            activeDialog = MaterialAlertDialogBuilder(this@AppScheduleActivity)
+            val dialog = MaterialAlertDialogBuilder(this@AppScheduleActivity)
                 .setTitle(R.string.schedule_add_app)
                 .setItems(candidates.map { it.label }.toTypedArray()) { _, which ->
                     val app = candidates[which]
                     startActivity(AppScheduleEditActivity.newIntent(this@AppScheduleActivity, app.packageName, app.label))
                 }
                 .create()
-            activeDialog?.show()
-            styleMaterialDialog(activeDialog)
+            showStyledDialog(dialog)
         }
     }
 
@@ -335,7 +348,7 @@ class AppScheduleActivity : SettingsSubActivity() {
             getString(R.string.schedule_password_remove)
         )
 
-        activeDialog = MaterialAlertDialogBuilder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.schedule_password_row_title)
             .setItems(options) { _, which ->
                 when (which) {
@@ -344,8 +357,7 @@ class AppScheduleActivity : SettingsSubActivity() {
                 }
             }
             .create()
-        activeDialog?.show()
-        styleMaterialDialog(activeDialog)
+        showStyledDialog(dialog)
     }
 
     /**
@@ -361,7 +373,7 @@ class AppScheduleActivity : SettingsSubActivity() {
             confirmLabelRes = R.string.detox_btn_unlock,
             onCancel = {}
         ) { password, _ ->
-            if (AppSchedulePreferences.verifyPassword(this, password)) {
+            if (verifyPassword(password)) {
                 onVerified()
                 null
             } else {
@@ -386,12 +398,6 @@ class AppScheduleActivity : SettingsSubActivity() {
                 finish()
             }
             .create()
-            .also { activeDialog = it; it.show(); styleMaterialDialog(it) }
-    }
-
-    companion object {
-        /** Opens the schedule settings from anywhere in the app. */
-        fun newIntent(context: android.content.Context): Intent =
-            Intent(context, AppScheduleActivity::class.java)
+            .also { showStyledDialog(it) }
     }
 }

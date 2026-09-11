@@ -14,17 +14,23 @@
         android:layout_height="0dp"
         android:scaleType="centerCrop"
         android:visibility="gone"
+        android:importantForAccessibility="no"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Subtle scrim so text and controls remain readable over the wallpaper -->
+    <!--
+        Legibility scrim. Colour and alpha are driven by BaseActivity.applyScrim() from the
+        active palette and the user's legibility preference, so a custom theme tints it
+        correctly and it disappears entirely when no wallpaper is showing.
+    -->
     <View
+        android:id="@+id/view_scrim"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="?android:attr/colorBackground"
-        android:alpha="0.85"
+        android:importantForAccessibility="no"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -101,6 +107,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:paddingTop="12dp"
             android:paddingBottom="56dp"
             tools:ignore="UselessLeaf" />
 

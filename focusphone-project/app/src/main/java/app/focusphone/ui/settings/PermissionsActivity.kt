@@ -1,16 +1,19 @@
 package app.focusphone.ui.settings
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import app.focusphone.R
 import app.focusphone.databinding.ActivityPermissionsBinding
 import app.focusphone.service.FocusAccessibilityService
 import app.focusphone.ui.base.BaseActivity
+import app.focusphone.util.LauncherUtils
+import androidx.core.view.updatePadding
+import kotlinx.coroutines.launch
 
 class PermissionsActivity : BaseActivity() {
 
@@ -31,11 +34,20 @@ class PermissionsActivity : BaseActivity() {
     }
 
     private fun refreshStatuses() {
-        // Query All Packages
-        val queryGranted = isQueryAllPackagesGranted()
-        binding.tvQueryAllStatus.text = getString(
-            if (queryGranted) R.string.permissions_status_granted else R.string.permissions_status_denied
-        )
+        // Query All Packages: this is an install-time permission, so checkSelfPermission()
+        // is always PERMISSION_GRANTED as long as it's declared in the manifest — it can
+        // never reflect a real "denied" state. What actually matters to the user is whether
+        // the launcher can see other apps at all (FP-059).
+        lifecycleScope.launch {
+            val visibleAppCount = focusPhoneApp.container.appRepository.getInstalledApps().size
+            binding.tvQueryAllStatus.text = getString(
+                if (visibleAppCount > MIN_EXPECTED_VISIBLE_APPS) {
+                    R.string.permissions_status_granted
+                } else {
+                    R.string.permissions_status_denied
+                }
+            )
+        }
 
         // Accessibility Service
         val accessibilityActive = FocusAccessibilityService.isEnabled(this)
@@ -44,7 +56,7 @@ class PermissionsActivity : BaseActivity() {
         )
 
         // Default Launcher
-        val isDefault = isDefaultLauncher()
+        val isDefault = LauncherUtils.isDefaultLauncher(this)
         binding.tvLauncherStatus.text = getString(
             if (isDefault) R.string.permissions_status_active else R.string.permissions_status_inactive
         )
@@ -64,16 +76,6 @@ class PermissionsActivity : BaseActivity() {
         }
     }
 
-    private fun isQueryAllPackagesGranted(): Boolean {
-        return checkSelfPermission(android.Manifest.permission.QUERY_ALL_PACKAGES) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun isDefaultLauncher(): Boolean {
-        val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
-        val resolved = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
-        return resolved?.activityInfo?.packageName == packageName
-    }
-
     private fun openAppDetailsSettings() {
         startActivity(
             Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -85,9 +87,15 @@ class PermissionsActivity : BaseActivity() {
     private fun setupInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.toolbar.setPadding(0, bars.top, 0, 0)
-            binding.scrollContent.setPadding(0, 0, 0, bars.bottom)
+            binding.toolbar.updatePadding(top = bars.top)
+            binding.scrollContent.updatePadding(bottom = bars.bottom)
             insets
         }
+    }
+
+    private companion object {
+        // Any real device has far more than this installed, even freshly set up. A count
+        // at or below it means the launcher cannot actually see other apps on the device.
+        const val MIN_EXPECTED_VISIBLE_APPS = 5
     }
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Style-theme colours read by BaseActivity.colorizeViewTree to recover each view's
+        semantic role after inflation. Declared as a styleable so the attribute indices are
+        generated (and sorted) by aapt instead of being hard-coded array positions.
+    -->
+    <declare-styleable name="FocusBaseThemeColors">
+        <attr name="android:textColorPrimary" />
+        <attr name="android:textColorSecondary" />
+        <attr name="android:colorBackground" />
+    </declare-styleable>
+</resources>

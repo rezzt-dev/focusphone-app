@@ -1,5 +1,6 @@
 package app.focusphone.data.preferences
 
+import androidx.core.content.edit
 import android.content.Context
 
 /**
@@ -22,5 +23,5 @@ object NotificationPanelPreferences {
         prefs(context).getBoolean(KEY_ENABLED, false)
 
     fun setEnabled(context: Context, enabled: Boolean) =
-        prefs(context).edit().putBoolean(KEY_ENABLED, enabled).apply()
+        prefs(context).edit { putBoolean(KEY_ENABLED, enabled) }
 }

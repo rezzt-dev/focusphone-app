@@ -6,7 +6,7 @@
 
     <string name="home_all_apps">toutes les apps</string>
     <string name="home_settings">réglages</string>
-    <string name="home_edit_apps">modifier les apps</string>
+    <string name="home_edit_apps">modifier le dashboard</string>
     <string name="home_long_press_hint">maintenez une app pour la retirer de la liste</string>
     <string name="home_no_apps">aucune app sélectionnée.\nappuyez sur le menu pour ajouter des apps.</string>
     <string name="home_menu_desc">ouvrir le menu</string>
@@ -22,8 +22,16 @@
     <string name="appselect_subtitle">sélectionnez les apps qui comptent le plus</string>
     <string name="appselect_search_hint">rechercher…</string>
     <string name="appselect_done">terminé</string>
-    <string name="appselect_selected_count">%1$d sur %2$d apps sélectionnées</string>
-    <string name="appselect_limit_reached">vous avez atteint la limite de %1$d apps</string>
+    <plurals name="appselect_selected_count">
+        <item quantity="one">%1$d sur %2$d app sélectionnée</item>
+        <item quantity="many">%1$d sur %2$d app sélectionnée</item>
+        <item quantity="other">%1$d sur %2$d apps sélectionnées</item>
+    </plurals>
+    <plurals name="appselect_limit_reached">
+        <item quantity="one">vous avez atteint la limite de %1$d app</item>
+        <item quantity="many">vous avez atteint la limite de %1$d app</item>
+        <item quantity="other">vous avez atteint la limite de %1$d apps</item>
+    </plurals>
 
     <string name="settings_title">réglages</string>
     <string name="settings_section_appearance">apparence</string>
@@ -45,6 +53,7 @@
     <string name="settings_text_size">taille du texte</string>
     <string name="settings_text_size_pt">taille du texte : %1$dpt</string>
     <string name="settings_section_font">police</string>
+    <string name="settings_section_text_layout">texte et disposition</string>
     <string name="settings_font_label">police du launcher</string>
     <string name="font_select_title">sélectionner la police</string>
     <string name="settings_font_system">système</string>
@@ -138,13 +147,12 @@
     <string name="detox_unlock_desc">entrez le mot de passe pour désactiver le mode detox :</string>
     <string name="detox_btn_unlock">déverrouiller</string>
     <string name="error_incorrect_password">mot de passe incorrect</string>
-    <string name="detox_force_disabled">mode detox désactivé automatiquement par sécurité</string>
     <string name="error_min_characters">minimum 4 caractères</string>
     <string name="error_invalid_duration">durée invalide</string>
     <!-- Settings Sections -->
     <string name="settings_section_tutorial">tutoriel</string>
     <string name="settings_tutorial_title">tutoriel interactif</string>
-    <string name="settings_tutorial_desc">apprenez à utiliser 100% des fonctions de focusphone</string>
+    <string name="settings_tutorial_desc" formatted="false">apprenez à utiliser 100% des fonctions de focusphone</string>
 
     <!-- Tutorial Slides -->
     <string name="tutorial_slide_1_title">minimalisme &amp; accueil</string>
@@ -176,7 +184,7 @@
 
     <!-- Misc -->
     <string name="action_cancel">annuler</string>
-    <string name="action_ok">ok</string>
+    <string name="action_ok">OK</string>
     <string name="action_reset">réinitialiser</string>
     <string name="action_save">enregistrer</string>
     <string name="allapps_dialog_rename">renommer</string>
@@ -237,6 +245,7 @@
 
     <!-- Settings: Notifications -->
     <string name="settings_section_notifications">notifications</string>
+    <string name="settings_section_system">système</string>
     <string name="settings_notification_access_title">accès aux notifications</string>
     <string name="settings_notification_access_desc">autoriser focusphone à lire les notifications système</string>
     <string name="settings_notification_access_active">actif</string>
@@ -281,6 +290,7 @@
     <string name="settings_custom_theme_bg">couleur d\'arrière-plan</string>
     <string name="settings_custom_theme_fg">couleur de premier plan</string>
     <string name="settings_custom_theme_apply">appliquer</string>
+    <string name="settings_custom_theme_invalid">saisis deux couleurs au format #rrggbb</string>
 
     <!-- Settings: Clock -->
     <string name="settings_clock_thin">fin</string>
@@ -316,11 +326,16 @@
     <string name="detox_accessibility_desc">pour que detox bloque les apps lancées depuis les notifications ou les récents, activez le service d\'accessibilité focusphone.</string>
     <string name="detox_accessibility_enable">activer</string>
     <string name="detox_accessibility_continue">continuer quand même</string>
+    <string name="tutorial_slide_counter">%1$d / %2$d</string>
 
     <!-- Conscious Pause -->
     <string name="settings_section_conscious_pause">pause consciente</string>
     <string name="settings_conscious_pause_desc">respirez profondément avant d\'ouvrir une app</string>
-    <string name="settings_conscious_pause_duration">durée de la pause : %1$d secondes</string>
+    <plurals name="settings_conscious_pause_duration">
+        <item quantity="one">durée de la pause : %1$d seconde</item>
+        <item quantity="many">durée de la pause : %1$d seconde</item>
+        <item quantity="other">durée de la pause : %1$d secondes</item>
+    </plurals>
     <string name="settings_conscious_pause_title">activer la pause consciente</string>
     <string name="pause_inhale">inspirez…</string>
     <string name="pause_exhale">expirez…</string>
@@ -329,9 +344,6 @@
     <string name="pause_cancel">annuler</string>
 
     <!-- Tutorial Arrows -->
-    <string name="tutorial_arrow_prev">←</string>
-    <string name="tutorial_arrow_next">→</string>
-    <string name="tutorial_arrow_finish">✓</string>
 
     <!-- Custom App Names -->
     <string name="customize_name_title">personnaliser le nom</string>
@@ -420,10 +432,14 @@
     <string name="settings_work_keywords_section_desc">bloquer les apps par nom en mode travail</string>
     <string name="system_settings_title">système</string>
     <string name="widget_picker_empty">aucun widget disponible</string>
+    <string name="widget_picker_loading">chargement des widgets…</string>
     <string name="widget_picker_subtitle">choisir un widget à ajouter à l\'écran d\'accueil</string>
     <string name="widget_picker_title">sélectionner le widget</string>
     <string name="settings_wallpaper_blur_desc">adoucir l\'arrière-plan pour une meilleure lisibilité</string>
     <string name="settings_wallpaper_blur_intensity">intensité du flou : %1$d%%</string>
+
+    <string name="settings_wallpaper_readability">lisibilité du texte : %1$d%%</string>
+    <string name="settings_wallpaper_readability_hint">à quel point les panneaux sont assombris pour que le texte reste lisible sur votre fond d’écran</string>
     <string name="settings_wallpaper_blur_label">flouter l\'arrière-plan</string>
     <string name="settings_wallpaper_disabled_info">fond d\'écran masqué</string>
     <string name="settings_wallpaper_disabled_info_desc">activez le commutateur ci-dessus pour choisir une image de fond</string>
@@ -572,7 +588,11 @@ quarante et une</string>
     <string name="schedule_password_remove_confirm">cela supprime le mot de passe et tous les horaires. continuer ?</string>
     <string name="schedule_password_removed">protection retirée</string>
     <string name="schedule_password_confirm_hint">répétez le mot de passe</string>
-    <string name="schedule_password_too_short">utilisez au moins %1$d caractères</string>
+    <plurals name="schedule_password_too_short">
+        <item quantity="one">utilisez au moins %1$d caractère</item>
+        <item quantity="many">utilisez au moins %1$d caractère</item>
+        <item quantity="other">utilisez au moins %1$d caractères</item>
+    </plurals>
     <string name="schedule_password_mismatch">les mots de passe ne correspondent pas</string>
     <string name="schedule_create_password_title">protéger les horaires</string>
     <string name="schedule_create_password_desc">définissez un mot de passe pour ne pas modifier les horaires sur un coup de tête.</string>
@@ -580,13 +600,32 @@ quarante et une</string>
     <string name="schedule_unlock_desc">entrez votre mot de passe pour voir et modifier les horaires :</string>
     <string name="schedule_confirm_password_title">confirmer le mot de passe</string>
     <string name="schedule_confirm_password_desc">entrez votre mot de passe actuel pour continuer :</string>
-    <string name="schedule_wrong_password">mot de passe incorrect. %1$d tentatives restantes</string>
-    <string name="schedule_locked_out">trop de tentatives. réessayez dans %1$d min</string>
 
     <!-- Écran de blocage par horaire -->
     <string name="schedule_blocked_label">planifiée</string>
     <string name="schedule_blocked_window_title">hors des heures autorisées</string>
     <string name="schedule_blocked_window_desc">cette appli est disponible entre %1$s et %2$s.</string>
     <string name="schedule_blocked_limit_title">limite quotidienne atteinte</string>
-    <string name="schedule_blocked_limit_desc">vous avez utilisé %1$d de vos %2$d minutes aujourd\'hui. le quota repart à minuit.</string>
+    <plurals name="schedule_blocked_limit_desc">
+        <item quantity="one">vous avez utilisé %1$d de votre %2$d minute aujourd\'hui. le quota repart à minuit.</item>
+        <item quantity="many">vous avez utilisé %1$d de vos %2$d minute aujourd\'hui. le quota repart à minuit.</item>
+        <item quantity="other">vous avez utilisé %1$d de vos %2$d minutes aujourd\'hui. le quota repart à minuit.</item>
+    </plurals>
+
+    <!-- Shared password lock (detox and schedules) -->
+    <plurals name="password_attempts_left">
+        <item quantity="one">mot de passe incorrect. %1$d tentative restante</item>
+        <item quantity="many">mot de passe incorrect. %1$d tentative restante</item>
+        <item quantity="other">mot de passe incorrect. %1$d tentatives restantes</item>
+    </plurals>
+    <plurals name="password_locked_out_minutes">
+        <item quantity="one">trop de tentatives. réessayez dans %1$d minute</item>
+        <item quantity="many">trop de tentatives. réessayez dans %1$d minute</item>
+        <item quantity="other">trop de tentatives. réessayez dans %1$d minutes</item>
+    </plurals>
+    <string name="error_save_failed">impossible d\'enregistrer. réessayez</string>
+    <string name="settings_wallpaper_import_failed">impossible d\'utiliser cette image</string>
+    <string name="settings_wallpaper_change">choisir une autre image</string>
+    <string name="settings_wallpaper_remove">retirer le fond d\'écran</string>
+    <string name="wallpaper_access_lost">un fond d\'écran n\'était plus lisible et a été retiré. choisissez-le à nouveau</string>
 </resources>

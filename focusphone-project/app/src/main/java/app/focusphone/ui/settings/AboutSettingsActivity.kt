@@ -1,8 +1,6 @@
 package app.focusphone.ui.settings
 
-import android.app.Dialog
 import android.content.Intent
-import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,14 +9,18 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import app.focusphone.BuildConfig
 import app.focusphone.R
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.TutorialPreferences
-import app.focusphone.domain.model.ClockType
 import app.focusphone.ui.base.BaseActivity
+import app.focusphone.ui.tutorial.TutorialContent
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * About screen: version info, privacy policy, interactive tutorial,
@@ -26,62 +28,54 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
  */
 class AboutSettingsActivity : SettingsSubActivity() {
 
-    private var activeDialog: Dialog? = null
-
     override fun getScreenTitleRes(): Int = R.string.about_settings_title
 
     override fun buildContent(container: LinearLayout) {
-        container.addSectionHeader(R.string.settings_section_about)
-
-        // Version info row (no chevron, long-press for privacy policy)
-        val versionLabel = getString(R.string.settings_version, BuildConfig.VERSION_NAME).lowercase()
-        container.addInfoRow(
-            titleResId = R.string.settings_version,
-            subtitleResId = R.string.settings_privacy_policy,
-            iconResId = R.drawable.ic_settings_version,
-            onClick = {}
-        ).apply {
-            // Replace title with actual version text
-            findViewById<TextView>(R.id.tv_title).text = versionLabel
-            setOnLongClickListener {
-                showPrivacyPolicyDialog()
-                true
+        container.settingsSection(R.string.settings_section_about) {
+            // Version info row (no chevron; a long press opens the privacy policy)
+            val versionLabel =
+                getString(R.string.settings_version, BuildConfig.VERSION_NAME).lowercase()
+            addInfoRow(
+                titleResId = R.string.settings_version,
+                subtitleResId = R.string.settings_privacy_policy,
+                iconResId = R.drawable.ic_settings_version,
+                onClick = ::showPrivacyPolicyDialog
+            ).apply {
+                findViewById<TextView>(R.id.tv_title).text = versionLabel
+                setOnLongClickListener {
+                    showPrivacyPolicyDialog()
+                    true
+                }
             }
+
+            addCategoryRow(
+                iconResId = R.drawable.ic_settings_tutorial,
+                titleResId = R.string.settings_tutorial_title,
+                subtitleResId = R.string.settings_tutorial_desc,
+                onClick = ::showTutorialDialog
+            )
+
+            addCategoryRow(
+                iconResId = R.drawable.ic_settings_tutorial,
+                titleResId = R.string.settings_tutorial_restart_title,
+                subtitleResId = R.string.settings_tutorial_restart_desc,
+                onClick = ::confirmRestartTutorial
+            )
+
+            addCategoryRow(
+                iconResId = R.drawable.ic_settings_onboarding,
+                titleResId = R.string.settings_onboarding_title,
+                subtitleResId = R.string.settings_onboarding_desc,
+                onClick = ::confirmRestartOnboarding
+            )
+
+            addCategoryRow(
+                iconResId = R.drawable.ic_settings_license,
+                titleResId = R.string.settings_open_source,
+                subtitleResId = R.string.settings_open_source_desc,
+                onClick = ::showOpenSourceLicencesDialog
+            )
         }
-
-        container.addView(inflater.inflate(R.layout.settings_divider, container, false))
-
-        // Interactive tutorial
-        container.addCategoryRow(
-            iconResId = R.drawable.ic_settings_tutorial,
-            titleResId = R.string.settings_tutorial_title,
-            subtitleResId = R.string.settings_tutorial_desc,
-            onClick = ::showTutorialDialog
-        )
-
-        // Restart tutorial
-        container.addCategoryRow(
-            iconResId = R.drawable.ic_settings_tutorial,
-            titleResId = R.string.settings_tutorial_restart_title,
-            subtitleResId = R.string.settings_tutorial_restart_desc,
-            onClick = ::confirmRestartTutorial
-        )
-
-        // Restart onboarding
-        container.addCategoryRow(
-            iconResId = R.drawable.ic_settings_onboarding,
-            titleResId = R.string.settings_onboarding_title,
-            subtitleResId = R.string.settings_onboarding_desc,
-            onClick = ::confirmRestartOnboarding
-        )
-
-        // Open source licences
-        container.addCategoryRow(
-            iconResId = R.drawable.ic_settings_license,
-            titleResId = R.string.settings_open_source,
-            subtitleResId = R.string.settings_open_source_desc,
-            onClick = ::showOpenSourceLicencesDialog
-        )
     }
 
     private fun confirmRestartTutorial() {
@@ -93,8 +87,8 @@ class AboutSettingsActivity : SettingsSubActivity() {
                 finish()
             }
             .setNegativeButton(R.string.action_cancel, null)
-            .show()
-            .let { styleMaterialDialog(it) }
+            .create()
+            .also { showStyledDialog(it) }
     }
 
     private fun confirmRestartOnboarding() {
@@ -107,81 +101,61 @@ class AboutSettingsActivity : SettingsSubActivity() {
                 startActivity(Intent(this, app.focusphone.ui.onboarding.OnboardingActivity::class.java))
             }
             .setNegativeButton(R.string.action_cancel, null)
-            .show()
-            .let { styleMaterialDialog(it) }
+            .create()
+            .also { showStyledDialog(it) }
     }
 
     private fun showOpenSourceLicencesDialog() {
-        val htmlText = try {
-            assets.open("open_source_licenses.html").bufferedReader().use { it.readText() }
-        } catch (e: Exception) {
-            Log.w("AboutSettings", "Failed to load open_source_licenses.html from assets", e)
-            null
-        }
-
-        val scrollView = android.widget.ScrollView(this).apply {
-            setPadding(dp(24), dp(16), dp(24), dp(16))
-        }
-        val font = FontPreferences.getTypefaceOrNull(this)
-        val textView = TextView(this).apply {
-            typeface = font
-            text = htmlText ?: getString(R.string.settings_privacy_policy_fallback)
-            textSize = 14f
-            setLineSpacing(1.2f, 1.2f)
-        }
-        scrollView.addView(textView)
-
-        activeDialog = AlertDialog.Builder(this)
-            .setTitle(R.string.settings_open_source)
-            .setView(scrollView)
-            .setPositiveButton(R.string.action_ok, null)
-            .create()
-        activeDialog?.show()
+        showHtmlAssetDialog(assetName = "open_source_licenses.html", titleRes = R.string.settings_open_source)
     }
 
     private fun showPrivacyPolicyDialog() {
-        val htmlText = try {
-            assets.open("privacy_policy.html").bufferedReader().use { it.readText() }
-        } catch (e: Exception) {
-            Log.w("AboutSettings", "Failed to load privacy_policy.html from assets", e)
-            null
-        }
+        showHtmlAssetDialog(assetName = "privacy_policy.html", titleRes = R.string.settings_privacy_policy)
+    }
 
-        val scrollView = android.widget.ScrollView(this).apply {
-            setPadding(dp(24), dp(16), dp(24), dp(16))
-        }
-        val font = FontPreferences.getTypefaceOrNull(this)
-        val textView = TextView(this).apply {
-            typeface = font
-            text = if (htmlText != null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                android.text.Html.fromHtml(htmlText, android.text.Html.FROM_HTML_MODE_LEGACY)
-            } else if (htmlText != null) {
-                @Suppress("DEPRECATION")
-                android.text.Html.fromHtml(htmlText)
-            } else {
-                getString(R.string.settings_privacy_policy_fallback)
+    /** Reads an HTML asset off the main thread, renders it, and shows it in a scrollable dialog. */
+    private fun showHtmlAssetDialog(assetName: String, titleRes: Int) {
+        lifecycleScope.launch {
+            val htmlText = withContext(Dispatchers.IO) {
+                try {
+                    assets.open(assetName).bufferedReader().use { it.readText() }
+                } catch (e: Exception) {
+                    Log.w("AboutSettings", "Failed to load $assetName from assets", e)
+                    null
+                }
             }
-            textSize = 14f
-            setLineSpacing(1.2f, 1.2f)
-        }
-        scrollView.addView(textView)
 
-        activeDialog = AlertDialog.Builder(this)
-            .setTitle(R.string.settings_privacy_policy)
-            .setView(scrollView)
-            .setPositiveButton(R.string.action_ok, null)
-            .create()
-        activeDialog?.show()
+            val scrollView = android.widget.ScrollView(this@AboutSettingsActivity).apply {
+                setPadding(dp(24), dp(16), dp(24), dp(16))
+            }
+            val font = FontPreferences.getTypefaceOrNull(this@AboutSettingsActivity)
+            val textView = TextView(this@AboutSettingsActivity).apply {
+                typeface = font
+                text = htmlText?.let { android.text.Html.fromHtml(it, android.text.Html.FROM_HTML_MODE_LEGACY) }
+                    ?: getString(R.string.settings_privacy_policy_fallback)
+                textSize = 14f
+                setLineSpacing(1.2f, 1.2f)
+            }
+            scrollView.addView(textView)
+
+            val dialog = AlertDialog.Builder(this@AboutSettingsActivity)
+                .setTitle(titleRes)
+                .setView(scrollView)
+                .setPositiveButton(R.string.action_ok, null)
+                .create()
+            showExclusiveDialog(dialog)
+        }
     }
 
     private fun showTutorialDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_tutorial_carousel, null)
+        applyDialogSurface(dialogView)
         applyFontFamilyToView(dialogView)
-        activeDialog = AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
 
-        activeDialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         val tvCounter = dialogView.findViewById<TextView>(R.id.tv_slide_counter)
         val ivIcon = dialogView.findViewById<ImageView>(R.id.iv_tutorial_icon)
@@ -191,36 +165,21 @@ class AboutSettingsActivity : SettingsSubActivity() {
         val btnPrev = dialogView.findViewById<TextView>(R.id.btn_prev)
         val btnNext = dialogView.findViewById<TextView>(R.id.btn_next)
 
-        val slides = listOf(
-            Triple(R.drawable.ic_tutorial_home, R.string.tutorial_slide_1_title, R.string.tutorial_slide_1_desc),
-            Triple(R.drawable.ic_add, R.string.tutorial_slide_2_title, R.string.tutorial_slide_2_desc),
-            Triple(R.drawable.ic_tutorial_profiles, R.string.tutorial_slide_3_title, R.string.tutorial_slide_3_desc),
-            Triple(R.drawable.ic_tutorial_block, R.string.tutorial_slide_4_title, R.string.tutorial_slide_4_desc),
-            Triple(R.drawable.ic_tutorial_edit, R.string.tutorial_slide_5_title, R.string.tutorial_slide_5_desc),
-            Triple(R.drawable.ic_tutorial_detox, R.string.tutorial_slide_6_title, R.string.tutorial_slide_6_desc),
-            Triple(R.drawable.ic_tutorial_pause, R.string.tutorial_slide_7_title, R.string.tutorial_slide_7_desc),
-            Triple(R.drawable.ic_tutorial_clock, R.string.tutorial_slide_8_title, R.string.tutorial_slide_8_desc)
-        )
+        val slides = TutorialContent.guidePages
 
         var currentIndex = 0
 
-        fun resolveColorAttr(attrId: Int): Int {
-            val typedValue = android.util.TypedValue()
-            theme.resolveAttribute(attrId, typedValue, true)
-            return typedValue.data
-        }
-
-        val primaryColor = resolveColorAttr(android.R.attr.textColorPrimary)
-        val secondaryColor = resolveColorAttr(android.R.attr.textColorSecondary)
+        val primaryColor = palette.textPrimary
+        val secondaryColor = palette.textSecondary
 
         fun updateSlide() {
-            val (iconRes, titleRes, descRes) = slides[currentIndex]
+            val page = slides[currentIndex]
 
-            tvCounter.text = "${currentIndex + 1} / ${slides.size}"
-            ivIcon.setImageResource(iconRes)
+            tvCounter.text = getString(R.string.tutorial_slide_counter, currentIndex + 1, slides.size)
+            ivIcon.setImageResource(page.iconRes)
             ivIcon.imageTintList = android.content.res.ColorStateList.valueOf(primaryColor)
-            tvTitle.setText(titleRes)
-            tvDesc.setText(descRes)
+            tvTitle.setText(page.titleRes)
+            tvDesc.setText(page.bodyRes)
 
             btnPrev.visibility = if (currentIndex == 0) View.INVISIBLE else View.VISIBLE
             btnPrev.text = getString(R.string.tutorial_arrow_prev)
@@ -265,17 +224,12 @@ class AboutSettingsActivity : SettingsSubActivity() {
                 currentIndex++
                 updateSlide()
             } else {
-                activeDialog?.dismiss()
+                dialog.dismiss()
             }
         }
 
         updateSlide()
-        activeDialog?.show()
-    }
-
-    override fun onDestroy() {
-        activeDialog?.dismiss()
-        super.onDestroy()
+        showExclusiveDialog(dialog)
     }
 
     private fun dp(value: Int): Int =

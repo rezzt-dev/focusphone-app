@@ -15,7 +15,8 @@
         android:id="@+id/iv_wallpaper_preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:importantForAccessibility="no" />
 
     <TextView
         android:id="@+id/tv_wallpaper_preview_hint"

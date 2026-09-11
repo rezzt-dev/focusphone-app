@@ -6,7 +6,7 @@
 
     <string name="home_all_apps">alle apps</string>
     <string name="home_settings">einstellungen</string>
-    <string name="home_edit_apps">apps bearbeiten</string>
+    <string name="home_edit_apps">dashboard bearbeiten</string>
     <string name="home_long_press_hint">halte eine app gedrückt, um sie von der liste zu entfernen</string>
     <string name="home_no_apps">keine apps ausgewählt.\ntippe auf das menü, um apps hinzuzufügen.</string>
     <string name="home_menu_desc">menü öffnen</string>
@@ -22,8 +22,14 @@
     <string name="appselect_subtitle">wähle die apps, die dir am wichtigsten sind</string>
     <string name="appselect_search_hint">suchen…</string>
     <string name="appselect_done">fertig</string>
-    <string name="appselect_selected_count">%1$d von %2$d apps ausgewählt</string>
-    <string name="appselect_limit_reached">du hast das limit von %1$d apps erreicht</string>
+    <plurals name="appselect_selected_count">
+        <item quantity="one">%1$d von %2$d app ausgewählt</item>
+        <item quantity="other">%1$d von %2$d apps ausgewählt</item>
+    </plurals>
+    <plurals name="appselect_limit_reached">
+        <item quantity="one">du hast das limit von %1$d app erreicht</item>
+        <item quantity="other">du hast das limit von %1$d apps erreicht</item>
+    </plurals>
 
     <string name="settings_title">einstellungen</string>
     <string name="settings_section_appearance">aussehen</string>
@@ -45,6 +51,7 @@
     <string name="settings_text_size">textgröße</string>
     <string name="settings_text_size_pt">textgröße: %1$dpt</string>
     <string name="settings_section_font">schriftart</string>
+    <string name="settings_section_text_layout">text und layout</string>
     <string name="settings_font_label">launcher-schriftart</string>
     <string name="font_select_title">schriftart auswählen</string>
     <string name="settings_font_system">system</string>
@@ -138,13 +145,12 @@
     <string name="detox_unlock_desc">gib das passwort ein, um den detox-modus zu deaktivieren:</string>
     <string name="detox_btn_unlock">entsperren</string>
     <string name="error_incorrect_password">falsches passwort</string>
-    <string name="detox_force_disabled">detox-modus zur sicherheit automatisch deaktiviert</string>
     <string name="error_min_characters">mindestens 4 zeichen</string>
     <string name="error_invalid_duration">ungültige dauer</string>
     <!-- Settings Sections -->
     <string name="settings_section_tutorial">anleitung</string>
     <string name="settings_tutorial_title">interaktive anleitung</string>
-    <string name="settings_tutorial_desc">lerne 100% der funktionen von focusphone kennen</string>
+    <string name="settings_tutorial_desc" formatted="false">lerne 100% der funktionen von focusphone kennen</string>
 
     <!-- Tutorial Slides -->
     <string name="tutorial_slide_1_title">minimalismus &amp; startseite</string>
@@ -176,7 +182,7 @@
 
     <!-- Misc -->
     <string name="action_cancel">abbrechen</string>
-    <string name="action_ok">ok</string>
+    <string name="action_ok">OK</string>
     <string name="action_reset">zurücksetzen</string>
     <string name="action_save">speichern</string>
     <string name="allapps_dialog_rename">umbenennen</string>
@@ -281,6 +287,7 @@
     <string name="settings_custom_theme_bg">hintergrundfarbe</string>
     <string name="settings_custom_theme_fg">vordergrundfarbe</string>
     <string name="settings_custom_theme_apply">anwenden</string>
+    <string name="settings_custom_theme_invalid">gib zwei farben im format #rrggbb ein</string>
 
     <!-- Settings: Clock -->
     <string name="settings_clock_thin">dünn</string>
@@ -316,11 +323,15 @@
     <string name="detox_accessibility_desc">damit detox apps aus benachrichtigungen oder recents blockiert, aktiviere den focusphone-barrierefreiheitsdienst.</string>
     <string name="detox_accessibility_enable">aktivieren</string>
     <string name="detox_accessibility_continue">trotzdem fortfahren</string>
+    <string name="tutorial_slide_counter">%1$d / %2$d</string>
 
     <!-- Conscious Pause -->
     <string name="settings_section_conscious_pause">bewusste pause</string>
     <string name="settings_conscious_pause_desc">atme tief durch, bevor du eine app öffnest</string>
-    <string name="settings_conscious_pause_duration">pausendauer: %1$d sekunden</string>
+    <plurals name="settings_conscious_pause_duration">
+        <item quantity="one">pausendauer: %1$d sekunde</item>
+        <item quantity="other">pausendauer: %1$d sekunden</item>
+    </plurals>
     <string name="settings_conscious_pause_title">bewusste pause aktivieren</string>
     <string name="pause_inhale">einatmen…</string>
     <string name="pause_exhale">ausatmen…</string>
@@ -329,9 +340,6 @@
     <string name="pause_cancel">abbrechen</string>
 
     <!-- Tutorial Arrows -->
-    <string name="tutorial_arrow_prev">←</string>
-    <string name="tutorial_arrow_next">→</string>
-    <string name="tutorial_arrow_finish">✓</string>
 
     <!-- Custom App Names -->
     <string name="customize_name_title">name anpassen</string>
@@ -420,10 +428,14 @@
     <string name="settings_work_keywords_section_desc">apps im arbeitsmodus nach namen blockieren</string>
     <string name="system_settings_title">system</string>
     <string name="widget_picker_empty">keine widgets verfügbar</string>
+    <string name="widget_picker_loading">widgets werden geladen…</string>
     <string name="widget_picker_subtitle">wähle ein widget für den startbildschirm</string>
     <string name="widget_picker_title">widget auswählen</string>
     <string name="settings_wallpaper_blur_desc">hintergrund weichzeichnen für bessere lesbarkeit</string>
     <string name="settings_wallpaper_blur_intensity">weichzeichner-intensität: %1$d%%</string>
+
+    <string name="settings_wallpaper_readability">textlesbarkeit: %1$d%%</string>
+    <string name="settings_wallpaper_readability_hint">wie stark panels abgedunkelt werden, damit text über dem hintergrundbild lesbar bleibt</string>
     <string name="settings_wallpaper_blur_label">hintergrund weichzeichnen</string>
     <string name="settings_wallpaper_disabled_info">hintergrund ausgeblendet</string>
     <string name="settings_wallpaper_disabled_info_desc">aktiviere den schalter oben, um ein hintergrundbild auszuwählen</string>
@@ -573,7 +585,10 @@ einundvierzig</string>
     <string name="schedule_password_remove_confirm">damit werden das passwort und alle zeitpläne gelöscht. fortfahren?</string>
     <string name="schedule_password_removed">schutz entfernt</string>
     <string name="schedule_password_confirm_hint">passwort wiederholen</string>
-    <string name="schedule_password_too_short">verwende mindestens %1$d zeichen</string>
+    <plurals name="schedule_password_too_short">
+        <item quantity="one">verwende mindestens %1$d zeichen</item>
+        <item quantity="other">verwende mindestens %1$d zeichen</item>
+    </plurals>
     <string name="schedule_password_mismatch">die passwörter stimmen nicht überein</string>
     <string name="schedule_create_password_title">zeitpläne schützen</string>
     <string name="schedule_create_password_desc">lege ein passwort fest, damit zeitpläne nicht spontan geändert werden.</string>
@@ -581,13 +596,29 @@ einundvierzig</string>
     <string name="schedule_unlock_desc">gib dein passwort ein, um zeitpläne zu sehen und zu bearbeiten:</string>
     <string name="schedule_confirm_password_title">passwort bestätigen</string>
     <string name="schedule_confirm_password_desc">gib zum fortfahren dein aktuelles passwort ein:</string>
-    <string name="schedule_wrong_password">falsches passwort. noch %1$d versuche</string>
-    <string name="schedule_locked_out">zu viele versuche. versuche es in %1$d min erneut</string>
 
     <!-- Sperrbildschirm für zeitpläne -->
     <string name="schedule_blocked_label">zeitplan</string>
     <string name="schedule_blocked_window_title">außerhalb der erlaubten zeit</string>
     <string name="schedule_blocked_window_desc">diese app ist zwischen %1$s und %2$s verfügbar.</string>
     <string name="schedule_blocked_limit_title">tageslimit erreicht</string>
-    <string name="schedule_blocked_limit_desc">du hast heute %1$d von %2$d minuten genutzt. das guthaben startet um mitternacht neu.</string>
+    <plurals name="schedule_blocked_limit_desc">
+        <item quantity="one">du hast heute %1$d von %2$d minute genutzt. das guthaben startet um mitternacht neu.</item>
+        <item quantity="other">du hast heute %1$d von %2$d minuten genutzt. das guthaben startet um mitternacht neu.</item>
+    </plurals>
+
+    <!-- Shared password lock (detox and schedules) -->
+    <plurals name="password_attempts_left">
+        <item quantity="one">falsches passwort. noch %1$d versuch</item>
+        <item quantity="other">falsches passwort. noch %1$d versuche</item>
+    </plurals>
+    <plurals name="password_locked_out_minutes">
+        <item quantity="one">zu viele versuche. versuche es in %1$d minute erneut</item>
+        <item quantity="other">zu viele versuche. versuche es in %1$d minuten erneut</item>
+    </plurals>
+    <string name="error_save_failed">speichern fehlgeschlagen. bitte erneut versuchen</string>
+    <string name="settings_wallpaper_import_failed">dieses bild kann nicht verwendet werden</string>
+    <string name="settings_wallpaper_change">anderes bild wählen</string>
+    <string name="settings_wallpaper_remove">hintergrund entfernen</string>
+    <string name="wallpaper_access_lost">ein hintergrundbild war nicht mehr lesbar und wurde entfernt. bitte wähle es erneut</string>
 </resources>

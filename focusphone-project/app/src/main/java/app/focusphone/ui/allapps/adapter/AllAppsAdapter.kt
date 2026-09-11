@@ -2,20 +2,18 @@ package app.focusphone.ui.allapps.adapter
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import app.focusphone.R
-import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.databinding.ItemAllAppBinding
 import app.focusphone.databinding.ItemAllAppFolderBinding
 import app.focusphone.domain.model.AppFolder
 import app.focusphone.domain.model.AppInfo
 import app.focusphone.ui.allapps.AllAppsRow
+import app.focusphone.ui.theme.FocusPalette
 
 /**
  * Renders the "all apps" drawer: folder headers first, then the apps.
@@ -71,9 +69,10 @@ class AllAppsAdapter(
                 if (row.expanded) R.drawable.ic_folder_open else R.drawable.ic_folder_closed
             )
 
-            b.tvName.setTextColor(primaryTextColor(context))
-            b.tvCount.setTextColor(secondaryTextColor(context))
-            b.ivFolder.imageTintList = ColorStateList.valueOf(secondaryTextColor(context))
+            val colors = palette(context)
+            b.tvName.setTextColor(colors.textPrimary)
+            b.tvCount.setTextColor(colors.textSecondary)
+            b.ivFolder.imageTintList = ColorStateList.valueOf(colors.textSecondary)
 
             b.root.contentDescription = context.getString(R.string.cd_folder_item, row.folder.name)
             b.root.setOnClickListener { onFolderTap(row.folder) }
@@ -85,7 +84,7 @@ class AllAppsAdapter(
         fun bind(row: AllAppsRow.AppRow) {
             val context = b.root.context
             b.tvName.text = row.app.label
-            b.tvName.setTextColor(primaryTextColor(context))
+            b.tvName.setTextColor(palette(context).textPrimary)
 
             // Apps inside a folder are indented so the grouping is readable without
             // any extra chrome.
@@ -108,27 +107,15 @@ class AllAppsAdapter(
 
     // ── Theme helpers ──────────────────────────────────────────────
 
-    private fun primaryTextColor(context: Context): Int =
-        if (ThemePreferences.getTheme(context) == ThemePreferences.THEME_CUSTOM) {
-            ThemePreferences.getCustomForegroundColor(context)
-        } else {
-            resolveAttr(context, android.R.attr.textColorPrimary)
-        }
+    /**
+     * Cached for the lifetime of the adapter: the activity — and with it this adapter — is
+     * recreated whenever the theme, font or wallpaper changes, so it can never go stale,
+     * and row binding stays free of preference reads.
+     */
+    private var paletteCache: FocusPalette? = null
 
-    private fun secondaryTextColor(context: Context): Int =
-        if (ThemePreferences.getTheme(context) == ThemePreferences.THEME_CUSTOM) {
-            // Custom themes only define one foreground colour; dim it so the folder icon and
-            // the app count stay secondary to the folder name.
-            ColorUtils.setAlphaComponent(ThemePreferences.getCustomForegroundColor(context), 0x99)
-        } else {
-            resolveAttr(context, android.R.attr.textColorSecondary)
-        }
-
-    private fun resolveAttr(context: Context, attr: Int): Int {
-        val typedValue = TypedValue()
-        context.theme.resolveAttribute(attr, typedValue, true)
-        return typedValue.data
-    }
+    private fun palette(context: Context): FocusPalette =
+        paletteCache ?: FocusPalette.of(context).also { paletteCache = it }
 
     companion object {
         private const val TYPE_FOLDER = 0

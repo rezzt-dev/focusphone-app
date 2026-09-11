@@ -9,6 +9,16 @@ import java.security.MessageDigest
 
 class ProfilePreferencesTest {
 
+    @Test
+    fun `missing work keywords use defaults`() {
+        assertTrue("instagram" in ProfilePreferences.workKeywordsFromStored(null))
+    }
+
+    @Test
+    fun `configured empty work keywords remain empty`() {
+        assertEquals(emptySet<String>(), ProfilePreferences.workKeywordsFromStored(""))
+    }
+
     // ── Pure blocking logic ───────────────────────────────────────
 
     @Test

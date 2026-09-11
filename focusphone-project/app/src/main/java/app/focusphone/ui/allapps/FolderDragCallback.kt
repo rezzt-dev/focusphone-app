@@ -1,17 +1,15 @@
 package app.focusphone.ui.allapps
 
 import android.graphics.Canvas
-import android.graphics.drawable.ColorDrawable
-import android.util.TypedValue
 import android.view.HapticFeedbackConstants
-import android.view.View
 import android.view.ViewConfiguration
 import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.domain.model.AppInfo
+import app.focusphone.ui.theme.FocusPalette
 import kotlin.math.abs
+import androidx.core.graphics.drawable.toDrawable
 
 /**
  * Drag & drop of apps into folders in the "all apps" drawer.
@@ -35,6 +33,7 @@ class FolderDragCallback(
     private var draggedRow: AllAppsRow.AppRow? = null
     private var hoverFolderId: String? = null
     private var maxTravel = 0f
+    private var dragHighlightColor = 0
 
     override fun isLongPressDragEnabled(): Boolean = true
 
@@ -66,6 +65,12 @@ class FolderDragCallback(
         draggedRow = rowAt(viewHolder.bindingAdapterPosition) as? AllAppsRow.AppRow
         hoverFolderId = draggedRow?.folderId
         maxTravel = 0f
+        // Theme preferences may involve encrypted storage. Resolve them once at the
+        // beginning of the gesture instead of for every animation frame.
+        dragHighlightColor = ColorUtils.setAlphaComponent(
+            FocusPalette.of(viewHolder.itemView.context).accent,
+            HIGHLIGHT_ALPHA
+        )
         viewHolder.itemView.alpha = DRAGGED_ALPHA
         viewHolder.itemView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
     }
@@ -159,7 +164,7 @@ class FolderDragCallback(
         centerY: Float
     ): Boolean {
         var top = Float.MAX_VALUE
-        var bottom = Float.MIN_VALUE
+        var bottom = -Float.MAX_VALUE
         for (i in 0 until recyclerView.childCount) {
             val child = recyclerView.getChildAt(i)
             if (child === dragged.itemView) continue
@@ -171,7 +176,7 @@ class FolderDragCallback(
 
     /** Tints every visible row of [folderId] so the drop target is obvious. */
     private fun highlight(recyclerView: RecyclerView, folderId: String?) {
-        val tint = if (folderId == null) null else ColorDrawable(highlightColor(recyclerView))
+        val tint = if (folderId == null) null else dragHighlightColor.toDrawable()
         for (i in 0 until recyclerView.childCount) {
             val child = recyclerView.getChildAt(i)
             val row = rowAt(recyclerView.getChildAdapterPosition(child))
@@ -182,18 +187,6 @@ class FolderDragCallback(
             }
             child.foreground = if (isTarget) tint else null
         }
-    }
-
-    private fun highlightColor(view: View): Int {
-        val context = view.context
-        val base = if (ThemePreferences.getTheme(context) == ThemePreferences.THEME_CUSTOM) {
-            ThemePreferences.getCustomForegroundColor(context)
-        } else {
-            val typedValue = TypedValue()
-            context.theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-            typedValue.data
-        }
-        return ColorUtils.setAlphaComponent(base, HIGHLIGHT_ALPHA)
     }
 
     private companion object {

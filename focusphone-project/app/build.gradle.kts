@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("com.android.legacy-kapt") version "9.2.1"
+    alias(libs.plugins.android.legacy.kapt)
 }
 
 android {
@@ -15,8 +15,10 @@ android {
         applicationId = "app.focusphone"
         minSdk        = 24
         targetSdk     = 36
-        versionCode   = 2
-        versionName   = "1.0.4"
+        // Keep in sync with the release branch (alfa-X.Y.Z) and bump versionCode on
+        // every published build: "about" shows versionName to the user.
+        versionCode   = 3
+        versionName   = "1.0.6"
 
         testInstrumentationRunner = "app.focusphone.TestRunner"
     }
@@ -59,11 +61,13 @@ android {
     }
 
     lint {
-        // Disable the lint-vital task on release builds.
-        // The lintVitalAnalyzeRelease task causes a FileSystemException on Windows
-        // when Android Studio holds a lock on the lint cache JARs during the build.
-        // Run ./gradlew :app:lint separately for a full lint report.
-        checkReleaseBuilds = false
+        // Release builds run lint-vital and any lint error fails the build. On Windows,
+        // if Android Studio holds a lock on the lint cache JARs (FileSystemException),
+        // run the build from a terminal with the IDE closed instead of disabling this.
+        checkReleaseBuilds = true
+        abortOnError       = true
+        // No lint baseline on purpose: every error has been fixed at the source, and the
+        // remaining warnings are tracked findings in docs/auditoria-tecnica-completa.md.
     }
 }
 

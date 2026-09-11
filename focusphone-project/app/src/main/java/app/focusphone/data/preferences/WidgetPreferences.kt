@@ -1,5 +1,6 @@
 package app.focusphone.data.preferences
 
+import androidx.core.content.edit
 import android.content.Context
 
 /**
@@ -23,18 +24,18 @@ object WidgetPreferences {
         prefs(context).getInt(KEY_WIDGET_ID, INVALID_WIDGET_ID)
 
     fun setWidgetId(context: Context, id: Int) =
-        prefs(context).edit().putInt(KEY_WIDGET_ID, id).apply()
+        prefs(context).edit { putInt(KEY_WIDGET_ID, id) }
 
     fun isWidgetEnabled(context: Context): Boolean =
         prefs(context).getBoolean(KEY_WIDGET_ENABLED, false)
 
     fun setWidgetEnabled(context: Context, enabled: Boolean) =
-        prefs(context).edit().putBoolean(KEY_WIDGET_ENABLED, enabled).apply()
+        prefs(context).edit { putBoolean(KEY_WIDGET_ENABLED, enabled) }
 
     fun clearWidget(context: Context) {
-        prefs(context).edit()
-            .remove(KEY_WIDGET_ID)
-            .putBoolean(KEY_WIDGET_ENABLED, false)
-            .apply()
+        prefs(context).edit {
+            remove(KEY_WIDGET_ID)
+            putBoolean(KEY_WIDGET_ENABLED, false)
+        }
     }
 }
