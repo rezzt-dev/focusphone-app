@@ -21,6 +21,7 @@
 - unificar el flujo de desinstalacion tras `LauncherUtils.requestUninstall` y migrar `WidgetPickerActivity` a la activity result api
 - mejorar la accesibilidad, los textos i18n y los plurales en es/fr/de, y aplicar las sugerencias `UseKtx` restantes en la capa de preferencias y ui
 - bajar `agp` a `9.3.0` en `libs.versions.toml` para restaurar la compatibilidad con la version actual de android studio
+- reescribir `README.md` como presentacion tecnica completa del proyecto, con arquitectura, stack, compilacion, pruebas, seguridad e indice de la documentacion, y corregir la url de clonado, el arbol de fuentes y las versiones obsoletas
 
 #### CORREGIDO
 - restaurar los gestos de deslizar en la pantalla de inicio (apertura de cajones y despliegue de notificaciones), rotos tras mover el detector de gestos a un listener que no consumia `ACTION_DOWN`
@@ -69,6 +70,7 @@
 - unify the uninstall flow behind `LauncherUtils.requestUninstall` and move `WidgetPickerActivity` to the activity result api
 - improve accessibility, i18n text and plurals across es/fr/de, and apply the remaining `UseKtx` suggestions across the preferences layer and ui
 - downgrade `agp` to `9.3.0` in `libs.versions.toml` to restore build compatibility with the current android studio release
+- rewrite `README.md` as a complete technical presentation of the project, with architecture, stack, build, testing, security and a documentation index, fixing the wrong clone url, the stale source tree and the outdated versions
 
 #### FIXED
 - restore home screen swipe gestures (drawers and notification expansion), broken after the gesture detector moved to a touch listener that never consumed `ACTION_DOWN`
