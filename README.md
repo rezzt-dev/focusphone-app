@@ -28,6 +28,7 @@ a clock, a calendar and only the apps you actually use.</strong>
 <a href="./documentation/en/README.md"><b>documentation</b></a> ·
 <a href="./documentation/en/developers/01-architecture.md"><b>architecture</b></a> ·
 <a href="./changelog.md"><b>changelog</b></a> ·
+<a href="./SECURITY.md"><b>security policy</b></a> ·
 <a href="https://github.com/rezzt-dev/focusphone-app/issues"><b>report a bug</b></a> ·
 <a href="https://github.com/rezzt-dev/focusphone-app/issues"><b>request a feature</b></a>
 
@@ -629,6 +630,14 @@ crash reporter and no account. that is a property of the manifest, not a promise
 | screen capture | block screens and every password dialog set `FLAG_SECURE` |
 | backup | `allowBackup="false"` plus `data_extraction_rules.xml` excluding every domain, because since android 12 `allowBackup` no longer covers device-to-device transfer |
 | input validation | custom theme colours must match `^#[0-9A-Fa-f]{6}$`; anything else falls back to safe defaults |
+
+### REPORTING A VULNERABILITY
+
+security problems are **not** reported as public issues: use [github private vulnerability
+reporting](https://github.com/rezzt-dev/focusphone-app/security/advisories/new) or email
+`privacy@rezzt.dev`. the supported version, the response targets and what is in and out of
+scope are in [`SECURITY.md`](./SECURITY.md); the full threat model is in
+[`08-security.md`](./documentation/en/developers/08-security.md).
 
 ---
 

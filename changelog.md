@@ -13,6 +13,7 @@
 - añadir una politica de dependencias sin actualizaciones automaticas: `.github/dependabot.yml` con `open-pull-requests-limit: 0`, `renovate.json` desactivado y el workflow `dependency-policy` que falla las pull requests de bots, de modo que `gradle/libs.versions.toml` solo se actualiza a mano
 - añadir analisis estatico de kotlin con ktlint y detekt, sin linea base en ninguno de los dos: `.editorconfig` en la raiz define el formato para el ide y para ktlint, `config/detekt/detekt.yml` registra solo las desviaciones respecto a los valores por defecto de detekt, y la tarea raiz `staticAnalysis` ejecuta ambos
 - añadir el paso `staticAnalysis` al workflow `android-ci`, antes de las pruebas y la compilacion, porque no necesita compilar y falla en segundos
+- añadir `SECURITY.md` en la raiz del repositorio, que es donde github lo busca para activar la pestaña "security" y el formulario de aviso privado: declara la version soportada, los dos canales de reporte, los plazos de respuesta, el alcance dentro y fuera de la politica, y enlaza la documentacion completa de `08-seguridad.md`
 
 #### CAMBIADO
 - reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
@@ -72,6 +73,7 @@
 - add a dependency policy with no automated updates: `.github/dependabot.yml` with `open-pull-requests-limit: 0`, `renovate.json` disabled and a `dependency-policy` workflow that fails bot pull requests, so `gradle/libs.versions.toml` is only ever updated by hand
 - add kotlin static analysis with ktlint and detekt, neither with a baseline: `.editorconfig` at the repository root defines the format for both the ide and ktlint, `config/detekt/detekt.yml` records only the deviations from detekt's defaults, and the root `staticAnalysis` task runs both
 - add a `staticAnalysis` step to the `android-ci` workflow, ahead of the tests and the build, because it needs no compilation and fails in seconds
+- add `SECURITY.md` at the repository root, where github looks for it to enable the "security" tab and the private advisory form: it states the supported version, the two reporting channels, the response targets, what is in and out of scope, and links the full `08-security.md` documentation
 
 #### CHANGED
 - reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone

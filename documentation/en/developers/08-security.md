@@ -293,6 +293,15 @@ the device, so a restored copy would not be readable.
 
 ---
 
+## REPORTING A VULNERABILITY
+
+do not open a public issue: use [github private vulnerability reporting](https://github.com/rezzt-dev/focusphone-app/security/advisories/new)
+or email `privacy@rezzt.dev`. the supported version, the response targets, the disclosure
+policy and what is in and out of scope live in [`SECURITY.md`](../../../SECURITY.md) at the
+repository root, which is where github reads it from to enable the "security" tab.
+
+---
+
 <div align="center">
 
 <sub><a href="./07-theming-system.md">← theming system</a> · <a href="../README.md">index</a> · <a href="./09-system-services.md">system services →</a></sub>

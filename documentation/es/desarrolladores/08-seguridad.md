@@ -293,6 +293,15 @@ nunca sale del dispositivo, asi que una copia restaurada no seria legible.
 
 ---
 
+## REPORTAR UNA VULNERABILIDAD
+
+no abras una issue publica: usa el [aviso privado de seguridad de github](https://github.com/rezzt-dev/focusphone-app/security/advisories/new)
+o escribe a `privacy@rezzt.dev`. la version soportada, los plazos de respuesta, la politica de
+divulgacion y el alcance dentro y fuera de la politica estan en [`SECURITY.md`](../../../SECURITY.md),
+en la raiz del repositorio, que es donde github lo lee para activar la pestaña "security".
+
+---
+
 <div align="center">
 
 <sub><a href="./07-sistema-de-temas.md">← sistema de temas</a> · <a href="../README.md">indice</a> · <a href="./09-servicios-del-sistema.md">servicios del sistema →</a></sub>
