@@ -61,7 +61,9 @@ all of them run from `focusphone-project/`.
 | `./gradlew :app:assembleRelease` | release apk, minified with shrunk resources |
 | `./gradlew :app:testDebugUnitTest` | jvm unit tests |
 | `./gradlew :app:connectedDebugAndroidTest` | instrumented tests on a device or emulator |
-| `./gradlew :app:lintDebug` | static analysis; must finish with **0 errors** |
+| `./gradlew :app:lintDebug` | android lint; must finish with **0 errors** |
+| `./gradlew staticAnalysis` | ktlint + detekt; must finish with **0 findings** |
+| `./gradlew :app:ktlintFormat` | autofixes every formatting violation ktlint can fix on its own |
 | `./gradlew clean` | clears build outputs |
 
 <details>
@@ -70,10 +72,13 @@ all of them run from `focusphone-project/`.
 <br>
 
 ```bash
+./gradlew staticAnalysis --continue --stacktrace
 ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease --stacktrace
 ```
 
 this is precisely what the github actions workflow runs on every push and every pull request.
+style comes first because it needs no compilation and fails in seconds, so a misplaced brace
+never waits for r8 to finish.
 
 </details>
 
@@ -269,7 +274,63 @@ verification for that bump.
 
 ---
 
-## LINT
+## STATIC ANALYSIS
+
+three tools cover three different things, and **none of them has a baseline file**: a finding
+is fixed at the source, or the rule is switched off in config with the reason written next
+to it.
+
+| tool | covers | config | task |
+|---|---|---|---|
+| android lint | android/api correctness, resources, manifest | `app/build.gradle.kts`, `lint { }` | `:app:lintDebug` |
+| **ktlint** `1.8.0` | kotlin formatting | `.editorconfig` (repository root) | `:app:ktlintCheck` / `:app:ktlintFormat` |
+| **detekt** `1.23.8` | kotlin code smells and complexity | `config/detekt/detekt.yml` | `:app:detekt` |
+
+`./gradlew staticAnalysis` is a root task that runs ktlint and detekt over every module; it is
+what ci runs.
+
+### KTLINT
+
+formatting is **enforced, not conventional**. everything ktlint checks comes from
+`.editorconfig` at the repository root, which the ide reads too — so *reformat code* in android
+studio and `ktlintFormat` cannot drift apart:
+
+- 4-space indent, lf endings, utf-8, final newline, no trailing whitespace
+- **140-column limit**
+- no wildcard imports, imports in lexicographic order
+- **no trailing commas** (`ij_kotlin_allow_trailing_comma*` are `false`)
+- style `intellij_idea`, the same formatter `kotlin.code.style=official` already selects for
+  the ide
+
+five rules are switched off on purpose, each with its reason in `.editorconfig`:
+`function-signature`, `class-signature`, `argument-list-wrapping` and `multiline-if-else`
+(where a signature or an argument list breaks is an authored readability decision, not
+something to re-flow because it would fit on one line), plus `no-multi-spaces` (the codebase
+aligns assignments into columns, `versionCode   = 3`).
+
+the ktlint *engine* is pinned in the version catalog (`ktlint`) separately from its gradle
+plugin (`ktlintGradle`), so the formatter never moves on its own and rewrites files that ci
+previously accepted.
+
+### DETEKT
+
+`buildUponDefaultConfig = true`, so `config/detekt/detekt.yml` records only the **deviations**
+from detekt's defaults. never paste the full default config into it: new rules from an upgrade
+would be silently dropped. `config.validation = true` makes a rule name that no longer exists
+fail the build instead of being quietly ignored.
+
+the deviations that matter:
+
+| setting | why |
+|---|---|
+| `LongMethod` 130, `CyclomaticComplexMethod` 40, `LargeClass` 1800, `NestedBlockDepth` 5 | set just above the worst case in `main` today, so they work as a **ratchet**: today's screens are tolerated, nothing may grow past them. lower them when a screen is split; never raise them to silence a new finding |
+| `TooGenericExceptionCaught` off | a launcher is the process the user falls back to when everything else dies; it must survive whatever `PackageManager`, `LauncherApps` or an oem system service throws |
+| `SwallowedException` on | the counterweight to the above: every `catch` must log, rethrow, or name its binding `_` / `ignored` / `expected` to say the exception is dropped on purpose |
+| `MagicNumber` off | layout maths, colour channels and timing constants are unavoidably numeric in an android ui codebase |
+| `TooManyFunctions` 30 | the `*Preferences` objects are flat façades over `SharedPreferences`: one getter and one setter per key is what makes them readable |
+| `formatting` ruleset **not** added | detekt bundles a copy of the ktlint rules; running both engines reports every formatting issue twice and they can disagree after an upgrade. formatting belongs to ktlint alone |
+
+### ANDROID LINT
 
 ```kotlin
 lint {
@@ -305,6 +366,7 @@ if android studio holds a lock on the lint cache jars, the build fails with a
 | `app/build/`, `.gradle/`, `.kotlin/` | ignored |
 | `local.properties` | ignored: it contains local sdk paths |
 | `.docs/` | ignored: working documentation and agent skills |
+| `.editorconfig`, `config/detekt/detekt.yml` | **versioned**: they are the static analysis contract |
 
 ---
 
@@ -312,8 +374,9 @@ if android studio holds a lock on the lint cache jars, the build fails with a
 
 ```mermaid
 flowchart LR
-    A["edit code"] --> B["./gradlew :app:testDebugUnitTest"]
-    B --> C["./gradlew :app:lintDebug"]
+    A["edit code"] --> A2["./gradlew :app:ktlintFormat"]
+    A2 --> B["./gradlew :app:testDebugUnitTest"]
+    B --> C["./gradlew staticAnalysis<br>./gradlew :app:lintDebug"]
     C --> D["./gradlew :app:assembleDebug"]
     D --> E["test on a device"]
     E --> F["commit following the guidelines"]

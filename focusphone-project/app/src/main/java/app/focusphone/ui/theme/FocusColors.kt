@@ -71,8 +71,8 @@ object FocusColors {
             return if (c <= 0.03928) c / 12.92 else ((c + 0.055) / 1.055).pow(2.4)
         }
         return 0.2126 * channel(Color.red(color)) +
-                0.7152 * channel(Color.green(color)) +
-                0.0722 * channel(Color.blue(color))
+            0.7152 * channel(Color.green(color)) +
+            0.0722 * channel(Color.blue(color))
     }
 
     /** true when [color] is dark enough that light content reads better on top of it. */

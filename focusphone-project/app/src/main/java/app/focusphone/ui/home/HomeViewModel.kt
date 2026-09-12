@@ -28,14 +28,18 @@ class HomeViewModel(
 
     fun removeFavourite(packageName: String) {
         viewModelScope.launch {
-            try { removeFavouriteApp(packageName) } catch (e: Exception) {
+            try {
+                removeFavouriteApp(packageName)
+            } catch (e: Exception) {
                 Log.e("HomeViewModel", "Failed to remove favourite $packageName", e)
             }
         }
     }
     fun onAppsReordered(newOrder: List<FavouriteApp>) {
         viewModelScope.launch {
-            try { updateAppsOrder(newOrder) } catch (e: Exception) {
+            try {
+                updateAppsOrder(newOrder)
+            } catch (e: Exception) {
                 Log.e("HomeViewModel", "Failed to update apps order", e)
             }
         }

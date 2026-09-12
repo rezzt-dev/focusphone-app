@@ -1,7 +1,7 @@
 package app.focusphone.ui.home.adapter
 
-import android.graphics.drawable.GradientDrawable
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -10,16 +10,15 @@ import app.focusphone.R
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.repository.NotificationItem
 import app.focusphone.databinding.ItemNotificationBinding
+import app.focusphone.ui.theme.FocusColors
+import app.focusphone.ui.theme.FocusPalette
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
-import app.focusphone.ui.theme.FocusColors
-import app.focusphone.ui.theme.FocusPalette
 
 class NotificationsAdapter(
-    private val onClick: (NotificationItem) -> Unit = {},
-    private val onDismiss: (String) -> Unit = {}
+    private val onClick: (NotificationItem) -> Unit = {}
 ) : RecyclerView.Adapter<NotificationsAdapter.ViewHolder>() {
 
     private var items: List<NotificationItem> = emptyList()
@@ -121,14 +120,17 @@ class NotificationsAdapter(
             val diff = now - postTime
             return when {
                 diff < TimeUnit.MINUTES.toMillis(1) -> binding.root.context.getString(R.string.notification_now)
+
                 diff < TimeUnit.HOURS.toMillis(1) -> {
                     val mins = TimeUnit.MILLISECONDS.toMinutes(diff)
                     "${mins}m"
                 }
+
                 diff < TimeUnit.DAYS.toMillis(1) -> {
                     val hrs = TimeUnit.MILLISECONDS.toHours(diff)
                     "${hrs}h"
                 }
+
                 else -> {
                     val fmt = SimpleDateFormat("dd MMM", Locale.getDefault())
                     fmt.format(Date(postTime)).lowercase(Locale.getDefault())

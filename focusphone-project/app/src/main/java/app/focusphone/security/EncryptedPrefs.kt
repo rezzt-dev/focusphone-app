@@ -47,7 +47,7 @@ class EncryptedPrefs(private val fileName: String) {
     fun read(context: Context, key: String): StoredValue {
         val encrypted = try {
             prefs(context).getString(key, null)
-        } catch (e: ClassCastException) {
+        } catch (_: ClassCastException) {
             // A primitive written by a build that predates this wrapper. It never held
             // user-authored text, so dropping it lets the next write use the right format.
             Log.w(TAG, "Dropping legacy non-string value for $key in $fileName")
@@ -57,10 +57,12 @@ class EncryptedPrefs(private val fileName: String) {
 
         return when (val result = SecureStorageHelper.decrypt(encrypted)) {
             is SecureStorageHelper.DecryptResult.Success -> StoredValue.Present(result.plainText)
+
             SecureStorageHelper.DecryptResult.KeyUnavailable -> {
                 Log.e(TAG, "Value for $key in $fileName is temporarily unavailable")
                 StoredValue.Unavailable
             }
+
             SecureStorageHelper.DecryptResult.Unreadable -> {
                 Log.e(TAG, "Value for $key in $fileName can no longer be decrypted")
                 StoredValue.Lost

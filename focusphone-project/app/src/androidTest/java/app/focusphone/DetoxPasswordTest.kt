@@ -11,9 +11,9 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.data.preferences.ThemePreferences
+import app.focusphone.security.PasswordAttemptPolicy
 import app.focusphone.ui.home.HomeActivity
 import org.junit.Assert.assertEquals
-import app.focusphone.security.PasswordAttemptPolicy
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue

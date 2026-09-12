@@ -55,7 +55,7 @@ object PasswordHasher {
             if (parts.size != 2) return VerifyResult.Mismatch
             val salt = try {
                 Base64.decode(parts[0], Base64.NO_WRAP)
-            } catch (e: IllegalArgumentException) {
+            } catch (_: IllegalArgumentException) {
                 return VerifyResult.Mismatch
             }
             // A payload whose salt is missing or unreadable can never be matched.

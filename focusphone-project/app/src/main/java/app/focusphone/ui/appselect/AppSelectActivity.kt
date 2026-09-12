@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -15,14 +17,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import app.focusphone.FocusPhoneApp
 import app.focusphone.R
 import app.focusphone.databinding.ActivityAppSelectBinding
-import app.focusphone.ui.appselect.adapter.InstalledAppsAdapter
-import app.focusphone.ui.base.BaseActivity
 import app.focusphone.domain.model.AppInfo
 import app.focusphone.domain.util.normalizeAppName
-import android.view.ViewGroup
-import kotlinx.coroutines.launch
-import androidx.core.view.updatePadding
+import app.focusphone.ui.appselect.adapter.InstalledAppsAdapter
+import app.focusphone.ui.base.BaseActivity
 import app.focusphone.util.LauncherUtils
+import kotlinx.coroutines.launch
 
 class AppSelectActivity : BaseActivity() {
 
@@ -49,6 +49,7 @@ class AppSelectActivity : BaseActivity() {
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> showRenameDialog(app)
+
                     1 -> {
                         focusPhoneApp.container.appRepository.invalidateCache()
 
@@ -87,15 +88,18 @@ class AppSelectActivity : BaseActivity() {
             setPadding(padH, padV, padH, padV)
         }
         val container = android.widget.FrameLayout(this@AppSelectActivity).apply {
-            addView(input, android.widget.FrameLayout.LayoutParams(
-                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                leftMargin = dp(24)
-                rightMargin = dp(24)
-                topMargin = dp(8)
-                bottomMargin = dp(8)
-            })
+            addView(
+                input,
+                android.widget.FrameLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    leftMargin = dp(24)
+                    rightMargin = dp(24)
+                    topMargin = dp(8)
+                    bottomMargin = dp(8)
+                }
+            )
         }
 
         val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@AppSelectActivity)

@@ -24,6 +24,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -47,7 +48,6 @@ import com.google.android.material.slider.Slider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.core.graphics.drawable.toDrawable
 
 /**
  * Base class for all FocusPhone activities.
@@ -542,12 +542,12 @@ abstract class BaseActivity : AppCompatActivity() {
             // Leaf views are mostly hairline dividers drawn as flat theme colours; containers
             // are only touched when they were painted in a theme colour themselves.
             val recolorBackground = view !is ViewGroup || (
-                    applyBackgrounds &&
-                            view !== root &&
-                            view.id != android.R.id.content &&
-                            view.getTag(R.id.tag_skip_recolor) != true &&
-                            view.id !in BACKGROUND_RECOLOR_EXCLUDED_IDS
-                    )
+                applyBackgrounds &&
+                    view !== root &&
+                    view.id != android.R.id.content &&
+                    view.getTag(R.id.tag_skip_recolor) != true &&
+                    view.id !in BACKGROUND_RECOLOR_EXCLUDED_IDS
+                )
             if (recolorBackground) {
                 solidColorOf(view.background)?.let { current ->
                     recolor(view, R.id.tag_recolor_background, current, roleOf, backgroundColorFor) {
@@ -592,8 +592,10 @@ abstract class BaseActivity : AppCompatActivity() {
     /** The colour of a flat background, or null when it is a shape, ripple or image. */
     private fun solidColorOf(drawable: Drawable?): Int? = when {
         drawable is ColorDrawable -> drawable.color
+
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && drawable is ColorStateListDrawable ->
             drawable.colorStateList.defaultColor
+
         else -> null
     }
 
@@ -642,7 +644,7 @@ abstract class BaseActivity : AppCompatActivity() {
         current ?: return target
         val italic = current.isItalic
         val emphasised = current.isBold ||
-                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && current.weight > EMPHASIS_WEIGHT)
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && current.weight > EMPHASIS_WEIGHT)
 
         if (!emphasised && !italic) return target
 
@@ -937,10 +939,12 @@ abstract class BaseActivity : AppCompatActivity() {
                         dialog.dismiss()
                         onUnlocked()
                     }
+
                     ProfilePreferences.isPasswordLockedOut(this@BaseActivity) -> {
                         etPassword.text.clear()
                         showError(passwordLockoutMessage(ProfilePreferences.getLockoutRemainingMs(this@BaseActivity)))
                     }
+
                     else -> {
                         etPassword.text.clear()
                         showError(passwordAttemptsLeftMessage(ProfilePreferences.getRemainingAttempts(this@BaseActivity)))

@@ -192,19 +192,32 @@ object WallpaperStorage {
             context.contentResolver.openInputStream(source)?.use {
                 ExifInterface(it).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
             } ?: ExifInterface.ORIENTATION_NORMAL
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             ExifInterface.ORIENTATION_NORMAL
         }
 
         val matrix = Matrix()
         when (orientation) {
             ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.setScale(-1f, 1f)
+
             ExifInterface.ORIENTATION_ROTATE_180 -> matrix.setRotate(180f)
+
             ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.setScale(1f, -1f)
-            ExifInterface.ORIENTATION_TRANSPOSE -> matrix.apply { setRotate(90f); postScale(-1f, 1f) }
+
+            ExifInterface.ORIENTATION_TRANSPOSE -> matrix.apply {
+                setRotate(90f)
+                postScale(-1f, 1f)
+            }
+
             ExifInterface.ORIENTATION_ROTATE_90 -> matrix.setRotate(90f)
-            ExifInterface.ORIENTATION_TRANSVERSE -> matrix.apply { setRotate(-90f); postScale(-1f, 1f) }
+
+            ExifInterface.ORIENTATION_TRANSVERSE -> matrix.apply {
+                setRotate(-90f)
+                postScale(-1f, 1f)
+            }
+
             ExifInterface.ORIENTATION_ROTATE_270 -> matrix.setRotate(-90f)
+
             else -> return bitmap
         }
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)

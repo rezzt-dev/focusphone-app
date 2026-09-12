@@ -31,7 +31,7 @@ enum class ScrimSurface(val floor: Float, val range: Float) {
      * Settings, app drawer, pickers and block screens: small body text, subtitles,
      * switches and sliders. These always keep a substantial floor.
      */
-    CONTENT(floor = 0.40f, range = 0.55f);
+    CONTENT(floor = 0.40f, range = 0.55f)
 }
 
 /**

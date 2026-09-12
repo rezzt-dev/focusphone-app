@@ -521,14 +521,42 @@ all commands run from `focusphone-project/`.
 | `./gradlew :app:testDebugUnitTest` | jvm unit tests (junit4 + robolectric) |
 | `./gradlew :app:connectedDebugAndroidTest` | instrumented tests on a device or emulator |
 | `./gradlew :app:lintDebug` | android lint — must report **zero** errors |
+| `./gradlew staticAnalysis` | ktlint + detekt over every module — must report **zero** findings |
+| `./gradlew :app:ktlintFormat` | autofix every formatting violation ktlint can fix on its own |
 | `./gradlew clean` | wipe build outputs |
 
 the full verification pipeline, and what continuous integration runs on every push and pull
-request, is a single command:
+request, is two commands — style first, because it needs no compilation and fails in seconds:
 
 ```bash
+./gradlew staticAnalysis --continue --stacktrace
 ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease --stacktrace
 ```
+
+### STATIC ANALYSIS
+
+three tools, each covering what the others cannot, and **none of them with a baseline file**:
+a finding is fixed at the source, or the rule is switched off in config with the reason
+written next to it.
+
+| tool | covers | config |
+|---|---|---|
+| android lint | android/api correctness, resources, manifest | `app/build.gradle.kts`, `lint { }` |
+| **ktlint** `1.8.0` | kotlin formatting | `.editorconfig` at the repository root |
+| **detekt** `1.23.8` | kotlin code smells and complexity | `config/detekt/detekt.yml` |
+
+- formatting is **enforced, not conventional**: 4-space indent, lf, utf-8, a 140-column limit,
+  no wildcard imports and no trailing commas. run `./gradlew :app:ktlintFormat` before
+  committing and the rest takes care of itself.
+- the ktlint style is `intellij_idea`, which is the same formatter that
+  `kotlin.code.style=official` already selects for the ide — so *reformat code* in android
+  studio and `ktlintFormat` never fight each other.
+- detekt is configured with `buildUponDefaultConfig = true`, so `detekt.yml` only records the
+  **deviations** from detekt's defaults; a detekt upgrade brings its new rules in instead of
+  being blocked by a frozen copy of an old ruleset.
+- the complexity thresholds (`LongMethod` 130, `CyclomaticComplexMethod` 40, `LargeClass` 1800)
+  sit just above the worst case in `main` today and work as a **ratchet**: today's screens are
+  tolerated, nothing may grow past them.
 
 <details>
 <summary><strong>build configuration notes</strong></summary>
@@ -538,7 +566,11 @@ request, is a single command:
 - `viewBinding = true` and `buildConfig = true`.
 - room uses **kapt** (`com.android.legacy-kapt`), required under agp 9.x.
 - `checkReleaseBuilds = true` and `abortOnError = true`, **with no lint baseline on purpose**:
-  new lint errors are fixed at the source rather than suppressed.
+  new lint errors are fixed at the source rather than suppressed. ktlint and detekt follow the
+  same policy — neither has a baseline file either.
+- the ktlint *engine* version is pinned in the version catalog (`ktlint`) separately from its
+  gradle plugin (`ktlintGradle`), so the formatter cannot move on its own and rewrite files
+  that ci previously accepted.
 - unit tests run with `unitTests.isIncludeAndroidResources = true`, so robolectric tests inflate
   the app's real merged themes and styles — a broken style fails a test instead of only crashing
   on a device.
@@ -683,7 +715,8 @@ and make sure the verification command above passes.
    singletons registered in `AppContainer`.
 3. **cover it** with a unit test when the logic is pure, and an instrumented test when it is a
    flow.
-4. **verify**: `./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease`.
+4. **verify**: `./gradlew staticAnalysis` and then
+   `./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease`.
 5. **record it** in the `## SIN PUBLICAR / UNRELEASED` section of `changelog.md`, in both
    languages, under the right category.
 6. **open a pull request** whose description is the changelog fragment your branch adds.

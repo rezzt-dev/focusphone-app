@@ -54,12 +54,8 @@ class WidgetPickerAdapter(
     // ── DiffUtil ───────────────────────────────────────────────────
 
     class DiffCallback : DiffUtil.ItemCallback<Item>() {
-        override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean {
-            return oldItem.provider == newItem.provider
-        }
+        override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean = oldItem.provider == newItem.provider
 
-        override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean {
-            return oldItem == newItem
-        }
+        override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean = oldItem == newItem
     }
 }

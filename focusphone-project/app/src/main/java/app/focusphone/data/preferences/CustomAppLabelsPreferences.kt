@@ -29,9 +29,7 @@ class CustomAppLabelsPreferences(context: Context) {
     private val _labelsFlow = MutableStateFlow<Map<String, String>>(loadAllLabels())
     val labelsFlow: StateFlow<Map<String, String>> = _labelsFlow.asStateFlow()
 
-    fun getCustomLabel(packageName: String): String? {
-        return _labelsFlow.value[packageName]
-    }
+    fun getCustomLabel(packageName: String): String? = _labelsFlow.value[packageName]
 
     /**
      * Stores [label] for [packageName]; a blank label restores the system name.
@@ -76,6 +74,7 @@ class CustomAppLabelsPreferences(context: Context) {
 
             when (val result = SecureStorageHelper.decrypt(value)) {
                 is SecureStorageHelper.DecryptResult.Success -> map[key] = result.plainText
+
                 // Never rewrite an unreadable payload: the key may come back, and even if it
                 // does not, the user simply sees the system name until they rename the app.
                 else -> Log.w(TAG, "Custom label for $key is unreadable ($result); using system label")

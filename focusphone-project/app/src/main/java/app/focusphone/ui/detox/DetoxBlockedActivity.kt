@@ -43,11 +43,14 @@ class DetoxBlockedActivity : BaseActivity() {
             }
         }
 
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                navigateHome()
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    navigateHome()
+                }
             }
-        })
+        )
     }
 
     private fun setupInsets() {

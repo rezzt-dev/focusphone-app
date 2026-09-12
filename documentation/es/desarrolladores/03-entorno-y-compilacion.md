@@ -61,7 +61,9 @@ todos se ejecutan desde `focusphone-project/`.
 | `./gradlew :app:assembleRelease` | apk de publicacion, minificado y con recursos reducidos |
 | `./gradlew :app:testDebugUnitTest` | pruebas unitarias en la jvm |
 | `./gradlew :app:connectedDebugAndroidTest` | pruebas instrumentadas en un dispositivo o emulador |
-| `./gradlew :app:lintDebug` | analisis estatico; debe terminar con **0 errores** |
+| `./gradlew :app:lintDebug` | android lint; debe terminar con **0 errores** |
+| `./gradlew staticAnalysis` | ktlint + detekt; debe terminar con **0 hallazgos** |
+| `./gradlew :app:ktlintFormat` | corrige automaticamente todo lo que ktlint puede arreglar solo |
 | `./gradlew clean` | limpia las salidas de compilacion |
 
 <details>
@@ -70,11 +72,13 @@ todos se ejecutan desde `focusphone-project/`.
 <br>
 
 ```bash
+./gradlew staticAnalysis --continue --stacktrace
 ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease --stacktrace
 ```
 
 es exactamente lo que ejecuta el workflow de github actions en cada push y en cada pull
-request.
+request. el estilo va primero porque no necesita compilar y falla en segundos: una llave mal
+puesta no espera a que termine r8.
 
 </details>
 
@@ -272,7 +276,65 @@ verificacion de ese salto.
 
 ---
 
-## LINT
+## ANALISIS ESTATICO
+
+tres herramientas cubren tres cosas distintas y **ninguna tiene fichero de linea base**: un
+hallazgo se corrige en origen, o la regla se desactiva en la configuracion con el motivo
+escrito al lado.
+
+| herramienta | cubre | configuracion | tarea |
+|---|---|---|---|
+| android lint | correccion de api/android, recursos, manifest | `app/build.gradle.kts`, `lint { }` | `:app:lintDebug` |
+| **ktlint** `1.8.0` | formato de kotlin | `.editorconfig` (raiz del repositorio) | `:app:ktlintCheck` / `:app:ktlintFormat` |
+| **detekt** `1.23.8` | malos olores y complejidad de kotlin | `config/detekt/detekt.yml` | `:app:detekt` |
+
+`./gradlew staticAnalysis` es una tarea raiz que ejecuta ktlint y detekt sobre todos los
+modulos; es lo que ejecuta ci.
+
+### KTLINT
+
+el formato es **obligatorio, no una convencion**. todo lo que comprueba ktlint sale de
+`.editorconfig` en la raiz del repositorio, que el ide tambien lee — asi *reformat code* en
+android studio y `ktlintFormat` no pueden separarse:
+
+- indentacion de 4 espacios, finales de linea lf, utf-8, salto de linea final, sin espacios
+  al final
+- **limite de 140 columnas**
+- sin imports con comodin, imports en orden lexicografico
+- **sin comas finales** (`ij_kotlin_allow_trailing_comma*` en `false`)
+- estilo `intellij_idea`, el mismo formateador que `kotlin.code.style=official` ya selecciona
+  para el ide
+
+hay cinco reglas desactivadas a proposito, cada una con su motivo en `.editorconfig`:
+`function-signature`, `class-signature`, `argument-list-wrapping` y `multiline-if-else` (donde
+se parte una firma o una lista de argumentos es una decision de legibilidad del autor, no algo
+que reescribir solo porque cabria en una linea), mas `no-multi-spaces` (el codigo alinea las
+asignaciones en columnas, `versionCode   = 3`).
+
+la version del *motor* de ktlint esta fijada en el catalogo de versiones (`ktlint`) aparte de
+la de su plugin de gradle (`ktlintGradle`), de modo que el formateador nunca se mueve solo y
+reescribe ficheros que ci ya habia aceptado.
+
+### DETEKT
+
+`buildUponDefaultConfig = true`, asi que `config/detekt/detekt.yml` solo registra las
+**desviaciones** respecto a los valores por defecto de detekt. nunca se pega ahi la
+configuracion por defecto completa: las reglas nuevas de una actualizacion se perderian en
+silencio. `config.validation = true` hace que un nombre de regla que ya no existe rompa el
+build en vez de ignorarse sin avisar.
+
+las desviaciones que importan:
+
+| ajuste | por que |
+|---|---|
+| `LongMethod` 130, `CyclomaticComplexMethod` 40, `LargeClass` 1800, `NestedBlockDepth` 5 | fijados justo por encima del peor caso actual de `main`, de forma que funcionan como **trinquete**: las pantallas de hoy se toleran, ninguna puede crecer mas alla. se bajan cuando una pantalla se parte; nunca se suben para callar un hallazgo nuevo |
+| `TooGenericExceptionCaught` desactivada | un launcher es el proceso al que vuelve el usuario cuando todo lo demas se cae; tiene que sobrevivir a lo que lancen `PackageManager`, `LauncherApps` o un servicio del sistema de un fabricante |
+| `SwallowedException` activada | el contrapeso de lo anterior: todo `catch` debe registrar, relanzar o nombrar su variable `_` / `ignored` / `expected` para decir que la excepcion se descarta a proposito |
+| `MagicNumber` desactivada | las cuentas de layout, los canales de color y las constantes de tiempo son numericas por naturaleza en una interfaz android |
+| `TooManyFunctions` 30 | los objetos `*Preferences` son fachadas planas sobre `SharedPreferences`: un getter y un setter por clave es justo lo que los hace legibles |
+| conjunto `formatting` **no** añadido | detekt incluye una copia de las reglas de ktlint; ejecutar los dos motores reporta cada problema de formato dos veces y pueden discrepar tras una actualizacion. el formato es solo de ktlint |
+
+### ANDROID LINT
 
 ```kotlin
 lint {
@@ -310,6 +372,7 @@ cerrado, **no** desactivar `checkReleaseBuilds`.
 | `app/build/`, `.gradle/`, `.kotlin/` | ignorados |
 | `local.properties` | ignorado: contiene rutas locales del sdk |
 | `.docs/` | ignorado: documentacion de trabajo y habilidades de agentes |
+| `.editorconfig`, `config/detekt/detekt.yml` | **versionados**: son el contrato del analisis estatico |
 
 ---
 
@@ -317,8 +380,9 @@ cerrado, **no** desactivar `checkReleaseBuilds`.
 
 ```mermaid
 flowchart LR
-    A["editar codigo"] --> B["./gradlew :app:testDebugUnitTest"]
-    B --> C["./gradlew :app:lintDebug"]
+    A["editar codigo"] --> A2["./gradlew :app:ktlintFormat"]
+    A2 --> B["./gradlew :app:testDebugUnitTest"]
+    B --> C["./gradlew staticAnalysis<br>./gradlew :app:lintDebug"]
     C --> D["./gradlew :app:assembleDebug"]
     D --> E["probar en dispositivo"]
     E --> F["commit segun las guias"]

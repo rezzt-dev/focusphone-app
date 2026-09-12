@@ -1,12 +1,12 @@
 package app.focusphone.data.preferences
 
-import androidx.core.content.edit
 import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
 import androidx.annotation.StyleRes
-import app.focusphone.R
+import androidx.core.content.edit
 import androidx.core.graphics.toColorInt
+import app.focusphone.R
 
 /**
  * Synchronous theme preference using SharedPreferences.
@@ -74,7 +74,7 @@ object ThemePreferences {
         val hex = getCustomBackgroundColorHex(context)
         return try {
             hex.toColorInt()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Log.w("ThemePreferences", "Invalid custom background hex '$hex', falling back to default")
             "#181818".toColorInt()
         }
@@ -84,7 +84,7 @@ object ThemePreferences {
         val hex = getCustomForegroundColorHex(context)
         return try {
             hex.toColorInt()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Log.w("ThemePreferences", "Invalid custom foreground hex '$hex', falling back to default")
             "#FAFAFA".toColorInt()
         }
@@ -104,7 +104,7 @@ object ThemePreferences {
         resolveStyleRes(getEffectiveTheme(context))
 
     // ── Alignment ──────────────────────────────────────────────────
-    
+
     private const val KEY_ALIGNMENT = "app_alignment"
     const val ALIGN_CENTER = "center"
     const val ALIGN_LEFT   = "left"

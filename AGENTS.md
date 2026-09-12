@@ -174,6 +174,12 @@ app/src/main/java/app/focusphone/
 # Lint (must report 0 errors; release builds fail on any lint error)
 ./gradlew :app:lintDebug
 
+# Kotlin static analysis: ktlint (format) + detekt (code smells), both must be clean
+./gradlew staticAnalysis
+
+# Autofix every formatting violation ktlint can fix on its own
+./gradlew :app:ktlintFormat
+
 # Clean
 ./gradlew clean
 ```
@@ -184,7 +190,7 @@ app/src/main/java/app/focusphone/
 - Room uses `kapt` (legacy annotation processor) because AGP 9.2.1 is used.
 - The Gradle daemon runs on a JDK 21 chosen by `gradle/gradle-daemon-jvm.properties` (regenerate with `./gradlew updateDaemonJvm --jvm-version=21`); do not reintroduce `org.gradle.java.home`.
 - Lint runs on release builds (`checkReleaseBuilds = true`, `abortOnError = true`) and there is no lint baseline: fix new errors at the source.
-- CI (`.github/workflows/android-ci.yml`) runs unit tests, `lintDebug` and an unsigned `assembleRelease` on every push and pull request.
+- CI (`.github/workflows/android-ci.yml`) runs `staticAnalysis` (ktlint + detekt) first, then unit tests, `lintDebug` and an unsigned `assembleRelease`, on every push and pull request.
 - **Dependencies are updated by hand.** There is no automated update of `gradle/libs.versions.toml`: `.github/dependabot.yml` sets `open-pull-requests-limit: 0` for the `gradle` and `github-actions` ecosystems, `renovate.json` is `"enabled": false`, and `.github/workflows/dependency-policy.yml` fails any pull request authored by `dependabot[bot]` / `renovate[bot]` or coming from a `dependabot/*` / `renovate/*` branch. To bump a library, edit the `[versions]` block by hand, run `:app:testDebugUnitTest :app:lintDebug :app:assembleRelease`, add the changelog entry and commit with the `changes` prefix (see `documentation/en/developers/03-environment-and-build.md`, *manual dependency updates*). Never merge a bot pull request or bypass that guard.
 - The Gradle wrapper JAR is versioned; release outputs under `app/release/` are not.
 - Release signing config is conditional: set `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, and `RELEASE_KEY_PASSWORD` in `gradle.properties` (or as project properties) to enable release signing. Without these properties, the release build uses no signing config and can still be assembled for local testing.
@@ -199,6 +205,13 @@ app/src/main/java/app/focusphone/
 - Some older inline comments may mix Spanish; new code should remain in English.
 
 ### Formatting Conventions
+Formatting is **enforced, not conventional**: ktlint reads `.editorconfig` at the repository root and CI fails on any violation. Run `./gradlew :app:ktlintFormat` before committing and the rest of this section takes care of itself.
+
+- 4-space indent, LF endings, UTF-8, final newline, no trailing whitespace, **140-column limit**.
+- No wildcard imports; imports in lexicographic order.
+- **No trailing commas.** `ij_kotlin_allow_trailing_comma*` are `false`, so ktlint keeps them out.
+- Four rules are switched off on purpose, each with its reason written in `.editorconfig`: `function-signature`, `class-signature`, `argument-list-wrapping` and `multiline-if-else` (where a signature or an argument list breaks is an authored decision), plus `no-multi-spaces` (the codebase aligns assignments into columns, e.g. `versionCode   = 3`).
+- The style is ktlint's `intellij_idea`, which matches the IDE's "Kotlin official" formatter that `kotlin.code.style=official` in `gradle.properties` already selects — so *Reformat Code* in Android Studio and `ktlintFormat` agree.
 - **Section dividers** in classes use a consistent pattern:
   ```kotlin
   // ── Section Name ──────────────────────────────────────────────────
@@ -206,6 +219,22 @@ app/src/main/java/app/focusphone/
 - Package naming: `app.focusphone.{layer}.{feature}`.
 - Activities use `dp(value: Int)` helper methods for pixel conversion.
 - All Activities extend `BaseActivity`.
+
+### Static Analysis
+Three tools, each with a job the others do not do, and **none of them has a baseline file**: a finding is fixed at the source, or the rule is turned off in config with the reason written down next to it.
+
+| Tool | Covers | Config | Task |
+|---|---|---|---|
+| Android Lint | Android/API correctness, resources, manifest | `app/build.gradle.kts`, `lint { }` | `:app:lintDebug` (also runs in `assembleRelease`) |
+| ktlint | Kotlin formatting | `.editorconfig` (repository root) | `:app:ktlintCheck` / `:app:ktlintFormat` |
+| detekt | Kotlin code smells and complexity | `config/detekt/detekt.yml` | `:app:detekt` |
+
+- `./gradlew staticAnalysis` (root task) runs ktlint and detekt together; that is what CI runs.
+- The detekt config is `buildUponDefaultConfig = true`, so it only records **deviations** from detekt's defaults. Never paste the full default config into it — new rules from an upgrade would be silently dropped. `config.validation = true` makes a stale rule name fail the build instead of being ignored.
+- Several complexity thresholds (`LongMethod` 130, `CyclomaticComplexMethod` 40, `LargeClass` 1800…) are deliberately set just above the worst case in `main` today, so they work as a **ratchet**: the existing screens are tolerated, nothing may grow past them. Lower them when a screen is split; never raise them to make a new finding go away.
+- `TooGenericExceptionCaught` is off (a launcher must survive whatever an OEM system service throws), but `SwallowedException` stays on: every `catch` must log, rethrow, or name its binding `_` / `ignored` / `expected` to say the exception is dropped on purpose.
+- detekt's bundled `formatting` ruleset (its copy of the ktlint rules) is **not** added as a dependency: formatting belongs to ktlint alone, or the two engines report everything twice and can disagree after an upgrade.
+- The ktlint engine version is pinned in `gradle/libs.versions.toml` (`ktlint`), separately from the Gradle plugin (`ktlintGradle`), so the formatter never moves on its own and rewrites files CI previously accepted.
 
 ### Dependency Injection
 - Do **not** introduce Hilt/Dagger without first resolving AGP 9.x compatibility.

@@ -14,7 +14,7 @@
 |---|---|
 | 1 | read [architecture](./01-architecture.md) and [project structure](./02-project-structure.md) |
 | 2 | set up the environment following [environment and build](./03-environment-and-build.md) |
-| 3 | check that `./gradlew :app:testDebugUnitTest` and `./gradlew :app:lintDebug` pass **before** touching anything |
+| 3 | check that `./gradlew :app:testDebugUnitTest`, `./gradlew :app:lintDebug` and `./gradlew staticAnalysis` all pass **before** touching anything |
 | 4 | review the licence: the project is distributed under a **non-commercial use** licence |
 
 ---
@@ -35,6 +35,8 @@ flowchart LR
 ```bash
 git checkout -b feature/descriptive-name
 # … WORK …
+./gradlew :app:ktlintFormat                      # autofix formatting first
+./gradlew staticAnalysis                         # ktlint + detekt, must be clean
 ./gradlew :app:testDebugUnitTest :app:lintDebug
 git commit
 git push origin feature/descriptive-name
@@ -131,6 +133,11 @@ of the matching `changelog.md` section, pasted verbatim with their `####` catego
 
 ## CODE STYLE
 
+formatting is **enforced, not conventional**: ktlint reads `.editorconfig` at the repository
+root and ci fails on any violation. run `./gradlew :app:ktlintFormat` before committing —
+4-space indent, lf, utf-8, a 140-column limit, ordered imports and no trailing commas are all
+applied for you. what follows is what a formatter cannot decide:
+
 <table>
 <tr><th align="left" width="34%">aspect</th><th align="left" width="66%">convention</th></tr>
 <tr><td>code language</td><td><strong>comments and kdoc in english</strong>, always</td></tr>
@@ -197,6 +204,7 @@ of the matching `changelog.md` section, pasted verbatim with their `####` catego
 <br>
 
 - [ ] `./gradlew :app:testDebugUnitTest` passes
+- [ ] `./gradlew staticAnalysis` reports **0 findings** (ktlint and detekt)
 - [ ] `./gradlew :app:lintDebug` reports **0 errors**
 - [ ] `./gradlew :app:assembleRelease` builds
 - [ ] there are new tests for the new logic, with their edge cases

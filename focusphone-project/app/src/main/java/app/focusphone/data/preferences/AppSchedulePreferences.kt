@@ -67,7 +67,9 @@ object AppSchedulePreferences {
     private fun readRules(context: Context): List<AppScheduleRule>? =
         when (val stored = store.read(context, KEY_RULES)) {
             EncryptedPrefs.StoredValue.Absent, EncryptedPrefs.StoredValue.Lost -> emptyList()
+
             EncryptedPrefs.StoredValue.Unavailable -> null
+
             is EncryptedPrefs.StoredValue.Present -> stored.value.split("\n")
                 .filter { it.isNotBlank() }
                 .mapNotNull { AppScheduleEvaluator.parse(it) }
@@ -125,9 +127,10 @@ object AppSchedulePreferences {
     }
 
     /** Evaluates an already-loaded [rule] against the current time and usage. */
-    fun evaluateRule(context: Context, rule: AppScheduleRule): ScheduleBlockReason? {
-        return evaluateRule(rule, getUsedSeconds(context, rule.packageName))
-    }
+    fun evaluateRule(
+        context: Context,
+        rule: AppScheduleRule
+    ): ScheduleBlockReason? = evaluateRule(rule, getUsedSeconds(context, rule.packageName))
 
     /** Evaluates [rule] using an already-cached usage value, without touching storage. */
     fun evaluateRule(rule: AppScheduleRule, usedSecondsToday: Int): ScheduleBlockReason? {
@@ -182,9 +185,10 @@ object AppSchedulePreferences {
      * Seconds of allowance left for [rule] today, or null when it has no daily limit.
      * A fully consumed allowance returns 0.
      */
-    fun getRemainingLimitSeconds(context: Context, rule: AppScheduleRule): Int? {
-        return getRemainingLimitSeconds(rule, getUsedSeconds(context, rule.packageName))
-    }
+    fun getRemainingLimitSeconds(
+        context: Context,
+        rule: AppScheduleRule
+    ): Int? = getRemainingLimitSeconds(rule, getUsedSeconds(context, rule.packageName))
 
     /** Remaining allowance using an already-cached usage value, without storage IO. */
     fun getRemainingLimitSeconds(rule: AppScheduleRule, usedSecondsToday: Int): Int? {

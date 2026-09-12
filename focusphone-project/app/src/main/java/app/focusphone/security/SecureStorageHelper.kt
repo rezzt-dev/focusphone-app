@@ -86,7 +86,7 @@ object SecureStorageHelper {
     fun decrypt(cipherText: String): DecryptResult {
         val combined = try {
             Base64.decode(cipherText, Base64.NO_WRAP)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             Log.w(TAG, "Stored payload is not valid Base64")
             return DecryptResult.Unreadable
         }
@@ -119,7 +119,7 @@ object SecureStorageHelper {
         if (!BASE64_SHAPE.matches(value)) return false
         val decoded = try {
             Base64.decode(value, Base64.NO_WRAP)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             return false
         }
         return decoded.size >= MIN_PAYLOAD_BYTES

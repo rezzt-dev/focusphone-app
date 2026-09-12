@@ -28,24 +28,29 @@ the workflow lives in `.github/workflows/android-ci.yml`.
 flowchart LR
     A["checkout"] --> B["setup-java<br>temurin 21"]
     B --> C["setup-gradle<br><i>validates the wrapper jar</i>"]
-    C --> D["testDebugUnitTest<br>lintDebug<br>assembleRelease"]
+    C --> C2["staticAnalysis<br><i>ktlint + detekt</i>"]
+    C2 --> D["testDebugUnitTest<br>lintDebug<br>assembleRelease"]
     D --> E["upload reports<br><i>always, even on failure</i>"]
 ```
 
 ```yaml
+- name: Static analysis (ktlint + detekt)
+  run: ./gradlew staticAnalysis --continue --stacktrace
+
 - name: Verify
   run: ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease --stacktrace
 ```
 
 <details>
-<summary><strong>why those three targets, in that order</strong></summary>
+<summary><strong>why those four targets, in that order</strong></summary>
 
 <br>
 
 | target | what it adds |
 |---|---|
+| `staticAnalysis` | ktlint (formatting, from `.editorconfig`) and detekt (code smells, from `config/detekt/detekt.yml`). first, because it needs no compilation and fails in seconds — a misplaced brace never waits for r8. `--continue` reports both tools in one run instead of stopping at whichever fails first |
 | `testDebugUnitTest` | fails fast on a logic regression |
-| `lintDebug` | static analysis with `abortOnError` |
+| `lintDebug` | android lint with `abortOnError` |
 | `assembleRelease` | runs **lint-vital** and **r8**: the only way to catch a broken proguard rule or an error that only appears when minifying |
 
 the release apk is assembled **unsigned** in ci, because the `RELEASE_*` signing properties
@@ -235,6 +240,7 @@ the output lands in `app/release/`, which is **not** under version control.
 - [ ] `versionName` matches the changelog version
 - [ ] `versionCode` has been bumped
 - [ ] `./gradlew :app:testDebugUnitTest` passes
+- [ ] `./gradlew staticAnalysis` reports 0 ktlint and 0 detekt findings
 - [ ] `./gradlew :app:lintDebug` reports 0 errors
 - [ ] `./gradlew :app:assembleRelease` builds, with lint-vital and r8
 - [ ] instrumented tests pass on a real device

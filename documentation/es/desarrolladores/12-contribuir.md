@@ -14,7 +14,7 @@
 |---|---|
 | 1 | lee [arquitectura](./01-arquitectura.md) y [estructura del proyecto](./02-estructura-del-proyecto.md) |
 | 2 | monta el entorno segun [entorno y compilacion](./03-entorno-y-compilacion.md) |
-| 3 | comprueba que `./gradlew :app:testDebugUnitTest` y `./gradlew :app:lintDebug` pasan **antes** de tocar nada |
+| 3 | comprueba que `./gradlew :app:testDebugUnitTest`, `./gradlew :app:lintDebug` y `./gradlew staticAnalysis` pasan **antes** de tocar nada |
 | 4 | revisa la licencia: el proyecto se distribuye bajo una licencia de **uso no comercial** |
 
 ---
@@ -35,6 +35,8 @@ flowchart LR
 ```bash
 git checkout -b feature/nombre-descriptivo
 # … TRABAJO …
+./gradlew :app:ktlintFormat                      # corrige el formato primero
+./gradlew staticAnalysis                         # ktlint + detekt, debe quedar limpio
 ./gradlew :app:testDebugUnitTest :app:lintDebug
 git commit
 git push origin feature/nombre-descriptivo
@@ -132,6 +134,12 @@ de la seccion correspondiente de `changelog.md`, pegados tal cual con sus encabe
 
 ## ESTILO DE CODIGO
 
+el formato es **obligatorio, no una convencion**: ktlint lee `.editorconfig` en la raiz del
+repositorio y ci falla ante cualquier violacion. ejecuta `./gradlew :app:ktlintFormat` antes
+de hacer commit — indentacion de 4 espacios, lf, utf-8, limite de 140 columnas, imports
+ordenados y sin comas finales se aplican solos. lo que sigue es lo que un formateador no puede
+decidir:
+
 <table>
 <tr><th align="left" width="34%">aspecto</th><th align="left" width="66%">convencion</th></tr>
 <tr><td>idioma del codigo</td><td><strong>comentarios y kdoc en ingles</strong>, siempre</td></tr>
@@ -198,6 +206,7 @@ de la seccion correspondiente de `changelog.md`, pegados tal cual con sus encabe
 <br>
 
 - [ ] `./gradlew :app:testDebugUnitTest` pasa
+- [ ] `./gradlew staticAnalysis` reporta **0 hallazgos** (ktlint y detekt)
 - [ ] `./gradlew :app:lintDebug` reporta **0 errores**
 - [ ] `./gradlew :app:assembleRelease` compila
 - [ ] hay pruebas nuevas para la logica nueva, con sus casos limite

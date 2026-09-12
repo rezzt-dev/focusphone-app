@@ -6,13 +6,13 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import app.focusphone.R
 import app.focusphone.databinding.ActivityPermissionsBinding
 import app.focusphone.service.FocusAccessibilityService
 import app.focusphone.ui.base.BaseActivity
 import app.focusphone.util.LauncherUtils
-import androidx.core.view.updatePadding
 import kotlinx.coroutines.launch
 
 class PermissionsActivity : BaseActivity() {

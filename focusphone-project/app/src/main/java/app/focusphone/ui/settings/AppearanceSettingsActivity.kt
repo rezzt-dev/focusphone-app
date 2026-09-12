@@ -18,9 +18,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.toColorInt
 import androidx.lifecycle.lifecycleScope
 import app.focusphone.R
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.WallpaperPreferences
@@ -36,9 +37,8 @@ import app.focusphone.ui.theme.ScrimSurface
 import app.focusphone.ui.theme.SurfaceScrim
 import app.focusphone.ui.wallpaper.WallpaperStorage
 import app.focusphone.ui.wallpaper.WallpaperUtils
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
-import androidx.core.graphics.toColorInt
-import androidx.core.graphics.drawable.toDrawable
 import java.util.Date
 
 /**
@@ -54,11 +54,14 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
     private var fgTextWatcher: TextWatcher? = null
 
     // ── Wallpaper section state ──
+
     /** Everything below the master switch; collapsed while the wallpaper is hidden. */
     private var wallpaperDetails: View? = null
     private var previewBinding: SettingsWallpaperPreviewBinding? = null
+
     /** Home row, relabelled as the single "image" row in shared mode. */
     private var homeWallpaperRow: ItemSettingsValueBinding? = null
+
     /** Notifications and settings rows, hidden together in shared mode. */
     private var perSurfaceWallpaperRows: View? = null
     private var notificationsValueView: TextView? = null
@@ -306,7 +309,9 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
                     isUpdating = true
                     val fixed = "#" + raw.replace("#", "")
                     binding.etCustomBgColor.setText(fixed)
-                    try { binding.etCustomBgColor.setSelection(fixed.length) } catch (_: Exception) {}
+                    try {
+                        binding.etCustomBgColor.setSelection(fixed.length)
+                    } catch (_: Exception) {}
                     isUpdating = false
                     updateBgPreview(fixed)
                     return
@@ -336,7 +341,9 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
                     isUpdating = true
                     val fixed = "#" + raw.replace("#", "")
                     binding.etCustomFgColor.setText(fixed)
-                    try { binding.etCustomFgColor.setSelection(fixed.length) } catch (_: Exception) {}
+                    try {
+                        binding.etCustomFgColor.setSelection(fixed.length)
+                    } catch (_: Exception) {}
                     isUpdating = false
                     updateFgPreview(fixed)
                     return

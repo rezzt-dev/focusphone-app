@@ -191,7 +191,9 @@ object ProfilePreferences {
         val current = when (val stored = store.read(context, KEY_BLOCKED_APPS)) {
             is EncryptedPrefs.StoredValue.Present ->
                 stored.value.split("\n").filter { it.isNotBlank() }.toMutableSet()
+
             EncryptedPrefs.StoredValue.Absent, EncryptedPrefs.StoredValue.Lost -> mutableSetOf()
+
             EncryptedPrefs.StoredValue.Unavailable -> return false
         }
         if (blocked) current.add(packageName) else current.remove(packageName)
@@ -232,13 +234,11 @@ object ProfilePreferences {
 
     // ── App blocking logic (public API delegates to pure functions) ─
 
-    fun isDetoxActive(context: Context): Boolean {
-        return isDetoxActivePure(
-            profile = getProfile(context),
-            detoxEndTime = getDetoxEndTime(context),
-            now = System.currentTimeMillis()
-        )
-    }
+    fun isDetoxActive(context: Context): Boolean = isDetoxActivePure(
+        profile = getProfile(context),
+        detoxEndTime = getDetoxEndTime(context),
+        now = System.currentTimeMillis()
+    )
 
     /** Ends a detox session whose timer has run out. */
     fun expireDetoxIfNeeded(context: Context) {
@@ -253,17 +253,15 @@ object ProfilePreferences {
         }
     }
 
-    fun isAppBlocked(context: Context, packageName: String): Boolean {
-        return isAppBlockedPure(
-            profile = getProfile(context),
-            detoxEndTime = getDetoxEndTime(context),
-            blockedApps = getBlockedApps(context),
-            workKeywords = getWorkKeywords(context),
-            packageName = packageName,
-            ownPackage = context.packageName,
-            now = System.currentTimeMillis()
-        )
-    }
+    fun isAppBlocked(context: Context, packageName: String): Boolean = isAppBlockedPure(
+        profile = getProfile(context),
+        detoxEndTime = getDetoxEndTime(context),
+        blockedApps = getBlockedApps(context),
+        workKeywords = getWorkKeywords(context),
+        packageName = packageName,
+        ownPackage = context.packageName,
+        now = System.currentTimeMillis()
+    )
 
     // ── Pure logic (testable without Context or Android framework) ─
 
@@ -300,11 +298,13 @@ object ProfilePreferences {
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    internal fun expireDetoxIfNeededPure(profile: String, detoxEndTime: Long, now: Long): String {
-        return if (profile == PROFILE_DETOX && detoxEndTime - now <= 0) {
-            PROFILE_NORMAL
-        } else {
-            profile
-        }
+    internal fun expireDetoxIfNeededPure(
+        profile: String,
+        detoxEndTime: Long,
+        now: Long
+    ): String = if (profile == PROFILE_DETOX && detoxEndTime - now <= 0) {
+        PROFILE_NORMAL
+    } else {
+        profile
     }
 }

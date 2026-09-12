@@ -28,24 +28,29 @@ el workflow vive en `.github/workflows/android-ci.yml`.
 flowchart LR
     A["checkout"] --> B["setup-java<br>temurin 21"]
     B --> C["setup-gradle<br><i>valida el wrapper jar</i>"]
-    C --> D["testDebugUnitTest<br>lintDebug<br>assembleRelease"]
+    C --> C2["staticAnalysis<br><i>ktlint + detekt</i>"]
+    C2 --> D["testDebugUnitTest<br>lintDebug<br>assembleRelease"]
     D --> E["subir informes<br><i>siempre, incluso al fallar</i>"]
 ```
 
 ```yaml
+- name: Static analysis (ktlint + detekt)
+  run: ./gradlew staticAnalysis --continue --stacktrace
+
 - name: Verify
   run: ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease --stacktrace
 ```
 
 <details>
-<summary><strong>por que esos tres objetivos y en ese orden</strong></summary>
+<summary><strong>por que esos cuatro objetivos y en ese orden</strong></summary>
 
 <br>
 
 | objetivo | aporta |
 |---|---|
+| `staticAnalysis` | ktlint (formato, desde `.editorconfig`) y detekt (malos olores, desde `config/detekt/detekt.yml`). va primero porque no necesita compilar y falla en segundos: una llave mal puesta no espera a r8. `--continue` reporta las dos herramientas en la misma ejecucion en vez de parar en la primera que falle |
 | `testDebugUnitTest` | falla rapido ante una regresion de logica |
-| `lintDebug` | analisis estatico con `abortOnError` |
+| `lintDebug` | android lint con `abortOnError` |
 | `assembleRelease` | ejecuta **lint-vital** y **r8**: es la unica forma de detectar una regla de proguard rota o un error que solo aparece al minificar |
 
 el apk de release se ensambla **sin firmar** en ci, porque las propiedades `RELEASE_*` solo
@@ -234,6 +239,7 @@ la salida queda en `app/release/`, que **no** esta bajo control de versiones.
 - [ ] `versionName` coincide con la version del changelog
 - [ ] `versionCode` se ha incrementado
 - [ ] `./gradlew :app:testDebugUnitTest` pasa
+- [ ] `./gradlew staticAnalysis` reporta 0 hallazgos de ktlint y de detekt
 - [ ] `./gradlew :app:lintDebug` reporta 0 errores
 - [ ] `./gradlew :app:assembleRelease` compila, con lint-vital y r8
 - [ ] las pruebas instrumentadas pasan en un dispositivo real

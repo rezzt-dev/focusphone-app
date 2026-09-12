@@ -10,7 +10,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
-import java.lang.ref.WeakReference
 import android.view.accessibility.AccessibilityEvent
 import androidx.core.content.ContextCompat
 import app.focusphone.data.preferences.AppSchedulePreferences
@@ -27,6 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.lang.ref.WeakReference
 
 /**
  * Accessibility service that intercepts app launches at the system level.

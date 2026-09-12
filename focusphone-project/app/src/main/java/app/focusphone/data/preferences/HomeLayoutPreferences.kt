@@ -75,9 +75,7 @@ object HomeLayoutPreferences {
     }
 
     /** Vertical spacing between favourite-app items, in dp (0-40). */
-    fun getAppSpacingDp(context: Context): Int {
-        return prefs(context).getInt(KEY_APP_SPACING_DP, 0)
-    }
+    fun getAppSpacingDp(context: Context): Int = prefs(context).getInt(KEY_APP_SPACING_DP, 0)
 
     fun setAppSpacingDp(context: Context, spacing: Int) {
         val coerced = spacing.coerceIn(0, 40)

@@ -174,7 +174,32 @@ inherit from `MaterialAlertDialog.Material3.*.Text`, and the test checks it them
 
 ---
 
-## LINT
+## STATIC ANALYSIS
+
+tests answer *does it do the right thing*; static analysis answers *is it written the way this
+codebase is written*. three tools split that job, and **none of them has a baseline file**: a
+finding is fixed at the source, or the rule is switched off in config with its reason written
+next to it.
+
+| tool | covers | config |
+|---|---|---|
+| android lint | android/api correctness, resources, manifest | `app/build.gradle.kts`, `lint { }` |
+| **ktlint** | kotlin formatting: indent, 140 columns, import order, no trailing commas | `.editorconfig` (repository root) |
+| **detekt** | kotlin code smells: complexity, dead code, swallowed exceptions | `config/detekt/detekt.yml` |
+
+`./gradlew staticAnalysis` runs ktlint and detekt together; `./gradlew :app:ktlintFormat`
+autofixes everything ktlint can fix on its own, which is almost all of it. the full rationale
+for each disabled rule and each threshold lives in
+[03 · environment and build](03-environment-and-build.md), section *static analysis*.
+
+two detekt rules interact with how tests and error handling are written here:
+
+- `SwallowedException` is on. a `catch` that neither logs nor rethrows must name its binding
+  `_`, `ignored` or `expected`, so the reader can tell a deliberate fallback from a lost error.
+- `FunctionNaming` is excluded for `src/test` and `src/androidTest`, because test method names
+  are written as backticked sentences.
+
+### ANDROID LINT
 
 ```kotlin
 lint {
@@ -197,9 +222,11 @@ lint {
 | command | when |
 |---|---|
 | `./gradlew :app:testDebugUnitTest` | on every logic change |
+| `./gradlew :app:ktlintFormat` | before every commit, first |
+| `./gradlew staticAnalysis` | before every commit: ktlint + detekt, must be clean |
 | `./gradlew :app:lintDebug` | before every commit |
 | `./gradlew :app:connectedDebugAndroidTest` | when touching a user flow, with a device connected |
-| `./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease` | the full verification, identical to ci |
+| `./gradlew staticAnalysis` then `./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease` | the full verification, identical to ci |
 
 reports land in `app/build/reports/` and `app/build/test-results/`, and ci publishes them as
 artifacts on every run.

@@ -12,22 +12,20 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         @Volatile
-        private var INSTANCE: AppDatabase? = null
+        private var instance: AppDatabase? = null
 
-        fun getDatabase(context: Context): AppDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val builder = Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "focusphone_database"
-                )
-                // Favourite apps can be re-selected by the user, so destructive migration
-                // is acceptable in both debug and release during early development.
-                builder.fallbackToDestructiveMigration(true)
-                val instance = builder.build()
-                INSTANCE = instance
-                instance
-            }
+        fun getDatabase(context: Context): AppDatabase = instance ?: synchronized(this) {
+            val builder = Room.databaseBuilder(
+                context.applicationContext,
+                AppDatabase::class.java,
+                "focusphone_database"
+            )
+            // Favourite apps can be re-selected by the user, so destructive migration
+            // is acceptable in both debug and release during early development.
+            builder.fallbackToDestructiveMigration(true)
+            val created = builder.build()
+            instance = created
+            created
         }
     }
 }

@@ -14,7 +14,7 @@ import app.focusphone.databinding.ItemSettingsValueBinding
 import app.focusphone.databinding.SettingsSectionHeaderBinding
 import com.google.android.material.slider.Slider
 
-/**
+/*
  * Helper functions to inflate the reusable settings row layouts into a parent container.
  *
  * All helpers return the created root [View] so callers can store references if needed

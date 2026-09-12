@@ -11,12 +11,12 @@ import android.util.Log
 import android.util.LruCache
 import android.view.View
 import android.widget.ImageView
+import androidx.core.graphics.scale
+import androidx.core.net.toUri
 import app.focusphone.data.preferences.WallpaperPreferences
 import app.focusphone.data.preferences.WallpaperTarget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import androidx.core.net.toUri
-import androidx.core.graphics.scale
 
 /**
  * Helper for loading, blurring and applying user-selected wallpapers.

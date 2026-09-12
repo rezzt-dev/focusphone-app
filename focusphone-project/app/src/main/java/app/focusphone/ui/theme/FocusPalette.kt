@@ -180,7 +180,7 @@ data class FocusPalette(
             val typed = context.obtainStyledAttributes(intArrayOf(attr))
             return try {
                 typed.getColor(0, fallback)
-            } catch (e: UnsupportedOperationException) {
+            } catch (_: UnsupportedOperationException) {
                 fallback
             } finally {
                 typed.recycle()

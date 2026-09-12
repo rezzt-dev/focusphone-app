@@ -76,7 +76,10 @@ class AllAppsAdapter(
 
             b.root.contentDescription = context.getString(R.string.cd_folder_item, row.folder.name)
             b.root.setOnClickListener { onFolderTap(row.folder) }
-            b.root.setOnLongClickListener { onFolderLongTap(row.folder); true }
+            b.root.setOnLongClickListener {
+                onFolderLongTap(row.folder)
+                true
+            }
         }
     }
 

@@ -33,6 +33,7 @@ object FontPreferences {
         val font = getFont(context)
         return when (font) {
             AppFont.SYSTEM -> Typeface.create("sans-serif", Typeface.BOLD)
+
             else -> {
                 val resId = font.fontResId
                 if (resId != null) {
@@ -58,6 +59,7 @@ object FontPreferences {
         val font = getFont(context)
         return when (font) {
             AppFont.SYSTEM -> null
+
             else -> {
                 val resId = font.fontResId
                 if (resId != null) {
@@ -89,9 +91,7 @@ object FontPreferences {
         return 0.6f + (size / 100f * 1.4f)
     }
 
-    fun getClockSizePercent(context: Context): Int {
-        return prefs(context).getInt(KEY_CLOCK_SIZE, 50)
-    }
+    fun getClockSizePercent(context: Context): Int = prefs(context).getInt(KEY_CLOCK_SIZE, 50)
 
     fun setClockSizePercent(context: Context, percent: Int) =
         prefs(context).edit { putInt(KEY_CLOCK_SIZE, percent) }

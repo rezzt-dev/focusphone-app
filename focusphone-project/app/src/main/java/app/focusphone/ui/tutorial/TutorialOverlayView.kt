@@ -76,7 +76,6 @@ class TutorialOverlayView @JvmOverloads constructor(
      * @param titleRes Title string resource for the tooltip.
      * @param descRes Description string resource for the tooltip.
      * @param step Current step index (0-based).
-     * @param totalSteps Total number of steps in the tutorial.
      * @param onDismiss Called when the user taps "got it".
      */
     fun showStep(
@@ -84,7 +83,6 @@ class TutorialOverlayView @JvmOverloads constructor(
         titleRes: Int,
         descRes: Int,
         step: Int,
-        totalSteps: Int,
         onDismiss: () -> Unit
     ) {
         this.stepIndex = step
@@ -205,7 +203,6 @@ class TutorialOverlayView @JvmOverloads constructor(
          * @param titleRes Tooltip title resource.
          * @param descRes Tooltip description resource.
          * @param step Current step index.
-         * @param totalSteps Total steps.
          * @param onDismiss Callback when dismissed.
          */
         fun show(
@@ -214,7 +211,6 @@ class TutorialOverlayView @JvmOverloads constructor(
             titleRes: Int,
             descRes: Int,
             step: Int,
-            totalSteps: Int,
             onDismiss: () -> Unit
         ): TutorialOverlayView {
             // Remove any existing overlay
@@ -232,7 +228,7 @@ class TutorialOverlayView @JvmOverloads constructor(
             // Post to ensure layout is ready
             overlay.post {
                 if (overlay.isAttachedToWindow) {
-                    overlay.showStep(targetView, titleRes, descRes, step, totalSteps, onDismiss)
+                    overlay.showStep(targetView, titleRes, descRes, step, onDismiss)
                 }
             }
 

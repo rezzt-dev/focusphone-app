@@ -177,7 +177,34 @@ tema por tema.
 
 ---
 
-## LINT
+## ANALISIS ESTATICO
+
+las pruebas responden a *si hace lo correcto*; el analisis estatico responde a *si esta
+escrito como se escribe este codigo*. tres herramientas se reparten ese trabajo y **ninguna
+tiene fichero de linea base**: un hallazgo se corrige en origen, o la regla se desactiva en la
+configuracion con su motivo escrito al lado.
+
+| herramienta | cubre | configuracion |
+|---|---|---|
+| android lint | correccion de api/android, recursos, manifest | `app/build.gradle.kts`, `lint { }` |
+| **ktlint** | formato de kotlin: indentacion, 140 columnas, orden de imports, sin comas finales | `.editorconfig` (raiz del repositorio) |
+| **detekt** | malos olores de kotlin: complejidad, codigo muerto, excepciones tragadas | `config/detekt/detekt.yml` |
+
+`./gradlew staticAnalysis` ejecuta ktlint y detekt juntos; `./gradlew :app:ktlintFormat`
+corrige automaticamente todo lo que ktlint puede arreglar solo, que es casi todo. el detalle
+de cada regla desactivada y cada umbral esta en
+[03 · entorno y compilacion](03-entorno-y-compilacion.md), seccion *analisis estatico*.
+
+dos reglas de detekt afectan directamente a como se escriben aqui las pruebas y el manejo de
+errores:
+
+- `SwallowedException` esta activada. un `catch` que ni registra ni relanza debe nombrar su
+  variable `_`, `ignored` o `expected`, para que se distinga un repliegue deliberado de un
+  error perdido.
+- `FunctionNaming` esta excluida en `src/test` y `src/androidTest`, porque los nombres de los
+  metodos de prueba se escriben como frases entre acentos graves.
+
+### ANDROID LINT
 
 ```kotlin
 lint {
@@ -200,9 +227,11 @@ lint {
 | comando | cuando |
 |---|---|
 | `./gradlew :app:testDebugUnitTest` | en cada cambio de logica |
+| `./gradlew :app:ktlintFormat` | antes de cada commit, lo primero |
+| `./gradlew staticAnalysis` | antes de cada commit: ktlint + detekt, debe quedar limpio |
 | `./gradlew :app:lintDebug` | antes de cada commit |
 | `./gradlew :app:connectedDebugAndroidTest` | al tocar un flujo de usuario, con un dispositivo conectado |
-| `./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease` | la verificacion completa, identica a la de ci |
+| `./gradlew staticAnalysis` y luego `./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease` | la verificacion completa, identica a la de ci |
 
 los informes quedan en `app/build/reports/` y `app/build/test-results/`, y ci los publica
 como artefactos en cada ejecucion.
