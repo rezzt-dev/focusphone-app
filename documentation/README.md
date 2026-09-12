@@ -108,8 +108,8 @@ el sistema de temas, el modelo de seguridad y el proceso de build.
 flowchart TD
     A["focusphone-app/"] --> B["documentation/"]
     A --> C["focusphone-project/"]
-    A --> D["README.md<br>changelog.md<br>LICENSE"]
-    A --> E["AGENTS.md<br>CLAUDE.md"]
+    A --> D["readme.md<br>changelog.md<br>license<br>security.md"]
+    A --> E["agents.md<br>claude.md"]
 
     B --> B1["es/ — castellano"]
     B --> B2["en/ — english"]
@@ -151,12 +151,12 @@ flowchart TD
 
 | fichero | proposito | audiencia |
 |---|---|---|
-| `README.md` (raiz) | presentacion publica del proyecto | visitantes del repositorio |
+| `readme.md` (raiz) | presentacion publica del proyecto | visitantes del repositorio |
 | `changelog.md` | historial de cambios por version, bilingue | usuarios y desarrolladores |
-| `AGENTS.md` / `CLAUDE.md` | guia operativa para agentes de ia y para el flujo de commits, pr y releases | agentes y mantenedores |
+| `agents.md` / `claude.md` | guia operativa para agentes de ia y para el flujo de commits, pr y releases | agentes y mantenedores |
 | `documentation/` | documentacion funcional y tecnica completa | usuarios finales y desarrolladores |
 
-`documentation/` no sustituye a `AGENTS.md`: aquel describe **como se trabaja** en el
+`documentation/` no sustituye a `agents.md`: aquel describe **como se trabaja** en el
 repositorio, y este describe **que es y como funciona** el producto.
 
 </details>

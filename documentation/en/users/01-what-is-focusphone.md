@@ -165,7 +165,7 @@ alignment, and your own wallpaper with blur and legibility control.
 | target android | 16 (api 36) |
 | language | kotlin |
 | interface languages | english, british english, spanish, french, german |
-| licence | non-commercial use, see `LICENSE` |
+| licence | non-commercial use, see `license` |
 
 ---
 

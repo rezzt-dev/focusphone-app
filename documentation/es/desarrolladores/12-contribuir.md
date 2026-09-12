@@ -238,7 +238,7 @@ en la pestaña **issues** del repositorio. un buen informe incluye:
 
 el proyecto se distribuye bajo una **licencia de uso no comercial**. se permite el uso
 personal, educativo y de evaluacion; el uso comercial requiere autorizacion previa por
-escrito del autor. el texto completo esta en `LICENSE`.
+escrito del autor. el texto completo esta en `license`.
 
 al contribuir, aceptas que tu aportacion se distribuya bajo esos mismos terminos.
 

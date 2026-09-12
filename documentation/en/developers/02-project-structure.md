@@ -12,11 +12,12 @@
 
 ```
 focusphone-app/
-├── AGENTS.md                # operating guide for ai agents and maintainers
-├── CLAUDE.md                # copy of the commit, pr, merge and release rules
-├── LICENSE                  # non-commercial use licence
-├── README.md                # public project presentation
+├── agents.md                # operating guide for ai agents and maintainers
 ├── changelog.md             # bilingual per-version change history
+├── claude.md                # copy of the commit, pr, merge and release rules
+├── license                  # non-commercial use licence
+├── readme.md                # public project presentation
+├── security.md              # security policy and vulnerability reporting
 ├── documentation/           # this documentation
 ├── focusphone-project/      # the android gradle project
 └── .github/workflows/       # continuous integration

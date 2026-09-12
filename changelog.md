@@ -13,7 +13,7 @@
 - añadir una politica de dependencias sin actualizaciones automaticas: `.github/dependabot.yml` con `open-pull-requests-limit: 0`, `renovate.json` desactivado y el workflow `dependency-policy` que falla las pull requests de bots, de modo que `gradle/libs.versions.toml` solo se actualiza a mano
 - añadir analisis estatico de kotlin con ktlint y detekt, sin linea base en ninguno de los dos: `.editorconfig` en la raiz define el formato para el ide y para ktlint, `config/detekt/detekt.yml` registra solo las desviaciones respecto a los valores por defecto de detekt, y la tarea raiz `staticAnalysis` ejecuta ambos
 - añadir el paso `staticAnalysis` al workflow `android-ci`, antes de las pruebas y la compilacion, porque no necesita compilar y falla en segundos
-- añadir `SECURITY.md` en la raiz del repositorio, que es donde github lo busca para activar la pestaña "security" y el formulario de aviso privado: declara la version soportada, los dos canales de reporte, los plazos de respuesta, el alcance dentro y fuera de la politica, y enlaza la documentacion completa de `08-seguridad.md`
+- añadir `security.md` en la raiz del repositorio, que es donde github lo busca para activar la pestaña "security" y el formulario de aviso privado: declara la version soportada, los dos canales de reporte, los plazos de respuesta, el alcance dentro y fuera de la politica, y enlaza la documentacion completa de `08-seguridad.md`
 
 #### CAMBIADO
 - reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
@@ -25,11 +25,12 @@
 - unificar el flujo de desinstalacion tras `LauncherUtils.requestUninstall` y migrar `WidgetPickerActivity` a la activity result api
 - mejorar la accesibilidad, los textos i18n y los plurales en es/fr/de, y aplicar las sugerencias `UseKtx` restantes en la capa de preferencias y ui
 - bajar `agp` a `9.3.0` en `libs.versions.toml` para restaurar la compatibilidad con la version actual de android studio
-- reescribir `README.md` como presentacion tecnica completa del proyecto, con arquitectura, stack, compilacion, pruebas, seguridad e indice de la documentacion, y corregir la url de clonado, el arbol de fuentes y las versiones obsoletas
+- reescribir `readme.md` como presentacion tecnica completa del proyecto, con arquitectura, stack, compilacion, pruebas, seguridad e indice de la documentacion, y corregir la url de clonado, el arbol de fuentes y las versiones obsoletas
 - dejar de ignorar `.github/` para que los workflows de ci y la configuracion de dependabot viajen con el repositorio, que es la unica forma de que surtan efecto
 - documentar la politica de dependencias en `03-entorno-y-compilacion.md`, `11-ci-y-publicacion.md` y `agents.md`, incluyendo el procedimiento manual para subir la version de una biblioteca
 - aplicar el formato de ktlint a las 130 fuentes kotlin del proyecto, incluido `AllAppsActivity.kt`, que estaba indentado a 2 espacios frente a los 4 del resto
-- documentar el analisis estatico en `README.md`, `agents.md` y la documentacion de desarrolladores (`03`, `10`, `11` y `12`) en castellano e ingles: reglas desactivadas con su motivo, umbrales de complejidad como trinquete y el reparto de trabajo entre android lint, ktlint y detekt
+- documentar el analisis estatico en `readme.md`, `agents.md` y la documentacion de desarrolladores (`03`, `10`, `11` y `12`) en castellano e ingles: reglas desactivadas con su motivo, umbrales de complejidad como trinquete y el reparto de trabajo entre android lint, ktlint y detekt
+- renombrar a minusculas los ficheros de la raiz del repositorio (`agents.md`, `claude.md`, `license`, `readme.md` y `security.md`) para que todos sigan la misma convencion que `changelog.md`, `.editorconfig`, `.gitignore` y `renovate.json`, y actualizar los enlaces, los arboles de ficheros y el mapa del proyecto que los citaban
 
 #### CORREGIDO
 - restaurar los gestos de deslizar en la pantalla de inicio (apertura de cajones y despliegue de notificaciones), rotos tras mover el detector de gestos a un listener que no consumia `ACTION_DOWN`
@@ -73,7 +74,7 @@
 - add a dependency policy with no automated updates: `.github/dependabot.yml` with `open-pull-requests-limit: 0`, `renovate.json` disabled and a `dependency-policy` workflow that fails bot pull requests, so `gradle/libs.versions.toml` is only ever updated by hand
 - add kotlin static analysis with ktlint and detekt, neither with a baseline: `.editorconfig` at the repository root defines the format for both the ide and ktlint, `config/detekt/detekt.yml` records only the deviations from detekt's defaults, and the root `staticAnalysis` task runs both
 - add a `staticAnalysis` step to the `android-ci` workflow, ahead of the tests and the build, because it needs no compilation and fails in seconds
-- add `SECURITY.md` at the repository root, where github looks for it to enable the "security" tab and the private advisory form: it states the supported version, the two reporting channels, the response targets, what is in and out of scope, and links the full `08-security.md` documentation
+- add `security.md` at the repository root, where github looks for it to enable the "security" tab and the private advisory form: it states the supported version, the two reporting channels, the response targets, what is in and out of scope, and links the full `08-security.md` documentation
 
 #### CHANGED
 - reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone
@@ -85,11 +86,12 @@
 - unify the uninstall flow behind `LauncherUtils.requestUninstall` and move `WidgetPickerActivity` to the activity result api
 - improve accessibility, i18n text and plurals across es/fr/de, and apply the remaining `UseKtx` suggestions across the preferences layer and ui
 - downgrade `agp` to `9.3.0` in `libs.versions.toml` to restore build compatibility with the current android studio release
-- rewrite `README.md` as a complete technical presentation of the project, with architecture, stack, build, testing, security and a documentation index, fixing the wrong clone url, the stale source tree and the outdated versions
+- rewrite `readme.md` as a complete technical presentation of the project, with architecture, stack, build, testing, security and a documentation index, fixing the wrong clone url, the stale source tree and the outdated versions
 - stop ignoring `.github/` so the ci workflows and the dependabot configuration ship with the repository, the only way for them to take effect
 - document the dependency policy in `03-environment-and-build.md`, `11-ci-and-release.md` and `agents.md`, including the manual procedure for bumping a library version
 - apply ktlint's formatting to all 130 kotlin sources, including `AllAppsActivity.kt`, which was indented with 2 spaces against the project's 4
-- document static analysis in `README.md`, `agents.md` and the developer documentation (`03`, `10`, `11` and `12`) in both spanish and english: every disabled rule with its reason, the complexity thresholds as a ratchet, and how the work is split between android lint, ktlint and detekt
+- document static analysis in `readme.md`, `agents.md` and the developer documentation (`03`, `10`, `11` and `12`) in both spanish and english: every disabled rule with its reason, the complexity thresholds as a ratchet, and how the work is split between android lint, ktlint and detekt
+- rename the repository root files to lowercase (`agents.md`, `claude.md`, `license`, `readme.md` and `security.md`) so they all follow the same convention as `changelog.md`, `.editorconfig`, `.gitignore` and `renovate.json`, updating every link, file tree and project map that referenced them
 
 #### FIXED
 - restore home screen swipe gestures (drawers and notification expansion), broken after the gesture detector moved to a touch listener that never consumed `ACTION_DOWN`

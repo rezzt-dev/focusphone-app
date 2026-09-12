@@ -297,7 +297,7 @@ the device, so a restored copy would not be readable.
 
 do not open a public issue: use [github private vulnerability reporting](https://github.com/rezzt-dev/focusphone-app/security/advisories/new)
 or email `privacy@rezzt.dev`. the supported version, the response targets, the disclosure
-policy and what is in and out of scope live in [`SECURITY.md`](../../../SECURITY.md) at the
+policy and what is in and out of scope live in [`security.md`](../../../security.md) at the
 repository root, which is where github reads it from to enable the "security" tab.
 
 ---

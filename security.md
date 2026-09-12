@@ -2,7 +2,7 @@
 
 # SECURITY POLICY
 
-<sub><a href="./README.md">readme</a> · <a href="./documentation/en/developers/08-security.md">full security documentation</a> · <a href="./documentation/es/desarrolladores/08-seguridad.md">castellano</a></sub>
+<sub><a href="./readme.md">readme</a> · <a href="./documentation/en/developers/08-security.md">full security documentation</a> · <a href="./documentation/es/desarrolladores/08-seguridad.md">castellano</a></sub>
 
 <br>
 

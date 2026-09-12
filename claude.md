@@ -1,9 +1,9 @@
-# FocusPhone — CLAUDE.md
+# FocusPhone — claude.md
 
 > This file exists so Claude (and any other AI agent) always has the git
 > workflow rules available, independent of `.docs/` (gitignored) being
 > present locally. For the full architecture, tech stack, build commands and
-> code style guide, see [`AGENTS.md`](AGENTS.md) — this file only duplicates
+> code style guide, see [`agents.md`](agents.md) — this file only duplicates
 > the commit / PR / merge / release conventions.
 
 ## Commit, PR, Merge & Release Guidelines

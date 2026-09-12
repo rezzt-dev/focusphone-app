@@ -170,7 +170,7 @@ y control de legibilidad.
 | android objetivo | 16 (api 36) |
 | lenguaje | kotlin |
 | idiomas de la interfaz | ingles, ingles britanico, español, frances, aleman |
-| licencia | uso no comercial, ver `LICENSE` |
+| licencia | uso no comercial, ver `license` |
 
 ---
 

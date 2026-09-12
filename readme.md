@@ -21,14 +21,14 @@ a clock, a calendar and only the apps you actually use.</strong>
 <img src="https://img.shields.io/badge/jdk-21%20toolchain-orange?style=flat-square" alt="jdk 21 toolchain" />
 <img src="https://img.shields.io/badge/100%25-offline-4c1?style=flat-square" alt="100% offline" />
 <img src="https://img.shields.io/badge/no-trackers-4c1?style=flat-square" alt="no trackers" />
-<a href="./LICENSE"><img src="https://img.shields.io/badge/license-non--commercial-orange?style=flat-square" alt="non commercial license" /></a>
+<a href="./license"><img src="https://img.shields.io/badge/license-non--commercial-orange?style=flat-square" alt="non commercial license" /></a>
 
 <br><br>
 
 <a href="./documentation/en/README.md"><b>documentation</b></a> ·
 <a href="./documentation/en/developers/01-architecture.md"><b>architecture</b></a> ·
 <a href="./changelog.md"><b>changelog</b></a> ·
-<a href="./SECURITY.md"><b>security policy</b></a> ·
+<a href="./security.md"><b>security policy</b></a> ·
 <a href="https://github.com/rezzt-dev/focusphone-app/issues"><b>report a bug</b></a> ·
 <a href="https://github.com/rezzt-dev/focusphone-app/issues"><b>request a feature</b></a>
 
@@ -395,10 +395,11 @@ focusphone-app/
 ├── documentation/               # full bilingual documentation
 │   ├── es/{usuarios,desarrolladores}/
 │   └── en/{users,developers}/
-├── AGENTS.md · CLAUDE.md        # operating guide for ai agents and maintainers
+├── agents.md · claude.md        # operating guide for ai agents and maintainers
 ├── changelog.md                 # bilingual, keep-a-changelog style
-├── LICENSE                      # non-commercial license
-└── README.md
+├── license                      # non-commercial license
+├── security.md                  # security policy and vulnerability reporting
+└── readme.md
 ```
 
 > the gradle root is `focusphone-project/`, not the repository root: open **that** directory in
@@ -636,7 +637,7 @@ crash reporter and no account. that is a property of the manifest, not a promise
 security problems are **not** reported as public issues: use [github private vulnerability
 reporting](https://github.com/rezzt-dev/focusphone-app/security/advisories/new) or email
 `privacy@rezzt.dev`. the supported version, the response targets and what is in and out of
-scope are in [`SECURITY.md`](./SECURITY.md); the full threat model is in
+scope are in [`security.md`](./security.md); the full threat model is in
 [`08-security.md`](./documentation/en/developers/08-security.md).
 
 ---
@@ -688,7 +689,7 @@ per language, each split into a user track and a developer track.
 | audit the security model | [security](./documentation/en/developers/08-security.md) |
 | contribute | [contributing](./documentation/en/developers/12-contributing.md) |
 
-`AGENTS.md` and `CLAUDE.md` describe **how work is done** in this repository (conventions,
+`agents.md` and `claude.md` describe **how work is done** in this repository (conventions,
 commit / pr / release rules) and are the entry point for ai agents; `documentation/` describes
 **what the product is and how it works**.
 
@@ -719,7 +720,7 @@ and make sure the verification command above passes.
 
 1. **fork** the repository and create a branch from the active development branch:
    `git checkout -b feature/your-feature`.
-2. **write the change** following the conventions in `AGENTS.md` — comments and kdoc in english,
+2. **write the change** following the conventions in `agents.md` — comments and kdoc in english,
    new colours through `FocusPalette`, new settings inside an existing settings sub-screen, new
    singletons registered in `AppContainer`.
 3. **cover it** with a unit test when the logic is pure, and an instrumented test when it is a
@@ -761,7 +762,7 @@ this project is distributed under a **custom non-commercial license**.
 - commercial use — including internal use by a for-profit entity beyond a 30-day technical
   evaluation — requires **prior written permission** from the author.
 
-see [`LICENSE`](./LICENSE) for the full and binding terms.
+see [`license`](./license) for the full and binding terms.
 
 ---
 

@@ -236,7 +236,7 @@ in the repository's **issues** tab. a good report includes:
 
 the project is distributed under a **non-commercial use licence**. personal, educational and
 evaluation use is allowed; commercial use requires prior written permission from the author.
-the full text is in `LICENSE`.
+the full text is in `license`.
 
 by contributing, you accept that your contribution is distributed under those same terms.
 
