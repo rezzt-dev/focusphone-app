@@ -395,8 +395,11 @@ focusphone-app/
 ├── documentation/               # full bilingual documentation
 │   ├── es/{usuarios,desarrolladores}/
 │   └── en/{users,developers}/
+├── .github/                     # ci workflows, dependency policy, issue and pr templates
 ├── agents.md · claude.md        # operating guide for ai agents and maintainers
 ├── changelog.md                 # bilingual, keep-a-changelog style
+├── code_of_conduct.md           # contributor covenant 2.1, single-author enforcement
+├── contributing.md              # short contributor guide; the long one is in documentation/
 ├── license                      # non-commercial license
 ├── security.md                  # security policy and vulnerability reporting
 └── readme.md
@@ -712,9 +715,14 @@ of every version.
 
 ## CONTRIBUTING
 
-contributions are welcome. before opening a pull request, please read
+contributions are welcome. start with [`contributing.md`](./contributing.md) — the short
+version, with the setup, the workflow and the non-negotiable rules — and read
 [`documentation/en/developers/12-contributing.md`](./documentation/en/developers/12-contributing.md)
-and make sure the verification command above passes.
+([castellano](./documentation/es/desarrolladores/12-contribuir.md)) for the detailed, binding
+version. make sure the verification command above passes before opening the pull request.
+
+bugs and proposals go through the [issue templates](./.github/ISSUE_TEMPLATE); everyone taking
+part is expected to follow the [`code_of_conduct.md`](./code_of_conduct.md).
 
 ### WORKFLOW
 
