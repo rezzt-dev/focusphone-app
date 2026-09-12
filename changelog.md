@@ -10,6 +10,7 @@
 - añadir un scrim de legibilidad adaptativo sobre el fondo de pantalla, con un nuevo slider "legibilidad de texto" en ajustes, para todos los temas
 - añadir una vista previa del fondo en ajustes que se toca para elegir la imagen y refleja en vivo el desenfoque y la legibilidad sobre un reloj de muestra
 - añadir la opcion "usar el fondo de inicio" en notificaciones y ajustes para reutilizar la misma imagen sin volver a elegirla
+- añadir una politica de dependencias sin actualizaciones automaticas: `.github/dependabot.yml` con `open-pull-requests-limit: 0`, `renovate.json` desactivado y el workflow `dependency-policy` que falla las pull requests de bots, de modo que `gradle/libs.versions.toml` solo se actualiza a mano
 
 #### CAMBIADO
 - reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
@@ -22,6 +23,8 @@
 - mejorar la accesibilidad, los textos i18n y los plurales en es/fr/de, y aplicar las sugerencias `UseKtx` restantes en la capa de preferencias y ui
 - bajar `agp` a `9.3.0` en `libs.versions.toml` para restaurar la compatibilidad con la version actual de android studio
 - reescribir `README.md` como presentacion tecnica completa del proyecto, con arquitectura, stack, compilacion, pruebas, seguridad e indice de la documentacion, y corregir la url de clonado, el arbol de fuentes y las versiones obsoletas
+- dejar de ignorar `.github/` para que los workflows de ci y la configuracion de dependabot viajen con el repositorio, que es la unica forma de que surtan efecto
+- documentar la politica de dependencias en `03-entorno-y-compilacion.md`, `11-ci-y-publicacion.md` y `agents.md`, incluyendo el procedimiento manual para subir la version de una biblioteca
 
 #### CORREGIDO
 - restaurar los gestos de deslizar en la pantalla de inicio (apertura de cajones y despliegue de notificaciones), rotos tras mover el detector de gestos a un listener que no consumia `ACTION_DOWN`
@@ -59,6 +62,7 @@
 - add an adaptive legibility scrim over the wallpaper, with a new "text legibility" slider in settings, for every theme
 - add a tappable wallpaper preview in settings that picks the image and follows blur and legibility live over a sample clock
 - add a "use the home wallpaper" option for notifications and settings to reuse the same image without picking it again
+- add a dependency policy with no automated updates: `.github/dependabot.yml` with `open-pull-requests-limit: 0`, `renovate.json` disabled and a `dependency-policy` workflow that fails bot pull requests, so `gradle/libs.versions.toml` is only ever updated by hand
 
 #### CHANGED
 - reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone
@@ -71,6 +75,8 @@
 - improve accessibility, i18n text and plurals across es/fr/de, and apply the remaining `UseKtx` suggestions across the preferences layer and ui
 - downgrade `agp` to `9.3.0` in `libs.versions.toml` to restore build compatibility with the current android studio release
 - rewrite `README.md` as a complete technical presentation of the project, with architecture, stack, build, testing, security and a documentation index, fixing the wrong clone url, the stale source tree and the outdated versions
+- stop ignoring `.github/` so the ci workflows and the dependabot configuration ship with the repository, the only way for them to take effect
+- document the dependency policy in `03-environment-and-build.md`, `11-ci-and-release.md` and `agents.md`, including the manual procedure for bumping a library version
 
 #### FIXED
 - restore home screen swipe gestures (drawers and notification expansion), broken after the gesture detector moved to a touch listener that never consumed `ACTION_DOWN`

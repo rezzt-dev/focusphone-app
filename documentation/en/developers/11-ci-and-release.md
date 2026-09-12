@@ -77,6 +77,30 @@ focusphone-project/app/build/test-results/
 
 ---
 
+## DEPENDENCY POLICY
+
+a second workflow, `.github/workflows/dependency-policy.yml`, runs on every pull request and
+does one thing: it **fails pull requests opened by a dependency bot**.
+
+| property | value |
+|---|---|
+| name | `dependency-policy` |
+| triggers | every pull request |
+| timeout | 5 minutes |
+| permissions | `contents: read` |
+| fails when | the author is `dependabot[bot]` / `renovate[bot]`, or the head branch is `dependabot/*` / `renovate/*` |
+
+there are no automated updates of `gradle/libs.versions.toml` in this repository:
+`.github/dependabot.yml` declares its ecosystems with `open-pull-requests-limit: 0` and
+`renovate.json` carries `"enabled": false`, while this workflow keeps the policy in force even
+if one of those integrations is re-enabled from the repository settings.
+
+> the manual procedure for bumping a library — verification, changelog entry and commit prefix —
+> is in <a href="./03-environment-and-build.md">environment and build</a>, section *manual
+> dependency updates*.
+
+---
+
 ## VERSIONING
 
 | item | where | rule |

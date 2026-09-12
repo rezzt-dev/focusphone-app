@@ -48,7 +48,8 @@ ehthumbs.db
 # `docs/*` rather than `docs/`: git cannot re-include a file whose parent directory is
 # excluded, and the technical audit is the tracking document every fix is marked in.
 
-# Editor, CI and local tooling folders (not part of the published project).
+# Editor and local tooling folders (not part of the published project).
+# `.github/` is tracked on purpose: the ci workflows and the dependency policy
+# (dependabot.yml) only take effect if they are published with the repository.
 .freebuff/
-.github/
 .vscode/

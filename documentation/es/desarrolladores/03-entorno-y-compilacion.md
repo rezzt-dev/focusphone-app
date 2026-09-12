@@ -222,6 +222,56 @@ literales en `build.gradle.kts`.**
 
 ---
 
+## ACTUALIZACION MANUAL DE DEPENDENCIAS
+
+ningun bot toca `gradle/libs.versions.toml`. dependabot y renovate estan desactivados en todo
+el repositorio y **cada cambio de version se hace a mano**, en un commit que lleva consigo la
+verificacion de ese salto.
+
+| fichero | papel |
+|---|---|
+| `.github/dependabot.yml` | declara los ecosistemas `gradle` y `github-actions` con `open-pull-requests-limit: 0`, lo que desactiva las pull requests de actualizacion |
+| `renovate.json` | `"enabled": false` mas `"ignorePaths": ["**/*"]`, para que instalar la app de renovate en el repositorio o en la organizacion no abra nada |
+| `.github/workflows/dependency-policy.yml` | falla cualquier pull request abierta por `dependabot[bot]` / `renovate[bot]`, o que venga de una rama `dependabot/*` / `renovate/*` |
+
+<details open>
+<summary><strong>por que aqui se actualiza a mano</strong></summary>
+
+<br>
+
+- el catalogo esta fijado a una combinacion que funciona, no a lo ultimo de cada biblioteca:
+  `agp` se queda en 9.3.0 para seguir siendo compatible con la version actual de android
+  studio, y room usa `kapt` (`com.android.legacy-kapt`) justamente por esa linea de agp
+- un salto de version puede pasar ci en verde y aun asi romper el launcher en ejecucion, donde
+  viven el servicio de accesibilidad, el host de widgets y las preferencias cifradas
+- una pull request de bot reparte una sola decision entre muchas pull requests y deja la
+  entrada del changelog para despues, en contra del flujo descrito en `11-ci-y-publicacion.md`
+
+</details>
+
+<details open>
+<summary><strong>como actualizar una dependencia</strong></summary>
+
+<br>
+
+1. edita la version en el bloque `[versions]` de `gradle/libs.versions.toml` — nunca las
+   coordenadas literales en `build.gradle.kts`
+2. lanza la verificacion completa: `./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease`
+3. ejecuta las pruebas instrumentadas en un dispositivo real cuando el salto toque la ui, room
+   o los servicios del sistema
+4. añade una linea a `## SIN PUBLICAR / UNRELEASED` en `changelog.md`, en los dos idiomas,
+   nombrando la biblioteca y la nueva version
+5. haz el commit con el prefijo `changes`, porque un salto de version es tooling, no una
+   funcionalidad
+
+</details>
+
+> si aparece una pull request de un bot de dependencias, **cierrala**: no se fusiona ni se
+> esquiva el guard. la solucion es desactivar la integracion en los ajustes del repositorio, no
+> saltarse la comprobacion.
+
+---
+
 ## LINT
 
 ```kotlin

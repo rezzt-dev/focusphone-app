@@ -76,6 +76,30 @@ focusphone-project/app/build/test-results/
 
 ---
 
+## POLITICA DE DEPENDENCIAS
+
+un segundo workflow, `.github/workflows/dependency-policy.yml`, corre en cada pull request y
+hace una sola cosa: **falla las pull requests abiertas por un bot de dependencias**.
+
+| propiedad | valor |
+|---|---|
+| nombre | `dependency-policy` |
+| disparadores | cada pull request |
+| timeout | 5 minutos |
+| permisos | `contents: read` |
+| falla cuando | el autor es `dependabot[bot]` / `renovate[bot]`, o la rama de origen es `dependabot/*` / `renovate/*` |
+
+en este repositorio no hay ninguna actualizacion automatica de `gradle/libs.versions.toml`:
+`.github/dependabot.yml` declara sus ecosistemas con `open-pull-requests-limit: 0` y
+`renovate.json` lleva `"enabled": false`, mientras que este workflow mantiene la politica en pie
+aunque alguna de esas integraciones se reactive desde los ajustes del repositorio.
+
+> el procedimiento manual para subir una biblioteca — verificacion, entrada de changelog y
+> prefijo de commit — esta en <a href="./03-entorno-y-compilacion.md">entorno y compilacion</a>,
+> seccion *actualizacion manual de dependencias*.
+
+---
+
 ## VERSIONADO
 
 | elemento | donde | regla |

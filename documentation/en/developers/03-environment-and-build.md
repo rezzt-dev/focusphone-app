@@ -220,6 +220,55 @@ in `build.gradle.kts`.**
 
 ---
 
+## MANUAL DEPENDENCY UPDATES
+
+no bot ever bumps `gradle/libs.versions.toml`. dependabot and renovate are disabled for the
+whole repository and **every version change is made by hand**, in a commit that carries the
+verification for that bump.
+
+| file | role |
+|---|---|
+| `.github/dependabot.yml` | declares the `gradle` and `github-actions` ecosystems with `open-pull-requests-limit: 0`, which disables version-update pull requests |
+| `renovate.json` | `"enabled": false` plus `"ignorePaths": ["**/*"]`, so installing the renovate app on the repository or the organisation opens nothing |
+| `.github/workflows/dependency-policy.yml` | fails any pull request authored by `dependabot[bot]` / `renovate[bot]`, or coming from a `dependabot/*` / `renovate/*` branch |
+
+<details open>
+<summary><strong>why updates are manual here</strong></summary>
+
+<br>
+
+- the catalog is pinned to a working combination, not to the newest of everything: `agp` sits
+  at 9.3.0 to stay compatible with the current android studio, and room runs on `kapt`
+  (`com.android.legacy-kapt`) precisely because of that agp line
+- a bump can be green in ci and still break the launcher at runtime, where the accessibility
+  service, the widget host and the encrypted preferences live
+- a bot pull request splits one decision across many pull requests and leaves the changelog
+  entry to be written afterwards, against the flow described in `11-ci-and-release.md`
+
+</details>
+
+<details open>
+<summary><strong>how to update a dependency</strong></summary>
+
+<br>
+
+1. edit the version in the `[versions]` block of `gradle/libs.versions.toml` — never the
+   literal coordinates in `build.gradle.kts`
+2. run the full verification: `./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease`
+3. run the instrumented tests on a real device when the bump touches ui, room or the system
+   services
+4. add one line to `## SIN PUBLICAR / UNRELEASED` in `changelog.md`, in both languages, naming
+   the library and the new version
+5. commit with the `changes` prefix, since a bump is tooling, not a feature
+
+</details>
+
+> if a dependency bot pull request ever shows up, **close it**: do not merge it and do not
+> bypass the guard. the fix is to turn the integration off in the repository settings, not to
+> override the check.
+
+---
+
 ## LINT
 
 ```kotlin
