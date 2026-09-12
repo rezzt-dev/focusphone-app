@@ -7,15 +7,15 @@ kotlin-js-store/
 # Local configuration files (contains local SDK paths, keys, etc.)
 local.properties
 
-# Android Studio / IntelliJ IDEA files
-.idea/caches/
-.idea/libraries/
-.idea/modules.xml
-.idea/workspace.xml
-.idea/navEditor.xml
-.idea/assetWizardSettings.xml
-.idea/deploymentTargetSelector.xml
-.idea/shelf/
+# Android Studio / IntelliJ IDEA files.
+# Everything under `.idea/` is per-machine IDE state except the shared code style,
+# which is what keeps formatting identical across clones and consistent with
+# `.editorconfig` and ktlint. `/.idea/*` rather than `/.idea/`: git cannot re-include
+# a file whose parent directory is excluded.
+/.idea/*
+!/.idea/.gitignore
+!/.idea/.name
+!/.idea/codeStyles/
 *.iml
 *.ipr
 *.iws

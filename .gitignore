@@ -45,8 +45,10 @@ ehthumbs.db
 .kotlin/
 
 # Local working documentation and agent skills (not part of the published project).
-# `docs/*` rather than `docs/`: git cannot re-include a file whose parent directory is
-# excluded, and the technical audit is the tracking document every fix is marked in.
+# The workflow rules an agent actually needs (commit format, pull request, merge and
+# release procedure) are duplicated in full inside `agents.md` and `claude.md`, which
+# are tracked: nothing here is required to clone, build or contribute to the project.
+.docs/
 
 # Editor and local tooling folders (not part of the published project).
 # `.github/` is tracked on purpose: the ci workflows and the dependency policy
