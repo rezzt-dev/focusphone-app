@@ -58,11 +58,16 @@ class FocusNotificationService : NotificationListenerService() {
             ACTION_DISMISS -> {
                 val key = intent.getStringExtra(EXTRA_KEY)
                 if (key != null) {
-                    try { cancelNotification(key) } catch (_: Exception) {}
+                    try {
+                        cancelNotification(key)
+                    } catch (_: Exception) {}
                 }
             }
+
             ACTION_DISMISS_ALL -> {
-                try { cancelAllNotifications() } catch (_: Exception) {}
+                try {
+                    cancelAllNotifications()
+                } catch (_: Exception) {}
             }
         }
         return START_NOT_STICKY
@@ -85,7 +90,7 @@ class FocusNotificationService : NotificationListenerService() {
 
                 val appName = try {
                     pm.getApplicationLabel(pm.getApplicationInfo(sbn.packageName, 0)).toString()
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     sbn.packageName
                 }
 

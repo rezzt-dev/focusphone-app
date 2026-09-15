@@ -1,0 +1,84 @@
+name: feature request
+description: propose a feature, a setting or a change of behaviour.
+title: "feature | "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        focusphone is a launcher whose value is what it *does not* do: no feed, no
+        badges competing for attention, no engagement loop. a proposal that adds a
+        screen, a toggle or a notification has to earn its place against that.
+
+        read the [design principles](https://github.com/rezzt-dev/focusphone-app/blob/main/readme.md#design-principles)
+        before filling this in.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: before proposing
+      options:
+        - label: i searched the open and closed issues and this is not a duplicate.
+          required: true
+        - label: i checked the documentation and the feature does not already exist under another name.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: the problem
+      description: |
+        what you are trying to do today and why the app gets in the way. describe the
+        situation, not the solution — a well described problem often has a better
+        solution than the one that prompted it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: the proposal
+      description: what the app would do instead, and where it would live in the interface.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: area
+      options:
+        - home screen, gestures or clock
+        - all apps, folders or search
+        - profiles or detox
+        - app schedules
+        - conscious pause
+        - notifications or widgets
+        - appearance, themes, fonts or wallpaper
+        - onboarding, permissions or launcher setup
+        - settings, other or not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: alternatives you considered
+      description: |
+        including doing nothing, or solving it with the settings that already exist.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: constraints it respects
+      description: |
+        a proposal that breaks one of these is not necessarily rejected, but it has to
+        say so up front.
+      options:
+        - label: it works fully offline, with no network permission and no account.
+          required: false
+        - label: it collects no analytics and sends nothing off the device.
+          required: false
+        - label: it reduces attention spent on the phone rather than increasing it.
+          required: false

@@ -101,7 +101,7 @@ class ConsciousPauseActivity : BaseActivity() {
         if (targetIntent != null) {
             try {
                 startActivity(targetIntent)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
             }
         }

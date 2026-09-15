@@ -26,7 +26,7 @@ class SystemSettingsActivity : SettingsSubActivity() {
         LangOption("en-US", R.string.settings_language_en_us),
         LangOption("en-GB", R.string.settings_language_en_gb),
         LangOption("fr", R.string.settings_language_fr),
-        LangOption("de", R.string.settings_language_de),
+        LangOption("de", R.string.settings_language_de)
     )
 
     override fun getScreenTitleRes(): Int = R.string.system_settings_title

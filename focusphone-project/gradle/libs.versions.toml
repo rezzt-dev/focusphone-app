@@ -1,6 +1,11 @@
 [versions]
 agp              = "9.3.0"
 
+# Static analysis
+ktlintGradle     = "14.2.0"
+ktlint           = "1.8.0"
+detekt           = "1.23.8"
+
 # AndroidX
 coreKtx          = "1.18.0"
 appcompat        = "1.8.0"
@@ -74,3 +79,5 @@ kotlinx-coroutines-test    = { group = "org.jetbrains.kotlinx",     name = "kotl
 [plugins]
 android-application  = { id = "com.android.application", version.ref = "agp" }
 android-legacy-kapt  = { id = "com.android.legacy-kapt",   version.ref = "agp" }
+ktlint               = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
+detekt               = { id = "io.gitlab.arturbosch.detekt",   version.ref = "detekt"       }

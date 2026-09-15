@@ -1,0 +1,11 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "enabled": false,
+  "ignorePaths": ["**/*"],
+  "description": [
+    "dependency updates in this repository are manual: gradle/libs.versions.toml is edited by hand,",
+    "never by a bot. this file exists so that installing the renovate app on the repository or the",
+    "organisation does not start opening update pull requests. see .github/dependabot.yml and",
+    "the guard in .github/workflows/dependency-policy.yml."
+  ]
+}

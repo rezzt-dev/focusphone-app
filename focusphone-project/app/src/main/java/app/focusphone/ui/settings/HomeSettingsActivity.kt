@@ -1,6 +1,8 @@
 package app.focusphone.ui.settings
 
 import android.content.Intent
+import android.text.TextPaint
+import android.util.TypedValue
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -12,13 +14,11 @@ import app.focusphone.data.preferences.WidgetPreferences
 import app.focusphone.databinding.ItemSettingsClockTypeBinding
 import app.focusphone.databinding.SettingsSliderRowBinding
 import app.focusphone.domain.model.ClockType
-import app.focusphone.ui.widget.AppWidgetHostManager
 import app.focusphone.ui.util.currentWindowWidthPx
+import app.focusphone.ui.widget.AppWidgetHostManager
 import app.focusphone.ui.widget.WidgetPickerActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
-import android.text.TextPaint
-import android.util.TypedValue
 
 /**
  * Home screen settings: clock type, clock size, app spacing, widget and layout.

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: security vulnerability
+    url: https://github.com/rezzt-dev/focusphone-app/security/advisories/new
+    about: never report a vulnerability in a public issue. use a private advisory, or privacy@rezzt.dev.
+  - name: documentation
+    url: https://github.com/rezzt-dev/focusphone-app/tree/main/documentation
+    about: the user and developer manuals, in castellano and english. most "how do i…" questions are answered there.
+  - name: author
+    url: https://rezzt.dev
+    about: anything that is not a bug or a feature proposal.

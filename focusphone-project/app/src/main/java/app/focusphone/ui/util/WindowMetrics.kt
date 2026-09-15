@@ -9,11 +9,9 @@ import android.os.Build
  * Unlike `resources.displayMetrics.widthPixels`, this reflects the actual window bounds
  * in multi-window mode and on foldables, rather than the full display size (FP-039).
  */
-fun Activity.currentWindowWidthPx(): Int {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        windowManager.currentWindowMetrics.bounds.width()
-    } else {
-        @Suppress("DEPRECATION")
-        resources.displayMetrics.widthPixels
-    }
+fun Activity.currentWindowWidthPx(): Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+    windowManager.currentWindowMetrics.bounds.width()
+} else {
+    @Suppress("DEPRECATION")
+    resources.displayMetrics.widthPixels
 }

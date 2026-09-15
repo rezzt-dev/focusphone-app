@@ -6,10 +6,10 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import app.focusphone.R
 import app.focusphone.databinding.ActivitySettingsBinding
 import app.focusphone.ui.base.BaseActivity
-import androidx.core.view.updatePadding
 
 /**
  * Main settings screen. Transformed from a monolithic scrollable form into a

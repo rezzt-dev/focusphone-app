@@ -55,26 +55,22 @@ class AppWidgetHostManager private constructor(context: Context) {
     }
 
     /** Returns the [AppWidgetProviderInfo] for the given widget ID, or null. */
-    fun getAppWidgetInfo(widgetId: Int): AppWidgetProviderInfo? {
-        return try {
-            appWidgetManager.getAppWidgetInfo(widgetId)
-        } catch (e: RuntimeException) {
-            Log.e(TAG, "getAppWidgetInfo($widgetId) failed", e)
-            null
-        }
+    fun getAppWidgetInfo(widgetId: Int): AppWidgetProviderInfo? = try {
+        appWidgetManager.getAppWidgetInfo(widgetId)
+    } catch (e: RuntimeException) {
+        Log.e(TAG, "getAppWidgetInfo($widgetId) failed", e)
+        null
     }
 
     /**
      * Creates an [AppWidgetHostView] for the given widget.
      * Returns null on any system-level failure so the UI can degrade gracefully.
      */
-    fun createView(context: Context, widgetId: Int, info: AppWidgetProviderInfo): AppWidgetHostView? {
-        return try {
-            appWidgetHost.createView(context, widgetId, info)
-        } catch (e: RuntimeException) {
-            Log.e(TAG, "AppWidgetHost.createView($widgetId) failed", e)
-            null
-        }
+    fun createView(context: Context, widgetId: Int, info: AppWidgetProviderInfo): AppWidgetHostView? = try {
+        appWidgetHost.createView(context, widgetId, info)
+    } catch (e: RuntimeException) {
+        Log.e(TAG, "AppWidgetHost.createView($widgetId) failed", e)
+        null
     }
 
     /** Allocates a new widget ID. */
@@ -143,13 +139,11 @@ class AppWidgetHostManager private constructor(context: Context) {
      * Returns `true` if the bind succeeded (or was already bound). Returns `false` if the user
      * must explicitly grant permission via [AppWidgetManager.ACTION_APPWIDGET_BIND].
      */
-    fun bindAppWidgetIdIfAllowed(widgetId: Int, provider: ComponentName): Boolean {
-        return try {
-            appWidgetManager.bindAppWidgetIdIfAllowed(widgetId, provider)
-        } catch (e: RuntimeException) {
-            Log.e(TAG, "bindAppWidgetIdIfAllowed($widgetId, $provider) failed", e)
-            false
-        }
+    fun bindAppWidgetIdIfAllowed(widgetId: Int, provider: ComponentName): Boolean = try {
+        appWidgetManager.bindAppWidgetIdIfAllowed(widgetId, provider)
+    } catch (e: RuntimeException) {
+        Log.e(TAG, "bindAppWidgetIdIfAllowed($widgetId, $provider) failed", e)
+        false
     }
 
     companion object {
@@ -159,10 +153,8 @@ class AppWidgetHostManager private constructor(context: Context) {
         @Volatile
         private var instance: AppWidgetHostManager? = null
 
-        fun getInstance(context: Context): AppWidgetHostManager {
-            return instance ?: synchronized(this) {
-                instance ?: AppWidgetHostManager(context).also { instance = it }
-            }
+        fun getInstance(context: Context): AppWidgetHostManager = instance ?: synchronized(this) {
+            instance ?: AppWidgetHostManager(context).also { instance = it }
         }
     }
 }

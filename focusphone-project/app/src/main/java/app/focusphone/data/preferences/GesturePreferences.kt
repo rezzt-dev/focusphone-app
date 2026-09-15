@@ -1,7 +1,7 @@
 package app.focusphone.data.preferences
 
-import androidx.core.content.edit
 import android.content.Context
+import androidx.core.content.edit
 
 /**
  * Synchronous preferences for home-screen gestures.

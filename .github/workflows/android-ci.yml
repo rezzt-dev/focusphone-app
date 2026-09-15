@@ -33,6 +33,13 @@ jobs:
       # Also validates gradle/wrapper/gradle-wrapper.jar against the official checksums.
       - uses: gradle/actions/setup-gradle@v4
 
+      # Kotlin style and code smells. Runs before the build because it needs no
+      # compilation and fails in seconds, so a formatting slip never waits on R8.
+      # `--continue` reports ktlint and detekt findings in the same run instead of
+      # stopping at whichever fails first.
+      - name: Static analysis (ktlint + detekt)
+        run: ./gradlew staticAnalysis --continue --stacktrace
+
       # assembleRelease runs lint-vital (checkReleaseBuilds = true) and R8; it is unsigned
       # here because the RELEASE_* signing properties only exist on the release machine.
       - name: Verify

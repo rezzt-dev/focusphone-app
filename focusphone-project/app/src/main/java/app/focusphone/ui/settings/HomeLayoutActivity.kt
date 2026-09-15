@@ -22,9 +22,10 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.content.ContextCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -49,7 +50,6 @@ import app.focusphone.ui.widget.WidgetSurface
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Collections
-import androidx.core.view.updatePadding
 
 /**
  * Activity that lets the user reorder the three home-screen components
@@ -297,10 +297,12 @@ class HomeLayoutActivity : BaseActivity() {
                     remainingWeight -= CLOCK_PREVIEW_WEIGHT
                     if (currentClockEnabled) CLOCK_PREVIEW_WEIGHT else 0
                 }
+
                 HomeLayoutPreferences.Component.WIDGET -> {
                     remainingWeight -= WIDGET_PREVIEW_WEIGHT
                     if (currentWidgetEnabled) WIDGET_PREVIEW_WEIGHT else 0
                 }
+
                 HomeLayoutPreferences.Component.APPS -> remainingWeight.coerceAtLeast(MIN_APPS_PREVIEW_WEIGHT)
             }
 
@@ -326,6 +328,7 @@ class HomeLayoutActivity : BaseActivity() {
                     applyClockScale()
                     updateClock()
                 }
+
                 HomeLayoutPreferences.Component.WIDGET -> {
                     val widgetView = layoutInflater.inflate(
                         R.layout.layout_preview_widget, wrapper, false
@@ -337,6 +340,7 @@ class HomeLayoutActivity : BaseActivity() {
                         launchWidgetPicker()
                     }
                 }
+
                 HomeLayoutPreferences.Component.APPS -> {
                     val appsView = layoutInflater.inflate(
                         R.layout.layout_preview_apps, wrapper, false
@@ -388,15 +392,18 @@ class HomeLayoutActivity : BaseActivity() {
                             beginDrag(wrapper, event.rawY)
                             true
                         }
+
                         MotionEvent.ACTION_MOVE -> {
                             updateDrag(wrapper, event.rawY)
                             true
                         }
+
                         MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                             endDrag(wrapper)
                             if (event.actionMasked == MotionEvent.ACTION_UP) v.performClick()
                             true
                         }
+
                         else -> false
                     }
                 }
@@ -456,22 +463,22 @@ class HomeLayoutActivity : BaseActivity() {
         val app = application as app.focusphone.FocusPhoneApp
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-            app.container.getFavouriteAppsUseCase().collect { apps ->
-                favouriteAppsAdapter.submitList(apps)
-                val container = currentAppsContainer
-                if (container != null) {
-                    val rv = container.findViewById<RecyclerView>(R.id.rv_apps)
-                    val empty = container.findViewById<TextView>(R.id.tv_empty)
-                    if (apps.isEmpty()) {
-                        rv.visibility = View.GONE
-                        empty.visibility = View.VISIBLE
-                    } else {
-                        rv.visibility = View.VISIBLE
-                        empty.visibility = View.GONE
-                        updateAppsItemHeight(apps.size)
+                app.container.getFavouriteAppsUseCase().collect { apps ->
+                    favouriteAppsAdapter.submitList(apps)
+                    val container = currentAppsContainer
+                    if (container != null) {
+                        val rv = container.findViewById<RecyclerView>(R.id.rv_apps)
+                        val empty = container.findViewById<TextView>(R.id.tv_empty)
+                        if (apps.isEmpty()) {
+                            rv.visibility = View.GONE
+                            empty.visibility = View.VISIBLE
+                        } else {
+                            rv.visibility = View.VISIBLE
+                            empty.visibility = View.GONE
+                            updateAppsItemHeight(apps.size)
+                        }
                     }
                 }
-            }
             }
         }
     }
@@ -569,6 +576,7 @@ class HomeLayoutActivity : BaseActivity() {
                         if (!isEditMode) enterEditMode()
                     }.also { handler.postDelayed(it, ViewConfiguration.getLongPressTimeout().toLong()) }
                 }
+
                 MotionEvent.ACTION_MOVE -> {
                     if (longPressRunnable != null) {
                         val dy = kotlin.math.abs(event.rawY - startRawY)
@@ -579,6 +587,7 @@ class HomeLayoutActivity : BaseActivity() {
                         }
                     }
                 }
+
                 MotionEvent.ACTION_UP -> {
                     longPressRunnable?.let { handler.removeCallbacks(it) }
                     longPressRunnable = null
@@ -588,6 +597,7 @@ class HomeLayoutActivity : BaseActivity() {
                         onWrapperClicked(component)
                     }
                 }
+
                 MotionEvent.ACTION_CANCEL -> {
                     longPressRunnable?.let { handler.removeCallbacks(it) }
                     longPressRunnable = null
@@ -626,14 +636,17 @@ class HomeLayoutActivity : BaseActivity() {
             val childCenter = child.y + child.height / 2f
 
             if ((currentIndex < i && draggedCenter > childCenter) ||
-                (currentIndex > i && draggedCenter < childCenter)) {
-
+                (currentIndex > i && draggedCenter < childCenter)
+            ) {
                 val oldTop = dragged.top
 
-                TransitionManager.beginDelayedTransition(parent, AutoTransition().apply {
-                    duration = 180
-                    interpolator = DecelerateInterpolator()
-                })
+                TransitionManager.beginDelayedTransition(
+                    parent,
+                    AutoTransition().apply {
+                        duration = 180
+                        interpolator = DecelerateInterpolator()
+                    }
+                )
 
                 val comp = currentOrder[currentIndex]
                 val newOrder = currentOrder.toMutableList().apply {
@@ -749,7 +762,9 @@ class HomeLayoutActivity : BaseActivity() {
                 }
                 currentClockEnabled = newEnabled
             }
+
             HomeLayoutPreferences.Component.WIDGET -> currentWidgetEnabled = !currentWidgetEnabled
+
             else -> {}
         }
         saveVisibility()
@@ -760,7 +775,8 @@ class HomeLayoutActivity : BaseActivity() {
         if (isEditMode) return
         // Outside edit mode a tap only offers to pick a widget when none is configured.
         if (component == HomeLayoutPreferences.Component.WIDGET &&
-            WidgetPreferences.getWidgetId(this) == WidgetPreferences.INVALID_WIDGET_ID) {
+            WidgetPreferences.getWidgetId(this) == WidgetPreferences.INVALID_WIDGET_ID
+        ) {
             launchWidgetPicker()
         }
     }

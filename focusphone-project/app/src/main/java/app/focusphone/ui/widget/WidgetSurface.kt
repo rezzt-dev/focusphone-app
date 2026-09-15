@@ -112,12 +112,15 @@ class WidgetSurface(
 
     private fun updateOptions(widgetId: Int, target: FrameLayout) {
         try {
-            appWidgetManager.updateAppWidgetOptions(widgetId, Bundle().apply {
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, target.width)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, target.width)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, target.height)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, target.height)
-            })
+            appWidgetManager.updateAppWidgetOptions(
+                widgetId,
+                Bundle().apply {
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, target.width)
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, target.width)
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, target.height)
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, target.height)
+                }
+            )
         } catch (e: RuntimeException) {
             Log.w(TAG, "Could not update widget options for id=$widgetId", e)
         }

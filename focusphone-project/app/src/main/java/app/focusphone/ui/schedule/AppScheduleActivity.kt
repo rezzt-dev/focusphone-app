@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.lifecycleScope
 import app.focusphone.R
 import app.focusphone.data.preferences.AppSchedulePreferences
@@ -23,7 +24,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.core.graphics.drawable.toDrawable
 
 /**
  * Password-protected screen listing every app with a time restriction.
@@ -297,7 +297,7 @@ class AppScheduleActivity : SettingsSubActivity() {
             packageManager.getApplicationLabel(
                 packageManager.getApplicationInfo(packageName, 0)
             ).toString().lowercase()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             packageName
         }
     }

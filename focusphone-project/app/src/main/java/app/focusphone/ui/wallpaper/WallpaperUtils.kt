@@ -11,12 +11,12 @@ import android.util.Log
 import android.util.LruCache
 import android.view.View
 import android.widget.ImageView
+import androidx.core.graphics.scale
+import androidx.core.net.toUri
 import app.focusphone.data.preferences.WallpaperPreferences
 import app.focusphone.data.preferences.WallpaperTarget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import androidx.core.net.toUri
-import androidx.core.graphics.scale
 
 /**
  * Helper for loading, blurring and applying user-selected wallpapers.
@@ -182,6 +182,24 @@ object WallpaperUtils {
         val result = Bitmap.createScaledBitmap(scaled, source.width, source.height, true)
         if (scaled !== source && scaled !== result) scaled.recycle()
         return result
+    }
+
+    /**
+     * Re-blurs an image already on screen without decoding it again, so a preview can follow
+     * the blur slider live. Only possible where blur is a render effect (Android 12+).
+     *
+     * @return false when this device blurs in software and the image must be reloaded.
+     */
+    fun updateLiveBlur(imageView: ImageView, blurRadius: Float, blurEnabled: Boolean): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return false
+        imageView.setRenderEffectCompat(
+            if (blurEnabled && blurRadius > 0.5f) {
+                RenderEffect.createBlurEffect(blurRadius, blurRadius, Shader.TileMode.CLAMP)
+            } else {
+                null
+            }
+        )
+        return true
     }
 
     /**

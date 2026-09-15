@@ -7,10 +7,10 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.view.ViewCompat
 import app.focusphone.R
+import app.focusphone.ui.theme.FocusPalette
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
-import app.focusphone.ui.theme.FocusPalette
 
 /**
  * Modern minimalist analog clock drawn on Canvas.

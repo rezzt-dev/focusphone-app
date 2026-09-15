@@ -1,0 +1,52 @@
+# Single source of truth for Kotlin formatting in this repository: both the IDE and
+# ktlint (`./gradlew ktlintCheck` / `ktlintFormat`) read this file, so "what the IDE
+# does" and "what CI enforces" can never drift apart.
+root = true
+
+[*]
+charset                  = utf-8
+end_of_line              = lf
+insert_final_newline     = true
+trim_trailing_whitespace = true
+indent_style             = space
+indent_size              = 4
+
+[*.{kt,kts}]
+# `intellij_idea` is the ktlint style that matches IntelliJ / Android Studio's "Kotlin
+# official" formatter, which is what `kotlin.code.style=official` in
+# `focusphone-project/gradle.properties` already selects for the IDE. Picking the
+# stricter `ktlint_official` style instead would mean reformatting the whole codebase
+# away from what the IDE produces on every "reformat code".
+ktlint_code_style = intellij_idea
+max_line_length   = 140
+
+# Trailing commas are not used anywhere in the codebase; allowing them here would make
+# ktlint *require* them and rewrite every multi-line call and declaration.
+ij_kotlin_allow_trailing_comma              = false
+ij_kotlin_allow_trailing_comma_on_call_site = false
+
+# ── Rules deliberately switched off ──────────────────────────────────────────────
+# Where a signature or an argument list is broken across lines is an authored
+# readability decision (see the aligned declarations all over this codebase). These
+# rules re-flow such code purely because it would fit on one line, which produces
+# large mechanical diffs without making anything more readable.
+ktlint_standard_function-signature     = disabled
+ktlint_standard_class-signature        = disabled
+ktlint_standard_argument-list-wrapping = disabled
+ktlint_standard_multiline-if-else      = disabled
+
+# The codebase aligns assignments and named arguments into columns
+# (`versionCode   = 3`, `compileSdk    = 36`); this rule collapses that alignment.
+ktlint_standard_no-multi-spaces = disabled
+
+[*.{xml,yml,yaml,json}]
+indent_size = 4
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{gradle,pro}]
+indent_size = 4
+
+[Makefile]
+indent_style = tab

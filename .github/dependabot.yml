@@ -1,0 +1,28 @@
+# Dependency updates in this repository are MANUAL.
+#
+# `gradle/libs.versions.toml` is the single source of truth for every dependency
+# and it is only ever edited by a human, in a commit that also carries the build,
+# lint and test verification for that bump. No bot opens version-update pull
+# requests here.
+#
+# `open-pull-requests-limit: 0` disables version updates for the ecosystem while
+# keeping this file as the explicit, reviewable statement of that policy. The
+# companion guard in `.github/workflows/dependency-policy.yml` fails any pull
+# request opened by a dependency bot, in case the setting is ever relaxed by
+# accident or from the repository settings UI.
+version: 2
+
+updates:
+  # Gradle version catalog (`focusphone-project/gradle/libs.versions.toml`).
+  - package-ecosystem: gradle
+    directory: /focusphone-project
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 0
+
+  # GitHub Actions pinned in `.github/workflows/`.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 0

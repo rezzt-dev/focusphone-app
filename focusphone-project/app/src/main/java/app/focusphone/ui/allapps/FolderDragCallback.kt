@@ -4,12 +4,12 @@ import android.graphics.Canvas
 import android.view.HapticFeedbackConstants
 import android.view.ViewConfiguration
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.drawable.toDrawable
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import app.focusphone.domain.model.AppInfo
 import app.focusphone.ui.theme.FocusPalette
 import kotlin.math.abs
-import androidx.core.graphics.drawable.toDrawable
 
 /**
  * Drag & drop of apps into folders in the "all apps" drawer.
@@ -119,6 +119,7 @@ class FolderDragCallback(
         when {
             // Pressed and released in place — a plain long press.
             maxTravel <= slop -> onLongPress(row.app)
+
             target != row.folderId -> onDrop(row.app, row.folderId, target)
         }
         maxTravel = 0f

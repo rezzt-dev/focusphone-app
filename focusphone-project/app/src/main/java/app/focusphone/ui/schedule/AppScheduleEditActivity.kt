@@ -237,9 +237,18 @@ class AppScheduleEditActivity : SettingsSubActivity() {
     /** Greys out the controls that belong to a restriction the user has switched off. */
     private fun updateEnabledState() {
         val windowAlpha = if (draft.windowEnabled) 1f else DISABLED_ALPHA
-        startValueView?.rowRoot()?.let { it.alpha = windowAlpha; it.isEnabled = draft.windowEnabled }
-        endValueView?.rowRoot()?.let { it.alpha = windowAlpha; it.isEnabled = draft.windowEnabled }
-        daysPanel?.let { it.alpha = windowAlpha; it.isEnabled = draft.windowEnabled }
+        startValueView?.rowRoot()?.let {
+            it.alpha = windowAlpha
+            it.isEnabled = draft.windowEnabled
+        }
+        endValueView?.rowRoot()?.let {
+            it.alpha = windowAlpha
+            it.isEnabled = draft.windowEnabled
+        }
+        daysPanel?.let {
+            it.alpha = windowAlpha
+            it.isEnabled = draft.windowEnabled
+        }
 
         limitSlider?.isEnabled = draft.hasDailyLimit
         limitLabel?.alpha = if (draft.hasDailyLimit) 1f else DISABLED_ALPHA

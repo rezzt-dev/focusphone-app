@@ -7,9 +7,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import app.focusphone.R
+import app.focusphone.databinding.ActivityScheduleBlockedBinding
 import app.focusphone.domain.model.ScheduleBlockReason
 import app.focusphone.domain.util.AppScheduleEvaluator
-import app.focusphone.databinding.ActivityScheduleBlockedBinding
 import app.focusphone.ui.base.BaseActivity
 import app.focusphone.ui.home.HomeActivity
 
@@ -36,9 +36,12 @@ class ScheduleBlockedActivity : BaseActivity() {
         renderReason()
 
         binding.btnBack.setOnClickListener { navigateHome() }
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() = navigateHome()
-        })
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() = navigateHome()
+            }
+        )
 
         applyFontFamilyToView(binding.root)
     }
@@ -68,7 +71,7 @@ class ScheduleBlockedActivity : BaseActivity() {
             packageManager.getApplicationLabel(
                 packageManager.getApplicationInfo(packageName, 0)
             ).toString().lowercase()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             packageName
         }
     }

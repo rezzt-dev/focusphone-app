@@ -1,0 +1,111 @@
+name: bug report
+description: something in the app behaves differently from what the documentation describes.
+title: "bug | "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        thanks for taking the time to report this.
+
+        **do not use this form for a security problem.** vulnerabilities go through
+        [private advisories](https://github.com/rezzt-dev/focusphone-app/security/advisories/new)
+        or `privacy@rezzt.dev`, as described in [`security.md`](https://github.com/rezzt-dev/focusphone-app/blob/main/security.md).
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: before reporting
+      options:
+        - label: i am on the latest published version, or on the latest code in the active branch.
+          required: true
+        - label: i searched the open and closed issues and this is not a duplicate.
+          required: true
+        - label: this is not a security vulnerability.
+          required: true
+
+  - type: textarea
+    id: what-happens
+    attributes:
+      label: what happens
+      description: the actual behaviour, in one or two sentences.
+      placeholder: the clock disappears from the home screen after switching profile.
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-should-happen
+    attributes:
+      label: what should happen instead
+      description: if the documentation states the expected behaviour, link the chapter.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: steps to reproduce
+      description: numbered, starting from a fresh launch of the app.
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: focusphone version
+      description: shown in **settings → about** (`versionName` and, if you know it, `versionCode`).
+      placeholder: "1.0.6 (versionCode 3)"
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: device and android version
+      placeholder: "pixel 6a — android 15"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: area
+      description: which part of the app the problem is in. pick the closest one.
+      options:
+        - home screen, gestures or clock
+        - all apps, folders or search
+        - profiles or detox
+        - app schedules
+        - conscious pause
+        - notifications or widgets
+        - appearance, themes, fonts or wallpaper
+        - onboarding, permissions or launcher setup
+        - settings, other or not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: how often it reproduces
+      options:
+        - every time
+        - often, but not always
+        - happened once
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: logs, stack trace or screenshots
+      description: |
+        a screen recording is worth more than a description for anything visual.
+        `adb logcat` output is pasted as text, not as an image.
+      render: text
+    validations:
+      required: false

@@ -1,14 +1,13 @@
 package app.focusphone.ui.home
 
-import androidx.core.content.edit
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -30,8 +29,12 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isNotEmpty
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -42,21 +45,18 @@ import app.focusphone.BuildConfig
 import app.focusphone.FocusPhoneApp
 import app.focusphone.R
 import app.focusphone.data.model.FavouriteApp
-import app.focusphone.data.preferences.FontPreferences
-import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.ConsciousPausePreferences
-import app.focusphone.data.preferences.ProfilePreferences
+import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.GesturePreferences
-import app.focusphone.data.preferences.NotificationPanelPreferences
 import app.focusphone.data.preferences.HomeLayoutPreferences
-import app.focusphone.data.preferences.WidgetPreferences
+import app.focusphone.data.preferences.NotificationPanelPreferences
+import app.focusphone.data.preferences.ProfilePreferences
+import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.TutorialPreferences
 import app.focusphone.data.preferences.WallpaperPreferences
+import app.focusphone.data.preferences.WidgetPreferences
 import app.focusphone.data.repository.NotificationRepository
 import app.focusphone.data.repository.PackageChangeMonitor
-import app.focusphone.ui.home.adapter.NotificationsAdapter
-import app.focusphone.ui.pause.ConsciousPauseActivity
-import app.focusphone.ui.detox.DetoxBlockedActivity
 import app.focusphone.databinding.ActivityHomeBinding
 import app.focusphone.domain.model.ClockType
 import app.focusphone.service.FocusAccessibilityService
@@ -64,17 +64,21 @@ import app.focusphone.service.FocusNotificationService
 import app.focusphone.ui.allapps.AllAppsActivity
 import app.focusphone.ui.appselect.AppSelectActivity
 import app.focusphone.ui.base.BaseActivity
+import app.focusphone.ui.detox.DetoxBlockedActivity
 import app.focusphone.ui.home.adapter.FavouriteAppsAdapter
+import app.focusphone.ui.home.adapter.NotificationsAdapter
 import app.focusphone.ui.onboarding.OnboardingActivity
+import app.focusphone.ui.pause.ConsciousPauseActivity
 import app.focusphone.ui.schedule.ScheduleDayLabels
 import app.focusphone.ui.settings.SettingsActivity
+import app.focusphone.ui.theme.FocusColors
 import app.focusphone.ui.theme.ScrimSurface
 import app.focusphone.ui.theme.SurfaceScrim
 import app.focusphone.ui.tutorial.TutorialContent
-import app.focusphone.ui.util.currentWindowWidthPx
 import app.focusphone.ui.tutorial.TutorialOverlayView
 import app.focusphone.ui.tutorial.TutorialPage
 import app.focusphone.ui.tutorial.TutorialTopic
+import app.focusphone.ui.util.currentWindowWidthPx
 import app.focusphone.ui.wallpaper.WallpaperStorage
 import app.focusphone.ui.wallpaper.WallpaperUtils
 import app.focusphone.ui.widget.AppWidgetHostManager
@@ -88,10 +92,6 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import app.focusphone.ui.theme.FocusColors
-import androidx.core.view.isVisible
-import androidx.core.view.isNotEmpty
-import androidx.core.graphics.drawable.toDrawable
 
 class HomeActivity : BaseActivity() {
 
@@ -111,8 +111,7 @@ class HomeActivity : BaseActivity() {
     )
 
     private val notificationsAdapter = NotificationsAdapter(
-        onClick = ::onNotificationClick,
-        onDismiss = ::dismissNotification
+        onClick = ::onNotificationClick
     )
 
     private var lastVerifyTime = 0L
@@ -128,7 +127,6 @@ class HomeActivity : BaseActivity() {
 
     /** Day of the month the calendar grid was last built for, or 0 when never built. */
     private var renderedCalendarDay = 0
-
 
     /**
      * A launcher stays resident for days, so the minute tick doubles as the midnight
@@ -188,14 +186,17 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun setupBackPress() {
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (!LauncherUtils.isDefaultLauncher(this@HomeActivity)) {
-                    isEnabled = false
-                    onBackPressedDispatcher.onBackPressed()
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (!LauncherUtils.isDefaultLauncher(this@HomeActivity)) {
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                    }
                 }
             }
-        })
+        )
     }
 
     override fun onResume() {
@@ -268,7 +269,7 @@ class HomeActivity : BaseActivity() {
                         pm.getPackageInfo(app.packageName, 0)
                     }
                     true
-                } catch (e: android.content.pm.PackageManager.NameNotFoundException) {
+                } catch (_: android.content.pm.PackageManager.NameNotFoundException) {
                     false
                 }
                 if (!exists) {
@@ -316,7 +317,7 @@ class HomeActivity : BaseActivity() {
 
     // ── Legibility scrims ──────────────────────────────────────────
 
-    /**
+    /*
      * The home screen owns three independent surfaces over a single wallpaper, so it places
      * its scrims itself instead of using the base class's full-screen one.
      *
@@ -324,6 +325,7 @@ class HomeActivity : BaseActivity() {
      * screen — while both drawers get the denser panel treatment, because a 12sp weekday
      * letter or a notification subtitle has no chance against an unfiltered photo.
      */
+
     /** The calendar and the launcher options live in the drawers, behind a panel scrim. */
     override fun contentSurface(): ScrimSurface = ScrimSurface.PANEL
 
@@ -430,56 +432,63 @@ class HomeActivity : BaseActivity() {
     // ── Gestures ───────────────────────────────────────────────────
 
     private fun setupGestureDetector() {
-        gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            private val SWIPE_THRESHOLD = 120
-            private val SWIPE_VELOCITY_THRESHOLD = 150
+        gestureDetector = GestureDetector(
+            this,
+            object : GestureDetector.SimpleOnGestureListener() {
+                private val SWIPE_THRESHOLD = 120
+                private val SWIPE_VELOCITY_THRESHOLD = 150
 
-            override fun onFling(
-                e1: MotionEvent?,
-                e2: MotionEvent,
-                velocityX: Float,
-                velocityY: Float
-            ): Boolean {
-                if (e1 == null) return false
-                val diffX = e1.x - e2.x
-                val diffY = e1.y - e2.y
+                override fun onFling(
+                    e1: MotionEvent?,
+                    e2: MotionEvent,
+                    velocityX: Float,
+                    velocityY: Float
+                ): Boolean {
+                    if (e1 == null) return false
+                    val diffX = e1.x - e2.x
+                    val diffY = e1.y - e2.y
 
-                // If any drawer is already open, do not allow fling to open the opposite one.
-                // The user must close the current drawer (tap outside or back) before switching.
-                val isAnyDrawerOpen = binding.drawerLayout.isDrawerOpen(androidx.core.view.GravityCompat.START) ||
+                    // If any drawer is already open, do not allow fling to open the opposite one.
+                    // The user must close the current drawer (tap outside or back) before switching.
+                    val isAnyDrawerOpen = binding.drawerLayout.isDrawerOpen(androidx.core.view.GravityCompat.START) ||
                         binding.drawerLayout.isDrawerOpen(androidx.core.view.GravityCompat.END)
-                if (isAnyDrawerOpen) return false
+                    if (isAnyDrawerOpen) return false
 
-                return when {
-                    // Horizontal swipe
-                    kotlin.math.abs(diffX) > kotlin.math.abs(diffY) -> {
-                        if (kotlin.math.abs(diffX) > SWIPE_THRESHOLD &&
-                            kotlin.math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD
-                        ) {
-                            when {
-                                // Swipe left (finger moving left) — open right menu drawer
-                                diffX > 0 -> {
-                                    binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.END)
-                                    true
+                    return when {
+                        // Horizontal swipe
+                        kotlin.math.abs(diffX) > kotlin.math.abs(diffY) -> {
+                            if (kotlin.math.abs(diffX) > SWIPE_THRESHOLD &&
+                                kotlin.math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD
+                            ) {
+                                when {
+                                    // Swipe left (finger moving left) — open right menu drawer
+                                    diffX > 0 -> {
+                                        binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.END)
+                                        true
+                                    }
+
+                                    // Swipe right (finger moving right) — open left notification drawer
+                                    diffX < 0 && NotificationPanelPreferences.isEnabled(this@HomeActivity) -> {
+                                        binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
+                                        true
+                                    }
+
+                                    else -> false
                                 }
-                                // Swipe right (finger moving right) — open left notification drawer
-                                diffX < 0 && NotificationPanelPreferences.isEnabled(this@HomeActivity) -> {
-                                    binding.drawerLayout.openDrawer(androidx.core.view.GravityCompat.START)
-                                    true
-                                }
-                                else -> false
-                            }
-                        } else false
+                            } else false
+                        }
+
+                        // Vertical swipe (down) — expand system notifications
+                        diffY < -SWIPE_THRESHOLD && kotlin.math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD -> {
+                            expandNotificationsPanel()
+                            true
+                        }
+
+                        else -> false
                     }
-                    // Vertical swipe (down) — expand system notifications
-                    diffY < -SWIPE_THRESHOLD && kotlin.math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD -> {
-                        expandNotificationsPanel()
-                        true
-                    }
-                    else -> false
                 }
             }
-        })
+        )
     }
 
     // The detector must observe the whole gesture stream at the activity level: a view
@@ -515,11 +524,13 @@ class HomeActivity : BaseActivity() {
     private fun setupClockTap() {
         val action = View.OnClickListener {
             haptic(it)
-            try { startActivity(Intent(AlarmClock.ACTION_SHOW_ALARMS)) }
-            catch (e: Exception) {
+            try {
+                startActivity(Intent(AlarmClock.ACTION_SHOW_ALARMS))
+            } catch (e: Exception) {
                 Log.w("HomeActivity", "Cannot open alarm app via ACTION_SHOW_ALARMS", e)
-                try { startActivity(Intent(AlarmClock.ACTION_SET_ALARM)) }
-                catch (e2: Exception) {
+                try {
+                    startActivity(Intent(AlarmClock.ACTION_SET_ALARM))
+                } catch (e2: Exception) {
                     Log.w("HomeActivity", "Cannot open alarm app via ACTION_SET_ALARM", e2)
                 }
             }
@@ -584,10 +595,12 @@ class HomeActivity : BaseActivity() {
                     clockView.visibility = if (clockVisible) View.VISIBLE else View.GONE
                     root.addView(clockView)
                 }
+
                 HomeLayoutPreferences.Component.WIDGET -> {
                     widgetView.visibility = if (widgetVisible) View.VISIBLE else View.GONE
                     root.addView(widgetView)
                 }
+
                 HomeLayoutPreferences.Component.APPS -> {
                     appsView.visibility = View.VISIBLE
                     root.addView(appsView)
@@ -705,7 +718,7 @@ class HomeActivity : BaseActivity() {
                     val finalOrder = adapter.commitReorder()
                     viewModel.onAppsReordered(finalOrder)
                 }
-                
+
                 override fun isLongPressDragEnabled(): Boolean = true
             }
         )
@@ -766,7 +779,9 @@ class HomeActivity : BaseActivity() {
 
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                val isLeftDrawer = (drawerView.layoutParams as androidx.drawerlayout.widget.DrawerLayout.LayoutParams).gravity == androidx.core.view.GravityCompat.START
+                val isLeftDrawer =
+                    (drawerView.layoutParams as androidx.drawerlayout.widget.DrawerLayout.LayoutParams).gravity ==
+                        androidx.core.view.GravityCompat.START
                 val moveFactor = if (isLeftDrawer) {
                     drawerView.width * slideOffset // push content to the right
                 } else {
@@ -780,7 +795,9 @@ class HomeActivity : BaseActivity() {
             }
 
             override fun onDrawerOpened(drawerView: View) {
-                val isLeftDrawer = (drawerView.layoutParams as androidx.drawerlayout.widget.DrawerLayout.LayoutParams).gravity == androidx.core.view.GravityCompat.START
+                val isLeftDrawer =
+                    (drawerView.layoutParams as androidx.drawerlayout.widget.DrawerLayout.LayoutParams).gravity ==
+                        androidx.core.view.GravityCompat.START
                 // Lock the opposite drawer so the user cannot slide directly to it
                 if (isLeftDrawer) {
                     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, androidx.core.view.GravityCompat.END)
@@ -823,7 +840,7 @@ class HomeActivity : BaseActivity() {
 
     private fun showIndicatorsWithTimeout() {
         hideRunnable?.let { binding.indicatorContainer.removeCallbacks(it) }
-        
+
         if (!binding.indicatorContainer.isVisible) {
             binding.indicatorContainer.visibility = View.VISIBLE
             binding.indicatorContainer.alpha = 0f
@@ -835,7 +852,7 @@ class HomeActivity : BaseActivity() {
             binding.indicatorContainer.animate().cancel()
             binding.indicatorContainer.alpha = 1f
         }
-        
+
         hideRunnable = Runnable {
             binding.indicatorContainer.animate()
                 .alpha(0f)
@@ -856,12 +873,14 @@ class HomeActivity : BaseActivity() {
                 setIndicatorBackground(binding.indicatorHome, filled = false)
                 setIndicatorBackground(binding.indicatorMenu, filled = false)
             }
+
             !isLeftDrawer && slideOffset > 0.5f -> {
                 // Menu drawer is open
                 setIndicatorBackground(binding.indicatorNotifications, filled = false)
                 setIndicatorBackground(binding.indicatorHome, filled = false)
                 setIndicatorBackground(binding.indicatorMenu, filled = true)
             }
+
             else -> {
                 // Home (or transitioning)
                 setIndicatorBackground(binding.indicatorNotifications, filled = false)
@@ -894,17 +913,17 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun setupDrawerMenu() {
-        binding.tvMenuAllApps.setOnClickListener { 
+        binding.tvMenuAllApps.setOnClickListener {
             binding.drawerLayout.closeDrawers()
-            openAllApps() 
+            openAllApps()
         }
-        binding.tvMenuSelectApps.setOnClickListener { 
+        binding.tvMenuSelectApps.setOnClickListener {
             binding.drawerLayout.closeDrawers()
-            openAppSelect() 
+            openAppSelect()
         }
-        binding.tvMenuSettings.setOnClickListener { 
+        binding.tvMenuSettings.setOnClickListener {
             binding.drawerLayout.closeDrawers()
-            openSettings() 
+            openSettings()
         }
         binding.tvMenuProfile.setOnClickListener {
             showProfileSelectionDialog()
@@ -1270,8 +1289,9 @@ class HomeActivity : BaseActivity() {
             }
         }
 
-        try { startActivity(launchIntent) }
-        catch (e: Exception) {
+        try {
+            startActivity(launchIntent)
+        } catch (e: Exception) {
             Log.e("HomeActivity", "Failed to launch app ${item.packageName}", e)
             Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
         }
@@ -1279,9 +1299,9 @@ class HomeActivity : BaseActivity() {
 
     // ── Navigation ─────────────────────────────────────────────────
 
-    private fun openAllApps()   = startActivity(Intent(this, AllAppsActivity::class.java))
+    private fun openAllApps() = startActivity(Intent(this, AllAppsActivity::class.java))
     private fun openAppSelect() = startActivity(Intent(this, AppSelectActivity::class.java))
-    private fun openSettings()  = startActivity(Intent(this, SettingsActivity::class.java))
+    private fun openSettings() = startActivity(Intent(this, SettingsActivity::class.java))
 
     // ── App actions ────────────────────────────────────────────────
 
@@ -1300,8 +1320,9 @@ class HomeActivity : BaseActivity() {
             }
             startActivity(intent)
         } else {
-            try { startActivity(launchIntent) }
-            catch (e: Exception) {
+            try {
+                startActivity(launchIntent)
+            } catch (e: Exception) {
                 Log.e("HomeActivity", "Failed to launch app ${app.packageName}", e)
                 Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
             }
@@ -1338,11 +1359,14 @@ class HomeActivity : BaseActivity() {
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_open       -> launchApp(app)
+
                 R.id.action_remove     -> viewModel.removeFavourite(app.packageName)
+
                 R.id.action_app_info   -> startActivity(
                     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                         .apply { data = Uri.fromParts("package", app.packageName, null) }
                 )
+
                 R.id.action_uninstall  -> {
                     if (BuildConfig.DEBUG) {
                         Log.d("FocusPhone", "Home uninstall clicked for ${app.packageName}")
@@ -1355,6 +1379,7 @@ class HomeActivity : BaseActivity() {
                         Toast.makeText(this@HomeActivity, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
                     }
                 }
+
                 else -> {
                     // Shortcut item
                     val shortcutIndex = item.itemId - MENU_ID_SHORTCUT_BASE
@@ -1434,11 +1459,6 @@ class HomeActivity : BaseActivity() {
         )
         val cellSize = maxOf(dp(28), (dayTextSizePx * 2f).toInt())
 
-        // Non-today numbers: primary text held back so today still stands out, but far more
-        // legible than the old secondary grey.
-        val dayColor = colors.primaryAt(0.82f)
-        val weekendColor = colors.primaryAt(0.60f)
-
         var dayCounter = 1
         val totalWeeks = kotlin.math.ceil((startOffset + maxDays) / 7.0).toInt()
 
@@ -1474,22 +1494,14 @@ class HomeActivity : BaseActivity() {
                 val hasDay = cellIndex >= startOffset && dayCounter <= maxDays
                 if (hasDay) {
                     val dayOfWeek = orderedDays[column]
-                    val isWeekend = dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY
                     dayView.text = String.format(Locale.getDefault(), "%d", dayCounter)
-
-                    if (dayCounter == currentDay) {
-                        dayView.setTextColor(colors.onAccent)
-                        dayView.background = GradientDrawable().apply {
-                            shape = GradientDrawable.OVAL
-                            setColor(colors.accent)
-                        }
-                        dayView.typeface = Typeface.create(typeface ?: Typeface.DEFAULT, Typeface.BOLD)
-                        dayView.contentDescription = getString(R.string.cd_today_indicator, dayCounter)
-                    } else {
-                        dayView.setTextColor(if (isWeekend) weekendColor else dayColor)
-                        dayView.typeface = typeface
-                        dayView.contentDescription = getString(R.string.cd_day_indicator, dayCounter)
-                    }
+                    styleCalendarDay(
+                        dayView,
+                        day = dayCounter,
+                        isToday = dayCounter == currentDay,
+                        isWeekend = dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY,
+                        typeface = typeface
+                    )
                     dayCounter++
                 } else {
                     dayView.text = ""
@@ -1504,6 +1516,34 @@ class HomeActivity : BaseActivity() {
 
         // The day of the month the grid was built for. Used to redraw at midnight.
         renderedCalendarDay = currentDay
+    }
+
+    /**
+     * Paints one day number in the calendar grid: today gets the accent disc, every other
+     * day gets primary text held back so today still stands out — weekends a little more
+     * so — while staying far more legible than a secondary grey would be.
+     */
+    private fun styleCalendarDay(
+        dayView: TextView,
+        day: Int,
+        isToday: Boolean,
+        isWeekend: Boolean,
+        typeface: Typeface?
+    ) {
+        val colors = effectivePalette
+        if (isToday) {
+            dayView.setTextColor(colors.onAccent)
+            dayView.background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(colors.accent)
+            }
+            dayView.typeface = Typeface.create(typeface ?: Typeface.DEFAULT, Typeface.BOLD)
+            dayView.contentDescription = getString(R.string.cd_today_indicator, day)
+        } else {
+            dayView.setTextColor(if (isWeekend) colors.primaryAt(0.60f) else colors.primaryAt(0.82f))
+            dayView.typeface = typeface
+            dayView.contentDescription = getString(R.string.cd_day_indicator, day)
+        }
     }
 
     // ── Gesture exclusion (Android 10+ back gesture conflict) ───────
@@ -1615,7 +1655,6 @@ class HomeActivity : BaseActivity() {
             titleRes = config.page.titleRes,
             descRes = config.page.bodyRes,
             step = step,
-            totalSteps = tutorialSteps.size,
             onDismiss = {
                 if (config.openMenuDrawer) {
                     binding.drawerLayout.closeDrawers()
@@ -1662,7 +1701,7 @@ class HomeActivity : BaseActivity() {
 
     companion object {
         private const val MENU_ID_SHORTCUT_BASE = 10_000
-        private const val TAG = "HomeActivity"
+
         /** Value of Context.STATUS_BAR_SERVICE, usable below API 33. */
         private const val STATUS_BAR_SERVICE_NAME = "statusbar"
     }

@@ -217,7 +217,9 @@ class AppFolderPreferences private constructor(
     private fun loadFolders(): List<AppFolder> {
         val raw = when (val stored = store.read(KEY_FOLDERS)) {
             StoredValue.Absent, StoredValue.Lost -> null
+
             is StoredValue.Present -> stored.value
+
             StoredValue.Unavailable -> {
                 foldersUnavailable = true
                 return emptyList()

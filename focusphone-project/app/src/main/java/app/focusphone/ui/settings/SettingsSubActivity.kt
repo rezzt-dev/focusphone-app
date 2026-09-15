@@ -6,9 +6,9 @@ import android.widget.LinearLayout
 import androidx.annotation.StringRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import app.focusphone.databinding.ActivitySettingsSubBinding
 import app.focusphone.ui.base.BaseActivity
-import androidx.core.view.updatePadding
 
 /**
  * Abstract base class for second-level settings screens.

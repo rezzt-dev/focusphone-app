@@ -532,9 +532,11 @@ forty-one</string>
     <string name="settings_wallpaper_readability">text legibility: %1$d%%</string>
     <string name="settings_wallpaper_readability_hint">how strongly panels are dimmed so text stays readable over your wallpaper</string>
     <string name="settings_wallpaper_blur_label">blur background</string>
-    <string name="settings_wallpaper_disabled_info">wallpaper hidden</string>
-    <string name="settings_wallpaper_disabled_info_desc">enable the switch above to choose a background image</string>
-    <string name="settings_wallpaper_enabled_desc">enable a background image behind the launcher</string>
+    <string name="settings_wallpaper_enabled_desc">show your images behind the launcher. they are kept while hidden</string>
+    <string name="settings_wallpaper_preview_cd">wallpaper preview. tap to choose or change the image</string>
+    <string name="settings_wallpaper_applying">applying…</string>
+    <string name="settings_wallpaper_choose">choose an image</string>
+    <string name="settings_wallpaper_use_home">use the home wallpaper</string>
     <string name="settings_wallpaper_enabled_label">show wallpaper</string>
     <string name="settings_wallpaper_home">home wallpaper</string>
     <string name="settings_wallpaper_home_desc">background for your home screen</string>
@@ -542,12 +544,13 @@ forty-one</string>
     <string name="settings_wallpaper_notifications">notifications wallpaper</string>
     <string name="settings_wallpaper_notifications_desc">background for the notification panel</string>
     <string name="settings_wallpaper_preview">preview</string>
-    <string name="settings_wallpaper_preview_hint">tap an option above to choose an image</string>
+    <string name="settings_wallpaper_preview_hint">tap to choose an image</string>
     <string name="settings_wallpaper_set">set</string>
     <string name="settings_wallpaper_settings">settings wallpaper</string>
     <string name="settings_wallpaper_settings_desc">background for the settings screens</string>
     <string name="settings_wallpaper_shared_desc">use the same image for home, notifications and settings</string>
-    <string name="settings_wallpaper_shared_hint">shared wallpaper</string>
+    <string name="settings_wallpaper_image">image</string>
+    <string name="settings_wallpaper_shared_row_desc">shown on home, notifications and settings</string>
     <string name="settings_wallpaper_shared_label">same wallpaper everywhere</string>
     <!-- Schedule-based app blocking -->
     <string name="schedule_title">app schedules</string>

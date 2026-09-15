@@ -48,8 +48,40 @@ object WallpaperPreferences {
     fun isUseSharedWallpaper(context: Context): Boolean =
         prefs(context).getBoolean(KEY_USE_SHARED_WALLPAPER, false)
 
+    /** Raw flag write. UI code switches modes through [setSharedMode] instead. */
     fun setUseSharedWallpaper(context: Context, enabled: Boolean) =
         prefs(context).edit { putBoolean(KEY_USE_SHARED_WALLPAPER, enabled) }
+
+    /**
+     * Turns the shared mode on or off without making any wallpaper disappear.
+     *
+     * The shared image lives in its own slot, which is empty until the mode is first used;
+     * flipping only the flag made every screen go blank at once. Turning the mode on
+     * therefore starts from the image already on screen (home first), and turning it off
+     * gives each screen back its own image, or the shared one when it never had its own.
+     *
+     * Run it inside [app.focusphone.ui.wallpaper.WallpaperStorage.update], which deletes
+     * the copy that stops being referenced.
+     */
+    fun setSharedMode(context: Context, enabled: Boolean) {
+        val prefs = prefs(context)
+        fun own(key: String) = prefs.getString(key, null)?.takeIf { it.isNotBlank() }
+        val surfaceKeys = arrayOf(KEY_HOME_WALLPAPER_URI, KEY_NOTIFICATIONS_WALLPAPER_URI, KEY_SETTINGS_WALLPAPER_URI)
+
+        prefs.edit {
+            if (enabled) {
+                if (own(KEY_SHARED_WALLPAPER_URI) == null) {
+                    surfaceKeys.firstNotNullOfOrNull(::own)?.let { putString(KEY_SHARED_WALLPAPER_URI, it) }
+                }
+            } else {
+                own(KEY_SHARED_WALLPAPER_URI)?.let { shared ->
+                    surfaceKeys.filter { own(it) == null }.forEach { putString(it, shared) }
+                }
+                remove(KEY_SHARED_WALLPAPER_URI)
+            }
+            putBoolean(KEY_USE_SHARED_WALLPAPER, enabled)
+        }
+    }
 
     fun getSharedWallpaperUri(context: Context): String? =
         prefs(context).getString(KEY_SHARED_WALLPAPER_URI, null)?.takeIf { it.isNotBlank() }

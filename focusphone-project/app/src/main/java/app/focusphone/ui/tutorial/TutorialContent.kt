@@ -62,11 +62,21 @@ object TutorialContent {
         guide(TutorialTopic.HOME, R.drawable.ic_tutorial_home, R.string.tutorial_coach_home_title, R.string.tutorial_coach_home_desc),
         guide(TutorialTopic.APPS, R.drawable.ic_add, R.string.tutorial_coach_apps_title, R.string.tutorial_coach_apps_desc),
         guide(TutorialTopic.MENU, R.drawable.ic_tutorial_home, R.string.tutorial_coach_menu_title, R.string.tutorial_coach_menu_desc),
-        guide(TutorialTopic.PROFILE, R.drawable.ic_tutorial_profiles, R.string.tutorial_coach_profile_title, R.string.tutorial_coach_profile_desc),
+        guide(
+            TutorialTopic.PROFILE,
+            R.drawable.ic_tutorial_profiles,
+            R.string.tutorial_coach_profile_title,
+            R.string.tutorial_coach_profile_desc
+        ),
         guide(TutorialTopic.BLOCK, R.drawable.ic_tutorial_block, R.string.tutorial_coach_block_title, R.string.tutorial_coach_block_desc),
         guide(TutorialTopic.RENAME, R.drawable.ic_tutorial_edit, R.string.tutorial_coach_rename_title, R.string.tutorial_coach_rename_desc),
         guide(TutorialTopic.DETOX, R.drawable.ic_tutorial_detox, R.string.tutorial_coach_detox_title, R.string.tutorial_coach_detox_desc),
-        guide(TutorialTopic.CUSTOMIZE, R.drawable.ic_tutorial_clock, R.string.tutorial_coach_customize_title, R.string.tutorial_coach_customize_desc)
+        guide(
+            TutorialTopic.CUSTOMIZE,
+            R.drawable.ic_tutorial_clock,
+            R.string.tutorial_coach_customize_title,
+            R.string.tutorial_coach_customize_desc
+        )
     )
 
     fun guidePage(topic: TutorialTopic): TutorialPage =

@@ -19,13 +19,13 @@ import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.databinding.ActivityOnboardingBinding
 import app.focusphone.ui.appselect.AppSelectActivity
 import app.focusphone.ui.base.BaseActivity
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import app.focusphone.ui.theme.FocusPalette
 import app.focusphone.ui.tutorial.TutorialAction
 import app.focusphone.ui.tutorial.TutorialContent
 import app.focusphone.ui.tutorial.TutorialPage
 import app.focusphone.util.LauncherUtils
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Enhanced onboarding flow for first-time users.
