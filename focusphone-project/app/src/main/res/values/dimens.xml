@@ -37,4 +37,5 @@
     <dimen name="theme_card_corner">12dp</dimen>
     <dimen name="theme_card_size">72dp</dimen>
     <dimen name="theme_card_border">2dp</dimen>
+    <dimen name="drawer_width">320dp</dimen>
 </resources>

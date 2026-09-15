@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
+    android:foreground="?attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:minHeight="56dp"
     android:orientation="horizontal"
@@ -14,23 +14,15 @@
     android:paddingEnd="24dp"
     android:paddingBottom="10dp">
 
-    <ImageView
-        android:id="@+id/iv_icon"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:contentDescription="@null"
-        android:scaleType="fitCenter"
-        tools:src="@mipmap/ic_launcher" />
-
     <TextView
         android:id="@+id/tv_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:fontFamily="sans-serif"
-        android:letterSpacing="0.01"
-        android:textColor="?attr/android:textColorPrimary"
-        android:textSize="16sp"
+        android:layout_marginStart="0dp"
+        android:fontFamily="sans-serif-light"
+        android:letterSpacing="0.02"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="17sp"
         tools:text="messages" />
 
 </LinearLayout>

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">focusphone</string>
+    <string name="calendar_date_format">%2$d %1$s | %3$d</string>
     <string name="app_label">focusphone</string>
 
     <string name="home_all_apps">toutes les apps</string>
     <string name="home_settings">réglages</string>
-    <string name="home_edit_apps">modifier les apps</string>
+    <string name="home_edit_apps">modifier le dashboard</string>
     <string name="home_long_press_hint">maintenez une app pour la retirer de la liste</string>
     <string name="home_no_apps">aucune app sélectionnée.\nappuyez sur le menu pour ajouter des apps.</string>
     <string name="home_menu_desc">ouvrir le menu</string>
@@ -21,8 +22,16 @@
     <string name="appselect_subtitle">sélectionnez les apps qui comptent le plus</string>
     <string name="appselect_search_hint">rechercher…</string>
     <string name="appselect_done">terminé</string>
-    <string name="appselect_selected_count">%1$d sur %2$d apps sélectionnées</string>
-    <string name="appselect_limit_reached">vous avez atteint la limite de %1$d apps</string>
+    <plurals name="appselect_selected_count">
+        <item quantity="one">%1$d sur %2$d app sélectionnée</item>
+        <item quantity="many">%1$d sur %2$d app sélectionnée</item>
+        <item quantity="other">%1$d sur %2$d apps sélectionnées</item>
+    </plurals>
+    <plurals name="appselect_limit_reached">
+        <item quantity="one">vous avez atteint la limite de %1$d app</item>
+        <item quantity="many">vous avez atteint la limite de %1$d app</item>
+        <item quantity="other">vous avez atteint la limite de %1$d apps</item>
+    </plurals>
 
     <string name="settings_title">réglages</string>
     <string name="settings_section_appearance">apparence</string>
@@ -31,6 +40,7 @@
     <string name="settings_theme_slate">ardoise</string>
     <string name="settings_theme_warm_beige">beige chaud</string>
     <string name="settings_theme_navy">bleu marine</string>
+    <string name="settings_theme_custom">personnalisé</string>
     
     <string name="settings_alignment">alignement</string>
     <string name="settings_alignment_left">gauche</string>
@@ -39,8 +49,14 @@
 
     <string name="settings_section_clock">horloge</string>
     <string name="settings_clock_style_label">style d\'horloge</string>
+    <string name="settings_clock_size">taille de l\'horloge</string>
+    <string name="settings_text_size">taille du texte</string>
+    <string name="settings_text_size_pt">taille du texte : %1$dpt</string>
     <string name="settings_section_font">police</string>
+    <string name="settings_section_text_layout">texte et disposition</string>
     <string name="settings_font_label">police du launcher</string>
+    <string name="font_select_title">sélectionner la police</string>
+    <string name="settings_font_system">système</string>
     <string name="settings_section_launcher">launcher</string>
     <string name="settings_set_default">définir comme launcher</string>
     <string name="settings_set_default_desc">ouvrir les réglages système</string>
@@ -49,6 +65,8 @@
     <string name="settings_privacy_policy">politique de confidentialité</string>
     <string name="settings_open_source">licences open source</string>
     <string name="settings_back">retour</string>
+    <string name="settings_developed_by">développé par rezzt.dev</string>
+    <string name="nav_back">retour</string>
 
     <string name="settings_section_language">langue</string>
     <string name="settings_language_system">par défaut du système</string>
@@ -67,10 +85,550 @@
     <string name="onboarding_step2_body">pour utiliser focusphone comme écran d\'accueil, définissez-le comme launcher par défaut dans les réglages système.</string>
     <string name="onboarding_step2_action">définir par défaut</string>
     <string name="onboarding_step3_title">choisissez vos apps.</string>
-    <string name="onboarding_step3_body">sélectionnez jusqu\'à 6 apps dont vous avez vraiment besoin. vous pouvez les modifier à tout moment.</string>
+    <string name="onboarding_step3_body">sélectionnez jusqu\'à 10 apps dont vous avez vraiment besoin. vous pouvez les modifier à tout moment.</string>
     <string name="onboarding_step3_action">sélectionner les apps</string>
+    <string name="onboarding_back">retour</string>
+
+    <!-- Enhanced Onboarding -->
+    <string name="onboarding_step_welcome_title">bienvenue sur focusphone.</string>
+    <string name="onboarding_step_welcome_body">votre espace numérique, simplifié. nous croyons que votre téléphone doit vous servir, pas vous distraire.</string>
+    <string name="onboarding_step_welcome_tagline">moins de bruit. plus de focus.</string>
+    <string name="onboarding_step_philosophy_title">l\'idée est simple.</string>
+    <string name="onboarding_step_philosophy_body">seulement les apps dont vous avez vraiment besoin. pas d\'icônes qui crient pour attirer l\'attention. pas de défilements infinis. juste du calme.</string>
+    <string name="onboarding_step_launcher_title">définissez comme launcher par défaut.</string>
+    <string name="onboarding_step_launcher_body">pour vivre pleinement l\'expérience focusphone, faites-en votre écran d\'accueil. touchez ci-dessous pour ouvrir les réglages système.</string>
+    <string name="onboarding_step_launcher_action">ouvrir les réglages du launcher</string>
+    <string name="onboarding_step_launcher_verified">launcher configuré correctement.</string>
+    <string name="onboarding_step_launcher_not_verified">pas encore défini par défaut.</string>
+    <string name="onboarding_step_apps_title">choisissez vos essentielles.</string>
+    <string name="onboarding_step_apps_body">sélectionnez jusqu\'à 10 apps qui comptent vraiment. tout le reste reste hors de vue, mais accessible.</string>
+    <string name="onboarding_step_apps_action">sélectionner les apps</string>
+    <string name="onboarding_step_profiles_title">des profils pour chaque moment.</string>
+    <string name="onboarding_step_profiles_body">normal pour tout. travail pour bloquer les distractions. detox pour un silence numérique complet.</string>
+    <string name="onboarding_step_customize_title">faites-le vôtre.</string>
+    <string name="onboarding_step_customize_body">choisissez un thème et un style d\'horloge qui vous correspondent. vous pourrez toujours changer plus tard.</string>
+    <string name="onboarding_step_complete_title">vous êtes prêt.</string>
+    <string name="onboarding_step_complete_body">votre écran d\'accueil calme et focalisé vous attend. souvenez-vous : glissez à gauche pour le menu, à droite pour les notifications.</string>
+    <string name="onboarding_step_complete_action">entrer dans focusphone</string>
+
+    <!-- Tutorial Coach Marks -->
+    <string name="tutorial_coach_home_title">votre foyer tranquille</string>
+    <string name="tutorial_coach_home_desc">c\'est votre nouvel écran d\'accueil. juste l\'heure, la date et vos apps choisies. pas d\'icônes, pas de bruit.</string>
+    <string name="tutorial_coach_menu_title">le menu</string>
+    <string name="tutorial_coach_menu_desc">glissez vers la gauche pour ouvrir le menu. d\'ici vous pouvez accéder à toutes les apps, aux réglages et changer de profil.</string>
+    <string name="tutorial_coach_apps_title">ajouter des apps</string>
+    <string name="tutorial_coach_apps_desc">touchez "sélectionner les apps" pour choisir jusqu\'à 10 favoris. maintenez une app pour la retirer.</string>
+    <string name="tutorial_coach_profile_title">profils contextuels</string>
+    <string name="tutorial_coach_profile_desc">touchez votre nom de profil pour changer de mode. travail bloque les distractions. detox bloque tout.</string>
+    <string name="tutorial_coach_block_title">bloquer des apps</string>
+    <string name="tutorial_coach_block_desc">dans la liste de toutes les apps, maintenez-en une pour bloquer son accès en mode travail ou detox.</string>
+    <string name="tutorial_coach_rename_title">renommer des apps</string>
+    <string name="tutorial_coach_rename_desc">maintenez n\'importe quelle app et choisissez renommer pour lui donner un nom propre et minimaliste.</string>
+    <string name="tutorial_coach_detox_title">mode detox</string>
+    <string name="tutorial_coach_detox_desc">lancez une session detox quand vous avez besoin d\'un focus total. définissez une durée et un mot de passe pour tenir bon.</string>
+    <string name="tutorial_coach_customize_title">personnalisation avancée</string>
+    <string name="tutorial_coach_customize_desc">explorez les réglages pour changer les thèmes, polices, styles d\'horloge, alignement et bien plus.</string>
+    <string name="tutorial_coach_got_it">compris</string>
 
     <string name="error_app_not_found">impossible d\'ouvrir l\'app</string>
     <string name="cd_back_button">retour</string>
     <string name="cd_remove_app">retirer %1$s de l\'accueil</string>
+    <string name="detox_duration_custom">personnaliser…</string>
+    <string name="detox_custom_title">durée personnalisée</string>
+    <string name="detox_custom_hours">heures</string>
+    <string name="detox_custom_minutes">minutes</string>
+    <string name="detox_btn_cancel">annuler</string>
+    <string name="detox_btn_done">valider</string>
+    <string name="detox_lock_title">verrouiller detox</string>
+    <string name="detox_lock_desc">définissez un mot de passe (min 4 caractères) pour verrouiller le mode detox :</string>
+    <string name="detox_password_hint">mot de passe</string>
+    <string name="detox_btn_start">démarrer</string>
+    <string name="detox_unlock_title">déverrouiller detox</string>
+    <string name="detox_unlock_desc">entrez le mot de passe pour désactiver le mode detox :</string>
+    <string name="detox_btn_unlock">déverrouiller</string>
+    <string name="error_incorrect_password">mot de passe incorrect</string>
+    <string name="error_min_characters">minimum 4 caractères</string>
+    <string name="error_invalid_duration">durée invalide</string>
+    <!-- Settings Sections -->
+    <string name="settings_section_tutorial">tutoriel</string>
+    <string name="settings_tutorial_title">tutoriel interactif</string>
+    <string name="settings_tutorial_desc" formatted="false">apprenez à utiliser 100% des fonctions de focusphone</string>
+
+    <!-- Tutorial Slides -->
+    <string name="tutorial_slide_1_title">minimalisme &amp; accueil</string>
+    <string name="tutorial_slide_1_desc">votre écran d\'accueil propre, débarrassé des icônes bruyantes et distrayantes, optimisé pour l\'essentiel.</string>
+    <string name="tutorial_slide_2_title">épingler des apps</string>
+    <string name="tutorial_slide_2_desc">maintenez un espace vide sur l\'écran d\'accueil ou utilisez le sélecteur de favoris pour épingler jusqu\'à 6 apps indispensables.</string>
+    <string name="tutorial_slide_3_title">profils contextuels</string>
+    <string name="tutorial_slide_3_desc">basculez de profil (normal, travail ou detox) depuis le menu latéral pour contrôler les apps visibles et filtrer les distractions.</string>
+    <string name="tutorial_slide_4_title">bloquer les distractions</string>
+    <string name="tutorial_slide_4_desc">dans la liste de toutes les applications, maintenez une app pour bloquer son accès en mode travail ou detox.</string>
+    <string name="tutorial_slide_5_title">renommer &amp; personnaliser</string>
+    <string name="tutorial_slide_5_desc">maintenez n\'importe quelle app dans le tiroir d\'applications pour la renommer en un nom propre, épuré et sans marque.</string>
+    <string name="tutorial_slide_6_title">mode detox absolu</string>
+    <string name="tutorial_slide_6_desc">lancez une session detox avec durée personnalisée et mot de passe obligatoire pour éviter de désactiver le mode trop tôt.</string>
+    <string name="tutorial_slide_7_title">pause consciente</string>
+    <string name="tutorial_slide_7_desc">ajoutez un timer de respiration avant d\'ouvrir les applications sélectionnées pour réfléchir avant de vous laisser distraire.</string>
+    <string name="tutorial_slide_8_title">horloge &amp; personnalisation</string>
+    <string name="tutorial_slide_8_desc">personnalisez le style et la taille de l\'horloge, alignez le texte et décidez d\'afficher ou de masquer la barre de statut supérieure.</string>
+    <string name="tutorial_btn_next">suivant</string>
+    <string name="tutorial_btn_back">retour</string>
+    <string name="tutorial_btn_finish">terminer</string>
+
+    <!-- Panneau de notifications -->
+    <string name="settings_notification_panel_title">activer le panneau de notifications</string>
+    <string name="settings_notification_panel_desc">balayez vers la droite sur l\'écran d\'accueil pour voir les notifications</string>
+    <string name="notification_panel_title">notifications</string>
+    <string name="notification_empty">aucune notification</string>
+    <string name="cd_notification_indicator">indicateur de page notifications</string>
+
+    <!-- Misc -->
+    <string name="action_cancel">annuler</string>
+    <string name="action_ok">OK</string>
+    <string name="action_reset">réinitialiser</string>
+    <string name="action_save">enregistrer</string>
+    <string name="allapps_dialog_rename">renommer</string>
+    <string name="allapps_dialog_block">bloquer en mode travail</string>
+    <string name="allapps_dialog_unblock">autoriser en mode travail</string>
+    <string name="allapps_dialog_uninstall">désinstaller</string>
+    <string name="allapps_toast_blocked">%1$s bloquée</string>
+    <string name="allapps_toast_keywords_saved">mots-clés enregistrés</string>
+
+    <!-- Dossiers d'applications (liste de toutes les apps) -->
+    <string name="allapps_new_folder">nouveau dossier</string>
+    <string name="allapps_folder_name_hint">nom du dossier</string>
+    <string name="allapps_folder_name_taken">ce dossier existe déjà</string>
+    <string name="allapps_folder_rename_title">renommer le dossier</string>
+    <string name="allapps_folder_delete_title">supprimer le dossier</string>
+    <string name="allapps_folder_delete_message">supprimer \"%1$s\" ? les apps qu\'il contient reviendront dans la liste.</string>
+    <string name="allapps_folder_delete_confirm">supprimer</string>
+    <string name="allapps_folder_empty">vide</string>
+    <string name="allapps_dialog_move_to_folder">déplacer vers un dossier</string>
+    <string name="allapps_dialog_remove_from_folder">sortir du dossier</string>
+    <string name="allapps_folder_choose_title">déplacer %1$s</string>
+    <string name="allapps_folder_choose_new">nouveau dossier…</string>
+    <string name="allapps_toast_folder_created">%1$s créé</string>
+    <string name="allapps_toast_folder_deleted">%1$s supprimé</string>
+    <string name="allapps_toast_moved_to_folder">%1$s déplacée vers %2$s</string>
+    <string name="allapps_toast_removed_from_folder">%1$s sortie de %2$s</string>
+    <string name="cd_folder_item">dossier %1$s</string>
+    <string name="allapps_toast_unblocked">%1$s autorisée</string>
+    <string name="search_empty_state">aucune app trouvée</string>
+    <string name="uninstall_progress">désinstallation de l\'app…</string>
+    <string name="error_uninstall_failed">impossible d\'ouvrir la boîte de désinstallation</string>
+    <string name="menu_uninstall_app">désinstaller</string>
+    <string name="settings_chevron">›</string>
+
+    <!-- Onboarding counter -->
+    <string name="onboarding_step_counter">page %1$d sur %2$d</string>
+
+    <!-- Settings: Onboarding -->
+    <string name="settings_tutorial_restart_title">redémarrer le tutoriel</string>
+    <string name="settings_tutorial_restart_desc">revivre le guide contextuel interactif</string>
+    <string name="settings_restart_tutorial_confirm">cela redémarrera le tutoriel interactif. continuer ?</string>
+    <string name="settings_onboarding_title">redémarrer l\'onboarding</string>
+    <string name="settings_onboarding_desc">revoir le guide de configuration initial</string>
+
+    <!-- Settings: Security -->
+    <string name="settings_section_security">sécurité</string>
+    <string name="settings_accessibility_title">blocage système</string>
+    <string name="settings_accessibility_desc">activez le service d\'accessibilité pour un vrai blocage d\'apps</string>
+    <string name="settings_accessibility_active">actif</string>
+    <string name="settings_accessibility_inactive">inactif</string>
+
+    <!-- Settings: Work Profile -->
+    <string name="settings_section_work_profile">profil de travail</string>
+    <string name="settings_work_keywords_title">mots-clés mode travail</string>
+    <string name="settings_work_keywords_desc">les apps correspondant à ces mots-clés sont bloquées en mode travail</string>
+    <string name="settings_work_keywords_hint">un mot-clé par ligne\nex: instagram\nfacebook</string>
+    <string name="cd_work_keywords_toggle">afficher/masquer le panneau de mots-clés</string>
+
+    <!-- Settings: Notifications -->
+    <string name="settings_section_notifications">notifications</string>
+    <string name="settings_section_system">système</string>
+    <string name="settings_notification_access_title">accès aux notifications</string>
+    <string name="settings_notification_access_desc">autoriser focusphone à lire les notifications système</string>
+    <string name="settings_notification_access_active">actif</string>
+    <string name="settings_notification_access_inactive">inactif</string>
+
+    <!-- Settings: Gestures -->
+    <string name="settings_section_gestures">gestes</string>
+    <string name="settings_swipe_down_title">glisser vers le bas pour les notifications</string>
+    <string name="settings_swipe_down_desc">glissez vers le bas sur l\'écran d\'accueil pour ouvrir le panneau de notifications</string>
+
+    <!-- Settings: Widget -->
+    <string name="settings_section_widget">widget</string>
+    <string name="settings_widget_title">widget d\'accueil</string>
+    <string name="settings_widget_desc">ajoutez un widget système à votre écran d\'accueil</string>
+    <string name="settings_widget_add">ajouter un widget</string>
+    <string name="settings_widget_remove">retirer le widget</string>
+    <string name="settings_widget_none">aucun</string>
+    <string name="settings_widget_remove_confirm">retirer le widget actuel de l\'écran d\'accueil ?</string>
+    <string name="widget_config_title">sélectionner le widget</string>
+
+    <!-- Settings: Permissions -->
+    <string name="settings_section_permissions">permissions</string>
+    <string name="settings_permissions_title">permissions de l\'app</string>
+    <string name="settings_permissions_desc">consultez et activez les permissions système requises</string>
+    <string name="permissions_title">permissions</string>
+    <string name="permissions_query_all_packages_title">interroger toutes les apps</string>
+    <string name="permissions_query_all_packages_desc">requis pour lister les apps installées</string>
+    <string name="permissions_accessibility_title">service d\'accessibilité</string>
+    <string name="permissions_accessibility_desc">requis pour le blocage d\'apps au niveau système</string>
+    <string name="permissions_launcher_title">launcher par défaut</string>
+    <string name="permissions_launcher_desc">requis pour remplacer l\'écran d\'accueil</string>
+    <string name="permissions_status_granted">accordée</string>
+    <string name="permissions_status_denied">refusée</string>
+    <string name="permissions_status_active">actif</string>
+    <string name="permissions_status_inactive">inactif</string>
+    <string name="permissions_go_to_settings">ouvrir les réglages</string>
+
+    <!-- Settings: Theme -->
+    <string name="settings_theme_auto">automatique</string>
+    <string name="theme_select_title">sélectionner le thème</string>
+    <string name="settings_custom_theme">thème personnalisé</string>
+    <string name="settings_custom_theme_bg">couleur d\'arrière-plan</string>
+    <string name="settings_custom_theme_fg">couleur de premier plan</string>
+    <string name="settings_custom_theme_apply">appliquer</string>
+    <string name="settings_custom_theme_invalid">saisis deux couleurs au format #rrggbb</string>
+
+    <!-- Settings: Clock -->
+    <string name="settings_clock_thin">fin</string>
+    <string name="settings_clock_light">léger</string>
+    <string name="settings_clock_regular">normal</string>
+    <string name="settings_clock_bold">gras</string>
+    <string name="settings_clock_digital">digital</string>
+    <string name="settings_clock_stacked">empile</string>
+    <string name="settings_clock_words">mots</string>
+    <string name="settings_clock_analog">analogique</string>
+    <string name="settings_clock_hidden">masque</string>
+
+    <!-- Settings: Status Bar -->
+    <string name="settings_hide_status_bar">masquer la barre de statut</string>
+    <string name="settings_hide_status_bar_desc">masque la barre supérieure pour un minimalisme maximal</string>
+
+    <!-- Contextual Profiles & Detox -->
+    <string name="home_profile_label">profil sélectionné : %1$s</string>
+    <string name="profile_normal">normal</string>
+    <string name="profile_work">travail</string>
+    <string name="profile_detox">detox</string>
+    <string name="profile_select_title">sélectionner le profil</string>
+    <string name="profile_detox_select_duration">durée du detox</string>
+    <string name="detox_duration_15m">15 minutes</string>
+    <string name="detox_duration_30m">30 minutes</string>
+    <string name="detox_duration_1h">1 heure</string>
+    <string name="detox_duration_2h">2 heures</string>
+    <string name="detox_blocked_title">detox actif</string>
+    <string name="detox_blocked_desc">vous êtes en mode detox. prenez un moment pour vous reconnecter au monde réel.</string>
+    <string name="detox_remaining_time">restant : %1$s</string>
+    <string name="detox_label">detox</string>
+    <string name="detox_accessibility_title">activer le blocage système</string>
+    <string name="detox_accessibility_desc">pour que detox bloque les apps lancées depuis les notifications ou les récents, activez le service d\'accessibilité focusphone.</string>
+    <string name="detox_accessibility_enable">activer</string>
+    <string name="detox_accessibility_continue">continuer quand même</string>
+    <string name="tutorial_slide_counter">%1$d / %2$d</string>
+
+    <!-- Conscious Pause -->
+    <string name="settings_section_conscious_pause">pause consciente</string>
+    <string name="settings_conscious_pause_desc">respirez profondément avant d\'ouvrir une app</string>
+    <plurals name="settings_conscious_pause_duration">
+        <item quantity="one">durée de la pause : %1$d seconde</item>
+        <item quantity="many">durée de la pause : %1$d seconde</item>
+        <item quantity="other">durée de la pause : %1$d secondes</item>
+    </plurals>
+    <string name="settings_conscious_pause_title">activer la pause consciente</string>
+    <string name="pause_inhale">inspirez…</string>
+    <string name="pause_exhale">expirez…</string>
+    <string name="pause_hold">retenez…</string>
+    <string name="pause_mindful_question">êtes-vous sûr de vouloir ouvrir %1$s ?</string>
+    <string name="pause_cancel">annuler</string>
+
+    <!-- Tutorial Arrows -->
+
+    <!-- Custom App Names -->
+    <string name="customize_name_title">personnaliser le nom</string>
+    <string name="customize_name_message">entrez un nom personnalisé pour %1$s :</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_align_left">aligner à gauche</string>
+    <string name="cd_align_center">aligner au centre</string>
+    <string name="cd_align_right">aligner à droite</string>
+    <string name="cd_analog_clock">horloge analogique</string>
+    <string name="cd_app_item">ouvrir %1$s</string>
+    <string name="cd_custom_theme_toggle">afficher/masquer le panneau de thème personnalisé</string>
+    <string name="cd_day_indicator">jour %1$d</string>
+    <string name="cd_home_indicator">indicateur de page d\'accueil</string>
+    <string name="cd_language_toggle">afficher/masquer la sélection de langue</string>
+    <string name="cd_menu_indicator">indicateur de page de menu</string>
+    <string name="cd_select_indicator">basculer le favori</string>
+    <string name="cd_today_indicator">aujourd\'hui, %1$d</string>
+
+    <!-- Privacy Policy Fallback -->
+    <string name="settings_privacy_policy_fallback">consultez privacy_policy.html dans les assets de l\'app.</string>
+
+    <!-- Language fallback -->
+    <string name="settings_language_system_unsupported">système (english us)</string>
+    <string name="settings_clock_fixed_top">horloge fixee en haut</string>
+    <string name="settings_clock_fixed_top_desc">garder l horloge en haut au lieu de centree avec les apps</string>
+    <string name="about_settings_title">à propos</string>
+    <string name="appearance_settings_title">apparence</string>
+    <string name="cd_apps">composant apps</string>
+    <string name="cd_clear_all">effacer toutes les notifications</string>
+    <string name="cd_clock">composant horloge</string>
+    <string name="cd_drag_handle">glisser pour réorganiser</string>
+    <string name="cd_toggle_visibility">basculer la visibilité</string>
+    <string name="cd_widget">composant widget</string>
+    <string name="cd_widget_icon">icône du widget</string>
+    <string name="focus_settings_title">focus</string>
+    <string name="home_layout_add_widget">ajouter un widget</string>
+    <string name="home_layout_apps">apps</string>
+    <string name="home_layout_clock">horloge</string>
+    <string name="home_layout_clock_size">taille de l\'horloge</string>
+    <string name="home_layout_done">terminé</string>
+    <string name="home_layout_order">ordre</string>
+    <string name="home_layout_preview">aperçu</string>
+    <string name="home_layout_settings_desc">réorganiser et redimensionner les composants de l\'écran d\'accueil</string>
+    <string name="home_layout_settings_title">disposition d\'accueil</string>
+    <string name="home_layout_sizes">tailles</string>
+    <string name="home_layout_title">disposition d\'accueil</string>
+    <string name="home_layout_widget">widget</string>
+    <string name="home_layout_widget_size">taille du widget</string>
+    <string name="home_settings_title">écran d\'accueil</string>
+    <string name="notification_clear_all">tout effacer</string>
+    <string name="notification_settings_title">notifications</string>
+    <string name="settings_accessibility_section_desc">bloquer les apps ouvertes en dehors de focusphone</string>
+    <string name="settings_alignment_desc">aligner le contenu de l\'écran d\'accueil</string>
+    <string name="settings_app_spacing">espacement des apps</string>
+    <string name="settings_app_spacing_desc">espace entre les apps favorites</string>
+    <string name="settings_app_spacing_dp">espacement des apps : %1$ddp</string>
+    <string name="settings_category_about_subtitle">version, tutoriel, onboarding et licences</string>
+    <string name="settings_category_about_title">à propos</string>
+    <string name="settings_category_appearance_subtitle">thème, police, couleurs et alignement</string>
+    <string name="settings_category_appearance_title">apparence</string>
+    <string name="settings_category_focus_subtitle">pause consciente, horaires des applis et mots-clés du mode travail</string>
+    <string name="settings_category_focus_title">focus</string>
+    <string name="settings_category_home_subtitle">horloge, widget, espacement et disposition</string>
+    <string name="settings_category_home_title">écran d\'accueil</string>
+    <string name="settings_category_notifications_subtitle">pastilles, panneau de notifications et gestes</string>
+    <string name="settings_category_notifications_title">notifications</string>
+    <string name="settings_category_system_subtitle">permissions, accessibilité, launcher et langue</string>
+    <string name="settings_category_system_title">système</string>
+    <string name="settings_clock_size_desc">agrandir ou réduire l\'horloge</string>
+    <string name="settings_clock_type_desc">choisir comment l\'heure est affichée</string>
+    <string name="settings_conscious_pause_section_desc">respirer avant d\'ouvrir des apps</string>
+    <string name="settings_font_desc">choisir la police pour tout le launcher</string>
+    <string name="settings_home_layout_desc">réorganiser et redimensionner les composants d\'accueil</string>
+    <string name="settings_language_desc">changer la langue de l\'app</string>
+    <string name="settings_notification_badges_section_desc">afficher les compteurs non lus à côté des apps</string>
+    <string name="settings_notification_panel_desc_short">glisser à droite pour voir les notifications</string>
+    <string name="settings_open_source_desc">licences des logiciels tiers</string>
+    <string name="settings_permissions_desc_short">consulter les permissions système requises</string>
+    <string name="settings_restart_onboarding_confirm">cela redémarrera le guide de configuration initial. continuer ?</string>
+    <string name="settings_section_wallpaper">fond d\'écran</string>
+    <string name="settings_set_default_desc_short">faire de focusphone votre écran d\'accueil</string>
+    <string name="settings_text_size_desc">ajuster la taille de tout le texte</string>
+    <string name="settings_theme_desc">choisir votre palette de couleurs</string>
+    <string name="settings_widget_settings_desc">ajouter ou supprimer un widget système</string>
+    <string name="settings_work_keywords_section_desc">bloquer les apps par nom en mode travail</string>
+    <string name="system_settings_title">système</string>
+    <string name="widget_picker_empty">aucun widget disponible</string>
+    <string name="widget_picker_loading">chargement des widgets…</string>
+    <string name="widget_picker_subtitle">choisir un widget à ajouter à l\'écran d\'accueil</string>
+    <string name="widget_picker_title">sélectionner le widget</string>
+    <string name="settings_wallpaper_blur_desc">adoucir l\'arrière-plan pour une meilleure lisibilité</string>
+    <string name="settings_wallpaper_blur_intensity">intensité du flou : %1$d%%</string>
+
+    <string name="settings_wallpaper_readability">lisibilité du texte : %1$d%%</string>
+    <string name="settings_wallpaper_readability_hint">à quel point les panneaux sont assombris pour que le texte reste lisible sur votre fond d’écran</string>
+    <string name="settings_wallpaper_blur_label">flouter l\'arrière-plan</string>
+    <string name="settings_wallpaper_enabled_desc">afficher vos images derrière le launcher. elles sont conservées une fois masquées</string>
+    <string name="settings_wallpaper_preview_cd">aperçu du fond d\'écran. touchez pour choisir ou changer l\'image</string>
+    <string name="settings_wallpaper_applying">application…</string>
+    <string name="settings_wallpaper_choose">choisir une image</string>
+    <string name="settings_wallpaper_use_home">utiliser le fond d\'accueil</string>
+    <string name="settings_wallpaper_enabled_label">afficher le fond d\'écran</string>
+    <string name="settings_wallpaper_home">fond d\'accueil</string>
+    <string name="settings_wallpaper_home_desc">fond pour votre écran d\'accueil</string>
+    <string name="settings_wallpaper_not_set">non défini</string>
+    <string name="settings_wallpaper_notifications">fond de notifications</string>
+    <string name="settings_wallpaper_notifications_desc">fond pour le panneau de notifications</string>
+    <string name="settings_wallpaper_preview">aperçu</string>
+    <string name="settings_wallpaper_preview_hint">touchez pour choisir une image</string>
+    <string name="settings_wallpaper_set">défini</string>
+    <string name="settings_wallpaper_settings">fond des réglages</string>
+    <string name="settings_wallpaper_settings_desc">fond pour les écrans de réglages</string>
+    <string name="settings_wallpaper_shared_desc">utiliser une seule image pour l\'accueil, les notifications et les réglages</string>
+    <string name="settings_wallpaper_image">image</string>
+    <string name="settings_wallpaper_shared_row_desc">affichée sur l\'accueil, les notifications et les réglages</string>
+    <string name="settings_wallpaper_shared_label">même fond partout</string>
+    <string name="clock_am">am</string>
+    <string name="clock_pm">pm</string>
+    <string name="notification_now">maintenant</string>
+    <string name="app_unknown">app</string>
+    <string name="home_layout_drag_hint">glisser les composants pour réorganiser</string>
+    <string name="home_layout_long_press_hint">appuyer longuement sur l\'aperçu pour modifier</string>
+    <string name="clock_preview_words">neuf
+quarante et une</string>
+
+    <string-array name="clock_words_hours">
+        <item>douze</item>
+        <item>une</item>
+        <item>deux</item>
+        <item>trois</item>
+        <item>quatre</item>
+        <item>cinq</item>
+        <item>six</item>
+        <item>sept</item>
+        <item>huit</item>
+        <item>neuf</item>
+        <item>dix</item>
+        <item>onze</item>
+    </string-array>
+
+    <string-array name="clock_words_minutes">
+        <item>heures</item>
+        <item>une</item>
+        <item>deux</item>
+        <item>trois</item>
+        <item>quatre</item>
+        <item>cinq</item>
+        <item>six</item>
+        <item>sept</item>
+        <item>huit</item>
+        <item>neuf</item>
+        <item>dix</item>
+        <item>onze</item>
+        <item>douze</item>
+        <item>treize</item>
+        <item>quatorze</item>
+        <item>quinze</item>
+        <item>seize</item>
+        <item>dix-sept</item>
+        <item>dix-huit</item>
+        <item>dix-neuf</item>
+        <item>vingt</item>
+        <item>vingt et une</item>
+        <item>vingt-deux</item>
+        <item>vingt-trois</item>
+        <item>vingt-quatre</item>
+        <item>vingt-cinq</item>
+        <item>vingt-six</item>
+        <item>vingt-sept</item>
+        <item>vingt-huit</item>
+        <item>vingt-neuf</item>
+        <item>trente</item>
+        <item>trente et une</item>
+        <item>trente-deux</item>
+        <item>trente-trois</item>
+        <item>trente-quatre</item>
+        <item>trente-cinq</item>
+        <item>trente-six</item>
+        <item>trente-sept</item>
+        <item>trente-huit</item>
+        <item>trente-neuf</item>
+        <item>quarante</item>
+        <item>quarante et une</item>
+        <item>quarante-deux</item>
+        <item>quarante-trois</item>
+        <item>quarante-quatre</item>
+        <item>quarante-cinq</item>
+        <item>quarante-six</item>
+        <item>quarante-sept</item>
+        <item>quarante-huit</item>
+        <item>quarante-neuf</item>
+        <item>cinquante</item>
+        <item>cinquante et une</item>
+        <item>cinquante-deux</item>
+        <item>cinquante-trois</item>
+        <item>cinquante-quatre</item>
+        <item>cinquante-cinq</item>
+        <item>cinquante-six</item>
+        <item>cinquante-sept</item>
+        <item>cinquante-huit</item>
+        <item>cinquante-neuf</item>
+    </string-array>
+    <!-- Blocage des applis par horaire -->
+    <string name="schedule_title">horaires des applis</string>
+    <string name="schedule_settings_row_title">horaires des applis</string>
+    <string name="schedule_settings_row_desc">limitez une appli à une plage horaire ou à quelques minutes par jour</string>
+    <string name="schedule_section_apps">applis planifiées</string>
+    <string name="schedule_section_protection">protection</string>
+    <string name="schedule_section_warning">à noter</string>
+    <string name="schedule_section_window">heures autorisées</string>
+    <string name="schedule_section_limit">limite quotidienne</string>
+    <string name="schedule_edit_title">horaire de l\'appli</string>
+    <string name="schedule_empty_title">aucune appli planifiée</string>
+    <string name="schedule_empty_desc">choisissez une appli pour limiter quand et combien de temps elle peut être utilisée.</string>
+    <string name="schedule_add_app">ajouter une appli</string>
+    <string name="schedule_add_app_desc">choisissez une appli à restreindre</string>
+    <string name="schedule_no_apps_left">toutes les applis ont déjà un horaire</string>
+    <string name="schedule_window_switch">limiter à une plage horaire</string>
+    <string name="schedule_window_switch_desc">l\'appli ne peut être ouverte qu\'entre ces heures</string>
+    <string name="schedule_start_time">de</string>
+    <string name="schedule_start_time_desc">l\'appli se déverrouille à cette heure</string>
+    <string name="schedule_end_time">à</string>
+    <string name="schedule_end_time_desc">l\'appli se verrouille de nouveau à cette heure</string>
+    <string name="schedule_days_label">jours</string>
+    <string name="schedule_days_min_one">gardez au moins un jour sélectionné</string>
+    <string name="schedule_limit_switch">limiter l\'usage quotidien</string>
+    <string name="schedule_limit_switch_desc">le quota est réinitialisé chaque jour à minuit</string>
+    <string name="schedule_limit_value">limite quotidienne : %1$d min</string>
+    <string name="schedule_summary_window">%1$s – %2$s</string>
+    <string name="schedule_summary_limit">%1$d min par jour</string>
+    <string name="schedule_used_today">utilisé aujourd\'hui : %1$d sur %2$d min</string>
+    <string name="schedule_action_remove">supprimer</string>
+    <string name="schedule_rule_saved">horaire enregistré</string>
+    <string name="schedule_rule_removed">horaire supprimé</string>
+    <string name="schedule_nothing_to_save">activez d\'abord une plage horaire ou une limite quotidienne</string>
+    <string name="schedule_accessibility_required">le blocage système est désactivé</string>
+    <string name="schedule_accessibility_required_desc">les limites quotidiennes ont besoin du service d\'accessibilité focusphone pour mesurer l\'usage. touchez pour l\'activer.</string>
+
+    <!-- Mot de passe des horaires -->
+    <string name="schedule_password_row_title">mot de passe des horaires</string>
+    <string name="schedule_password_row_desc">changez ou supprimez le mot de passe qui protège ces réglages</string>
+    <string name="schedule_password_change">changer le mot de passe</string>
+    <string name="schedule_password_remove">retirer la protection</string>
+    <string name="schedule_password_remove_confirm">cela supprime le mot de passe et tous les horaires. continuer ?</string>
+    <string name="schedule_password_removed">protection retirée</string>
+    <string name="schedule_password_confirm_hint">répétez le mot de passe</string>
+    <plurals name="schedule_password_too_short">
+        <item quantity="one">utilisez au moins %1$d caractère</item>
+        <item quantity="many">utilisez au moins %1$d caractère</item>
+        <item quantity="other">utilisez au moins %1$d caractères</item>
+    </plurals>
+    <string name="schedule_password_mismatch">les mots de passe ne correspondent pas</string>
+    <string name="schedule_create_password_title">protéger les horaires</string>
+    <string name="schedule_create_password_desc">définissez un mot de passe pour ne pas modifier les horaires sur un coup de tête.</string>
+    <string name="schedule_unlock_title">déverrouiller les horaires</string>
+    <string name="schedule_unlock_desc">entrez votre mot de passe pour voir et modifier les horaires :</string>
+    <string name="schedule_confirm_password_title">confirmer le mot de passe</string>
+    <string name="schedule_confirm_password_desc">entrez votre mot de passe actuel pour continuer :</string>
+
+    <!-- Écran de blocage par horaire -->
+    <string name="schedule_blocked_label">planifiée</string>
+    <string name="schedule_blocked_window_title">hors des heures autorisées</string>
+    <string name="schedule_blocked_window_desc">cette appli est disponible entre %1$s et %2$s.</string>
+    <string name="schedule_blocked_limit_title">limite quotidienne atteinte</string>
+    <plurals name="schedule_blocked_limit_desc">
+        <item quantity="one">vous avez utilisé %1$d de votre %2$d minute aujourd\'hui. le quota repart à minuit.</item>
+        <item quantity="many">vous avez utilisé %1$d de vos %2$d minute aujourd\'hui. le quota repart à minuit.</item>
+        <item quantity="other">vous avez utilisé %1$d de vos %2$d minutes aujourd\'hui. le quota repart à minuit.</item>
+    </plurals>
+
+    <!-- Shared password lock (detox and schedules) -->
+    <plurals name="password_attempts_left">
+        <item quantity="one">mot de passe incorrect. %1$d tentative restante</item>
+        <item quantity="many">mot de passe incorrect. %1$d tentative restante</item>
+        <item quantity="other">mot de passe incorrect. %1$d tentatives restantes</item>
+    </plurals>
+    <plurals name="password_locked_out_minutes">
+        <item quantity="one">trop de tentatives. réessayez dans %1$d minute</item>
+        <item quantity="many">trop de tentatives. réessayez dans %1$d minute</item>
+        <item quantity="other">trop de tentatives. réessayez dans %1$d minutes</item>
+    </plurals>
+    <string name="error_save_failed">impossible d\'enregistrer. réessayez</string>
+    <string name="settings_wallpaper_import_failed">impossible d\'utiliser cette image</string>
+    <string name="settings_wallpaper_change">choisir une autre image</string>
+    <string name="settings_wallpaper_remove">retirer le fond d\'écran</string>
+    <string name="wallpaper_access_lost">un fond d\'écran n\'était plus lisible et a été retiré. choisissez-le à nouveau</string>
 </resources>

@@ -17,6 +17,16 @@
         <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="28">shortEdges</item>
         <!-- Global default font: regular weight throughout the entire app -->
         <item name="android:fontFamily">sans-serif</item>
+        <item name="materialAlertDialogTheme">@style/FocusPhone.MaterialAlertDialog</item>
+    </style>
+
+    <!-- Material's dark base plus the same FocusPhone window and typography contract. -->
+    <style name="Base.Theme.FocusPhone.Dark" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="28">shortEdges</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="materialAlertDialogTheme">@style/FocusPhone.MaterialAlertDialog</item>
     </style>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -31,14 +41,55 @@
         <item name="colorOnBackground">@color/ow_text_primary</item>
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:navigationBarColor">@color/transparent</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+
+        <!-- Material 3 switch / control coloring — use direct @color refs, never ?attr -->
+        <item name="colorPrimary">@color/ow_text_primary</item>
+        <item name="colorOnPrimary">@color/ow_bg_primary</item>
+        <item name="colorPrimaryContainer">@color/ow_text_secondary</item>
+        <item name="colorOnPrimaryContainer">@color/ow_bg_primary</item>
+        <item name="colorSecondary">@color/ow_text_secondary</item>
+        <item name="colorSurfaceVariant">@color/ow_bg_secondary</item>
+        <item name="colorOnSurface">@color/ow_text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/ow_text_secondary</item>
+        <item name="colorControlNormal">@color/ow_text_secondary</item>
+        <item name="colorControlActivated">@color/ow_text_primary</item>
+        <item name="colorControlHighlight">@color/ow_ripple</item>
+
+        <!--
+            Neutral Material 3 roles.
+
+            The four themes inherit from the Material 3 baseline, whose unset roles are
+            purple; anything FocusPhone does not name explicitly leaks that colour into the
+            UI (the slider track was the visible case). Each role is redirected to one of
+            this theme's own colours so the launcher stays monochrome by construction.
+        -->
+        <item name="colorAccent">?android:attr/textColorPrimary</item>
+        <item name="colorPrimaryInverse">?android:attr/colorBackground</item>
+        <item name="colorSecondaryContainer">?attr/colorSurfaceVariant</item>
+        <item name="colorOnSecondaryContainer">?android:attr/textColorPrimary</item>
+        <item name="colorTertiary">?android:attr/textColorSecondary</item>
+        <item name="colorOnTertiary">?android:attr/colorBackground</item>
+        <item name="colorTertiaryContainer">?attr/colorSurfaceVariant</item>
+        <item name="colorOnTertiaryContainer">?android:attr/textColorPrimary</item>
+        <item name="colorOutlineVariant">?attr/colorOutline</item>
+        <item name="colorSurfaceInverse">?android:attr/textColorPrimary</item>
+        <item name="colorOnSurfaceInverse">?android:attr/colorBackground</item>
+        <item name="colorSurfaceContainerLowest">?android:attr/colorBackground</item>
+        <item name="colorSurfaceContainerLow">?android:attr/colorBackground</item>
+        <item name="colorSurfaceContainer">?attr/colorSurface</item>
+        <item name="colorSurfaceContainerHigh">?attr/colorSurface</item>
+        <item name="colorSurfaceContainerHighest">?attr/colorSurfaceVariant</item>
+
+        <!-- Widget styles -->
+        <item name="sliderStyle">@style/FocusPhone.Slider</item>
     </style>
 
     <!-- ═══════════════════════════════════════════════════════════════
          THEME 2: SLATE  (dark, deep charcoal) — DEFAULT
          ═══════════════════════════════════════════════════════════════ -->
-    <style name="Theme.FocusPhone.Slate" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="Theme.FocusPhone.Slate" parent="Base.Theme.FocusPhone.Dark">
         <item name="android:colorBackground">@color/sl_bg_primary</item>
         <item name="colorSurface">@color/sl_bg_secondary</item>
         <item name="colorOutline">@color/sl_accent</item>
@@ -47,10 +98,49 @@
         <item name="colorOnBackground">@color/sl_text_primary</item>
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:navigationBarColor">@color/transparent</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
-        <item name="android:windowTranslucentStatus">false</item>
-        <item name="android:windowTranslucentNavigation">false</item>
+
+        <!-- Material 3 switch / control coloring — use direct @color refs, never ?attr -->
+        <item name="colorPrimary">@color/sl_text_primary</item>
+        <item name="colorOnPrimary">@color/sl_bg_primary</item>
+        <item name="colorPrimaryContainer">@color/sl_text_secondary</item>
+        <item name="colorOnPrimaryContainer">@color/sl_bg_primary</item>
+        <item name="colorSecondary">@color/sl_text_secondary</item>
+        <item name="colorSurfaceVariant">@color/sl_bg_secondary</item>
+        <item name="colorOnSurface">@color/sl_text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/sl_text_secondary</item>
+        <item name="colorControlNormal">@color/sl_text_secondary</item>
+        <item name="colorControlActivated">@color/sl_text_primary</item>
+        <item name="colorControlHighlight">@color/sl_ripple</item>
+
+        <!--
+            Neutral Material 3 roles.
+
+            The four themes inherit from the Material 3 baseline, whose unset roles are
+            purple; anything FocusPhone does not name explicitly leaks that colour into the
+            UI (the slider track was the visible case). Each role is redirected to one of
+            this theme's own colours so the launcher stays monochrome by construction.
+        -->
+        <item name="colorAccent">?android:attr/textColorPrimary</item>
+        <item name="colorPrimaryInverse">?android:attr/colorBackground</item>
+        <item name="colorSecondaryContainer">?attr/colorSurfaceVariant</item>
+        <item name="colorOnSecondaryContainer">?android:attr/textColorPrimary</item>
+        <item name="colorTertiary">?android:attr/textColorSecondary</item>
+        <item name="colorOnTertiary">?android:attr/colorBackground</item>
+        <item name="colorTertiaryContainer">?attr/colorSurfaceVariant</item>
+        <item name="colorOnTertiaryContainer">?android:attr/textColorPrimary</item>
+        <item name="colorOutlineVariant">?attr/colorOutline</item>
+        <item name="colorSurfaceInverse">?android:attr/textColorPrimary</item>
+        <item name="colorOnSurfaceInverse">?android:attr/colorBackground</item>
+        <item name="colorSurfaceContainerLowest">?android:attr/colorBackground</item>
+        <item name="colorSurfaceContainerLow">?android:attr/colorBackground</item>
+        <item name="colorSurfaceContainer">?attr/colorSurface</item>
+        <item name="colorSurfaceContainerHigh">?attr/colorSurface</item>
+        <item name="colorSurfaceContainerHighest">?attr/colorSurfaceVariant</item>
+
+        <!-- Widget styles -->
+        <item name="sliderStyle">@style/FocusPhone.Slider</item>
     </style>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -65,14 +155,55 @@
         <item name="colorOnBackground">@color/wb_text_primary</item>
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:navigationBarColor">@color/transparent</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+
+        <!-- Material 3 switch / control coloring — use direct @color refs, never ?attr -->
+        <item name="colorPrimary">@color/wb_text_primary</item>
+        <item name="colorOnPrimary">@color/wb_bg_primary</item>
+        <item name="colorPrimaryContainer">@color/wb_text_secondary</item>
+        <item name="colorOnPrimaryContainer">@color/wb_bg_primary</item>
+        <item name="colorSecondary">@color/wb_text_secondary</item>
+        <item name="colorSurfaceVariant">@color/wb_bg_secondary</item>
+        <item name="colorOnSurface">@color/wb_text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/wb_text_secondary</item>
+        <item name="colorControlNormal">@color/wb_text_secondary</item>
+        <item name="colorControlActivated">@color/wb_text_primary</item>
+        <item name="colorControlHighlight">@color/wb_ripple</item>
+
+        <!--
+            Neutral Material 3 roles.
+
+            The four themes inherit from the Material 3 baseline, whose unset roles are
+            purple; anything FocusPhone does not name explicitly leaks that colour into the
+            UI (the slider track was the visible case). Each role is redirected to one of
+            this theme's own colours so the launcher stays monochrome by construction.
+        -->
+        <item name="colorAccent">?android:attr/textColorPrimary</item>
+        <item name="colorPrimaryInverse">?android:attr/colorBackground</item>
+        <item name="colorSecondaryContainer">?attr/colorSurfaceVariant</item>
+        <item name="colorOnSecondaryContainer">?android:attr/textColorPrimary</item>
+        <item name="colorTertiary">?android:attr/textColorSecondary</item>
+        <item name="colorOnTertiary">?android:attr/colorBackground</item>
+        <item name="colorTertiaryContainer">?attr/colorSurfaceVariant</item>
+        <item name="colorOnTertiaryContainer">?android:attr/textColorPrimary</item>
+        <item name="colorOutlineVariant">?attr/colorOutline</item>
+        <item name="colorSurfaceInverse">?android:attr/textColorPrimary</item>
+        <item name="colorOnSurfaceInverse">?android:attr/colorBackground</item>
+        <item name="colorSurfaceContainerLowest">?android:attr/colorBackground</item>
+        <item name="colorSurfaceContainerLow">?android:attr/colorBackground</item>
+        <item name="colorSurfaceContainer">?attr/colorSurface</item>
+        <item name="colorSurfaceContainerHigh">?attr/colorSurface</item>
+        <item name="colorSurfaceContainerHighest">?attr/colorSurfaceVariant</item>
+
+        <!-- Widget styles -->
+        <item name="sliderStyle">@style/FocusPhone.Slider</item>
     </style>
 
     <!-- ═══════════════════════════════════════════════════════════════
          THEME 4: NAVY  (dark, deep blue)
          ═══════════════════════════════════════════════════════════════ -->
-    <style name="Theme.FocusPhone.Navy" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="Theme.FocusPhone.Navy" parent="Base.Theme.FocusPhone.Dark">
         <item name="android:colorBackground">@color/nv_bg_primary</item>
         <item name="colorSurface">@color/nv_bg_secondary</item>
         <item name="colorOutline">@color/nv_accent</item>
@@ -81,8 +212,49 @@
         <item name="colorOnBackground">@color/nv_text_primary</item>
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:navigationBarColor">@color/transparent</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+
+        <!-- Material 3 switch / control coloring — use direct @color refs, never ?attr -->
+        <item name="colorPrimary">@color/nv_text_primary</item>
+        <item name="colorOnPrimary">@color/nv_bg_primary</item>
+        <item name="colorPrimaryContainer">@color/nv_text_secondary</item>
+        <item name="colorOnPrimaryContainer">@color/nv_bg_primary</item>
+        <item name="colorSecondary">@color/nv_text_secondary</item>
+        <item name="colorSurfaceVariant">@color/nv_bg_secondary</item>
+        <item name="colorOnSurface">@color/nv_text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/nv_text_secondary</item>
+        <item name="colorControlNormal">@color/nv_text_secondary</item>
+        <item name="colorControlActivated">@color/nv_text_primary</item>
+        <item name="colorControlHighlight">@color/nv_ripple</item>
+
+        <!--
+            Neutral Material 3 roles.
+
+            The four themes inherit from the Material 3 baseline, whose unset roles are
+            purple; anything FocusPhone does not name explicitly leaks that colour into the
+            UI (the slider track was the visible case). Each role is redirected to one of
+            this theme's own colours so the launcher stays monochrome by construction.
+        -->
+        <item name="colorAccent">?android:attr/textColorPrimary</item>
+        <item name="colorPrimaryInverse">?android:attr/colorBackground</item>
+        <item name="colorSecondaryContainer">?attr/colorSurfaceVariant</item>
+        <item name="colorOnSecondaryContainer">?android:attr/textColorPrimary</item>
+        <item name="colorTertiary">?android:attr/textColorSecondary</item>
+        <item name="colorOnTertiary">?android:attr/colorBackground</item>
+        <item name="colorTertiaryContainer">?attr/colorSurfaceVariant</item>
+        <item name="colorOnTertiaryContainer">?android:attr/textColorPrimary</item>
+        <item name="colorOutlineVariant">?attr/colorOutline</item>
+        <item name="colorSurfaceInverse">?android:attr/textColorPrimary</item>
+        <item name="colorOnSurfaceInverse">?android:attr/colorBackground</item>
+        <item name="colorSurfaceContainerLowest">?android:attr/colorBackground</item>
+        <item name="colorSurfaceContainerLow">?android:attr/colorBackground</item>
+        <item name="colorSurfaceContainer">?attr/colorSurface</item>
+        <item name="colorSurfaceContainerHigh">?attr/colorSurface</item>
+        <item name="colorSurfaceContainerHighest">?attr/colorSurfaceVariant</item>
+
+        <!-- Widget styles -->
+        <item name="sliderStyle">@style/FocusPhone.Slider</item>
     </style>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -91,6 +263,25 @@
 
     <!-- Root: required by AAPT as implicit parent of FocusPhone.* widget styles -->
     <style name="FocusPhone" parent="android:Widget" />
+
+    <!--
+        Slider used by every settings screen.
+
+        Material 3 leaves the inactive track on its baseline palette, which rendered as a
+        purple bar inside an otherwise monochrome launcher. Every part is bound to the
+        active theme's own colours instead.
+    -->
+    <style name="FocusPhone.Slider" parent="Widget.Material3.Slider">
+        <item name="thumbColor">@color/color_slider_active</item>
+        <item name="trackColorActive">@color/color_slider_active</item>
+        <item name="trackColorInactive">@color/color_slider_track_inactive</item>
+        <item name="haloColor">@color/color_slider_halo</item>
+        <item name="tickVisible">false</item>
+        <item name="labelBehavior">gone</item>
+        <item name="trackHeight">4dp</item>
+        <item name="thumbRadius">7dp</item>
+        <item name="haloRadius">20dp</item>
+    </style>
 
     <!-- Ripple background for clickable items -->
     <style name="FocusPhone.RippleItem">
@@ -107,7 +298,7 @@
         <item name="android:paddingTop">@dimen/app_item_vertical_padding</item>
         <item name="android:paddingBottom">@dimen/app_item_vertical_padding</item>
         <item name="android:textSize">@dimen/text_app_item</item>
-        <item name="android:textColor">?attr/android:textColorPrimary</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:letterSpacing">0.02</item>
     </style>
@@ -116,7 +307,7 @@
     <style name="FocusPhone.ActionButton">
         <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:textSize">@dimen/text_action_button</item>
-        <item name="android:textColor">?attr/android:textColorSecondary</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
         <item name="android:fontFamily">sans-serif-light</item>
         <item name="android:letterSpacing">0.08</item>
         <item name="android:paddingStart">@dimen/spacing_l</item>
@@ -128,37 +319,41 @@
 
     <!-- Custom Material AlertDialog styling -->
     <style name="FocusPhone.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <!-- Dialog card styling -->
-        <item name="colorSurface">?attr/colorSurface</item>
-        <item name="colorOnSurface">?attr/android:textColorPrimary</item>
-        <item name="colorOnSurfaceVariant">?attr/android:textColorSecondary</item>
-        
         <!-- Text styling -->
         <item name="materialAlertDialogTitleTextStyle">@style/FocusPhone.DialogTitleTextStyle</item>
         <item name="materialAlertDialogBodyTextStyle">@style/FocusPhone.DialogBodyTextStyle</item>
-        
         <!-- Button styling -->
         <item name="buttonBarPositiveButtonStyle">@style/FocusPhone.DialogButton</item>
         <item name="buttonBarNegativeButtonStyle">@style/FocusPhone.DialogButton</item>
         <item name="buttonBarNeutralButtonStyle">@style/FocusPhone.DialogButton</item>
     </style>
 
-    <style name="FocusPhone.DialogTitleTextStyle" parent="TextAppearance.Material3.TitleMedium">
-        <item name="android:textColor">?attr/android:textColorPrimary</item>
+    <!--
+        materialAlertDialogTitleTextStyle and materialAlertDialogBodyTextStyle are *view*
+        styles, not text appearances: the title TextView in m3_alert_dialog_title.xml declares
+        no layout_width/layout_height and takes them from this style. Parenting it on a
+        TextAppearance made every MaterialAlertDialog crash on inflation ("You must supply a
+        layout_width attribute"). Keep both parented on the Material dialog widget styles;
+        MaterialAlertDialogThemeTest guards this for every theme.
+    -->
+    <style name="FocusPhone.DialogTitleTextStyle" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textAppearance">@style/TextAppearance.Material3.TitleMedium</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
         <item name="android:textSize">20sp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textAllCaps">false</item>
     </style>
 
-    <style name="FocusPhone.DialogBodyTextStyle" parent="TextAppearance.Material3.BodyMedium">
-        <item name="android:textColor">?attr/android:textColorSecondary</item>
+    <style name="FocusPhone.DialogBodyTextStyle" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textAppearance">@style/TextAppearance.Material3.BodyMedium</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
         <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="FocusPhone.DialogButton" parent="Widget.Material3.Button.TextButton">
-        <item name="android:textColor">?attr/android:textColorPrimary</item>
-        <item name="rippleColor">?attr/android:textColorSecondary</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="rippleColor">?android:attr/textColorSecondary</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">false</item>

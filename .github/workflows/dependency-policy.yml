@@ -1,0 +1,53 @@
+# Dependencies are updated by hand: `gradle/libs.versions.toml` is never bumped by a
+# bot. This workflow is the enforcement side of `.github/dependabot.yml` and
+# `renovate.json`; it fails any pull request that a dependency bot opens, so the policy
+# survives someone enabling Dependabot or Renovate from the repository settings UI.
+name: dependency-policy
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  no-automated-updates:
+    name: no automated dependency updates
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Reject bot-authored dependency pull requests
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set -euo pipefail
+
+          case "$PR_AUTHOR" in
+            "dependabot[bot]"|"dependabot-preview[bot]"|"renovate[bot]"|"renovate-bot"|"renovate-approve")
+              is_bot=true ;;
+            *)
+              is_bot=false ;;
+          esac
+
+          case "$HEAD_REF" in
+            dependabot/*|renovate/*)
+              is_bot=true ;;
+          esac
+
+          if [ "$is_bot" = true ]; then
+            echo "::error::automated dependency updates are disabled in this repository."
+            echo "author: $PR_AUTHOR, branch: $HEAD_REF"
+            echo "gradle/libs.versions.toml is updated by hand, in a commit verified with"
+            echo "./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleRelease."
+            echo "see documentation/en/developers/03-environment-and-build.md, section"
+            echo "'manual dependency updates'."
+            exit 1
+          fi
+
+          echo "pull request authored by '$PR_AUTHOR' on '$HEAD_REF': not a dependency bot."

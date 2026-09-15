@@ -9,4 +9,7 @@ import app.focusphone.domain.model.AppInfo
 interface AppRepository {
     /** Returns all user-launchable apps sorted alphabetically by label. */
     suspend fun getInstalledApps(): List<AppInfo>
+
+    /** Drops the in-memory cache so the next call fetches fresh data. */
+    fun invalidateCache()
 }

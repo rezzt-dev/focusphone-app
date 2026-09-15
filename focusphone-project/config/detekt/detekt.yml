@@ -1,0 +1,115 @@
+# Deviations from detekt's default ruleset for FocusPhone.
+#
+# `buildUponDefaultConfig = true` in `app/build.gradle.kts` means this file only
+# records what differs from the defaults; everything not listed here keeps detekt's
+# own default. Keep it that way — do not paste the full default config in here, or
+# new rules from a detekt upgrade will be silently dropped.
+#
+# There is no detekt baseline file, on purpose: it is the same policy as Android Lint
+# in `app/build.gradle.kts`. Where an existing rule does not fit this codebase, the
+# reason is written down here instead of being hidden in a list of grandfathered
+# findings. Several complexity thresholds below are deliberately set just above the
+# worst case in `main` today, so they act as a ratchet: the existing screens are
+# tolerated, but nothing is allowed to grow past them.
+#
+# Note: detekt's `formatting` ruleset (its bundled copy of the ktlint rules) is
+# deliberately NOT added as a plugin dependency. Formatting is ktlint's job, driven by
+# `.editorconfig`; running both engines would report every formatting issue twice and
+# they can disagree after an upgrade.
+
+build:
+  # Any finding fails the build.
+  maxIssues: 0
+
+config:
+  # Fail fast if this file ever references a rule that no longer exists after an
+  # upgrade, instead of quietly ignoring the entry.
+  validation: true
+  warningsAsErrors: false
+
+comments:
+  active: true
+  # KDoc on every public declaration is a library convention; this is an application,
+  # and the codebase documents intent where it is not obvious instead.
+  UndocumentedPublicClass:
+    active: false
+  UndocumentedPublicFunction:
+    active: false
+  UndocumentedPublicProperty:
+    active: false
+
+complexity:
+  ComplexCondition:
+    # `BaseActivity.kt:687` and `HomeLayoutActivity.kt:638` each combine four checks.
+    threshold: 5
+  CyclomaticComplexMethod:
+    # Ratchet above `BaseActivity.colorizeViewTree` (37), the widest `when` in the
+    # codebase: it maps every view type onto the active palette.
+    threshold: 40
+  LargeClass:
+    # `HomeActivity` is the launcher's single home surface. Splitting it is tracked
+    # separately; this threshold stops it from growing further.
+    threshold: 1800
+  LongMethod:
+    # Ratchet above `HomeLayoutActivity.rebuildPreview` (127). Long methods here are
+    # sequential view construction, not branching logic.
+    threshold: 130
+  LongParameterList:
+    # Collaborators are wired by hand: there is no Hilt in this project.
+    functionThreshold: 8
+    constructorThreshold: 8
+    ignoreDefaultParameters: true
+  NestedBlockDepth:
+    threshold: 5
+  TooManyFunctions:
+    # The `*Preferences` objects are flat façades over SharedPreferences: one getter
+    # and one setter per stored key, which is exactly what makes them readable.
+    thresholdInFiles: 30
+    thresholdInClasses: 30
+    thresholdInObjects: 30
+    thresholdInInterfaces: 15
+    ignorePrivate: true
+    ignoreOverridden: true
+
+empty-blocks:
+  EmptyFunctionBlock:
+    # Empty overrides are how `ItemTouchHelper.Callback` and `DrawerListener` opt out
+    # of a callback they do not need.
+    ignoreOverridden: true
+
+exceptions:
+  TooGenericExceptionCaught:
+    # A launcher is the process the user falls back to when anything else dies: it
+    # must survive whatever PackageManager, LauncherApps or AppWidgetHost throws,
+    # including undocumented RuntimeExceptions from OEM system services. Broad
+    # catches around platform calls are deliberate here, and `SwallowedException`
+    # below still requires each one to log or rethrow.
+    active: false
+  SwallowedException:
+    # A caught exception must be logged, rethrown, or named to say it is ignored on
+    # purpose (`_`, `ignored`, `expected`).
+    allowedExceptionNameRegex: '_|(ignore|expected).*'
+
+naming:
+  FunctionNaming:
+    # Test method names are written as backticked sentences.
+    excludes: ['**/test/**', '**/androidTest/**']
+
+style:
+  LoopWithTooManyJumpStatements:
+    # The parsers in `AppFolderSerializer` and friends skip malformed lines with a
+    # `continue` and stop on a terminator with a `break`; that reads better than the
+    # flag variable the rule would push towards.
+    active: false
+  MagicNumber:
+    # Layout maths, colour channels and timing constants are unavoidably numeric in
+    # an Android UI codebase; the values are named where it aids the reader.
+    active: false
+  MaxLineLength:
+    # Kept in sync with `max_line_length` in `.editorconfig` so ktlint and detekt
+    # never disagree about where a line ends.
+    maxLineLength: 140
+  ReturnCount:
+    # Early returns are the house style for permission and state guards.
+    max: 6
+    excludeGuardClauses: true

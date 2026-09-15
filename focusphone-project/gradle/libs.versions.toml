@@ -1,27 +1,40 @@
 [versions]
-agp              = "9.2.1"
+agp              = "9.3.0"
+
+# Static analysis
+ktlintGradle     = "14.2.0"
+ktlint           = "1.8.0"
+detekt           = "1.23.8"
 
 # AndroidX
-coreKtx          = "1.13.1"
-appcompat        = "1.7.0"
-activityKtx      = "1.9.3"
-fragmentKtx      = "1.8.5"
-lifecycleVm      = "2.8.7"
-lifecycleLd      = "2.8.7"
-constraintlayout = "2.1.4"
+coreKtx          = "1.18.0"
+appcompat        = "1.8.0"
+activityKtx      = "1.13.0"
+fragmentKtx      = "1.9.0"
+lifecycle        = "2.11.0"
+constraintlayout = "2.2.2"
 viewpager2       = "1.1.0"
-recyclerview     = "1.3.2"
+recyclerview     = "1.4.0"
 
 # Coroutines
-coroutines       = "1.8.1"
+coroutines       = "1.11.0"
 
 # UI
-material         = "1.12.0"
+material         = "1.14.0"
+
+# Room
+room             = "2.8.5"
 
 # Testing
 junit            = "4.13.2"
-junitExt         = "1.2.1"
-espresso         = "3.6.1"
+junitExt         = "1.3.0"
+espresso         = "3.7.0"
+mockk            = "1.14.11"
+robolectric      = "4.17"
+turbine          = "1.2.1"
+testCore         = "1.7.0"
+testRunner       = "1.7.0"
+testRules        = "1.7.0"
 
 [libraries]
 # Core
@@ -34,9 +47,9 @@ androidx-recyclerview      = { group = "androidx.recyclerview",      name = "rec
 androidx-viewpager2        = { group = "androidx.viewpager2",        name = "viewpager2",             version.ref = "viewpager2"        }
 
 # Lifecycle
-androidx-lifecycle-vm      = { group = "androidx.lifecycle",         name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleVm"      }
-androidx-lifecycle-ld      = { group = "androidx.lifecycle",         name = "lifecycle-livedata-ktx",  version.ref = "lifecycleLd"      }
-androidx-lifecycle-runtime = { group = "androidx.lifecycle",         name = "lifecycle-runtime-ktx",   version.ref = "lifecycleLd"      }
+androidx-lifecycle-vm      = { group = "androidx.lifecycle",         name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle"        }
+androidx-lifecycle-ld      = { group = "androidx.lifecycle",         name = "lifecycle-livedata-ktx",  version.ref = "lifecycle"        }
+androidx-lifecycle-runtime = { group = "androidx.lifecycle",         name = "lifecycle-runtime-ktx",   version.ref = "lifecycle"        }
 
 # Coroutines
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx",     name = "kotlinx-coroutines-android", version.ref = "coroutines"    }
@@ -45,10 +58,26 @@ kotlinx-coroutines-core    = { group = "org.jetbrains.kotlinx",     name = "kotl
 # UI
 material                   = { group = "com.google.android.material", name = "material",              version.ref = "material"          }
 
+# Room
+room-runtime               = { group = "androidx.room",              name = "room-runtime",           version.ref = "room"              }
+room-compiler              = { group = "androidx.room",              name = "room-compiler",          version.ref = "room"              }
+room-ktx                   = { group = "androidx.room",              name = "room-ktx",               version.ref = "room"              }
+
 # Testing
 junit                      = { group = "junit",                      name = "junit",                  version.ref = "junit"             }
 androidx-junit             = { group = "androidx.test.ext",          name = "junit",                  version.ref = "junitExt"          }
 androidx-espresso-core     = { group = "androidx.test.espresso",     name = "espresso-core",          version.ref = "espresso"          }
+mockk                      = { group = "io.mockk",                   name = "mockk",                  version.ref = "mockk"             }
+robolectric                = { group = "org.robolectric",            name = "robolectric",            version.ref = "robolectric"       }
+turbine                    = { group = "app.cash.turbine",           name = "turbine",                version.ref = "turbine"           }
+androidx-test-core         = { group = "androidx.test",              name = "core-ktx",               version.ref = "testCore"          }
+androidx-test-runner       = { group = "androidx.test",              name = "runner",                 version.ref = "testRunner"        }
+androidx-test-rules        = { group = "androidx.test",              name = "rules",                  version.ref = "testRules"         }
+androidx-espresso-contrib  = { group = "androidx.test.espresso",     name = "espresso-contrib",       version.ref = "espresso"          }
+kotlinx-coroutines-test    = { group = "org.jetbrains.kotlinx",     name = "kotlinx-coroutines-test", version.ref = "coroutines"    }
 
 [plugins]
 android-application  = { id = "com.android.application", version.ref = "agp" }
+android-legacy-kapt  = { id = "com.android.legacy-kapt",   version.ref = "agp" }
+ktlint               = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
+detekt               = { id = "io.gitlab.arturbosch.detekt",   version.ref = "detekt"       }

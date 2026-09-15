@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/android:colorBackground">
+    android:background="@android:color/transparent">
 
     <!-- Skip button (top right) -->
     <TextView
@@ -18,7 +18,7 @@
         android:letterSpacing="0.06"
         android:padding="@dimen/spacing_m"
         android:text="@string/onboarding_skip"
-        android:textColor="?attr/android:textColorSecondary"
+        android:textColor="?android:attr/textColorSecondary"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -67,7 +67,7 @@
             android:padding="@dimen/spacing_l"
             android:text="@string/onboarding_next"
             android:textAllCaps="false"
-            android:textColor="?attr/android:textColorPrimary"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="16sp" />
 
     </LinearLayout>

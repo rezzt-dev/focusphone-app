@@ -25,6 +25,7 @@ local.properties
 *.ap_
 *.aar
 *.jar
+!focusphone-project/gradle/wrapper/gradle-wrapper.jar
 *.class
 
 # Log files
@@ -42,3 +43,15 @@ ehthumbs.db
 
 # Kotlin / Compiler caches
 .kotlin/
+
+# Local working documentation and agent skills (not part of the published project).
+# The workflow rules an agent actually needs (commit format, pull request, merge and
+# release procedure) are duplicated in full inside `agents.md` and `claude.md`, which
+# are tracked: nothing here is required to clone, build or contribute to the project.
+.docs/
+
+# Editor and local tooling folders (not part of the published project).
+# `.github/` is tracked on purpose: the ci workflows and the dependency policy
+# (dependabot.yml) only take effect if they are published with the repository.
+.freebuff/
+.vscode/

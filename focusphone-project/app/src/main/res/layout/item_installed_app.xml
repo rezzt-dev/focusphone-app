@@ -2,10 +2,11 @@
 <!-- Item in the "all installed apps" list with icon + name + checkbox -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
+    android:foreground="?attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:minHeight="60dp"
     android:orientation="horizontal"
@@ -14,36 +15,28 @@
     android:paddingEnd="@dimen/spacing_l"
     android:paddingBottom="@dimen/spacing_l">
 
-    <!-- App icon -->
-    <ImageView
-        android:id="@+id/iv_app_icon"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:contentDescription="@null"
-        android:scaleType="fitCenter"
-        tools:src="@mipmap/ic_launcher" />
-
     <!-- App name: regular weight for legibility -->
     <TextView
         android:id="@+id/tv_app_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/spacing_l"
+        android:layout_marginStart="0dp"
         android:layout_weight="1"
-        android:fontFamily="sans-serif"
-        android:letterSpacing="0.01"
-        android:textColor="?attr/android:textColorPrimary"
-        android:textSize="@dimen/text_setting_item"
-        tools:text="Messages" />
+        android:fontFamily="sans-serif-light"
+        android:letterSpacing="0.02"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="17sp"
+        tools:text="messages" />
 
-    <!-- Favourite toggle checkbox -->
-    <CheckBox
-        android:id="@+id/cb_favourite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/spacing_m"
-        android:buttonTint="?attr/android:textColorPrimary"
-        android:clickable="false"
-        android:focusable="false" />
+    <!-- Favourite toggle image indicator -->
+    <ImageView
+        android:id="@+id/iv_select_indicator"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="16dp"
+        android:contentDescription="@string/cd_select_indicator"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_add"
+        app:tint="?android:attr/textColorPrimary" />
 
 </LinearLayout>
