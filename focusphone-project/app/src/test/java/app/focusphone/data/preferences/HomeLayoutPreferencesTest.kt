@@ -3,7 +3,6 @@ package app.focusphone.data.preferences
 import android.content.Context
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,19 +24,19 @@ class HomeLayoutPreferencesTest {
     }
 
     @Test
-    fun `removeObsoleteKeys deletes the size slider keys and keeps the rest`() {
+    fun `removeObsoleteKeys deletes retired layout keys and keeps the rest`() {
         rawPrefs.edit()
             .putInt("clock_weight_percent", 50)
             .putInt("widget_weight_percent", 30)
+            .putBoolean("clock_fixed_top", true)
             .commit()
-        HomeLayoutPreferences.setClockFixedTop(context, true)
         HomeLayoutPreferences.setOrder(context, listOf(HomeLayoutPreferences.Component.APPS, HomeLayoutPreferences.Component.CLOCK))
 
         HomeLayoutPreferences.removeObsoleteKeys(context)
 
         assertFalse(rawPrefs.contains("clock_weight_percent"))
         assertFalse(rawPrefs.contains("widget_weight_percent"))
-        assertTrue(HomeLayoutPreferences.isClockFixedTop(context))
+        assertFalse(rawPrefs.contains("clock_fixed_top"))
         assertEquals(
             listOf(HomeLayoutPreferences.Component.APPS, HomeLayoutPreferences.Component.CLOCK),
             HomeLayoutPreferences.getOrder(context)

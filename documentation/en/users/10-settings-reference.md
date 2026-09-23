@@ -104,7 +104,6 @@ reloading it.
 |---|---|---|---|
 | clock type | selector with thumbnails | digital · stacked · in words · analog · hidden | digital |
 | clock size | slider | 0 to 100 | — |
-| clock fixed at the top | switch | yes / no | no |
 
 </details>
 

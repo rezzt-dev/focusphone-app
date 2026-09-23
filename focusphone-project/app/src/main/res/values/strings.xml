@@ -422,8 +422,6 @@
     <string name="settings_clock_type_desc">choose how the time is displayed</string>
     <string name="settings_clock_size_desc">scale the clock up or down</string>
     <string name="settings_app_spacing_desc">space between favourite apps</string>
-    <string name="settings_clock_fixed_top">fixed clock at top</string>
-    <string name="settings_clock_fixed_top_desc">keep the clock at the top of the screen instead of centred with apps</string>
     <string name="settings_widget_settings_desc">add or remove a system widget</string>
     <string name="settings_home_layout_desc">reorder and resize home components</string>
     <string name="settings_conscious_pause_section_desc">take a breath before opening apps</string>

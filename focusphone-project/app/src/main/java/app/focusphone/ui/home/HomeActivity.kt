@@ -615,21 +615,18 @@ class HomeActivity : BaseActivity() {
      * Controls whether the home content behaves as a single centred block
      * (grouped mode) or as independent layers (separated mode).
      *
-     * Separated mode is triggered when:
-     *   - the user enabled "fixed clock at top" in settings, or
-     *   - the screen is empty (no apps and no widget).
+     * Separated mode is triggered when the screen is empty (no apps and no widget).
      *
      * In separated mode the clock stays at the top with a safe margin and the
      * app list occupies all remaining space, centring itself vertically inside
      * that area.
      */
     private fun adjustRootGravity() {
-        val fixedTop = HomeLayoutPreferences.isClockFixedTop(this)
         val noApps = binding.tvEmpty.isVisible
         val noWidget = !binding.widgetContainer.isVisible
         val clockVisible = binding.clockContainer.isVisible
 
-        val isSeparatedMode = fixedTop || (clockVisible && noApps && noWidget)
+        val isSeparatedMode = clockVisible && noApps && noWidget
 
         val clockParams = binding.clockContainer.layoutParams as? LinearLayout.LayoutParams
             ?: return

@@ -65,16 +65,6 @@ class HomeSettingsActivity : SettingsSubActivity() {
             }
             clockSizeSlider = clockSizeBinding.slider
             addView(clockSizeBinding.root)
-
-            addSwitchRow(
-                titleResId = R.string.settings_clock_fixed_top,
-                subtitleResId = R.string.settings_clock_fixed_top_desc,
-                isChecked = HomeLayoutPreferences.isClockFixedTop(this@HomeSettingsActivity),
-                iconResId = R.drawable.ic_settings_clock,
-                onCheckedChanged = { checked ->
-                    HomeLayoutPreferences.setClockFixedTop(this@HomeSettingsActivity, checked)
-                }
-            )
         }
 
         // ── Layout & Spacing ─────────────────────────────────────────

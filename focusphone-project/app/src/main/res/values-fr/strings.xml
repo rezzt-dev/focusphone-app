@@ -368,8 +368,6 @@
 
     <!-- Language fallback -->
     <string name="settings_language_system_unsupported">système (english us)</string>
-    <string name="settings_clock_fixed_top">horloge fixee en haut</string>
-    <string name="settings_clock_fixed_top_desc">garder l horloge en haut au lieu de centree avec les apps</string>
     <string name="about_settings_title">à propos</string>
     <string name="appearance_settings_title">apparence</string>
     <string name="cd_apps">composant apps</string>

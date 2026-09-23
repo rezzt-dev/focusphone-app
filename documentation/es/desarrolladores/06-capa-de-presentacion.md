@@ -148,7 +148,7 @@ lifecycleScope.launch {
 <tr><td><code>SettingsActivity</code></td><td>menu de seis categorias; no contiene ningun control</td></tr>
 <tr><td><code>SettingsSubActivity</code></td><td>base abstracta de las subpantallas: barra superior, boton de atras, insets y contenedor vertical</td></tr>
 <tr><td><code>AppearanceSettingsActivity</code></td><td>tema, colores personalizados, tipografia, tamaño de texto, alineacion, barra de estado y fondo de pantalla</td></tr>
-<tr><td><code>HomeSettingsActivity</code></td><td>tipo y tamaño de reloj, reloj fijo arriba, espaciado, widget y distribucion</td></tr>
+<tr><td><code>HomeSettingsActivity</code></td><td>tipo y tamaño de reloj, espaciado, widget y distribucion</td></tr>
 <tr><td><code>FocusSettingsActivity</code></td><td>pausa consciente, horarios y palabras clave del modo trabajo</td></tr>
 <tr><td><code>NotificationSettingsActivity</code></td><td>acceso a notificaciones, panel lateral y gesto hacia abajo</td></tr>
 <tr><td><code>SystemSettingsActivity</code></td><td>permisos, accesibilidad, lanzador por defecto e idioma</td></tr>

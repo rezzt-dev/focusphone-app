@@ -17,13 +17,11 @@ object HomeLayoutPreferences {
     private const val KEY_WIDGET_ENABLED = "widget_enabled"
     private const val KEY_CLOCK_TYPE_BEFORE_HIDDEN = "clock_type_before_hidden"
     private const val KEY_APP_SPACING_DP = "app_spacing_dp"
-    private const val KEY_CLOCK_FIXED_TOP = "clock_fixed_top"
 
-    /**
-     * Relative sizes written by the size sliders of earlier builds. Nothing ever read them
-     * on the home screen, so they are deleted by [removeObsoleteKeys].
-     */
-    private val OBSOLETE_KEYS = arrayOf("clock_weight_percent", "widget_weight_percent")
+    /** Retired layout settings deleted by [removeObsoleteKeys]. */
+    private val OBSOLETE_KEYS = arrayOf(
+        "clock_weight_percent", "widget_weight_percent", "clock_fixed_top"
+    )
 
     private const val DEFAULT_ORDER = "clock,widget,apps"
 
@@ -80,13 +78,6 @@ object HomeLayoutPreferences {
     fun setAppSpacingDp(context: Context, spacing: Int) {
         val coerced = spacing.coerceIn(0, 40)
         prefs(context).edit { putInt(KEY_APP_SPACING_DP, coerced) }
-    }
-
-    fun isClockFixedTop(context: Context): Boolean =
-        prefs(context).getBoolean(KEY_CLOCK_FIXED_TOP, false)
-
-    fun setClockFixedTop(context: Context, fixed: Boolean) {
-        prefs(context).edit { putBoolean(KEY_CLOCK_FIXED_TOP, fixed) }
     }
 
     /** Deletes the keys of settings that no longer exist. Writes only when one is present. */

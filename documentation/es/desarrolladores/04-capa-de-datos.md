@@ -181,7 +181,7 @@ cifrados.
 </tr>
 <tr><td><code>ThemePreferences</code></td><td><code>focusphone_theme</code></td><td>no</td><td>tema, colores personalizados, alineacion, barra de estado, bienvenida completada</td></tr>
 <tr><td><code>FontPreferences</code></td><td><code>focusphone_prefs</code></td><td>no</td><td>tipografia, tipo y tamaño de reloj, tamaño de texto (8-24 pt, por defecto 14)</td></tr>
-<tr><td><code>HomeLayoutPreferences</code></td><td><code>focusphone_home_layout</code></td><td>no</td><td>orden de componentes, visibilidad de reloj y widget, espaciado, reloj fijo arriba</td></tr>
+<tr><td><code>HomeLayoutPreferences</code></td><td><code>focusphone_home_layout</code></td><td>no</td><td>orden de componentes, visibilidad de reloj y widget, espaciado</td></tr>
 <tr><td><code>WidgetPreferences</code></td><td><code>focusphone_widget</code></td><td>no</td><td>id del unico widget y su activacion</td></tr>
 <tr><td><code>WallpaperPreferences</code></td><td><code>focusphone_wallpaper</code></td><td>no</td><td>uri por superficie, modo compartido, desenfoque e intensidad, legibilidad (por defecto 60)</td></tr>
 <tr><td><code>GesturePreferences</code></td><td><code>focusphone_gestures</code></td><td>no</td><td>gesto de deslizar hacia abajo</td></tr>

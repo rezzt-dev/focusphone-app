@@ -382,8 +382,6 @@ facebook</string>
 
     <!-- Language fallback -->
     <string name="settings_language_system_unsupported">sistema (inglés)</string>
-    <string name="settings_clock_fixed_top">reloj fijo arriba</string>
-    <string name="settings_clock_fixed_top_desc">mantén el reloj en la parte superior en lugar de centrado con las apps</string>
     <string name="about_settings_title">acerca de</string>
     <string name="appearance_settings_title">apariencia</string>
     <string name="cd_apps">componente de apps</string>

@@ -364,8 +364,6 @@
 
     <!-- Language fallback -->
     <string name="settings_language_system_unsupported">system (english us)</string>
-    <string name="settings_clock_fixed_top">uhr oben fixieren</string>
-    <string name="settings_clock_fixed_top_desc">uhr immer oben anzeigen statt mittig mit apps</string>
     <string name="about_settings_title">über</string>
     <string name="appearance_settings_title">aussehen</string>
     <string name="cd_apps">apps-komponente</string>
