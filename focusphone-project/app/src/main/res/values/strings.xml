@@ -584,7 +584,7 @@ forty-one</string>
     <string name="schedule_rule_removed">schedule removed</string>
     <string name="schedule_nothing_to_save">enable a time window or a daily limit first</string>
     <string name="schedule_accessibility_required">system blocking is off</string>
-    <string name="schedule_accessibility_required_desc">daily limits need the focusphone accessibility service to measure app usage. tap to enable it.</string>
+    <string name="schedule_accessibility_required_desc">enable the focusphone accessibility service to enforce schedules from recents and other app shortcuts, and to measure daily usage. tap to enable it.</string>
 
     <!-- Schedule password -->
     <string name="schedule_password_row_title">schedule password</string>

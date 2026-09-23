@@ -293,8 +293,9 @@ midnight. Schedules are evaluated **in addition to** the active profile — a No
 device still enforces them — and the pure decision lives in `AppScheduleEvaluator` so it is
 fully unit tested. Every in-app launch path calls `BaseActivity.enforceAppSchedule()`;
 `FocusAccessibilityService` covers launches that bypass FocusPhone and is the only
-component that can measure foreground time, so daily limits need it enabled while time
-windows work without it.
+component that can measure foreground time, so daily limits need it enabled. Time
+windows work without it only for launches made from FocusPhone itself; launches from
+Recents and suggested shortcuts require the accessibility service for every rule.
 
 ### 6. App-Drawer Folders
 
@@ -374,7 +375,7 @@ every match flat.
   changed from the password-protected settings screen.
 
 ### System-Level Blocking (`FocusAccessibilityService`)
-- An optional `AccessibilityService` (`FocusAccessibilityService`) intercepts `TYPE_WINDOW_STATE_CHANGED` events. When a blocked app is launched from outside FocusPhone (notifications, recents, voice assistants), the service immediately launches `DetoxBlockedActivity` on top, closing the bypass vector that existed when the process was killed.
+- An optional `AccessibilityService` (`FocusAccessibilityService`) intercepts `TYPE_WINDOW_STATE_CHANGED` and `TYPE_WINDOWS_CHANGED` events and checks the active window's package. When a blocked app is launched from outside FocusPhone (notifications, recents, suggested shortcuts, voice assistants), the service launches the appropriate block screen on top.
 - The service is **not** enabled by default; the user is prompted to activate it when starting a Detox session.
 - The service also owns per-app usage accounting for daily limits: it accumulates foreground
   seconds, pauses while the screen is off, persists them through `AppSchedulePreferences`,

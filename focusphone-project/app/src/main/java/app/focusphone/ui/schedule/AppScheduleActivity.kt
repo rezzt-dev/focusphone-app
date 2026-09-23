@@ -227,9 +227,9 @@ class AppScheduleActivity : SettingsSubActivity() {
             onClick = { showAppPicker() }
         )
 
-        // Daily limits are measured by the accessibility service; without it only the
-        // time windows are enforced, so the user has to know it is off.
-        if (rules.any { it.hasDailyLimit } && !FocusAccessibilityService.isEnabled(this)) {
+        // All rules need the service for launches outside FocusPhone, including the
+        // suggested app shortcuts in Recents. Daily limits also need it to count usage.
+        if (rules.isNotEmpty() && !FocusAccessibilityService.isEnabled(this)) {
             container.addView(inflater.inflate(R.layout.settings_divider, container, false))
             container.addSectionHeader(R.string.schedule_section_warning)
             container.addInfoRow(

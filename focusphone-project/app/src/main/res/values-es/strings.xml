@@ -589,7 +589,7 @@ cuarenta y uno</string>
     <string name="schedule_rule_removed">horario eliminado</string>
     <string name="schedule_nothing_to_save">activa una franja horaria o un límite diario primero</string>
     <string name="schedule_accessibility_required">el bloqueo del sistema está desactivado</string>
-    <string name="schedule_accessibility_required_desc">los límites diarios necesitan el servicio de accesibilidad de focusphone para medir el uso. toca para activarlo.</string>
+    <string name="schedule_accessibility_required_desc">activa el servicio de accesibilidad de focusphone para aplicar los horarios desde recientes y otros accesos, y medir el uso diario. toca para activarlo.</string>
 
     <!-- Contraseña de horarios -->
     <string name="schedule_password_row_title">contraseña de horarios</string>

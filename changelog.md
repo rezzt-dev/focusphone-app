@@ -39,6 +39,7 @@
 - dejar de versionar el estado local de `.idea/` (`gradle.xml`, `misc.xml`, `compiler.xml`, `deviceManager.xml`, `vcs.xml`, `runConfigurations.xml`, `material_theme_project_new.xml` y `AndroidProjectSystem.xml`) y sustituir la lista de exclusiones sueltas por `/.idea/*` con reinclusiones, de modo que solo viajan con el repositorio el estilo de codigo compartido y el nombre del proyecto
 
 #### CORREGIDO
+- aplicar los bloqueos de horario y limite diario al abrir aplicaciones desde recientes y accesos frecuentes mediante cambios de ventana, y avisar de la necesidad del servicio de accesibilidad para todas las reglas
 - restaurar los gestos de deslizar en la pantalla de inicio (apertura de cajones y despliegue de notificaciones), rotos tras mover el detector de gestos a un listener que no consumia `ACTION_DOWN`
 - dar a el calendario y a ambos cajones laterales un scrim de legibilidad real y resolver sus colores desde `FocusPalette` en vez de `resolveAttribute`
 - aplicar los colores del tema personalizado cuando ya esta activo, en vez de ignorarlos por un cortocircuito en `applyTheme()`
@@ -106,6 +107,7 @@
 - stop versioning local `.idea/` state (`gradle.xml`, `misc.xml`, `compiler.xml`, `deviceManager.xml`, `vcs.xml`, `runConfigurations.xml`, `material_theme_project_new.xml` and `AndroidProjectSystem.xml`), replacing the list of individual exclusions with `/.idea/*` plus re-inclusions, so only the shared code style and the project name travel with the repository
 
 #### FIXED
+- enforce time windows and daily limits when apps open from recents and suggested shortcuts through window change events, and show the accessibility warning for every schedule rule
 - restore home screen swipe gestures (drawers and notification expansion), broken after the gesture detector moved to a touch listener that never consumed `ACTION_DOWN`
 - give the calendar and both side drawers a real legibility scrim and resolve their colours through `FocusPalette` instead of `resolveAttribute`
 - apply custom theme colours when the custom theme is already active, instead of ignoring them due to a short-circuit in `applyTheme()`

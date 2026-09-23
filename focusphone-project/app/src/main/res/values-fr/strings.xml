@@ -579,7 +579,7 @@ quarante et une</string>
     <string name="schedule_rule_removed">horaire supprimé</string>
     <string name="schedule_nothing_to_save">activez d\'abord une plage horaire ou une limite quotidienne</string>
     <string name="schedule_accessibility_required">le blocage système est désactivé</string>
-    <string name="schedule_accessibility_required_desc">les limites quotidiennes ont besoin du service d\'accessibilité focusphone pour mesurer l\'usage. touchez pour l\'activer.</string>
+    <string name="schedule_accessibility_required_desc">activez le service d\'accessibilité focusphone pour appliquer les horaires depuis les applis récentes et les raccourcis, et mesurer l\'usage quotidien. touchez pour l\'activer.</string>
 
     <!-- Mot de passe des horaires -->
     <string name="schedule_password_row_title">mot de passe des horaires</string>

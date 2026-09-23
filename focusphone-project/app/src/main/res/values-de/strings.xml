@@ -576,7 +576,7 @@ einundvierzig</string>
     <string name="schedule_rule_removed">zeitplan entfernt</string>
     <string name="schedule_nothing_to_save">aktiviere zuerst ein zeitfenster oder ein tageslimit</string>
     <string name="schedule_accessibility_required">systemweite sperre ist aus</string>
-    <string name="schedule_accessibility_required_desc">tageslimits brauchen den focusphone-bedienungshilfedienst, um die nutzung zu messen. zum aktivieren tippen.</string>
+    <string name="schedule_accessibility_required_desc">aktiviere den focusphone-bedienungshilfedienst, damit zeitpläne auch über zuletzt verwendete apps und verknüpfungen gelten und die tägliche nutzung gemessen wird. zum aktivieren tippen.</string>
 
     <!-- Zeitplan-passwort -->
     <string name="schedule_password_row_title">zeitplan-passwort</string>
