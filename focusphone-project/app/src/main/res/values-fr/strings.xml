@@ -7,15 +7,13 @@
     <string name="home_all_apps">toutes les apps</string>
     <string name="home_settings">réglages</string>
     <string name="home_edit_apps">modifier le dashboard</string>
-    <string name="home_long_press_hint">maintenez une app pour la retirer de la liste</string>
-    <string name="home_no_apps">aucune app sélectionnée.\nappuyez sur le menu pour ajouter des apps.</string>
+    <string name="home_long_press_hint">maintenez une app pour ses options, ou faites-la glisser pour la déplacer</string>
+    <string name="home_no_apps">pas encore d\'apps.\nappuyez ici pour choisir les quelques apps dont vous avez vraiment besoin.</string>
     <string name="home_menu_desc">ouvrir le menu</string>
 
     <string name="allapps_title">toutes les apps</string>
     <string name="allapps_close">fermer</string>
 
-    <string name="menu_open_app">ouvrir</string>
-    <string name="menu_remove_app">retirer de la liste</string>
     <string name="menu_app_info">infos de l\'app</string>
 
     <string name="appselect_title">choisissez vos apps</string>
@@ -117,7 +115,7 @@
     <string name="tutorial_coach_menu_title">le menu</string>
     <string name="tutorial_coach_menu_desc">glissez vers la gauche pour ouvrir le menu. d\'ici vous pouvez accéder à toutes les apps, aux réglages et changer de profil.</string>
     <string name="tutorial_coach_apps_title">ajouter des apps</string>
-    <string name="tutorial_coach_apps_desc">touchez "sélectionner les apps" pour choisir jusqu\'à 10 favoris. maintenez une app pour la retirer.</string>
+    <string name="tutorial_coach_apps_desc">touchez \"modifier le dashboard\" dans le menu pour choisir jusqu\'à 10 apps. maintenez une app pour ses options, ou faites-la glisser pour la déplacer.</string>
     <string name="tutorial_coach_profile_title">profils contextuels</string>
     <string name="tutorial_coach_profile_desc">touchez votre nom de profil pour changer de mode. travail bloque les distractions. detox bloque tout.</string>
     <string name="tutorial_coach_block_title">bloquer des apps</string>
@@ -629,4 +627,17 @@ quarante et une</string>
     <string name="settings_wallpaper_change">choisir une autre image</string>
     <string name="settings_wallpaper_remove">retirer le fond d\'écran</string>
     <string name="wallpaper_access_lost">un fond d\'écran n\'était plus lisible et a été retiré. choisissez-le à nouveau</string>
+
+    <!-- Accueil : options d'app et recherche dans toutes les apps -->
+    <string name="home_app_options_remove">retirer de l\'accueil</string>
+    <string name="allapps_search_no_match">aucun résultat pour « %1$s »</string>
+    <string name="allapps_search_hint_launch">recherchez, puis entrée pour ouvrir</string>
+
+    <!-- Pause consciente -->
+    <plurals name="pause_minutes_left_today">
+        <item quantity="one">il reste %d minute aujourd\'hui</item>
+        <item quantity="many">il reste %d minutes aujourd\'hui</item>
+        <item quantity="other">il reste %d minutes aujourd\'hui</item>
+    </plurals>
+    <string name="pause_last_minute_today">il reste moins d\'une minute aujourd\'hui</string>
 </resources>

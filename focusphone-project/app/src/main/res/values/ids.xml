@@ -15,4 +15,8 @@
     <item name="tag_recolor_text" type="id" />
     <item name="tag_recolor_tint" type="id" />
     <item name="tag_recolor_background" type="id" />
+    <!-- A row's press-feedback animator, parked while a drag owns the row's alpha and scale. -->
+    <item name="tag_press_animator" type="id" />
+    <!-- Width animator of an onboarding page dot, so a new page change can cancel it. -->
+    <item name="tag_pager_dot_animator" type="id" />
 </resources>

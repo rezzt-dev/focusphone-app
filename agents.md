@@ -90,6 +90,7 @@ app/src/main/java/app/focusphone/
     ├── home/
     │   ├── HomeActivity.kt       # Launcher activity; clock, calendar, drawer, profiles, reordering
     │   ├── HomeViewModel.kt
+    │   ├── FavouriteReorderCallback.kt # Hold in place = options, hold and move = reorder
     │   └── adapter/
     │       └── FavouriteAppsAdapter.kt
     ├── appselect/
@@ -118,7 +119,8 @@ app/src/main/java/app/focusphone/
     ├── onboarding/
     │   └── OnboardingActivity.kt # 3-step ViewPager2 onboarding flow
     ├── pause/
-    │   └── ConsciousPauseActivity.kt # Breathing countdown before launching target app
+    │   ├── ConsciousPauseActivity.kt # One guided breath before launching the target app
+    │   └── BreathingOrbView.kt       # Draws the breath; the screen owns the clock
     ├── detox/
     │   └── DetoxBlockedActivity.kt   # Full-screen block page with live countdown
     ├── schedule/
@@ -131,6 +133,9 @@ app/src/main/java/app/focusphone/
     │   ├── FocusColors.kt        # WCAG contrast maths (luminance, ratio, ensureContrast)
     │   ├── FocusPalette.kt       # Single source of truth for the active theme's colours
     │   └── SurfaceScrim.kt       # Adaptive scrim between a wallpaper and the content
+    ├── util/
+    │   ├── PressFeedback.kt      # Parks a row's press animator while a drag owns it
+    │   └── WindowMetrics.kt      # Current window width (multi-window / foldable safe)
     └── widget/
         ├── AnalogClockView.kt
         └── WeightGradientTextView.kt
@@ -152,7 +157,12 @@ app/src/main/java/app/focusphone/
   baseline (purple) never leaks into the monochrome UI.
 - There is no `values-night/`: day/night is handled manually via `THEME_AUTO` resolving to explicit themes.
 - `res/drawable/` — custom shapes, theme preview circles, tutorial icons.
-- `res/anim/fp_fade_in.xml` & `fp_fade_out.xml` — used by `BaseActivity` for consistent Activity transitions.
+- `res/anim/fp_fade_in.xml` & `fp_fade_out.xml` — used by `BaseActivity` for consistent Activity transitions (declared once with `overrideActivityTransition` on API 34+).
+- `res/animator/fp_press_feedback.xml` — calm press feedback for text rows; timings live in `res/values/motion.xml`.
+
+> **Launching apps:** always go through `BaseActivity.openApp` / `openShortcut`. They apply the
+> profile block, the schedule and the conscious pause in the right order; never call
+> `getLaunchIntentForPackage` + `startActivity` directly from a screen.
 
 ---
 

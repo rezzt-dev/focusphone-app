@@ -83,10 +83,8 @@ class HomeLayoutActivity : BaseActivity() {
     private val wiggleAnimators = mutableMapOf<View, ObjectAnimator>()
 
     // Apps
-    private val favouriteAppsAdapter = FavouriteAppsAdapter(
-        onAppClick = { /* no-op in preview */ },
-        onAppLongClick = { false }
-    )
+    // Rows in the preview are not tappable: it only shows how the home screen will look.
+    private val favouriteAppsAdapter = FavouriteAppsAdapter(onAppClick = { _, _ -> })
 
     // Clock
     private val clockUpdateRunnable = Runnable {

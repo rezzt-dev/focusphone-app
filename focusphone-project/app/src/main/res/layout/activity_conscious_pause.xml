@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Conscious pause: one breath, drawn as an orb, with the seconds left at its centre.
+    The question and the way out sit at the bottom, within reach of the thumb.
+-->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,63 +12,69 @@
     android:background="@android:color/transparent"
     android:keepScreenOn="true">
 
-    <!-- ── Center Content ─────────────────────────────────────── -->
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingStart="32dp"
-        android:paddingEnd="32dp"
-        app:layout_constraintBottom_toTopOf="@id/bottom_section"
+    <!-- ── Breath ─────────────────────────────────────────────── -->
+    <FrameLayout
+        android:id="@+id/breath_container"
+        android:layout_width="@dimen/pause_orb_size"
+        android:layout_height="@dimen/pause_orb_size"
+        app:layout_constraintBottom_toTopOf="@id/tv_breathing_state"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.42"
         app:layout_constraintVertical_chainStyle="packed">
 
-        <!-- Countdown -->
+        <app.focusphone.ui.pause.BreathingOrbView
+            android:id="@+id/orb_breath"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no" />
+
         <TextView
             android:id="@+id/tv_countdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-thin"
+            android:layout_gravity="center"
+            android:accessibilityLiveRegion="polite"
+            android:fontFamily="sans-serif-light"
             android:includeFontPadding="false"
             android:textAlignment="center"
             android:textColor="?android:attr/textColorPrimary"
-            android:textSize="56sp"
-            tools:text="5" />
+            android:textSize="48sp"
+            tools:text="4" />
+    </FrameLayout>
 
-        <!-- Breathing State -->
-        <TextView
-            android:id="@+id/tv_breathing_state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.14"
-            android:textAlignment="center"
-            android:textAllCaps="true"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="11sp"
-            tools:text="inhale…" />
+    <TextView
+        android:id="@+id/tv_breathing_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.18"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_section"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/breath_container"
+        tools:text="inhale…" />
 
-    </LinearLayout>
-
-    <!-- ── Bottom Section ─────────────────────────────────────── -->
+    <!-- ── Question and way out ───────────────────────────────── -->
     <LinearLayout
         android:id="@+id/bottom_section"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingStart="32dp"
-        android:paddingEnd="32dp"
-        android:paddingBottom="32dp"
+        android:paddingStart="40dp"
+        android:paddingEnd="40dp"
+        android:paddingBottom="28dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- Mindful Question -->
         <TextView
             android:id="@+id/tv_mindful_question"
             android:layout_width="wrap_content"
@@ -72,25 +82,37 @@
             android:fontFamily="sans-serif-light"
             android:gravity="center"
             android:lineSpacingMultiplier="1.3"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="15sp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="18sp"
             tools:text="are you sure you want to open instagram?" />
 
-        <!-- Cancel Button -->
+        <TextView
+            android:id="@+id/tv_allowance_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="14sp"
+            android:visibility="gone"
+            tools:text="12 minutes left today"
+            tools:visibility="visible" />
+
         <TextView
             android:id="@+id/btn_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:background="?attr/selectableItemBackground"
+            android:layout_marginTop="28dp"
             android:clickable="true"
             android:focusable="true"
-            android:fontFamily="sans-serif-light"
-            android:letterSpacing="0.08"
-            android:paddingStart="24dp"
-            android:paddingTop="12dp"
-            android:paddingEnd="24dp"
-            android:paddingBottom="12dp"
+            android:fontFamily="sans-serif"
+            android:letterSpacing="0.06"
+            android:minHeight="48dp"
+            android:gravity="center"
+            android:paddingStart="28dp"
+            android:paddingEnd="28dp"
+            android:stateListAnimator="@animator/fp_press_feedback"
             android:text="@string/pause_cancel"
             android:textColor="?android:attr/textColorSecondary"
             android:textSize="15sp" />

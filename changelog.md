@@ -18,6 +18,10 @@
 - añadir `.github/pull_request_template.md`, que convierte en formulario el procedimiento ya escrito: el fragmento de changelog en los dos idiomas como descripcion, las ordenes de verificacion (`staticAnalysis` y `testDebugUnitTest`/`lintDebug`/`assembleRelease`), los dispositivos probados y la lista de comprobacion de convenciones
 - añadir `contributing.md` en la raiz del repositorio, que es donde github lo busca para mostrar el boton "contributing" al abrir un issue o una pull request: resume el flujo, el formato de commit, el entorno y las reglas innegociables, y enlaza `12-contribuir.md` como version detallada y vinculante
 - añadir `code_of_conduct.md` en la raiz, adaptado del contributor covenant 2.1 con la seccion de aplicacion reescrita para un proyecto de autor unico, y `.github/CODEOWNERS`, que asigna automaticamente la revision
+- rediseñar la pausa consciente como una sola respiracion guiada: `BreathingOrbView` dibuja un disco que crece al inspirar y se recoge al espirar dentro de un anillo que se llena con el tiempo, con un toque haptico al cambiar de fase y, si la app tiene limite diario, los minutos que quedan hoy
+- abrir la mejor coincidencia al pulsar intro en el buscador de todas las apps, y nombrar la busqueda cuando no hay resultados
+- hacer que el estado vacio de la pantalla de inicio abra directamente el selector de apps
+- añadir una respuesta tactil serena (atenuado y leve escala, `@animator/fp_press_feedback`) a favoritos, filas del cajon, entradas del menu y botones de texto, y tokens de movimiento comunes en `values/motion.xml`
 
 #### CAMBIADO
 - reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
@@ -37,6 +41,13 @@
 - renombrar a minusculas los ficheros de la raiz del repositorio (`agents.md`, `claude.md`, `license`, `readme.md` y `security.md`) para que todos sigan la misma convencion que `changelog.md`, `.editorconfig`, `.gitignore` y `renovate.json`, y actualizar los enlaces, los arboles de ficheros y el mapa del proyecto que los citaban
 - dejar de versionar `.docs/`, que se estaba publicando entero por un `.gitignore` cuyo comentario explicaba la exclusion pero no incluia ningun patron: eran unos 860 ficheros y 5 mb de habilidades de agentes ajenas al proyecto, y `agents.md`, `claude.md` y `03-entorno-y-compilacion.md` ya documentaban esa carpeta como ignorada
 - dejar de versionar el estado local de `.idea/` (`gradle.xml`, `misc.xml`, `compiler.xml`, `deviceManager.xml`, `vcs.xml`, `runConfigurations.xml`, `material_theme_project_new.xml` y `AndroidProjectSystem.xml`) y sustituir la lista de exclusiones sueltas por `/.idea/*` con reinclusiones, de modo que solo viajan con el repositorio el estilo de codigo compartido y el nombre del proyecto
+- unificar el lanzamiento de apps en `BaseActivity.openApp` y `BaseActivity.openShortcut` (bloqueo de perfil, horario, pausa consciente y destino de la notificacion), sustituyendo las copias de inicio, todas las apps y el panel de notificaciones; los atajos ahora tambien respetan el bloqueo del perfil
+- abrir las apps desde inicio y todas las apps creciendo desde la fila pulsada y declarar las transiciones de pantalla con `overrideActivityTransition` en android 14+, para que el gesto atras tambien use el fundido de la app
+- sustituir el menu emergente de un favorito por el dialogo de opciones con el nombre de la app, igual que en todas las apps, y separar mantener pulsado (opciones) de arrastrar (reordenar) en `FavouriteReorderCallback`
+- rehacer el foco del tutorial como un rectangulo redondeado ajustado al elemento, con un pulso animado, y señalar la fila completa de indicadores en el paso del menu
+- convertir el indicador de paginas del onboarding en una pastilla que anima su ancho y quitar el boton duplicado "entrar" de la ultima pagina
+- mostrar el sufijo am/pm del reloj a menor tamaño y dar a los buscadores de todas las apps y del selector un campo con fondo propio
+- reescribir los textos del estado vacio, del aviso de mantener pulsado y del paso "añadir apps" del tutorial para que nombren la accion real ("editar dashboard") en los cuatro idiomas
 
 #### CORREGIDO
 - aplicar los bloqueos de horario y limite diario al abrir aplicaciones desde recientes y accesos frecuentes mediante cambios de ventana, y avisar de la necesidad del servicio de accesibilidad para todas las reglas
@@ -60,10 +71,21 @@
 - nombrar `_` las excepciones que se descartan a proposito en trece `catch` que devolvian un repliegue documentado, para que se distingan de un error perdido (detekt `SwallowedException`)
 - extraer `styleCalendarDay` de `populateCalendar` en `HomeActivity`, que anidaba seis niveles de bloques para pintar un numero del calendario
 - evitar el cierre de la app al cambiar un fondo ya elegido y al abrir cualquier dialogo de material: `FocusPhone.DialogTitleTextStyle` heredaba de un `TextAppearance` sin `layout_width` y el titulo de `m3_alert_dialog` no se podia inflar; ahora los estilos de titulo y cuerpo heredan de `MaterialAlertDialog.Material3.*.Text` y `MaterialAlertDialogThemeTest` lo comprueba para cada tema
+- evitar que deslizar en horizontal sobre un favorito o el reloj para abrir el menu o las notificaciones abriera tambien esa app o la alarma: el gesto se reclama y cancela el toque de las vistas
+- volver siempre a la pagina de inicio al pulsar el boton home, cerrar el cajon abierto con atras en vez de ignorarlo, y no mostrar a la vuelta un cajon a medio cerrar tras abrir ajustes, todas las apps o una notificacion
+- impedir que un arrastre rapido de un favorito hacia abajo desplegara la persiana de notificaciones del sistema
+- no reconstruir la disposicion de inicio ni volver a enlazar las filas en cada vuelta a la pantalla, y dejar de crear tres drawables por fotograma al deslizar los cajones
+- registrar los dialogos de perfil y detox de inicio para que se cierren con la pantalla y al pulsar home en vez de filtrar su ventana
+- mostrar el aviso de mantener pulsado solo cuando hay favoritos y el tutorial ha terminado, en vez de sobre el primer paso con la pantalla vacia
+- bloquear los toques bajo el tutorial y animar de verdad su pulso, que se calculaba sin redibujarse
+- respetar el formato de 12 horas en el reloj apilado, que siempre mostraba la hora en 24 horas
+- corregir el salto de linea literal del estado vacio en castellano, que android unia en una sola linea
+- volver arriba de la lista de todas las apps tras abrir una app desde una busqueda y limpiarla, y dejar de borrar el primer plano de las filas tras un arrastre a carpeta
 
 #### ELIMINADO
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` y el subsistema de tamaño de icono inalcanzable, junto con `backup_rules.xml` y el `values-night/themes.xml` vacio
 - codigo muerto detectado por detekt: el callback `onDismiss` de `NotificationsAdapter`, que nunca se invocaba porque el deslizamiento llama a `dismissNotification` directamente; la constante `TAG` sin uso de `HomeActivity`; y el parametro `totalSteps` de `TutorialOverlayView.showStep`
+- el menu emergente `menu_app_context.xml` y su entrada "abrir", redundante con tocar la app
 
 #### SEGURIDAD
 - unificar el bloqueo de detox y horarios bajo una unica politica de intentos cifrada (5 intentos, 15 min de espera); una contraseña incorrecta ya no finaliza la sesion de detox y la verificacion corre pbkdf2 fuera del hilo principal
@@ -86,6 +108,10 @@
 - add `.github/pull_request_template.md`, turning the already written procedure into a form: the bilingual changelog fragment as the description, the verification commands (`staticAnalysis` and `testDebugUnitTest`/`lintDebug`/`assembleRelease`), the devices tested and the conventions checklist
 - add `contributing.md` at the repository root, where github looks for it to show the "contributing" button when opening an issue or a pull request: it summarises the workflow, the commit format, the setup and the non-negotiable rules, and links `12-contributing.md` as the detailed, binding version
 - add `code_of_conduct.md` at the root, adapted from contributor covenant 2.1 with the enforcement section rewritten for a single-author project, and `.github/CODEOWNERS`, which assigns review automatically
+- redesign the conscious pause as a single guided breath: `BreathingOrbView` draws a disc that swells on the inhale and settles on the exhale inside a ring that fills over time, with a haptic tick when the breath turns and, for apps with a daily limit, the minutes left today
+- open the best match when enter is pressed in the all-apps search, and name the query when nothing matches
+- make the empty home-screen state open the app picker directly
+- add calm touch feedback (dim and slight scale, `@animator/fp_press_feedback`) to favourites, drawer rows, menu entries and text buttons, and shared motion tokens in `values/motion.xml`
 
 #### CHANGED
 - reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone
@@ -105,6 +131,13 @@
 - rename the repository root files to lowercase (`agents.md`, `claude.md`, `license`, `readme.md` and `security.md`) so they all follow the same convention as `changelog.md`, `.editorconfig`, `.gitignore` and `renovate.json`, updating every link, file tree and project map that referenced them
 - stop versioning `.docs/`, which was being published in full because its `.gitignore` block carried the comment explaining the exclusion but no pattern: around 860 files and 5 mb of agent skills unrelated to the project, in a folder `agents.md`, `claude.md` and `03-environment-and-build.md` already documented as ignored
 - stop versioning local `.idea/` state (`gradle.xml`, `misc.xml`, `compiler.xml`, `deviceManager.xml`, `vcs.xml`, `runConfigurations.xml`, `material_theme_project_new.xml` and `AndroidProjectSystem.xml`), replacing the list of individual exclusions with `/.idea/*` plus re-inclusions, so only the shared code style and the project name travel with the repository
+- unify app launching in `BaseActivity.openApp` and `BaseActivity.openShortcut` (profile block, schedule, conscious pause and notification target), replacing the copies in home, all apps and the notification panel; shortcuts now also respect the profile block
+- open apps from home and all apps growing out of the tapped row, and declare screen transitions with `overrideActivityTransition` on android 14+ so the back gesture also uses the app fade
+- replace a favourite's popup menu with the options dialog titled with the app name, as in all apps, and tell hold (options) from drag (reorder) in `FavouriteReorderCallback`
+- rebuild the tutorial spotlight as a rounded rectangle fitted to its target with an animated pulse, and point the menu step at the whole indicator row
+- turn the onboarding page indicator into a pill that animates its width and remove the duplicate "enter" button from the last page
+- render the clock am/pm suffix smaller and give the all-apps and app-picker searches a field with its own background
+- rewrite the empty state, the hold hint and the "add apps" tutorial step so they name the real action ("edit dashboard") in all four languages
 
 #### FIXED
 - enforce time windows and daily limits when apps open from recents and suggested shortcuts through window change events, and show the accessibility warning for every schedule rule
@@ -128,10 +161,21 @@
 - name `_` the exceptions that are dropped on purpose in thirteen `catch` blocks that returned a documented fallback, so they read differently from a lost error (detekt `SwallowedException`)
 - extract `styleCalendarDay` out of `HomeActivity.populateCalendar`, which nested six levels of blocks to paint a single calendar number
 - stop the app crashing when changing an already chosen wallpaper and when opening any material dialog: `FocusPhone.DialogTitleTextStyle` inherited from a `TextAppearance` with no `layout_width`, so the `m3_alert_dialog` title could not be inflated; the title and body styles now inherit from `MaterialAlertDialog.Material3.*.Text` and `MaterialAlertDialogThemeTest` checks it for every theme
+- stop a horizontal swipe over a favourite or the clock, meant to open the menu or notifications, from also opening that app or the alarm: the gesture is claimed and the views' touch is cancelled
+- always return to the home page on the home button, close an open drawer with back instead of ignoring it, and no longer show a half-closed drawer after coming back from settings, all apps or a notification
+- stop a fast downward drag of a favourite from pulling down the system notification shade
+- stop rebuilding the home layout and rebinding rows on every return to the screen, and stop allocating three drawables per frame while drawers slide
+- track the home profile and detox dialogs so they close with the screen and on the home button instead of leaking their window
+- show the hold hint only once there are favourites and the tutorial is done, instead of over its first step on an empty screen
+- block touches under the tutorial and actually animate its pulse, which was computed without being redrawn
+- honour the 12-hour format in the stacked clock, which always showed 24-hour time
+- fix the literal line break in the spanish empty state, which android collapsed into a single line
+- scroll the all-apps list back to the top after opening an app from a search and clearing it, and stop wiping row foregrounds after a folder drag
 
 #### REMOVED
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` and the unreachable icon-size-slider subsystem, along with `backup_rules.xml` and the empty `values-night/themes.xml`
 - dead code found by detekt: the `onDismiss` callback of `NotificationsAdapter`, never invoked because the swipe handler calls `dismissNotification` directly; the unused `TAG` constant in `HomeActivity`; and the `totalSteps` parameter of `TutorialOverlayView.showStep`
+- the `menu_app_context.xml` popup menu and its "open" entry, redundant with tapping the app
 
 #### SECURITY
 - unify detox and schedule locks under one encrypted attempt policy (5 attempts, 15 min cooldown); a wrong password no longer ends a detox session, and verification now runs pbkdf2 off the main thread

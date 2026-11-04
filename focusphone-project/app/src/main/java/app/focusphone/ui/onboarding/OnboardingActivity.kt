@@ -1,14 +1,18 @@
 package app.focusphone.ui.onboarding
 
+import android.animation.ValueAnimator
 import android.content.Intent
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.PathInterpolator
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.ViewCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -19,6 +23,7 @@ import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.databinding.ActivityOnboardingBinding
 import app.focusphone.ui.appselect.AppSelectActivity
 import app.focusphone.ui.base.BaseActivity
+import app.focusphone.ui.theme.FocusColors
 import app.focusphone.ui.theme.FocusPalette
 import app.focusphone.ui.tutorial.TutorialAction
 import app.focusphone.ui.tutorial.TutorialContent
@@ -80,7 +85,7 @@ class OnboardingActivity : BaseActivity() {
     private fun setupInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            binding.root.setPadding(0, bars.top, 0, bars.bottom)
+            binding.root.updatePadding(top = bars.top, bottom = bars.bottom)
             insets
         }
     }
@@ -133,38 +138,55 @@ class OnboardingActivity : BaseActivity() {
 
     // ── Dots indicator ─────────────────────────────────────────────────────────────
 
+    /**
+     * Page indicator: one short pill for the current page, small dots for the rest.
+     *
+     * The current page used to be marked by scaling its dot by 1.3 inside a container that
+     * clips its children, which cut the first dot in half. Growing the pill's *width*
+     * instead goes through layout, so nothing is ever drawn outside its bounds.
+     */
     private fun setupDots() {
-        val dp8 = dp(8)
-        val dp6 = dp(6)
-        val primaryColor = resolveColorAttr(android.R.attr.textColorPrimary)
-        val secondaryColor = resolveColorAttr(android.R.attr.textColorSecondary)
-
+        val size = resources.getDimensionPixelSize(R.dimen.pager_dot_size)
+        val gap = resources.getDimensionPixelSize(R.dimen.pager_dot_gap)
         pages.forEachIndexed { index, _ ->
             val dot = View(this).apply {
-                val lp = ViewGroup.MarginLayoutParams(dp8, dp8)
-                lp.marginEnd = dp6
-                layoutParams = lp
-                setBackgroundResource(R.drawable.bg_dot_inactive)
-                backgroundTintList = android.content.res.ColorStateList.valueOf(secondaryColor)
+                layoutParams = ViewGroup.MarginLayoutParams(size, size).apply { marginEnd = gap }
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = size / 2f
+                }
                 contentDescription = getString(R.string.onboarding_step_counter, index + 1, pages.size)
             }
             binding.dotsContainer.addView(dot)
         }
-        updateDots(0, primaryColor, secondaryColor)
+        updateDots(0, animate = false)
     }
 
-    private fun updateDots(currentPage: Int, primaryColor: Int, secondaryColor: Int) {
+    private fun updateDots(currentPage: Int, animate: Boolean = true) {
+        val size = resources.getDimensionPixelSize(R.dimen.pager_dot_size)
+        val activeWidth = resources.getDimensionPixelSize(R.dimen.pager_dot_active_width)
+        val colors = palette
         for (i in 0 until binding.dotsContainer.childCount) {
             val dot = binding.dotsContainer.getChildAt(i)
-            if (i == currentPage) {
-                dot.setBackgroundResource(R.drawable.bg_dot_active)
-                dot.backgroundTintList = android.content.res.ColorStateList.valueOf(primaryColor)
-                dot.animate().scaleX(1.3f).scaleY(1.3f).setDuration(180).start()
-            } else {
-                dot.setBackgroundResource(R.drawable.bg_dot_inactive)
-                dot.backgroundTintList = android.content.res.ColorStateList.valueOf(secondaryColor)
-                dot.animate().scaleX(1f).scaleY(1f).setDuration(180).start()
+            val active = i == currentPage
+            (dot.background as? GradientDrawable)?.setColor(
+                if (active) colors.textPrimary else FocusColors.withAlpha(colors.textSecondary, INACTIVE_DOT_ALPHA)
+            )
+            val targetWidth = if (active) activeWidth else size
+            (dot.getTag(R.id.tag_pager_dot_animator) as? ValueAnimator)?.cancel()
+            if (!animate || dot.layoutParams.width == targetWidth) {
+                dot.layoutParams = dot.layoutParams.apply { width = targetWidth }
+                continue
             }
+            val animator = ValueAnimator.ofInt(dot.layoutParams.width, targetWidth).apply {
+                duration = DOT_ANIM_MS
+                interpolator = PathInterpolator(0.4f, 0f, 0.2f, 1f)
+                addUpdateListener { anim ->
+                    dot.layoutParams = dot.layoutParams.apply { width = anim.animatedValue as Int }
+                }
+            }
+            dot.setTag(R.id.tag_pager_dot_animator, animator)
+            animator.start()
         }
     }
 
@@ -183,9 +205,7 @@ class OnboardingActivity : BaseActivity() {
     }
 
     private fun updateUi(position: Int) {
-        val primaryColor = resolveColorAttr(android.R.attr.textColorPrimary)
-        val secondaryColor = resolveColorAttr(android.R.attr.textColorSecondary)
-        updateDots(position, primaryColor, secondaryColor)
+        updateDots(position)
 
         val page = pages[position]
         val isLast = position == pages.lastIndex
@@ -205,12 +225,6 @@ class OnboardingActivity : BaseActivity() {
         }
     }
 
-    private fun resolveColorAttr(attrId: Int): Int = when (attrId) {
-        android.R.attr.textColorSecondary -> palette.textSecondary
-        android.R.attr.colorBackground -> palette.background
-        else -> palette.textPrimary
-    }
-
     // ── Page actions ───────────────────────────────────────────────────────────────
 
     private fun onPageAction(page: TutorialPage) {
@@ -227,7 +241,10 @@ class OnboardingActivity : BaseActivity() {
         finish()
     }
 
-    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+    private companion object {
+        const val DOT_ANIM_MS = 240L
+        const val INACTIVE_DOT_ALPHA = 0.55f
+    }
 }
 
 // ── Adapter ──────────────────────────────────────────────────────────────────────
@@ -308,7 +325,9 @@ private class OnboardingPagerAdapter(
                     page.actionRes?.let { res -> btnAction.setText(res) }
                     btnAction.setOnClickListener { onAction(page) }
                 }
-            } else if (page.actionRes != null) {
+            } else if (page.actionRes != null && page.action != TutorialAction.COMPLETE) {
+                // COMPLETE is left to the bottom button, which says the same thing; two
+                // identical buttons on the last page read as a glitch.
                 tvStatus.visibility = View.GONE
                 btnAction.visibility = View.VISIBLE
                 btnAction.setText(page.actionRes)

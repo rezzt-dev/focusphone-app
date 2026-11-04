@@ -7,16 +7,13 @@
     <string name="home_all_apps">todas las apps</string>
     <string name="home_settings">ajustes de focus</string>
     <string name="home_edit_apps">editar dashboard</string>
-    <string name="home_long_press_hint">mantén pulsada una app para quitarla de la lista</string>
-    <string name="home_no_apps">sin apps seleccionadas.
-toca el menú para añadir apps.</string>
+    <string name="home_long_press_hint">mantén pulsada una app para ver sus opciones, o arrástrala para reordenarla</string>
+    <string name="home_no_apps">aún no hay apps.\ntoca aquí para elegir las pocas que de verdad necesitas.</string>
     <string name="home_menu_desc">abrir menú</string>
 
     <string name="allapps_title">todas las apps</string>
     <string name="allapps_close">cerrar</string>
 
-    <string name="menu_open_app">abrir</string>
-    <string name="menu_remove_app">quitar de la lista</string>
     <string name="menu_app_info">info de la app</string>
 
     <string name="appselect_title">selecciona tus apps</string>
@@ -124,7 +121,7 @@ toca el menú para añadir apps.</string>
     <string name="tutorial_coach_menu_title">el menú</string>
     <string name="tutorial_coach_menu_desc">desliza a la izquierda para abrir el menú. desde aquí puedes acceder a todas las apps, ajustes y cambiar de perfil.</string>
     <string name="tutorial_coach_apps_title">añadir apps</string>
-    <string name="tutorial_coach_apps_desc">toca "seleccionar apps" para elegir hasta 10 favoritas. mantén pulsada una app para quitarla.</string>
+    <string name="tutorial_coach_apps_desc">toca \"editar dashboard\" en el menú para elegir hasta 10 apps. mantén pulsada una app para ver sus opciones, o arrástrala para reordenarla.</string>
     <string name="tutorial_coach_profile_title">perfiles contextuales</string>
     <string name="tutorial_coach_profile_desc">toca tu nombre de perfil para cambiar de modo. trabajo bloquea distracciones. detox bloquea todo.</string>
     <string name="tutorial_coach_block_title">bloquear apps</string>
@@ -639,4 +636,17 @@ cuarenta y uno</string>
     <string name="settings_wallpaper_change">elegir otra imagen</string>
     <string name="settings_wallpaper_remove">quitar fondo</string>
     <string name="wallpaper_access_lost">no se pudo leer un fondo de pantalla y se ha quitado. vuelve a elegirlo</string>
+
+    <!-- Inicio: opciones de app y búsqueda en todas las apps -->
+    <string name="home_app_options_remove">quitar de inicio</string>
+    <string name="allapps_search_no_match">nada coincide con “%1$s”</string>
+    <string name="allapps_search_hint_launch">busca y pulsa intro para abrir</string>
+
+    <!-- Pausa consciente -->
+    <plurals name="pause_minutes_left_today">
+        <item quantity="one">te queda %d minuto hoy</item>
+        <item quantity="many">te quedan %d minutos hoy</item>
+        <item quantity="other">te quedan %d minutos hoy</item>
+    </plurals>
+    <string name="pause_last_minute_today">te queda menos de un minuto hoy</string>
 </resources>

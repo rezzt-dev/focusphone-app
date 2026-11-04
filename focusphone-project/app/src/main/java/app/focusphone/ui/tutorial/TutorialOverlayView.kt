@@ -3,13 +3,17 @@ package app.focusphone.ui.tutorial
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
+import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
@@ -18,9 +22,14 @@ import android.widget.TextView
 import app.focusphone.R
 
 /**
- * A full-screen overlay that highlights a specific view with a circular "spotlight" cut-out
+ * A full-screen overlay that highlights a specific view with a rounded "spotlight" cut-out
  * and displays an anchored tooltip. Used for the interactive contextual tutorial in
  * [app.focusphone.ui.home.HomeActivity].
+ *
+ * The cut-out hugs the target's own bounds. It used to be a circle as wide as the target's
+ * longest side, which for a full-width clock or app list ran off both edges of the screen
+ * and lit up half of it. The overlay also swallows every touch outside the tooltip, so the
+ * screen underneath cannot be swiped or tapped while a step is explained.
  *
  * The overlay is added directly to the Activity's [android.R.id.content] decor view.
  */
@@ -29,8 +38,10 @@ class TutorialOverlayView @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : FrameLayout(context, attrs) {
 
+    private val density = resources.displayMetrics.density
+
     private val dimPaint = Paint().apply {
-        color = 0xE6000000.toInt() // 90% black
+        color = DIM_COLOR
         isAntiAlias = true
     }
 
@@ -40,23 +51,28 @@ class TutorialOverlayView @JvmOverloads constructor(
 
     private val pulsePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        strokeWidth = 3f * resources.displayMetrics.density
-        color = 0x66FFFFFF
+        strokeWidth = PULSE_STROKE_DP * density
+        color = Color.WHITE
     }
 
-    private var targetCenterX = 0f
-    private var targetCenterY = 0f
-    private var targetRadius = 0f
-    private var pulseRadius = 0f
+    private val spotlight = RectF()
+    private val pulseBounds = RectF()
+    private var cornerRadius = 0f
+
+    /** 0 → 1 along one pulse: the ring grows away from the cut-out while it fades. */
+    private var pulseFraction = 0f
     private var pulseAnimator: ValueAnimator? = null
 
     private lateinit var tooltipView: View
     private var onDismissListener: (() -> Unit)? = null
-    private var stepIndex = 0
+    private var dismissing = false
 
     init {
-        setLayerType(LAYER_TYPE_SOFTWARE, null)
+        // The cut-out clears pixels of this view's own layer, so it needs one.
+        setLayerType(LAYER_TYPE_HARDWARE, null)
         setWillNotDraw(false)
+        isClickable = true
+        isFocusable = true
         setupTooltip()
     }
 
@@ -70,22 +86,19 @@ class TutorialOverlayView @JvmOverloads constructor(
     }
 
     /**
-     * Shows a tutorial step highlighting [targetView] with a circular spotlight and a tooltip.
+     * Shows a tutorial step highlighting [targetView] with a spotlight and a tooltip.
      *
      * @param targetView The view to highlight.
      * @param titleRes Title string resource for the tooltip.
      * @param descRes Description string resource for the tooltip.
-     * @param step Current step index (0-based).
      * @param onDismiss Called when the user taps "got it".
      */
     fun showStep(
         targetView: View,
         titleRes: Int,
         descRes: Int,
-        step: Int,
         onDismiss: () -> Unit
     ) {
-        this.stepIndex = step
         this.onDismissListener = onDismiss
 
         // Measure target position relative to this overlay
@@ -93,52 +106,54 @@ class TutorialOverlayView @JvmOverloads constructor(
         targetView.getLocationOnScreen(location)
         val overlayLocation = IntArray(2)
         getLocationOnScreen(overlayLocation)
+        val left = (location[0] - overlayLocation[0]).toFloat()
+        val top = (location[1] - overlayLocation[1]).toFloat()
 
-        val relativeX = (location[0] - overlayLocation[0]).toFloat()
-        val relativeY = (location[1] - overlayLocation[1]).toFloat()
-
-        targetCenterX = relativeX + targetView.width / 2f
-        targetCenterY = relativeY + targetView.height / 2f
-        targetRadius = kotlin.math.max(targetView.width, targetView.height) / 2f + dp(12)
-        pulseRadius = targetRadius
+        val padding = SPOTLIGHT_PADDING_DP * density
+        val margin = SCREEN_MARGIN_DP * density
+        spotlight.set(
+            (left - padding).coerceAtLeast(margin),
+            (top - padding).coerceAtLeast(margin),
+            (left + targetView.width + padding).coerceAtMost(width - margin),
+            (top + targetView.height + padding).coerceAtMost(height - margin)
+        )
+        cornerRadius = minOf(MAX_CORNER_DP * density, spotlight.height() / 2f, spotlight.width() / 2f)
 
         // Setup tooltip content
         tooltipView.findViewById<TextView>(R.id.tv_tooltip_title).setText(titleRes)
         tooltipView.findViewById<TextView>(R.id.tv_tooltip_desc).setText(descRes)
 
-        // Position tooltip
         positionTooltip()
-
-        // Start animations
         startPulseAnimation()
         animateIn()
     }
 
     private fun positionTooltip() {
+        val maxWidth = (width * TOOLTIP_MAX_WIDTH_FRACTION).toInt()
         tooltipView.measure(
-            MeasureSpec.makeMeasureSpec((resources.displayMetrics.widthPixels * 0.85).toInt(), MeasureSpec.AT_MOST),
+            MeasureSpec.makeMeasureSpec(maxWidth, MeasureSpec.AT_MOST),
             MeasureSpec.UNSPECIFIED
         )
-
         val tooltipWidth = tooltipView.measuredWidth
         val tooltipHeight = tooltipView.measuredHeight
-        val screenHeight = resources.displayMetrics.heightPixels
+        val gap = TOOLTIP_GAP_DP * density
+        val margin = SCREEN_MARGIN_DP * density
 
-        // Default: place tooltip below target with horizontal centering
-        var tooltipX = (targetCenterX - tooltipWidth / 2f).toInt()
-        var tooltipY = (targetCenterY + targetRadius + dp(24)).toInt()
-
-        // If tooltip would go off bottom, place it above the target
-        if (tooltipY + tooltipHeight > screenHeight - dp(40)) {
-            tooltipY = (targetCenterY - targetRadius - tooltipHeight - dp(24)).toInt()
+        // Below the spotlight when it fits, above it otherwise; a target too tall for
+        // either keeps the tooltip inside the screen, over the lower part of the target.
+        val below = spotlight.bottom + gap
+        val above = spotlight.top - gap - tooltipHeight
+        val tooltipY = when {
+            below + tooltipHeight <= height - margin -> below
+            above >= margin -> above
+            else -> height - margin - tooltipHeight
         }
+        val tooltipX = (spotlight.centerX() - tooltipWidth / 2f)
+            .coerceIn(margin, (width - tooltipWidth - margin).coerceAtLeast(margin))
 
-        // Clamp horizontally
-        tooltipX = tooltipX.coerceIn(dp(16), resources.displayMetrics.widthPixels - tooltipWidth - dp(16))
-
-        val params = tooltipView.layoutParams as FrameLayout.LayoutParams
-        params.leftMargin = tooltipX
-        params.topMargin = tooltipY
+        val params = tooltipView.layoutParams as LayoutParams
+        params.leftMargin = tooltipX.toInt()
+        params.topMargin = tooltipY.toInt()
         params.width = ViewGroup.LayoutParams.WRAP_CONTENT
         params.height = ViewGroup.LayoutParams.WRAP_CONTENT
         tooltipView.layoutParams = params
@@ -146,27 +161,40 @@ class TutorialOverlayView @JvmOverloads constructor(
 
     private fun startPulseAnimation() {
         pulseAnimator?.cancel()
-        pulseAnimator = ValueAnimator.ofFloat(targetRadius, targetRadius * 1.4f).apply {
-            duration = 1200
+        pulseAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = PULSE_DURATION_MS
+            startDelay = PULSE_START_DELAY_MS
             repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.REVERSE
             interpolator = DecelerateInterpolator()
-            addUpdateListener { pulseRadius = it.animatedValue as Float }
+            addUpdateListener {
+                pulseFraction = it.animatedValue as Float
+                // Without this the ring was computed every frame but never redrawn.
+                invalidate()
+            }
             start()
         }
     }
 
     private fun animateIn() {
         alpha = 0f
-        animate().alpha(1f).setDuration(300).start()
-        tooltipView.animate().alpha(1f).setDuration(400).setStartDelay(200).start()
+        animate().alpha(1f).setDuration(FADE_IN_MS).start()
+        tooltipView.translationY = TOOLTIP_RISE_DP * density
+        tooltipView.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(TOOLTIP_IN_MS)
+            .setStartDelay(TOOLTIP_DELAY_MS)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
     }
 
     private fun dismissWithAnimation() {
+        if (dismissing) return
+        dismissing = true
         pulseAnimator?.cancel()
         animate()
             .alpha(0f)
-            .setDuration(250)
+            .setDuration(FADE_OUT_MS)
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     (parent as? ViewGroup)?.removeView(this@TutorialOverlayView)
@@ -178,20 +206,24 @@ class TutorialOverlayView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        // Draw dim background
         canvas.drawPaint(dimPaint)
-        // Draw spotlight hole
-        canvas.drawCircle(targetCenterX, targetCenterY, targetRadius, holePaint)
-        // Draw pulse ring
-        canvas.drawCircle(targetCenterX, targetCenterY, pulseRadius, pulsePaint)
+        if (spotlight.isEmpty) return
+        canvas.drawRoundRect(spotlight, cornerRadius, cornerRadius, holePaint)
+
+        val grow = PULSE_GROW_DP * density * pulseFraction
+        pulseBounds.set(spotlight.left - grow, spotlight.top - grow, spotlight.right + grow, spotlight.bottom + grow)
+        pulsePaint.alpha = (PULSE_MAX_ALPHA * (1f - pulseFraction)).toInt()
+        canvas.drawRoundRect(pulseBounds, cornerRadius + grow, cornerRadius + grow, pulsePaint)
     }
+
+    /** Swallows touches outside the tooltip: the screen underneath is on hold. */
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent): Boolean = true
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         pulseAnimator?.cancel()
     }
-
-    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
     companion object {
 
@@ -202,7 +234,6 @@ class TutorialOverlayView @JvmOverloads constructor(
          * @param targetView The view to highlight.
          * @param titleRes Tooltip title resource.
          * @param descRes Tooltip description resource.
-         * @param step Current step index.
          * @param onDismiss Callback when dismissed.
          */
         fun show(
@@ -210,7 +241,6 @@ class TutorialOverlayView @JvmOverloads constructor(
             targetView: View,
             titleRes: Int,
             descRes: Int,
-            step: Int,
             onDismiss: () -> Unit
         ): TutorialOverlayView {
             // Remove any existing overlay
@@ -228,7 +258,7 @@ class TutorialOverlayView @JvmOverloads constructor(
             // Post to ensure layout is ready
             overlay.post {
                 if (overlay.isAttachedToWindow) {
-                    overlay.showStep(targetView, titleRes, descRes, step, onDismiss)
+                    overlay.showStep(targetView, titleRes, descRes, onDismiss)
                 }
             }
 
@@ -236,5 +266,22 @@ class TutorialOverlayView @JvmOverloads constructor(
         }
 
         private const val TAG_TUTORIAL_OVERLAY = "focusphone_tutorial_overlay"
+
+        private const val DIM_COLOR = 0xD9000000.toInt() // 85% black
+        private const val SPOTLIGHT_PADDING_DP = 10f
+        private const val SCREEN_MARGIN_DP = 12f
+        private const val MAX_CORNER_DP = 24f
+        private const val TOOLTIP_GAP_DP = 20f
+        private const val TOOLTIP_RISE_DP = 12f
+        private const val TOOLTIP_MAX_WIDTH_FRACTION = 0.85f
+        private const val PULSE_STROKE_DP = 2f
+        private const val PULSE_GROW_DP = 14f
+        private const val PULSE_MAX_ALPHA = 140
+        private const val PULSE_DURATION_MS = 1600L
+        private const val PULSE_START_DELAY_MS = 300L
+        private const val FADE_IN_MS = 300L
+        private const val FADE_OUT_MS = 220L
+        private const val TOOLTIP_IN_MS = 380L
+        private const val TOOLTIP_DELAY_MS = 160L
     }
 }

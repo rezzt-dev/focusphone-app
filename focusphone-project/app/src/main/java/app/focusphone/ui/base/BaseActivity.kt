@@ -1,6 +1,8 @@
 package app.focusphone.ui.base
 
+import android.app.ActivityOptions
 import android.app.Dialog
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
@@ -31,10 +33,14 @@ import androidx.lifecycle.lifecycleScope
 import app.focusphone.FocusPhoneApp
 import app.focusphone.R
 import app.focusphone.data.preferences.AppSchedulePreferences
+import app.focusphone.data.preferences.ConsciousPausePreferences
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.WallpaperPreferences
+import app.focusphone.domain.model.AppShortcut
+import app.focusphone.ui.detox.DetoxBlockedActivity
+import app.focusphone.ui.pause.ConsciousPauseActivity
 import app.focusphone.ui.schedule.ScheduleBlockedActivity
 import app.focusphone.ui.theme.FocusColors
 import app.focusphone.ui.theme.FocusPalette
@@ -111,6 +117,9 @@ abstract class BaseActivity : AppCompatActivity() {
         private const val REGULAR_WEIGHT = 400
         private const val MEDIUM_WEIGHT = 500
 
+        private const val SEARCH_FIELD_RADIUS_DP = 22f
+        private const val SEARCH_FIELD_FILL_ALPHA = 0.07f
+
         /** Layout-owned surfaces whose drawable/background carries semantic styling. */
         private val BACKGROUND_RECOLOR_EXCLUDED_IDS = intArrayOf(
             R.id.drawer_layout,
@@ -145,6 +154,7 @@ abstract class BaseActivity : AppCompatActivity() {
         applyTheme()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        declareScreenTransitions()
     }
 
     override fun setContentView(view: View?) {
@@ -157,14 +167,32 @@ abstract class BaseActivity : AppCompatActivity() {
         applyFontFamily()
     }
 
+    // ── Screen transitions ─────────────────────────────────────────
+
+    /**
+     * From Android 14 a screen declares its own open and close animations once, and the
+     * system applies them to every way of entering or leaving it — including the back
+     * gesture, which never goes through [finish] and used to fall back to the platform's
+     * slide. Older releases keep the per-call override in [startActivity] and [finish].
+     */
+    private fun declareScreenTransitions() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return
+        overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.fp_fade_in, R.anim.fp_fade_out)
+        overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.fp_fade_in, R.anim.fp_fade_out)
+    }
+
     override fun startActivity(intent: Intent) {
         super.startActivity(intent)
-        @Suppress("DEPRECATION")
-        overridePendingTransition(R.anim.fp_fade_in, R.anim.fp_fade_out)
+        applyLegacyTransition()
     }
 
     override fun finish() {
         super.finish()
+        applyLegacyTransition()
+    }
+
+    private fun applyLegacyTransition() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return
         @Suppress("DEPRECATION")
         overridePendingTransition(R.anim.fp_fade_in, R.anim.fp_fade_out)
     }
@@ -840,6 +868,21 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     /**
+     * Gives a search field a soft pill of its own text colour, so it reads as a field
+     * rather than a stray line of grey text, in any theme — the custom one included, whose
+     * colours only exist at runtime.
+     */
+    protected fun styleSearchField(field: EditText) {
+        val colors = effectivePalette
+        field.setTag(R.id.tag_skip_recolor, true)
+        field.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = SEARCH_FIELD_RADIUS_DP * resources.displayMetrics.density
+            setColor(FocusColors.withAlpha(colors.textPrimary, SEARCH_FIELD_FILL_ALPHA))
+        }
+    }
+
+    /**
      * Styles a segmented control (the alignment picker) from the palette.
      *
      * @param container the pill-shaped group holding the segments.
@@ -972,6 +1015,88 @@ abstract class BaseActivity : AppCompatActivity() {
         val reason = AppSchedulePreferences.getBlockReason(this, packageName) ?: return false
         startActivity(ScheduleBlockedActivity.newIntent(this, packageName, label, reason))
         return true
+    }
+
+    // ── App launching ──────────────────────────────────────────────
+
+    /**
+     * Opens an installed app through every guard FocusPhone applies, in one place.
+     *
+     * Order matters: the active profile's block comes first, then the app's schedule,
+     * then the conscious pause; only an app that clears all three is started. The home
+     * screen, the app drawer and the notification panel used to carry their own copy of
+     * this sequence, and the copies had already drifted — one gave no feedback at all
+     * when the app could not be started.
+     *
+     * @param source the view the user tapped; the app grows out of it, which ties the new
+     *   window to the word that opened it instead of popping up from nowhere.
+     * @param contentIntent a notification's own target, preferred over the app's main
+     *   screen so the user lands in the conversation or email that was tapped.
+     * @return true when the app (or a screen standing in for it) was started.
+     */
+    protected fun openApp(
+        packageName: String,
+        label: String,
+        source: View? = null,
+        contentIntent: PendingIntent? = null
+    ): Boolean {
+        if (ProfilePreferences.isAppBlocked(this, packageName)) {
+            startActivity(Intent(this, DetoxBlockedActivity::class.java))
+            return true
+        }
+        if (enforceAppSchedule(packageName, label)) return true
+
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+        if (launchIntent == null) {
+            Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (ConsciousPausePreferences.isEnabled(this)) {
+            startActivity(ConsciousPauseActivity.newIntent(this, launchIntent, label, packageName))
+            return true
+        }
+
+        if (contentIntent != null && sendContentIntent(contentIntent)) return true
+
+        return try {
+            startActivity(launchIntent, launchOptions(source))
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to launch $packageName", e)
+            Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
+            false
+        }
+    }
+
+    /**
+     * Starts one of an app's shortcuts. A shortcut opens the same app, so it obeys the
+     * same profile block and schedule as the app itself.
+     */
+    protected fun openShortcut(packageName: String, label: String, shortcut: AppShortcut) {
+        if (ProfilePreferences.isAppBlocked(this, packageName)) {
+            startActivity(Intent(this, DetoxBlockedActivity::class.java))
+            return
+        }
+        if (enforceAppSchedule(packageName, label)) return
+        if (!focusPhoneApp.container.getAppShortcutsUseCase.launchShortcut(shortcut)) {
+            Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun sendContentIntent(contentIntent: PendingIntent): Boolean = try {
+        contentIntent.send()
+        true
+    } catch (e: Exception) {
+        // Cancelled by its owner, or refused by the system's background-start rules.
+        Log.w(TAG, "Notification target could not be sent; opening the app instead", e)
+        false
+    }
+
+    /** A scale-up from the tapped row, or none when there is no row to grow from. */
+    private fun launchOptions(source: View?): Bundle? {
+        if (source == null || source.width == 0 || source.height == 0 || !source.isAttachedToWindow) return null
+        return ActivityOptions.makeScaleUpAnimation(source, 0, 0, source.width, source.height).toBundle()
     }
 }
 

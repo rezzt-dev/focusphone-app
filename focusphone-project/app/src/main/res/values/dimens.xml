@@ -38,4 +38,12 @@
     <dimen name="theme_card_size">72dp</dimen>
     <dimen name="theme_card_border">2dp</dimen>
     <dimen name="drawer_width">320dp</dimen>
+
+    <!-- Conscious pause -->
+    <dimen name="pause_orb_size">220dp</dimen>
+
+    <!-- Onboarding page indicator -->
+    <dimen name="pager_dot_size">6dp</dimen>
+    <dimen name="pager_dot_active_width">20dp</dimen>
+    <dimen name="pager_dot_gap">6dp</dimen>
 </resources>

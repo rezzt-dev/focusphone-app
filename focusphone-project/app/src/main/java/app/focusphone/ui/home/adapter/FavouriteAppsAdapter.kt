@@ -2,6 +2,7 @@ package app.focusphone.ui.home.adapter
 
 import android.graphics.Typeface
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -22,8 +23,7 @@ import app.focusphone.ui.theme.FocusPalette
  * are computed synchronously against it.
  */
 class FavouriteAppsAdapter(
-    private val onAppClick: (FavouriteApp) -> Unit,
-    private val onAppLongClick: (FavouriteApp) -> Boolean
+    private val onAppClick: (app: FavouriteApp, row: View) -> Unit
 ) : RecyclerView.Adapter<FavouriteAppsAdapter.ViewHolder>() {
 
     private val items = mutableListOf<FavouriteApp>()
@@ -46,12 +46,19 @@ class FavouriteAppsAdapter(
     /** The rows in the order they are displayed. */
     val currentList: List<FavouriteApp> get() = items.toList()
 
+    /** The row at [position], or null when it is no longer displayed. */
+    fun itemAt(position: Int): FavouriteApp? = items.getOrNull(position)
+
+    // Both are called on every return to the home screen; rebinding unchanged rows each
+    // time made the list flicker for nothing.
     fun updateTypeface(tf: Typeface) {
+        if (tf == typeface) return
         typeface = tf
         notifyItemRangeChanged(0, itemCount, PAYLOAD_TYPEFACE)
     }
 
     fun updateAlignment(gravity: Int) {
+        if (gravity == textAlignment) return
         textAlignment = gravity
         notifyItemRangeChanged(0, itemCount, PAYLOAD_ALIGNMENT)
     }
@@ -169,8 +176,9 @@ class FavouriteAppsAdapter(
             binding.tvAppName.setTextColor(palette(context).textPrimary)
 
             binding.root.contentDescription = binding.root.context.getString(R.string.cd_app_item, app.label)
-            binding.root.setOnClickListener     { onAppClick(app) }
-            binding.root.setOnLongClickListener { onAppLongClick(app) }
+            binding.root.setOnClickListener { onAppClick(app, it) }
+            // Long press belongs to FavouriteReorderCallback, which tells a press that
+            // stays in place (options) from one that travels (reorder).
         }
     }
 

@@ -172,6 +172,7 @@ class AppSelectActivity : BaseActivity() {
             }
         }
         binding.etSearch.addTextChangedListener(searchTextWatcher!!)
+        styleSearchField(binding.etSearch)
     }
 
     private fun observeState() {

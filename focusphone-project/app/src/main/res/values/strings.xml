@@ -8,8 +8,8 @@
     <string name="home_all_apps">all applications</string>
     <string name="home_settings">focus settings</string>
     <string name="home_edit_apps">edit dashboard</string>
-    <string name="home_long_press_hint">hold an app to remove it from your list</string>
-    <string name="home_no_apps">no apps selected.\ntap the menu to add apps.</string>
+    <string name="home_long_press_hint">hold an app for options, or drag it to reorder</string>
+    <string name="home_no_apps">no apps yet.\ntap here to choose the few you really need.</string>
     <string name="home_menu_desc">open menu</string>
     <string name="search_empty_state">no apps found</string>
 
@@ -18,8 +18,6 @@
     <string name="allapps_close">close</string>
 
     <!-- App context menu -->
-    <string name="menu_open_app">open</string>
-    <string name="menu_remove_app">remove from list</string>
     <string name="menu_app_info">app info</string>
     <string name="menu_uninstall_app">uninstall</string>
 
@@ -144,7 +142,7 @@
     <string name="tutorial_coach_menu_title">the menu</string>
     <string name="tutorial_coach_menu_desc">swipe left to open the menu. from here you can access all apps, settings, and switch profiles.</string>
     <string name="tutorial_coach_apps_title">add apps</string>
-    <string name="tutorial_coach_apps_desc">tap \"select apps\" to choose up to 10 favourites. long press an app to remove it.</string>
+    <string name="tutorial_coach_apps_desc">tap \"edit dashboard\" in the menu to choose up to 10 apps. hold an app for its options, or drag it to reorder.</string>
     <string name="tutorial_coach_profile_title">contextual profiles</string>
     <string name="tutorial_coach_profile_desc">tap your profile name to switch modes. work blocks distractions. detox blocks everything.</string>
     <string name="tutorial_coach_block_title">block apps</string>
@@ -630,4 +628,16 @@ forty-one</string>
     <string name="settings_wallpaper_change">choose another image</string>
     <string name="settings_wallpaper_remove">remove wallpaper</string>
     <string name="wallpaper_access_lost">a wallpaper could no longer be read and was removed. please choose it again</string>
+
+    <!-- Home: app options and all-apps search -->
+    <string name="home_app_options_remove">remove from home</string>
+    <string name="allapps_search_no_match">nothing matches “%1$s”</string>
+    <string name="allapps_search_hint_launch">search, then press enter to open</string>
+
+    <!-- Conscious pause -->
+    <plurals name="pause_minutes_left_today">
+        <item quantity="one">%d minute left today</item>
+        <item quantity="other">%d minutes left today</item>
+    </plurals>
+    <string name="pause_last_minute_today">less than a minute left today</string>
 </resources>
