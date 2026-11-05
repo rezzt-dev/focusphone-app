@@ -2,6 +2,7 @@ package app.focusphone.ui.home.grid
 
 import android.graphics.RectF
 import android.graphics.drawable.GradientDrawable
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import androidx.core.widget.TextViewCompat
 import app.focusphone.R
 import app.focusphone.ui.theme.FocusColors
 import app.focusphone.ui.theme.FocusPalette
@@ -44,10 +46,21 @@ class HomeEditChrome(parent: FrameLayout) {
     private val bottomPadding = bottom.paddingBottom
 
     init {
-        // The pills draw their own rounded surface; the screen-wide recolouring must not
+        // The bars draw their own rounded surface; the screen-wide recolouring must not
         // flatten them into plain rectangles.
         bar.setTag(R.id.tag_skip_recolor, true)
         itemBar.setTag(R.id.tag_skip_recolor, true)
+        // The bottom bar shares the screen's width equally; a label that does not fit its
+        // share (narrow screen, large font, a long translation) gets smaller, never cut.
+        listOf(widgetsButton, clockButton, gridButton, doneButton).forEach {
+            TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+                it,
+                MIN_BUTTON_TEXT_SP,
+                MAX_BUTTON_TEXT_SP,
+                1,
+                TypedValue.COMPLEX_UNIT_SP
+            )
+        }
         parent.addView(root, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
     }
 
@@ -55,18 +68,19 @@ class HomeEditChrome(parent: FrameLayout) {
     val bottomHeight: Int get() = bottom.height
 
     fun applyPalette(colors: FocusPalette) {
-        bar.background = pill(colors)
-        itemBar.background = pill(colors)
+        bar.background = panel(colors)
+        itemBar.background = panel(colors)
         hint.setTextColor(colors.textSecondary)
         itemTitle.setTextColor(colors.textSecondary)
         listOf(widgetsButton, clockButton, gridButton, itemPrimary, itemRemove).forEach { it.setTextColor(colors.textPrimary) }
         doneButton.setTextColor(colors.accent)
     }
 
-    private fun pill(colors: FocusPalette) = GradientDrawable().apply {
-        cornerRadius = PILL_RADIUS_DP * density
+    /** Softly rounded corners, like the blocks of the grid, rather than pill-shaped ends. */
+    private fun panel(colors: FocusPalette) = GradientDrawable().apply {
+        cornerRadius = root.resources.getDimension(R.dimen.home_grid_corner)
         setColor(colors.surface)
-        setStroke(density.toInt().coerceAtLeast(1), FocusColors.withAlpha(colors.textPrimary, PILL_STROKE_ALPHA))
+        setStroke(density.toInt().coerceAtLeast(1), FocusColors.withAlpha(colors.textPrimary, PANEL_STROKE_ALPHA))
     }
 
     /** Space taken by the status bar, which the floating actions must stay below. */
@@ -130,8 +144,9 @@ class HomeEditChrome(parent: FrameLayout) {
     }
 
     private companion object {
-        const val PILL_RADIUS_DP = 24f
-        const val PILL_STROKE_ALPHA = 0.12f
+        const val PANEL_STROKE_ALPHA = 0.12f
+        const val MIN_BUTTON_TEXT_SP = 10
+        const val MAX_BUTTON_TEXT_SP = 14
         const val ITEM_BAR_GAP_DP = 10f
     }
 }

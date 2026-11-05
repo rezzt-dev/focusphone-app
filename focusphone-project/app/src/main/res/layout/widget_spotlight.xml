@@ -35,7 +35,7 @@
                 android:layout_height="match_parent"
                 android:importantForAccessibility="no"
                 android:scaleType="fitXY"
-                android:src="@drawable/wg_bg_pill"
+                android:src="@drawable/wg_bg_field"
                 android:tint="@color/wg_preview_chip" />
 
             <LinearLayout

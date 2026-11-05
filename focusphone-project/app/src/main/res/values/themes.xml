@@ -328,6 +328,7 @@
         <item name="android:paddingEnd">14dp</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textSize">14sp</item>
+        <item name="android:maxLines">1</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:stateListAnimator">@animator/fp_press_feedback</item>

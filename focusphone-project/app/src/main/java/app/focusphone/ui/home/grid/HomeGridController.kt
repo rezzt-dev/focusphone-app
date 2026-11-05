@@ -191,10 +191,8 @@ class HomeGridController(
 
     private fun createWidgetView(widgetId: Int): FrameLayout {
         val inset = activity.resources.getDimensionPixelSize(R.dimen.home_grid_item_inset)
-        return FrameLayout(grid.context).apply {
+        return WidgetFitFrame(grid.context).apply {
             setPadding(inset, inset, inset, inset)
-            clipChildren = false
-            clipToPadding = false
         }.also { widgetViews[widgetId] = it }
     }
 

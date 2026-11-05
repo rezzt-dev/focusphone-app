@@ -65,34 +65,58 @@
             android:text="@string/home_edit_hint"
             android:textSize="12sp" />
 
+        <!--
+            Full width with equal shares: on a narrow screen with a large font the labels
+            shrink (autosize in HomeEditChrome) instead of pushing the last one out.
+        -->
         <LinearLayout
             android:id="@+id/edit_bar"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:elevation="6dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="6dp"
-            android:paddingEnd="6dp">
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp">
 
             <TextView
                 android:id="@+id/btn_edit_widgets"
                 style="@style/HomeEditButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
                 android:text="@string/home_edit_widgets" />
 
             <TextView
                 android:id="@+id/btn_edit_clock"
                 style="@style/HomeEditButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
                 android:text="@string/home_edit_add_clock" />
 
             <TextView
                 android:id="@+id/btn_edit_grid"
                 style="@style/HomeEditButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
                 android:text="@string/home_edit_grid" />
 
             <TextView
                 android:id="@+id/btn_edit_done"
                 style="@style/HomeEditButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/home_layout_done" />
         </LinearLayout>

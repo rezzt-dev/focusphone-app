@@ -2,6 +2,7 @@ package app.focusphone.ui.widget
 
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetHostView
+import android.appwidget.AppWidgetProviderInfo
 import android.content.Context
 import android.util.TypedValue
 import android.view.Gravity
@@ -21,6 +22,7 @@ import kotlin.math.abs
  * The view that renders a widget inside FocusPhone.
  *
  * On top of the platform host view it:
+ * - drops the manufacturer's default padding, so a widget looks the same on every phone;
  * - replaces the platform error ("couldn't add widget", in the system's colours) with a
  *   quiet message in the active theme;
  * - fades the content in the first time the provider delivers it, instead of popping;
@@ -51,6 +53,16 @@ class HomeWidgetHostView(context: Context) : AppWidgetHostView(context) {
     }
 
     // ── Content ────────────────────────────────────────────────────
+
+    /**
+     * The platform pads every widget by `default_app_widget_padding_*`, a value each
+     * manufacturer picks, so the same widget looked different from one
+     * phone to another. The home grid already spaces its blocks, so widgets get no padding.
+     */
+    override fun setAppWidget(appWidgetId: Int, info: AppWidgetProviderInfo?) {
+        super.setAppWidget(appWidgetId, info)
+        setPadding(0, 0, 0, 0)
+    }
 
     override fun updateAppWidget(remoteViews: RemoteViews?) {
         super.updateAppWidget(remoteViews)

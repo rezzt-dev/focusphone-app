@@ -83,8 +83,8 @@ object MusicRenderers {
         }
     }
 
-    private const val SQUIRCLE_CORNER = 0.24f
-    private const val ART_CORNER = 0.27f
+    private const val SQUIRCLE_CORNER = 0.14f
+    private const val ART_CORNER = 0.2f
     private const val ARTWORK_BUTTON_ICON = 0xFF111111.toInt()
 
     // ── Shared parts ───────────────────────────────────────────────

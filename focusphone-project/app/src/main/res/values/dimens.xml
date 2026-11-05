@@ -58,8 +58,9 @@
     <dimen name="widget_card_corner">20dp</dimen>
     <dimen name="widget_preview_height">132dp</dimen>
     <!-- Widget library -->
-    <dimen name="wg_radius">24dp</dimen>
-    <dimen name="wg_chip_radius">14dp</dimen>
+    <dimen name="wg_radius">20dp</dimen>
+    <dimen name="wg_chip_radius">12dp</dimen>
+    <dimen name="wg_field_radius">16dp</dimen>
     <dimen name="wg_padding">18dp</dimen>
     <dimen name="wg_padding_compact">12dp</dimen>
     <dimen name="wg_round_inset">14dp</dimen>

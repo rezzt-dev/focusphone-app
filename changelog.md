@@ -74,6 +74,7 @@
 - convertir la fila de widget de ajustes de inicio en "añadir widget" (con el numero de widgets en inicio) y abrir "editar pantalla de inicio" directamente en el modo edicion de inicio
 - encoger el reloj elegido cuando su bloque es mas pequeño que el estilo (`ScaleToFitFrame`) en vez de recortarlo
 - liberar los ids de widget huerfanos comparando con todos los widgets de la rejilla y resolver cada widget por separado (`AppWidgetHostManager.resolveWidget`)
+- suavizar las esquinas de los widgets propios: el campo de busqueda de `widget_search_pill` y `widget_spotlight` pasa de pastilla a rectangulo redondeado (`wg_bg_field`) y se reducen los radios de tarjeta, chip, cuadrado y caratula; las barras del modo edicion de inicio pasan tambien de pastilla a esquinas suaves
 
 #### CORREGIDO
 - aplicar los bloqueos de horario y limite diario al abrir aplicaciones desde recientes y accesos frecuentes mediante cambios de ventana, y avisar de la necesidad del servicio de accesibilidad para todas las reglas
@@ -114,6 +115,8 @@
 - calcular el tamaño en celdas del selector a partir de dp (el sistema da `minWidth`/`minHeight` en pixeles) y respetar `targetCellWidth`/`targetCellHeight`
 - evitar que el recoloreado del tema y el cambio de fuente de `BaseActivity` alteren el contenido de los widgets alojados
 - ajustar las filas de la vista previa de apps del editor de disposicion para que quepan todos los favoritos sin cortar los nombres
+- quitar el padding por defecto que cada fabricante aplica a los widgets (`HomeWidgetHostView`) y encoger el widget cuando su contenido no cabe en su bloque (`WidgetFitFrame`) en vez de recortarlo, para que la rejilla de inicio se vea igual en todos los dispositivos (p. ej. samsung, con celdas mas bajas, zoom o fuente mayor)
+- repartir la barra inferior del modo edicion a lo ancho y encoger sus etiquetas cuando no caben, en vez de partir "listo" letra a letra y estirar la barra en pantallas estrechas o con fuente grande (samsung galaxy a21)
 
 #### ELIMINADO
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` y el subsistema de tamaño de icono inalcanzable, junto con `backup_rules.xml` y el `values-night/themes.xml` vacio
@@ -198,6 +201,7 @@
 - turn the widget row of the home settings into "add widget" (with the number of widgets on home) and open "edit home screen" straight into the home screen's edit mode
 - shrink the chosen clock style when its block is smaller than the style needs (`ScaleToFitFrame`) instead of cropping it
 - release orphaned widget ids against every widget on the grid and resolve each widget on its own (`AppWidgetHostManager.resolveWidget`)
+- soften the corners of the built-in widgets: the search field of `widget_search_pill` and `widget_spotlight` turns from a pill into a rounded rectangle (`wg_bg_field`) and the card, chip, square and artwork radii get smaller; the home edit mode bars also turn from pills into softly rounded panels
 
 #### FIXED
 - enforce time windows and daily limits when apps open from recents and suggested shortcuts through window change events, and show the accessibility warning for every schedule rule
@@ -238,6 +242,8 @@
 - compute the picker's cell size from dp (the system gives `minWidth`/`minHeight` in pixels) and honour `targetCellWidth`/`targetCellHeight`
 - keep `BaseActivity` theme recolouring and font swapping from altering hosted widget content
 - fit the layout editor's apps preview rows so every favourite shows without cut-off names
+- drop the default padding each manufacturer applies to widgets (`HomeWidgetHostView`) and shrink a widget whose content does not fit its block (`WidgetFitFrame`) instead of cropping it, so the home grid looks the same on every device (e.g. samsung, with shorter cells, display zoom or a larger font)
+- share the edit mode bottom bar's width equally and shrink its labels when they do not fit, instead of breaking "done" one letter per line and stretching the bar on narrow screens or with a large font (samsung galaxy a21)
 
 #### REMOVED
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` and the unreachable icon-size-slider subsystem, along with `backup_rules.xml` and the empty `values-night/themes.xml`

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Pill: search bars and quick toggles. -->
+<!-- Pill: the thin progress bars. Search fields use wg_bg_field. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <solid android:color="@android:color/white" />

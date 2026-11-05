@@ -146,6 +146,8 @@ class WidgetSurface(
     /**
      * Tells the provider the size its widget really has, in dp as the API expects, every
      * time the block is resized on the grid, so responsive widgets pick the right layout.
+     * When the block scales the widget down to fit (see `WidgetFitFrame`), this is the size
+     * it is laid out at before scaling, which is the size its content is drawn for.
      */
     private fun reportSize(view: AppWidgetHostView) {
         if (view.width == 0 || view.height == 0) return

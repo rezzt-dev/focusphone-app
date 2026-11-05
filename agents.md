@@ -104,7 +104,8 @@ app/src/main/java/app/focusphone/
     │   │   ├── HomeEditChrome.kt     # Edit-mode bottom bar and floating block actions
     │   │   ├── HomeGridStore.kt      # Load/repair/save, migration, add/remove widgets (shared with the picker)
     │   │   ├── HomeGridMetrics.kt    # Cell size in dp, default rows, widget spans and limits on this grid
-    │   │   └── ScaleToFitFrame.kt    # Shrinks the clock style to fit a small block
+    │   │   ├── ScaleToFitFrame.kt    # Shrinks the clock style to fit a small block
+    │   │   └── WidgetFitFrame.kt     # Widget block: fills it, scales the widget down when its content does not fit
     │   └── adapter/
     │       └── FavouriteAppsAdapter.kt
     ├── appselect/
@@ -154,7 +155,7 @@ app/src/main/java/app/focusphone/
         ├── ClockRenderer.kt          # Renders the home clock in its selected style
         ├── AppWidgetHostManager.kt   # Single AppWidgetHost: view ownership, widget state, binding, configuration, orphans
         ├── WidgetHostContext.kt      # Factory-free inflater for RemoteViews (see note below)
-        ├── HomeWidgetHostView.kt     # Host view: themed error, fade-in, long press without stealing taps
+        ├── HomeWidgetHostView.kt     # Host view: no OEM padding, themed error, fade-in, long press without stealing taps
         ├── WidgetSurface.kt          # Live rendering of one hosted widget inside its grid block
         ├── WidgetScaleFrame.kt       # Renders a widget at its real size and scales it into a box
         ├── WidgetSizing.kt           # Pure size maths: provider dp sizes → default span and resize limits in cells

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Search: a pill that opens the app search, and the app drawer on the right (4 x 1). RemoteViews ignore app:tint, so android:tint is right here. -->
+<!-- Search: a rounded field that opens the app search, and the app drawer on the right (4 x 1). RemoteViews ignore app:tint, so android:tint is right here. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/wg_root"
@@ -20,7 +20,7 @@
             android:layout_height="match_parent"
             android:importantForAccessibility="no"
             android:scaleType="fitXY"
-            android:src="@drawable/wg_bg_pill"
+            android:src="@drawable/wg_bg_field"
             android:tint="@color/wg_preview_card" />
 
         <LinearLayout
