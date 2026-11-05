@@ -46,4 +46,9 @@
     <dimen name="pager_dot_size">6dp</dimen>
     <dimen name="pager_dot_active_width">20dp</dimen>
     <dimen name="pager_dot_gap">6dp</dimen>
+
+    <!-- Home widget -->
+    <dimen name="home_widget_side_padding">16dp</dimen>
+    <dimen name="widget_card_corner">20dp</dimen>
+    <dimen name="widget_preview_height">132dp</dimen>
 </resources>

@@ -138,7 +138,18 @@ app/src/main/java/app/focusphone/
     │   └── WindowMetrics.kt      # Current window width (multi-window / foldable safe)
     └── widget/
         ├── AnalogClockView.kt
-        └── WeightGradientTextView.kt
+        ├── ClockRenderer.kt          # Renders the home clock in its selected style
+        ├── AppWidgetHostManager.kt   # Single AppWidgetHost: view ownership, home slot, binding, configuration
+        ├── WidgetHostContext.kt      # Factory-free inflater for RemoteViews (see note below)
+        ├── HomeWidgetHostView.kt     # Host view: themed error, fade-in, long press without stealing taps
+        ├── WidgetSurface.kt          # One rendering of the home widget: HOME (live) or PREVIEW (scaled)
+        ├── WidgetScaleFrame.kt       # Renders a widget at its real size and scales it into a box
+        ├── WidgetSizing.kt           # Pure size maths: cell spans, default and allowed heights
+        ├── WidgetHeights.kt          # Height from preference + provider info for the current screen
+        ├── HomeWidgetActions.kt      # Shared options: change, adjust height, widget settings, remove
+        ├── WidgetCatalog.kt          # Picker rows: grouped by app, sorted, fuzzy-searched
+        ├── WidgetPickerActivity.kt   # Picker: bind, configure, save
+        └── WidgetPickerAdapter.kt    # Picker cards with live/static previews
 ```
 
 > **Colours at runtime:** always go through `FocusPalette.of(context)` (or `BaseActivity.palette` /
@@ -159,6 +170,14 @@ app/src/main/java/app/focusphone/
 - `res/drawable/` — custom shapes, theme preview circles, tutorial icons.
 - `res/anim/fp_fade_in.xml` & `fp_fade_out.xml` — used by `BaseActivity` for consistent Activity transitions (declared once with `overrideActivityTransition` on API 34+).
 - `res/animator/fp_press_feedback.xml` — calm press feedback for text rows; timings live in `res/values/motion.xml`.
+
+> **Hosting widgets:** always create widget views through `AppWidgetHostManager.createView`
+> (or `WidgetSurface`), never `AppWidgetHost.createView(activity, …)` directly. RemoteViews inflate
+> with the host context's `LayoutInflater`; an Activity's carries AppCompat's factory, which turns
+> every provider `TextView` into an AppCompat view reading FocusPhone's attribute IDs against the
+> provider's resources, and the widget fails with "can't convert value to dimension".
+> `WidgetHostContext` supplies a factory-free inflater. Tree walks that restyle a screen must also
+> skip `AppWidgetHostView` subtrees: their content belongs to the provider.
 
 > **Launching apps:** always go through `BaseActivity.openApp` / `openShortcut`. They apply the
 > profile block, the schedule and the conscious pause in the right order; never call

@@ -3,6 +3,7 @@ package app.focusphone.ui.base
 import android.app.ActivityOptions
 import android.app.Dialog
 import android.app.PendingIntent
+import android.appwidget.AppWidgetHostView
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
@@ -508,6 +509,8 @@ abstract class BaseActivity : AppCompatActivity() {
         stack.add(root)
         while (stack.isNotEmpty()) {
             val view = stack.removeFirst()
+            // A hosted widget is another app's UI: its colours are the provider's to choose.
+            if (view is AppWidgetHostView) continue
 
             when (view) {
                 // Before TextView: a MaterialSwitch is one, and matching it as text used to
@@ -653,6 +656,8 @@ abstract class BaseActivity : AppCompatActivity() {
         stack.add(root)
         while (stack.isNotEmpty()) {
             val view = stack.removeFirst()
+            // A hosted widget keeps the provider's own typography.
+            if (view is AppWidgetHostView) continue
             if (view is TextView) {
                 view.typeface = mergeEmphasis(view.typeface, typeface)
             }

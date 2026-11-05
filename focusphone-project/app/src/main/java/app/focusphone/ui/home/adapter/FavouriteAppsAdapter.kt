@@ -1,6 +1,7 @@
 package app.focusphone.ui.home.adapter
 
 import android.graphics.Typeface
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -155,17 +156,32 @@ class FavouriteAppsAdapter(
         holder.bind(items[position])
     }
 
+    /**
+     * Applies a fixed row height (the layout editor's preview fits every favourite into its
+     * box this way). The label shrinks with the row and the 48dp minimum is lifted: with many
+     * apps the rows are shorter than that, and every name used to be cut in half.
+     */
     private fun applyHeight(holder: ViewHolder) {
-        if (itemHeight > 0) {
-            val params = holder.itemView.layoutParams
-            params.height = itemHeight
-            holder.itemView.layoutParams = params
-        }
+        if (itemHeight <= 0) return
+        val label = holder.binding.tvAppName
+        label.minHeight = 0
+        label.minimumHeight = 0
+        label.setPadding(label.paddingLeft, 0, label.paddingRight, 0)
+        label.setTextSize(
+            TypedValue.COMPLEX_UNIT_PX,
+            minOf(holder.naturalTextSizePx, itemHeight * FIXED_ROW_TEXT_FILL)
+        )
+        val params = holder.itemView.layoutParams
+        params.height = itemHeight
+        holder.itemView.layoutParams = params
     }
 
     inner class ViewHolder(
         val binding: ItemFavouriteAppBinding
     ) : RecyclerView.ViewHolder(binding.root) {
+
+        /** The label size the layout declares, the ceiling when rows are shortened. */
+        val naturalTextSizePx: Float = binding.tvAppName.textSize
 
         fun bind(app: FavouriteApp) {
             val context = binding.root.context
@@ -192,5 +208,8 @@ class FavouriteAppsAdapter(
         private const val PAYLOAD_TYPEFACE = "typeface"
         private const val PAYLOAD_ALIGNMENT = "alignment"
         private const val PAYLOAD_HEIGHT = "height"
+
+        /** Share of a fixed row the label may fill, leaving air between rows. */
+        private const val FIXED_ROW_TEXT_FILL = 0.62f
     }
 }

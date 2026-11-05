@@ -81,6 +81,7 @@ import app.focusphone.ui.wallpaper.WallpaperStorage
 import app.focusphone.ui.wallpaper.WallpaperUtils
 import app.focusphone.ui.widget.AppWidgetHostManager
 import app.focusphone.ui.widget.ClockRenderer
+import app.focusphone.ui.widget.HomeWidgetActions
 import app.focusphone.ui.widget.WidgetSurface
 import app.focusphone.util.LauncherUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -105,6 +106,17 @@ class HomeActivity : BaseActivity() {
     }
 
     private val adapter = FavouriteAppsAdapter(onAppClick = ::launchApp)
+
+    /** Options of the home widget, offered when the user holds it. */
+    private val widgetActions = HomeWidgetActions(
+        activity = this,
+        showDialog = { showStyledDialog(it) },
+        onWidgetChanged = ::refreshWidget,
+        onHeightPreview = { heightDp -> widgetSurface.previewHeight(heightDp) }
+    )
+
+    /** Providers come and go with app installs and updates; the slot follows them. */
+    private val providersChangedListener: () -> Unit = { if (homeInitialized) refreshWidget() }
 
     private val reorderCallback = FavouriteReorderCallback(
         adapter = adapter,
@@ -162,8 +174,9 @@ class HomeActivity : BaseActivity() {
         clockRenderer = ClockRenderer(this, binding.clockContainer)
         widgetSurface = WidgetSurface(
             context = this,
-            emptyBehavior = WidgetSurface.EmptyBehavior.HIDE_CONTAINER,
-            onVisibilityChanged = ::applyClockType
+            mode = WidgetSurface.Mode.HOME,
+            onVisibilityChanged = ::applyClockType,
+            onLongPress = { view -> widgetActions.showOptions(view) }
         )
 
         if (!ThemePreferences.isOnboardingComplete(this)) {
@@ -339,14 +352,17 @@ class HomeActivity : BaseActivity() {
         super.onStart()
         val hostManager = AppWidgetHostManager.getInstance(this)
         hostManager.startListening(this)
+        hostManager.addProvidersChangedListener(providersChangedListener)
         // Frees IDs leaked by builds that never released removed or replaced widgets.
         hostManager.releaseOrphanedIds(this)
-        restoreWidget()
     }
 
     override fun onStop() {
-        widgetSurface.releaseView()
-        AppWidgetHostManager.getInstance(this).stopListening(this)
+        // The widget view is kept: coming back must not rebuild (and flash) it. The surface
+        // rebuilds it only if another screen took the widget over in the meantime.
+        val hostManager = AppWidgetHostManager.getInstance(this)
+        hostManager.removeProvidersChangedListener(providersChangedListener)
+        hostManager.stopListening(this)
         // Leaving for another screen (settings, all apps, an app) from a drawer used to
         // start the drawer's closing slide and freeze it half-way once this window stopped
         // drawing, so it finished sliding in front of the user when they came back. It now
@@ -681,7 +697,7 @@ class HomeActivity : BaseActivity() {
         // Determine final visibility for each container
         val clockType = FontPreferences.getClockType(this)
         val clockVisible = clockEnabled && clockType != ClockType.HIDDEN
-        val widgetVisible = widgetEnabled && WidgetPreferences.isWidgetEnabled(this)
+        val widgetVisible = widgetEnabled && WidgetPreferences.hasWidget(this)
 
         binding.clockContainer.visibility = if (clockVisible) View.VISIBLE else View.GONE
         binding.widgetContainer.visibility = if (widgetVisible) View.VISIBLE else View.GONE
@@ -1587,6 +1603,12 @@ class HomeActivity : BaseActivity() {
      */
     private fun restoreWidget() {
         widgetSurface.restore(binding.widgetContainer)
+    }
+
+    /** Re-renders the widget slot after it was changed, resized or its provider changed. */
+    private fun refreshWidget() {
+        restoreWidget()
+        applyHomeLayout()
     }
 
     private class VerticalSpacingItemDecoration(

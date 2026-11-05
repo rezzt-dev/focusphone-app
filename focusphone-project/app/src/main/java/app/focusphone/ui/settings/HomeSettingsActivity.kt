@@ -6,7 +6,6 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.activity.result.contract.ActivityResultContracts
 import app.focusphone.R
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.HomeLayoutPreferences
@@ -16,8 +15,7 @@ import app.focusphone.databinding.SettingsSliderRowBinding
 import app.focusphone.domain.model.ClockType
 import app.focusphone.ui.util.currentWindowWidthPx
 import app.focusphone.ui.widget.AppWidgetHostManager
-import app.focusphone.ui.widget.WidgetPickerActivity
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import app.focusphone.ui.widget.HomeWidgetActions
 import com.google.android.material.slider.Slider
 
 /**
@@ -29,13 +27,11 @@ class HomeSettingsActivity : SettingsSubActivity() {
     private var clockSizeSlider: Slider? = null
     private var appSpacingSlider: Slider? = null
 
-    private val widgetPickerLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            updateWidgetStatus()
-        }
-    }
+    private val widgetActions = HomeWidgetActions(
+        activity = this,
+        showDialog = { showStyledDialog(it) },
+        onWidgetChanged = ::updateWidgetStatus
+    )
 
     override fun getScreenTitleRes(): Int = R.string.home_settings_title
 
@@ -97,7 +93,7 @@ class HomeSettingsActivity : SettingsSubActivity() {
                 subtitleResId = R.string.settings_widget_settings_desc,
                 initialValue = getWidgetStatusText(),
                 iconResId = R.drawable.ic_settings_widget,
-                onClick = ::onWidgetRowClicked
+                onClick = { widgetActions.showOptions() }
             )
 
             addCategoryRow(
@@ -191,36 +187,17 @@ class HomeSettingsActivity : SettingsSubActivity() {
     private fun spToPx(sp: Float): Float =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, resources.displayMetrics)
 
-    private fun onWidgetRowClicked() {
-        if (WidgetPreferences.isWidgetEnabled(this)) {
-            showRemoveWidgetDialog()
-        } else {
-            widgetPickerLauncher.launch(Intent(this, WidgetPickerActivity::class.java))
-        }
-    }
-
     private fun updateWidgetStatus() {
         widgetValueView?.text = getWidgetStatusText()
     }
 
-    private fun getWidgetStatusText(): String =
-        getString(
-            if (WidgetPreferences.isWidgetEnabled(this)) R.string.settings_widget_remove
-            else R.string.settings_widget_none
-        ).lowercase()
-
-    private fun showRemoveWidgetDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.settings_widget_title)
-            .setMessage(R.string.settings_widget_remove_confirm)
-            .setPositiveButton(R.string.settings_widget_remove) { _, _ ->
-                // Releases the ID too, so the provider stops updating a widget nobody shows.
-                AppWidgetHostManager.getInstance(this).removeHomeWidget(this)
-                updateWidgetStatus()
-            }
-            .setNegativeButton(R.string.action_cancel, null)
-            .create()
-            .also { showStyledDialog(it) }
+    /** The current widget's name, so the row tells which widget is on the home screen. */
+    private fun getWidgetStatusText(): String {
+        if (!WidgetPreferences.hasWidget(this)) return getString(R.string.settings_widget_none).lowercase()
+        val info = AppWidgetHostManager.getInstance(this).homeWidgetInfo(this)
+            ?: return getString(R.string.settings_widget_none).lowercase()
+        return info.loadLabel(packageManager)?.toString()?.lowercase()
+            ?: getString(R.string.settings_widget_title)
     }
 
     private fun dp(value: Int): Int =

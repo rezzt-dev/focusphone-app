@@ -294,7 +294,6 @@ facebook</string>
     <string name="widget_picker_subtitle">elige un widget para añadir a tu pantalla de inicio</string>
     <string name="widget_picker_empty">no hay widgets disponibles</string>
     <string name="widget_picker_loading">cargando widgets…</string>
-    <string name="cd_widget_icon">icono del widget</string>
 
     <!-- Settings: Permissions -->
     <string name="settings_section_permissions">permisos</string>
@@ -436,7 +435,7 @@ facebook</string>
     <string name="settings_set_default_desc_short">hacer focusphone tu pantalla de inicio</string>
     <string name="settings_text_size_desc">ajusta el tamaño de todo el texto</string>
     <string name="settings_theme_desc">elige tu esquema de color</string>
-    <string name="settings_widget_settings_desc">añadir o quitar un widget del sistema</string>
+    <string name="settings_widget_settings_desc">añadir, cambiar o redimensionar el widget de inicio</string>
     <string name="settings_work_keywords_section_desc">bloquear apps por nombre en modo trabajo</string>
     <string name="system_settings_title">sistema</string>
     <string name="settings_wallpaper_blur_desc">suaviza el fondo para mejorar la legibilidad</string>
@@ -649,4 +648,17 @@ cuarenta y uno</string>
         <item quantity="other">te quedan %d minutos hoy</item>
     </plurals>
     <string name="pause_last_minute_today">te queda menos de un minuto hoy</string>
+
+    <!-- Home widget -->
+    <string name="widget_error_load">este widget no se puede mostrar</string>
+    <string name="widget_unavailable">widget no disponible mientras su app se actualiza</string>
+    <string name="widget_picker_search_hint">buscar widgets</string>
+    <string name="widget_picker_no_results">ningún widget coincide con la búsqueda</string>
+    <string name="widget_picker_in_use_format">en uso · %1$s</string>
+    <string name="widget_picker_add_failed">no se pudo añadir el widget</string>
+    <string name="widget_picker_config_failed">no se pudieron abrir los ajustes del widget</string>
+    <string name="widget_option_change">cambiar widget</string>
+    <string name="widget_option_height">ajustar altura</string>
+    <string name="widget_option_settings">ajustes del widget</string>
+    <string name="widget_height_label">altura del widget: %1$ddp</string>
 </resources>

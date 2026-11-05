@@ -22,6 +22,10 @@
 - abrir la mejor coincidencia al pulsar intro en el buscador de todas las apps, y nombrar la busqueda cuando no hay resultados
 - hacer que el estado vacio de la pantalla de inicio abra directamente el selector de apps
 - añadir una respuesta tactil serena (atenuado y leve escala, `@animator/fp_press_feedback`) a favoritos, filas del cajon, entradas del menu y botones de texto, y tokens de movimiento comunes en `values/motion.xml`
+- añadir un selector de widgets rehecho: agrupado por app con su icono, busqueda difusa, vista previa fiel (el `previewLayout` de android 12+ renderizado en vivo al tamaño real y escalado, o la imagen estatica cuando la del proveedor no se sostiene sola), tamaño en celdas, descripcion, marca "en uso" y estados de carga, vacio y sin resultados
+- añadir opciones del widget al mantenerlo pulsado en inicio, al tocarlo en el editor de disposicion y desde ajustes de inicio: cambiar widget, ajustar altura, ajustes del widget (si el proveedor es reconfigurable) y quitar widget, compartidas en `HomeWidgetActions`
+- añadir el ajuste de altura del widget con un slider que redimensiona el widget en vivo detras del dialogo, con guardar, restablecer al tamaño del proveedor y cancelar
+- añadir un estado "widget no disponible" cuando el proveedor desaparece mientras su app se actualiza, en vez de borrar el widget
 
 #### CAMBIADO
 - reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
@@ -48,6 +52,9 @@
 - convertir el indicador de paginas del onboarding en una pastilla que anima su ancho y quitar el boton duplicado "entrar" de la ultima pagina
 - mostrar el sufijo am/pm del reloj a menor tamaño y dar a los buscadores de todas las apps y del selector un campo con fondo propio
 - reescribir los textos del estado vacio, del aviso de mantener pulsado y del paso "añadir apps" del tutorial para que nombren la accion real ("editar dashboard") en los cuatro idiomas
+- rehacer el alojamiento de widgets: `HomeWidgetHostView` (error en los colores del tema, aparicion con fundido y pulsacion larga que no roba toques ni desplazamientos al widget), `WidgetSurface` con modos de inicio y vista previa escalada, y `AppWidgetHostManager` con propiedad de la vista por pantalla para que volver a inicio no reconstruya el widget
+- dar al widget por defecto la altura de las filas que declara el proveedor con celdas de lanzador reales y comunicarle su tamaño en dp con `updateAppWidgetSize`
+- mostrar el nombre del widget actual en ajustes de inicio en lugar de "quitar widget"
 
 #### CORREGIDO
 - aplicar los bloqueos de horario y limite diario al abrir aplicaciones desde recientes y accesos frecuentes mediante cambios de ventana, y avisar de la necesidad del servicio de accesibilidad para todas las reglas
@@ -81,6 +88,13 @@
 - respetar el formato de 12 horas en el reloj apilado, que siempre mostraba la hora en 24 horas
 - corregir el salto de linea literal del estado vacio en castellano, que android unia en una sola linea
 - volver arriba de la lista de todas las apps tras abrir una app desde una busqueda y limpiarla, y dejar de borrar el primer plano de las filas tras un arrastre a carpeta
+- arreglar que ningun widget cargase en inicio ni en la vista previa de ajustes: el `LayoutInflater` de la activity llevaba la factory de appcompat y `RemoteViews` fallaba al inflar cada `TextView` del proveedor ("can't convert value to dimension"); las vistas se crean ahora con `WidgetHostContext`, que usa un inflater sin factory
+- volver a activar el bloque del widget en la disposicion de inicio al elegir un widget, que quedaba oculto si se habia desactivado antes
+- informar del tamaño del widget en dp y tras el primer layout, en vez de en pixeles y a menudo 0 × 0, y darle una altura explicita en vez de `wrap_content`, que dejaba sin altura a los widgets con raiz `match_parent`
+- abrir la configuracion del widget con `startAppWidgetConfigureActivityForResult`, que funciona con actividades de configuracion no exportadas, y comprobar el enlace con `getAppWidgetInfo` en vez de volver a enlazar, que descartaba el widget al conceder el permiso "solo esta vez"
+- calcular el tamaño en celdas del selector a partir de dp (el sistema da `minWidth`/`minHeight` en pixeles) y respetar `targetCellWidth`/`targetCellHeight`
+- evitar que el recoloreado del tema y el cambio de fuente de `BaseActivity` alteren el contenido de los widgets alojados
+- ajustar las filas de la vista previa de apps del editor de disposicion para que quepan todos los favoritos sin cortar los nombres
 
 #### ELIMINADO
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` y el subsistema de tamaño de icono inalcanzable, junto con `backup_rules.xml` y el `values-night/themes.xml` vacio
@@ -112,6 +126,10 @@
 - open the best match when enter is pressed in the all-apps search, and name the query when nothing matches
 - make the empty home-screen state open the app picker directly
 - add calm touch feedback (dim and slight scale, `@animator/fp_press_feedback`) to favourites, drawer rows, menu entries and text buttons, and shared motion tokens in `values/motion.xml`
+- add a rebuilt widget picker: grouped by app with its icon, fuzzy search, faithful previews (android 12+ `previewLayout` rendered live at real size and scaled, or the static image when the provider's layout does not stand on its own), cell size, description, an "in use" tag and loading, empty and no-results states
+- add widget options on long press on home, on tap in the layout editor and from home settings: change widget, adjust height, widget settings (when the provider is reconfigurable) and remove widget, shared through `HomeWidgetActions`
+- add widget height adjustment with a slider that resizes the widget live behind the dialog, with save, reset to the provider's size and cancel
+- add a "widget unavailable" state when the provider disappears while its app updates, instead of deleting the widget
 
 #### CHANGED
 - reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone
@@ -138,6 +156,9 @@
 - turn the onboarding page indicator into a pill that animates its width and remove the duplicate "enter" button from the last page
 - render the clock am/pm suffix smaller and give the all-apps and app-picker searches a field with its own background
 - rewrite the empty state, the hold hint and the "add apps" tutorial step so they name the real action ("edit dashboard") in all four languages
+- rework widget hosting: `HomeWidgetHostView` (error in theme colours, fade-in and a long press that never steals taps or scrolls from the widget), `WidgetSurface` with home and scaled preview modes, and `AppWidgetHostManager` with per-screen view ownership so returning home no longer rebuilds the widget
+- give the widget its provider's declared rows at real launcher cell size by default and report its size in dp through `updateAppWidgetSize`
+- show the current widget's name in home settings instead of "remove widget"
 
 #### FIXED
 - enforce time windows and daily limits when apps open from recents and suggested shortcuts through window change events, and show the accessibility warning for every schedule rule
@@ -171,6 +192,13 @@
 - honour the 12-hour format in the stacked clock, which always showed 24-hour time
 - fix the literal line break in the spanish empty state, which android collapsed into a single line
 - scroll the all-apps list back to the top after opening an app from a search and clearing it, and stop wiping row foregrounds after a folder drag
+- fix no widget ever loading on home or in the settings preview: the activity's `LayoutInflater` carried appcompat's factory and `RemoteViews` failed to inflate every provider `TextView` ("can't convert value to dimension"); views are now created with `WidgetHostContext`, which uses a factory-free inflater
+- switch the home layout's widget block back on when a widget is chosen, as it stayed hidden if it had been turned off before
+- report the widget size in dp and after the first layout, instead of in pixels and often 0 × 0, and give it an explicit height instead of `wrap_content`, which left widgets with a `match_parent` root without height
+- open widget configuration with `startAppWidgetConfigureActivityForResult`, which works with non-exported configuration activities, and verify the bind with `getAppWidgetInfo` instead of binding again, which discarded the widget when permission was granted "only this time"
+- compute the picker's cell size from dp (the system gives `minWidth`/`minHeight` in pixels) and honour `targetCellWidth`/`targetCellHeight`
+- keep `BaseActivity` theme recolouring and font swapping from altering hosted widget content
+- fit the layout editor's apps preview rows so every favourite shows without cut-off names
 
 #### REMOVED
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` and the unreachable icon-size-slider subsystem, along with `backup_rules.xml` and the empty `values-night/themes.xml`

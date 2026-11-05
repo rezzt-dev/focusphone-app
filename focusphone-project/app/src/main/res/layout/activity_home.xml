@@ -211,8 +211,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:clipChildren="false"
+            android:paddingStart="@dimen/home_widget_side_padding"
+            android:paddingEnd="@dimen/home_widget_side_padding"
             android:visibility="gone" />
 
         <!-- App container ──────────────────────────────────────────────── -->

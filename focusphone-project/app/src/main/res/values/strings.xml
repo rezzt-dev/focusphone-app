@@ -351,7 +351,6 @@
     <string name="widget_picker_subtitle">choose a widget to add to your home screen</string>
     <string name="widget_picker_empty">no widgets available</string>
     <string name="widget_picker_loading">loading widgets…</string>
-    <string name="cd_widget_icon">widget icon</string>
     <string name="cd_clock">clock component</string>
     <string name="cd_widget">widget component</string>
     <string name="cd_apps">apps component</string>
@@ -420,7 +419,7 @@
     <string name="settings_clock_type_desc">choose how the time is displayed</string>
     <string name="settings_clock_size_desc">scale the clock up or down</string>
     <string name="settings_app_spacing_desc">space between favourite apps</string>
-    <string name="settings_widget_settings_desc">add or remove a system widget</string>
+    <string name="settings_widget_settings_desc">add, change or resize the home widget</string>
     <string name="settings_home_layout_desc">reorder and resize home components</string>
     <string name="settings_conscious_pause_section_desc">take a breath before opening apps</string>
     <string name="settings_work_keywords_section_desc">block apps by name in work mode</string>
@@ -640,4 +639,19 @@ forty-one</string>
         <item quantity="other">%d minutes left today</item>
     </plurals>
     <string name="pause_last_minute_today">less than a minute left today</string>
+
+    <!-- Home widget -->
+    <string name="widget_error_load">this widget can\'t be shown</string>
+    <string name="widget_unavailable">widget unavailable while its app updates</string>
+    <string name="widget_picker_search_hint">search widgets</string>
+    <string name="widget_picker_no_results">no widgets match your search</string>
+    <string name="widget_picker_in_use_format">in use · %1$s</string>
+    <string name="widget_picker_add_failed">the widget could not be added</string>
+    <string name="widget_picker_config_failed">the widget\'s settings could not be opened</string>
+    <string name="widget_size_format" translatable="false">%1$d × %2$d</string>
+    <string name="widget_option_change">change widget</string>
+    <string name="widget_option_height">adjust height</string>
+    <string name="widget_option_settings">widget settings</string>
+    <string name="widget_height_label">widget height: %1$ddp</string>
+    <string name="widget_height_value" translatable="false">%1$ddp</string>
 </resources>

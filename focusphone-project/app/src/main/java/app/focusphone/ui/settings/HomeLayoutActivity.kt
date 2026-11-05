@@ -21,10 +21,10 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -45,7 +45,7 @@ import app.focusphone.ui.base.BaseActivity
 import app.focusphone.ui.home.adapter.FavouriteAppsAdapter
 import app.focusphone.ui.widget.AppWidgetHostManager
 import app.focusphone.ui.widget.ClockRenderer
-import app.focusphone.ui.widget.WidgetPickerActivity
+import app.focusphone.ui.widget.HomeWidgetActions
 import app.focusphone.ui.widget.WidgetSurface
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -103,16 +103,14 @@ class HomeLayoutActivity : BaseActivity() {
     private var currentAppsContainer: FrameLayout? = null
     private var clockRenderer: ClockRenderer? = null
 
-    private val widgetPickerLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            currentWidgetEnabled = true
-            WidgetPreferences.setWidgetEnabled(this, true)
-            saveVisibility()
-            rebuildPreview()
-        }
-    }
+    private val widgetActions = HomeWidgetActions(
+        activity = this,
+        showDialog = { showStyledDialog(it) },
+        onWidgetChanged = ::onWidgetChanged,
+        onHeightPreview = { heightDp -> widgetSurface.previewHeight(heightDp) }
+    )
+
+    private val providersChangedListener: () -> Unit = { restoreWidget() }
 
     // ═══════════════════════════════════════════════════════════════
     // Lifecycle
@@ -122,7 +120,7 @@ class HomeLayoutActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeLayoutBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        widgetSurface = WidgetSurface(this, WidgetSurface.EmptyBehavior.SHOW_ADD_BUTTON)
+        widgetSurface = WidgetSurface(this, WidgetSurface.Mode.PREVIEW)
         setupInsets()
         binding.btnBack.setOnClickListener { finish() }
         binding.btnDone.setOnClickListener { exitEditMode() }
@@ -138,7 +136,10 @@ class HomeLayoutActivity : BaseActivity() {
 
     override fun onStart() {
         super.onStart()
-        AppWidgetHostManager.getInstance(this).startListening(this)
+        AppWidgetHostManager.getInstance(this).apply {
+            startListening(this@HomeLayoutActivity)
+            addProvidersChangedListener(providersChangedListener)
+        }
         try {
             ContextCompat.registerReceiver(
                 this,
@@ -167,7 +168,10 @@ class HomeLayoutActivity : BaseActivity() {
             }
         }
         handler.removeCallbacks(clockUpdateRunnable)
-        AppWidgetHostManager.getInstance(this).stopListening(this)
+        AppWidgetHostManager.getInstance(this).apply {
+            removeProvidersChangedListener(providersChangedListener)
+            stopListening(this@HomeLayoutActivity)
+        }
         super.onStop()
     }
 
@@ -197,12 +201,9 @@ class HomeLayoutActivity : BaseActivity() {
             toggleComponentVisibility(HomeLayoutPreferences.Component.CLOCK)
         }
         toggleWidget.setOnClickListener {
-            if (!currentWidgetEnabled) {
-                val widgetId = WidgetPreferences.getWidgetId(this)
-                if (widgetId == WidgetPreferences.INVALID_WIDGET_ID) {
-                    launchWidgetPicker()
-                    return@setOnClickListener
-                }
+            if (!currentWidgetEnabled && !WidgetPreferences.hasWidget(this)) {
+                widgetActions.openPicker()
+                return@setOnClickListener
             }
             toggleComponentVisibility(HomeLayoutPreferences.Component.WIDGET)
         }
@@ -332,10 +333,10 @@ class HomeLayoutActivity : BaseActivity() {
                         R.layout.layout_preview_widget, wrapper, false
                     )
                     wrapper.addView(widgetView)
-                    currentWidgetContainer = wrapper
+                    currentWidgetContainer = widgetView as FrameLayout
                     restoreWidget()
                     wrapper.findViewById<View>(R.id.btn_add_widget)?.setOnClickListener {
-                        launchWidgetPicker()
+                        widgetActions.openPicker()
                     }
                 }
 
@@ -542,14 +543,24 @@ class HomeLayoutActivity : BaseActivity() {
             override fun isLongPressDragEnabled(): Boolean = true
         })
         touchHelper.attachToRecyclerView(rv)
+        updateAppsItemHeight(favouriteAppsAdapter.itemCount)
     }
 
+    /**
+     * Splits the apps block between the favourites so all of them show in the preview.
+     *
+     * Measured on the list's own box (its padding included) once it has been laid out: the
+     * outer block was used before, so the last rows overflowed, and on first open the block
+     * had no size yet and the preview showed only the first few apps at full size.
+     */
     private fun updateAppsItemHeight(appCount: Int) {
         val container = currentAppsContainer ?: return
-        val available = container.height - container.paddingTop - container.paddingBottom
-        val height = if (appCount > 0) (available / appCount).coerceAtMost(dp(80)) else 0
-        if (height > 0) {
-            favouriteAppsAdapter.itemHeight = height
+        val box = container.findViewById<View>(R.id.apps_container) ?: container
+        box.doOnLayout {
+            if (currentAppsContainer !== container || appCount <= 0) return@doOnLayout
+            val available = box.height - box.paddingTop - box.paddingBottom
+            val height = (available / appCount).coerceAtMost(dp(80))
+            if (height > 0) favouriteAppsAdapter.itemHeight = height
         }
     }
 
@@ -771,11 +782,10 @@ class HomeLayoutActivity : BaseActivity() {
 
     private fun onWrapperClicked(component: HomeLayoutPreferences.Component) {
         if (isEditMode) return
-        // Outside edit mode a tap only offers to pick a widget when none is configured.
-        if (component == HomeLayoutPreferences.Component.WIDGET &&
-            WidgetPreferences.getWidgetId(this) == WidgetPreferences.INVALID_WIDGET_ID
-        ) {
-            launchWidgetPicker()
+        // Outside edit mode a tap on the widget offers its options (or the picker when the
+        // slot is empty), the same menu a long press shows on the home screen.
+        if (component == HomeLayoutPreferences.Component.WIDGET) {
+            widgetActions.showOptions(binding.previewRoot)
         }
     }
 
@@ -800,11 +810,15 @@ class HomeLayoutActivity : BaseActivity() {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // Widget picker launcher
+    // Widget changes
     // ═══════════════════════════════════════════════════════════════
 
-    private fun launchWidgetPicker() {
-        widgetPickerLauncher.launch(Intent(this, WidgetPickerActivity::class.java))
+    /** A widget was added, replaced, resized or removed from the options. */
+    private fun onWidgetChanged() {
+        // Adding a widget switches its block on (see AppWidgetHostManager.assignHomeWidget).
+        currentWidgetEnabled = HomeLayoutPreferences.isWidgetEnabled(this)
+        updateVisibilityToggles()
+        rebuildPreview()
     }
 
     // ═══════════════════════════════════════════════════════════════
