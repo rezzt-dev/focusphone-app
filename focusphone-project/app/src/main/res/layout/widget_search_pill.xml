@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Search: a pill that opens the app search, and the app drawer on the right (4 x 1). RemoteViews ignore app:tint, so android:tint is right here. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wg_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UseAppTint,UselessParent">
+
+    <FrameLayout
+        android:id="@+id/wg_pill"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="center_vertical"
+        android:contentDescription="@string/wg_search_hint">
+
+        <ImageView
+            android:id="@+id/wg_pill_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:scaleType="fitXY"
+            android:src="@drawable/wg_bg_pill"
+            android:tint="@color/wg_preview_card" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:paddingStart="20dp"
+            android:paddingEnd="6dp">
+
+            <ImageView
+                android:id="@+id/wg_search_icon"
+                android:layout_width="@dimen/wg_icon"
+                android:layout_height="@dimen/wg_icon"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_wg_search"
+                android:tint="@color/wg_preview_text_secondary" />
+
+            <TextView
+                android:id="@+id/wg_search_hint"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_search_hint"
+                android:textColor="@color/wg_preview_text_secondary"
+                android:textSize="15sp" />
+
+            <FrameLayout
+                android:id="@+id/wg_apps"
+                android:layout_width="@dimen/wg_button"
+                android:layout_height="@dimen/wg_button"
+                android:contentDescription="@string/wg_cd_all_apps">
+
+                <ImageView
+                    android:id="@+id/wg_apps_icon"
+                    android:layout_width="@dimen/wg_icon"
+                    android:layout_height="@dimen/wg_icon"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_wg_layout_grid"
+                    android:tint="@color/wg_preview_text" />
+            </FrameLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+</FrameLayout>

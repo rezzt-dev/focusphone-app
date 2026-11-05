@@ -33,14 +33,20 @@ sealed interface WidgetPickerRow {
 
 /**
  * Turns the installed providers into the picker's rows: grouped by app, apps and widgets
- * in alphabetical order, filtered by a search that matches the widget or the app name.
+ * in alphabetical order (an optional pinned app first), filtered by a search that matches
+ * the widget or the app name.
  */
 object WidgetCatalog {
 
+    /**
+     * @param pinnedPackage an app listed before all others whatever its name: FocusPhone
+     *   itself, whose widgets are made to match the launcher.
+     */
     fun rows(
         entries: List<WidgetEntry>,
         query: String,
-        appIcons: Map<String, Drawable?> = emptyMap()
+        appIcons: Map<String, Drawable?> = emptyMap(),
+        pinnedPackage: String? = null
     ): List<WidgetPickerRow> {
         val needle = query.trim()
         val visible = if (needle.isEmpty()) {
@@ -52,7 +58,7 @@ object WidgetCatalog {
         return visible
             .groupBy { it.packageName }
             .entries
-            .sortedWith(compareBy({ it.value.first().appLabel.lowercase() }, { it.key }))
+            .sortedWith(compareBy({ it.key != pinnedPackage }, { it.value.first().appLabel.lowercase() }, { it.key }))
             .flatMap { (packageName, widgets) ->
                 val sorted = widgets.sortedWith(compareBy({ it.label.lowercase() }, { it.provider.className }))
                 buildList {

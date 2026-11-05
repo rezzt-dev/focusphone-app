@@ -359,4 +359,15 @@
         <item name="android:textAllCaps">false</item>
     </style>
 
+    <!-- Widget launch trampoline (WidgetLaunchActivity): finishes in onCreate, so the
+         system must not draw a starting window for it either. -->
+    <style name="Theme.FocusPhone.WidgetTrampoline" parent="Theme.FocusPhone.Slate">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+    </style>
+
 </resources>

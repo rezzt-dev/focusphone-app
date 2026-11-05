@@ -26,6 +26,13 @@
 - añadir opciones del widget al mantenerlo pulsado en inicio, al tocarlo en el editor de disposicion y desde ajustes de inicio: cambiar widget, ajustar altura, ajustes del widget (si el proveedor es reconfigurable) y quitar widget, compartidas en `HomeWidgetActions`
 - añadir el ajuste de altura del widget con un slider que redimensiona el widget en vivo detras del dialogo, con guardar, restablecer al tamaño del proveedor y cancelar
 - añadir un estado "widget no disponible" cuando el proveedor desaparece mientras su app se actualiza, en vez de borrar el widget
+- añadir una biblioteca de 20 widgets propios en `ui/widget/library`, disponibles en el selector de focusphone y en cualquier otro lanzador: reloj, reloj analogico, reloj mundial, hoy, mes, semana, barra de musica, reproductor, mosaico de musica, busqueda, spotlight, favoritas, bateria, almacenamiento, sistema, ajustes rapidos, proxima alarma, perfil de enfoque, intencion y progreso, en formatos redondos, cuadrados, de pastilla y rectangulares de 2 x 1 a 4 x 3
+- pintar los widgets propios con el tema activo del lanzador (`WidgetStyle`, derivado de `FocusPalette` y del tono de superficie de cada tema, incluido el personalizado) y repintarlos al cambiar de tema, de colores, de modo dia/noche o de idioma
+- dibujar los iconos de los widgets con lucide (`ic_wg_*`, convertidos a vector drawables) y los anillos y barras de progreso como mascaras alfa que se tiñen como un icono y caben en el limite de tamaño de `RemoteViews`
+- abrir las apps desde los widgets a traves de `WidgetLaunchActivity`, que aplica el bloqueo del perfil, el horario y la pausa consciente de `BaseActivity.openApp` aunque el widget viva en otro lanzador
+- leer la musica que suena desde el oyente de notificaciones (`MediaWidgetBridge`): caratula, cancion, artista y controles de reproducir, pausar, anterior y siguiente, con estados para "sin acceso" y "no suena nada"
+- añadir pantallas de configuracion para el reloj mundial (hasta tres ciudades con nombre localizado y desfase horario) y para la intencion del dia, guardada cifrada como el resto de textos del usuario (`LibraryWidgetPreferences`)
+- añadir `EXTRA_FOCUS_SEARCH` a `AllAppsActivity` para que los widgets de busqueda abran el cajon con el teclado ya levantado
 
 #### CAMBIADO
 - reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
@@ -55,6 +62,7 @@
 - rehacer el alojamiento de widgets: `HomeWidgetHostView` (error en los colores del tema, aparicion con fundido y pulsacion larga que no roba toques ni desplazamientos al widget), `WidgetSurface` con modos de inicio y vista previa escalada, y `AppWidgetHostManager` con propiedad de la vista por pantalla para que volver a inicio no reconstruya el widget
 - dar al widget por defecto la altura de las filas que declara el proveedor con celdas de lanzador reales y comunicarle su tamaño en dp con `updateAppWidgetSize`
 - mostrar el nombre del widget actual en ajustes de inicio en lugar de "quitar widget"
+- listar primero los widgets de focusphone en el selector de widgets, antes que los del resto de apps
 
 #### CORREGIDO
 - aplicar los bloqueos de horario y limite diario al abrir aplicaciones desde recientes y accesos frecuentes mediante cambios de ventana, y avisar de la necesidad del servicio de accesibilidad para todas las reglas
@@ -130,6 +138,13 @@
 - add widget options on long press on home, on tap in the layout editor and from home settings: change widget, adjust height, widget settings (when the provider is reconfigurable) and remove widget, shared through `HomeWidgetActions`
 - add widget height adjustment with a slider that resizes the widget live behind the dialog, with save, reset to the provider's size and cancel
 - add a "widget unavailable" state when the provider disappears while its app updates, instead of deleting the widget
+- add a library of 20 built-in widgets in `ui/widget/library`, offered in focusphone's picker and in any other launcher: clock, analog clock, world clock, today, month, week, music bar, music player, music tile, search, spotlight, favourites, battery, storage, system, quick settings, next alarm, focus profile, intention and progress, in round, square, pill and rectangular formats from 2 x 1 to 4 x 3
+- paint the built-in widgets with the launcher's active theme (`WidgetStyle`, derived from `FocusPalette` and each theme's surface tone, the custom theme included) and repaint them when the theme, its colours, day/night mode or the language change
+- draw the widget icons with lucide (`ic_wg_*`, converted to vector drawables) and progress rings and bars as alpha masks that tint like an icon and fit within the `RemoteViews` size limit
+- open apps from the widgets through `WidgetLaunchActivity`, which applies the profile block, the schedule and the conscious pause of `BaseActivity.openApp` even when the widget lives in another launcher
+- read what is playing through the notification listener (`MediaWidgetBridge`): artwork, track, artist and play, pause, previous and next controls, with "no access" and "nothing playing" states
+- add configuration screens for the world clock (up to three cities with localised names and time offsets) and for the daily intention, stored encrypted like every other user-written text (`LibraryWidgetPreferences`)
+- add `EXTRA_FOCUS_SEARCH` to `AllAppsActivity` so the search widgets open the drawer with the keyboard already up
 
 #### CHANGED
 - reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone
@@ -159,6 +174,7 @@
 - rework widget hosting: `HomeWidgetHostView` (error in theme colours, fade-in and a long press that never steals taps or scrolls from the widget), `WidgetSurface` with home and scaled preview modes, and `AppWidgetHostManager` with per-screen view ownership so returning home no longer rebuilds the widget
 - give the widget its provider's declared rows at real launcher cell size by default and report its size in dp through `updateAppWidgetSize`
 - show the current widget's name in home settings instead of "remove widget"
+- list focusphone's own widgets first in the widget picker, before every other app's
 
 #### FIXED
 - enforce time windows and daily limits when apps open from recents and suggested shortcuts through window change events, and show the accessibility warning for every schedule rule

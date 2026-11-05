@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Analog clock on a round body (2 x 2). Hands are fixed drawables before Android 12. RemoteViews ignore app:tint, so android:tint is right here. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wg_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UseAppTint">
+
+    <ImageView
+        android:id="@+id/wg_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter"
+        android:src="@drawable/wg_bg_circle"
+        android:tint="@color/wg_preview_card" />
+
+    <AnalogClock
+        android:id="@+id/wg_analog"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/wg_round_inset"
+        android:dial="@drawable/wg_clock_dial"
+        android:hand_hour="@drawable/wg_clock_hand_hour_on_light"
+        android:hand_minute="@drawable/wg_clock_hand_minute_on_light" />
+
+</FrameLayout>

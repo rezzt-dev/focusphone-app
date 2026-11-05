@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Quick settings: flashlight, internet, bluetooth, volume and settings (4 x 1). RemoteViews ignore app:tint, so android:tint is right here. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wg_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UseAppTint,UselessParent">
+
+    <ImageView
+        android:id="@+id/wg_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/wg_bg_card"
+        android:tint="@color/wg_preview_card" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
+
+        <FrameLayout
+            android:id="@+id/wg_torch_slot"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <FrameLayout
+                android:id="@+id/wg_torch"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/wg_cd_flashlight"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:id="@+id/wg_torch_fill"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_dot"
+                    android:tint="@color/wg_preview_chip" />
+
+                <ImageView
+                    android:id="@+id/wg_torch_icon"
+                    android:layout_width="@dimen/wg_icon"
+                    android:layout_height="@dimen/wg_icon"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_wg_flashlight"
+                    android:tint="@color/wg_preview_text" />
+            </FrameLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <FrameLayout
+                android:id="@+id/wg_internet"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/wg_cd_internet"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:id="@+id/wg_internet_fill"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_dot"
+                    android:tint="@color/wg_preview_chip" />
+
+                <ImageView
+                    android:id="@+id/wg_internet_icon"
+                    android:layout_width="@dimen/wg_icon"
+                    android:layout_height="@dimen/wg_icon"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_wg_wifi"
+                    android:tint="@color/wg_preview_text" />
+            </FrameLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <FrameLayout
+                android:id="@+id/wg_bluetooth"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/wg_cd_bluetooth"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:id="@+id/wg_bluetooth_fill"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_dot"
+                    android:tint="@color/wg_preview_chip" />
+
+                <ImageView
+                    android:id="@+id/wg_bluetooth_icon"
+                    android:layout_width="@dimen/wg_icon"
+                    android:layout_height="@dimen/wg_icon"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_wg_bluetooth"
+                    android:tint="@color/wg_preview_text" />
+            </FrameLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <FrameLayout
+                android:id="@+id/wg_volume"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/wg_cd_volume"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:id="@+id/wg_volume_fill"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_dot"
+                    android:tint="@color/wg_preview_chip" />
+
+                <ImageView
+                    android:id="@+id/wg_volume_icon"
+                    android:layout_width="@dimen/wg_icon"
+                    android:layout_height="@dimen/wg_icon"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_wg_volume_2"
+                    android:tint="@color/wg_preview_text" />
+            </FrameLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <FrameLayout
+                android:id="@+id/wg_settings"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/wg_cd_settings"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:id="@+id/wg_settings_fill"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_dot"
+                    android:tint="@color/wg_preview_chip" />
+
+                <ImageView
+                    android:id="@+id/wg_settings_icon"
+                    android:layout_width="@dimen/wg_icon"
+                    android:layout_height="@dimen/wg_icon"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_wg_settings"
+                    android:tint="@color/wg_preview_text" />
+            </FrameLayout>
+        </FrameLayout>
+    </LinearLayout>
+
+</FrameLayout>

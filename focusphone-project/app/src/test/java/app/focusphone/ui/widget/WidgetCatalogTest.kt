@@ -45,6 +45,14 @@ class WidgetCatalogTest {
     }
 
     @Test
+    fun `a pinned app is listed first whatever its name`() {
+        val rows = WidgetCatalog.rows(entries, query = "", pinnedPackage = "com.weather")
+
+        val headers = rows.filterIsInstance<WidgetPickerRow.AppHeader>().map { it.appLabel }
+        assertEquals(listOf("Weather", "Clock"), headers)
+    }
+
+    @Test
     fun `search matches widget names`() {
         val rows = WidgetCatalog.rows(entries, query = "fore")
 

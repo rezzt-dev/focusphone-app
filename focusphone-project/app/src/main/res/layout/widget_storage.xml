@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Storage: share used, a bar and the space left (2 x 2). RemoteViews ignore app:tint, so android:tint is right here. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wg_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UseAppTint">
+
+    <ImageView
+        android:id="@+id/wg_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter"
+        android:src="@drawable/wg_bg_squircle"
+        android:tint="@color/wg_preview_card" />
+
+    <LinearLayout
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/wg_icon"
+            android:layout_width="@dimen/wg_icon"
+            android:layout_height="@dimen/wg_icon"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_wg_hard_drive"
+            android:tint="@color/wg_preview_text_secondary" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:baselineAligned="true"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/wg_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_percent_storage"
+                android:textColor="@color/wg_preview_text"
+                android:textSize="32sp" />
+            <TextView
+                android:id="@+id/wg_caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_storage_used"
+                android:textColor="@color/wg_preview_text_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/wg_bar_height"
+            android:layout_marginTop="10dp"
+            android:importantForAccessibility="no">
+
+            <ImageView
+                android:id="@+id/wg_bar_track"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                android:src="@drawable/wg_bg_pill"
+                android:tint="@color/wg_preview_track" />
+
+            <ImageView
+                android:id="@+id/wg_bar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                android:src="@drawable/wg_preview_bar"
+                android:tint="@color/wg_preview_accent" />
+        </FrameLayout>
+        <TextView
+            android:id="@+id/wg_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="sans-serif"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/wg_preview_storage"
+            android:textColor="@color/wg_preview_text_secondary"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</FrameLayout>

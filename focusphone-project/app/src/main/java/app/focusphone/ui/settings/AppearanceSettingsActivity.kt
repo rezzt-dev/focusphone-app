@@ -37,6 +37,7 @@ import app.focusphone.ui.theme.ScrimSurface
 import app.focusphone.ui.theme.SurfaceScrim
 import app.focusphone.ui.wallpaper.WallpaperStorage
 import app.focusphone.ui.wallpaper.WallpaperUtils
+import app.focusphone.ui.widget.library.WidgetUpdater
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -211,6 +212,8 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
      * only point at which a style theme can take effect.
      */
     private fun relaunchForThemeChange() {
+        // FocusPhone's widgets are painted with the theme too, wherever they are placed.
+        WidgetUpdater.refreshIfStyleChanged(this)
         val relaunch = Intent(this, AppearanceSettingsActivity::class.java)
         // BaseActivity.finish() and startActivity() already apply the fade transition.
         finish()

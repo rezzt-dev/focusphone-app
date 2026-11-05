@@ -83,6 +83,8 @@ import app.focusphone.ui.widget.AppWidgetHostManager
 import app.focusphone.ui.widget.ClockRenderer
 import app.focusphone.ui.widget.HomeWidgetActions
 import app.focusphone.ui.widget.WidgetSurface
+import app.focusphone.ui.widget.library.WidgetTrigger
+import app.focusphone.ui.widget.library.WidgetUpdater
 import app.focusphone.util.LauncherUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
@@ -305,6 +307,7 @@ class HomeActivity : BaseActivity() {
         }
         ProfilePreferences.expireDetoxIfNeeded(this)
         updateProfileLabel()
+        WidgetUpdater.refreshIfStyleChanged(this)
         restoreWidget()
         applyHomeLayout()
         refreshNotificationPanelState()
@@ -1011,6 +1014,8 @@ class HomeActivity : BaseActivity() {
             else -> R.string.profile_normal
         }
         binding.tvMenuProfile.text = getString(R.string.home_profile_label, getString(profileNameRes))
+        // Every profile change ends here; the focus-profile widget follows it.
+        WidgetUpdater.refresh(this, WidgetTrigger.PROFILE)
     }
 
     private fun showProfileSelectionDialog() {
@@ -1228,6 +1233,7 @@ class HomeActivity : BaseActivity() {
                     // group (clock + apps) centres vertically inside root_home.
                     adapter.itemHeight = ViewGroup.LayoutParams.WRAP_CONTENT
                     adapter.submitList(apps)
+                    WidgetUpdater.refresh(this@HomeActivity, WidgetTrigger.FAVOURITES)
                     applyAppSpacing()
                     adjustRootGravity()
                     if (!empty) maybeShowLongPressHint()

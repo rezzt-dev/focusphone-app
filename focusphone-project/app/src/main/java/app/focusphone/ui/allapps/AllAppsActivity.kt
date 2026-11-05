@@ -577,6 +577,16 @@ class AllAppsActivity : BaseActivity() {
                 }
             }
         }
+
+        if (savedInstanceState == null && intent.getBooleanExtra(EXTRA_FOCUS_SEARCH, false)) focusSearch()
+    }
+
+    /** Puts the cursor in the search field and raises the keyboard once the window has focus. */
+    private fun focusSearch() {
+        binding.etSearch.requestFocus()
+        binding.etSearch.post {
+            WindowCompat.getInsetsController(window, binding.etSearch).show(WindowInsetsCompat.Type.ime())
+        }
     }
 
     /** Names the search that found nothing, so a typo is obvious at a glance. */
@@ -626,7 +636,10 @@ class AllAppsActivity : BaseActivity() {
 
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
 
-    private companion object {
-        const val INPUT_MAX_LENGTH = 50
+    companion object {
+        private const val INPUT_MAX_LENGTH = 50
+
+        /** Opens the drawer with the search field focused and the keyboard up (search widgets). */
+        const val EXTRA_FOCUS_SEARCH = "app.focusphone.extra.FOCUS_SEARCH"
     }
 }

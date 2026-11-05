@@ -60,6 +60,7 @@ app/src/main/java/app/focusphone/
 │   │   ├── ProfilePreferences.kt # Normal / Work / Detox profiles, detox timer & password, blocked apps
 │   │   ├── ConsciousPausePreferences.kt # Enable/disable + duration (seconds)
 │   │   ├── CustomAppLabelsPreferences.kt # User-renamed app labels
+│   │   ├── LibraryWidgetPreferences.kt # Own widgets: encrypted intention, world-clock cities, style signature
 │   │   └── AppFolderPreferences.kt   # App-drawer folders and their expanded state
 │   └── repository/
 │       ├── AppRepositoryImpl.kt       # Queries installed launcher apps
@@ -148,8 +149,24 @@ app/src/main/java/app/focusphone/
         ├── WidgetHeights.kt          # Height from preference + provider info for the current screen
         ├── HomeWidgetActions.kt      # Shared options: change, adjust height, widget settings, remove
         ├── WidgetCatalog.kt          # Picker rows: grouped by app, sorted, fuzzy-searched
-        ├── WidgetPickerActivity.kt   # Picker: bind, configure, save
-        └── WidgetPickerAdapter.kt    # Picker cards with live/static previews
+        ├── WidgetPickerActivity.kt   # Picker: bind, configure, save (FocusPhone's own widgets first)
+        ├── WidgetPickerAdapter.kt    # Picker cards with live/static previews
+        └── library/                  # FocusPhone's own widgets (see "Widget library" below)
+            ├── FocusWidgetKind.kt        # Registry: provider, renderer, refresh triggers of all 20 widgets
+            ├── FocusWidgetProviders.kt   # One-line AppWidgetProvider per widget (the manifest needs a class each)
+            ├── WidgetUpdater.kt          # Renders, refreshes by trigger, midnight / detox ticks
+            ├── WidgetStyle.kt            # Widget colours from FocusPalette and the theme surface
+            ├── WidgetViews.kt            # Renderer contract, WidgetScene/WidgetSize, RemoteViews helpers
+            ├── WidgetBitmaps.kt          # Alpha-mask rings and bars, rounded artwork
+            ├── WidgetIntents.kt          # Every tap target; apps go through WidgetLaunchActivity
+            ├── WidgetLaunchActivity.kt   # Invisible trampoline that calls BaseActivity.openApp
+            ├── WidgetReceivers.kt        # Button / tick receiver and system-broadcast receiver
+            ├── MediaWidgetBridge.kt      # Media sessions via the notification listener
+            ├── SystemWidgetMonitor.kt    # Battery, storage, memory, flashlight
+            ├── ClockRenderers.kt / CalendarRenderers.kt / MusicRenderers.kt
+            ├── NavigationRenderers.kt / SystemRenderers.kt / FocusRenderers.kt
+            ├── WorldClockZones.kt        # Curated cities, localised names, offsets
+            └── WorldClockConfigActivity.kt / IntentionConfigActivity.kt
 ```
 
 > **Colours at runtime:** always go through `FocusPalette.of(context)` (or `BaseActivity.palette` /
@@ -294,6 +311,7 @@ Three tools, each with a job the others do not do, and **none of them has a base
 
 ### Coverage (Fase 2)
 - **Unit:** `ProfilePreferences` (pure blocking logic, detox expiration, SHA-256→PBKDF2), `ThemePreferences` (theme resolution, auto day/night, hex fallback), `ToggleFavouriteAppUseCase`, `UpdateAppsOrderUseCase`, `FuzzyMatcher`, `AppScheduleEvaluator` (windows, midnight wrap, weekday filtering, daily limits, serialization), `PasswordHasher` (PBKDF2 payloads, legacy upgrade, malformed input), `AppFolderSerializer` (round trip, name sanitizing, corrupted lines, alphabetical order).
+- **Widget library (unit):** `CalendarGrid` (week starts, month lengths, leap years), `TimeProgress`, day distances across DST, world-clock offsets, `WidgetStyle` (tone, surface tint, contrast), `LibraryWidgetPreferences` (intention sanitizing, per-widget cities), pinned app in `WidgetCatalog`.
 - **Instrumented:** Onboarding flow (3 steps), app selection (10-app limit), profile switching (Normal ↔ Work), detox password verification & lockout (4 failed attempts), schedule persistence, usage accounting and schedule-password cooldown (`AppScheduleTest`).
 
 ---
@@ -347,7 +365,32 @@ every match flat.
 ### 7. Auto Day/Night Theme
 `ThemePreferences.THEME_AUTO` resolves dynamically to `THEME_SLATE` (dark) when the system is in night mode, or `THEME_OFF_WHITE` (light) otherwise. `BaseActivity` tracks the *effective* resolved theme so that `onResume()` detects system day/night changes automatically.
 
-### 8. Migration from SharedPreferences to Room
+### 8. Widget library (FocusPhone's own widgets)
+
+FocusPhone ships 20 real `AppWidgetProvider`s, so they appear in its own picker and in any
+other launcher. Providers hold no logic: `FocusWidgetKind` maps each one to a renderer and to
+the `WidgetTrigger`s that make it stale, and `WidgetUpdater.refresh(context, trigger)` is the
+only way the rest of the app asks for a redraw (theme and day/night via
+`refreshIfStyleChanged`, favourites and profile from `HomeActivity`, media from the
+notification listener, battery and flashlight from `SystemWidgetMonitor`, the date from a
+midnight alarm and `WidgetSystemReceiver`).
+
+- **Colours:** always `WidgetStyle.resolve(context)`; it applies the launcher theme to the
+  application context and derives the card from the theme's surface tone. Layout colours are
+  preview defaults only. RemoteViews ignore `app:tint`, so widget layouts use `android:tint`
+  (suppressing `UseAppTint`), and a white drawable is recoloured with
+  `RemoteViews.tint(id, color)` (`setColorFilter`). Backgrounds can only be tinted on Android
+  12+; `backgroundTint` falls back to light/dark shapes below that.
+- **Opening apps:** never a direct launch intent. `WidgetIntents.openApp` / `openAppFor` go
+  through `WidgetLaunchActivity`, which calls `BaseActivity.openApp`, so profile blocks,
+  schedules and the conscious pause apply to widget taps in any launcher. System panels
+  (internet, volume, storage…) open directly.
+- **Bitmaps:** rings and bars are `ALPHA_8` masks tinted like icons, and every bitmap is capped
+  (`WidgetBitmaps`), because RemoteViews travel in one binder transaction.
+- **Icons:** Lucide (ISC), converted to stroke-only white vector drawables named `ic_wg_*`;
+  add new ones the same way and credit them in `open_source_licenses.html`.
+
+### 9. Migration from SharedPreferences to Room
 `FavouriteAppRepositoryImpl` contains a `migrateFromSharedPreferences()` method that runs once on init, converting the old pipe-delimited string format into Room entities and then deleting the old key.
 
 ---

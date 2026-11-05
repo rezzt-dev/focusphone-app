@@ -202,7 +202,7 @@ class WidgetPickerActivity : BaseActivity() {
     private fun submitRows() {
         if (!catalogLoaded) return
         val query = binding.etSearch.text?.toString().orEmpty()
-        val rows = WidgetCatalog.rows(entries, query, appIcons)
+        val rows = WidgetCatalog.rows(entries, query, appIcons, pinnedPackage = packageName)
         adapter.submitList(rows)
         when {
             entries.isEmpty() -> showState(R.string.widget_picker_empty)

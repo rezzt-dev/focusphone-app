@@ -8,6 +8,7 @@ import android.service.notification.StatusBarNotification
 import android.util.Log
 import app.focusphone.data.repository.NotificationItem
 import app.focusphone.data.repository.NotificationRepository
+import app.focusphone.ui.widget.library.MediaWidgetBridge
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -31,6 +32,9 @@ class FocusNotificationService : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         refresh()
+        // Media sessions are only readable by the notification listener; the music
+        // widgets follow them through this connection.
+        MediaWidgetBridge.attach(this)
     }
 
     /**
@@ -41,6 +45,7 @@ class FocusNotificationService : NotificationListenerService() {
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
         forgetAll()
+        MediaWidgetBridge.detach(this)
     }
 
     override fun onDestroy() {

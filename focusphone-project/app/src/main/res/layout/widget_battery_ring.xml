@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Battery: a ring filling with the charge, the level inside (2 x 2 round). RemoteViews ignore app:tint, so android:tint is right here. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wg_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UseAppTint">
+
+    <ImageView
+        android:id="@+id/wg_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter"
+        android:src="@drawable/wg_bg_circle"
+        android:tint="@color/wg_preview_card" />
+    <ImageView
+        android:id="@+id/wg_ring_track"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/wg_round_inset"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter"
+        android:src="@drawable/wg_ring_track"
+        android:tint="@color/wg_preview_track" />
+    <ImageView
+        android:id="@+id/wg_ring"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/wg_round_inset"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter"
+        android:src="@drawable/wg_preview_ring"
+        android:tint="@color/wg_preview_accent" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/wg_status_icon"
+            android:layout_width="@dimen/wg_icon_small"
+            android:layout_height="@dimen/wg_icon_small"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_wg_battery"
+            android:tint="@color/wg_preview_text_secondary" />
+        <TextView
+            android:id="@+id/wg_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="sans-serif-light"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/wg_preview_percent"
+            android:textColor="@color/wg_preview_text"
+            android:textSize="30sp" />
+        <TextView
+            android:id="@+id/wg_caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/wg_battery"
+            android:textColor="@color/wg_preview_text_secondary"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</FrameLayout>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Music bar: artwork, track and play / next (4 x 1). RemoteViews ignore app:tint, so android:tint is right here. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wg_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UseAppTint">
+
+    <ImageView
+        android:id="@+id/wg_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/wg_bg_card"
+        android:tint="@color/wg_preview_card" />
+
+    <LinearLayout
+        android:id="@+id/wg_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/wg_padding_compact"
+        android:paddingEnd="@dimen/wg_padding_compact">
+
+        <FrameLayout
+            android:id="@+id/wg_art_frame"
+            android:layout_width="52dp"
+            android:layout_height="52dp">
+
+            <ImageView
+                android:id="@+id/wg_art_placeholder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:scaleType="fitXY"
+                android:src="@drawable/wg_bg_chip"
+                android:tint="@color/wg_preview_chip" />
+
+            <ImageView
+                android:id="@+id/wg_art_icon"
+                android:layout_width="@dimen/wg_icon"
+                android:layout_height="@dimen/wg_icon"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_wg_music"
+                android:tint="@color/wg_preview_text_secondary" />
+
+            <ImageView
+                android:id="@+id/wg_art"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/wg_track"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/wg_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_title"
+                android:textColor="@color/wg_preview_text"
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/wg_artist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_artist"
+                android:textColor="@color/wg_preview_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/wg_play"
+            android:layout_width="@dimen/wg_button"
+            android:layout_height="@dimen/wg_button"
+            android:contentDescription="@string/wg_cd_play"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:id="@+id/wg_play_fill"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:scaleType="fitXY"
+                android:src="@drawable/wg_bg_dot"
+                android:tint="@color/wg_preview_accent" />
+
+            <ImageView
+                android:id="@+id/wg_play_icon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_wg_play"
+                android:tint="@color/wg_preview_on_accent" />
+        </FrameLayout>
+        <FrameLayout
+            android:id="@+id/wg_next"
+            android:layout_width="@dimen/wg_button"
+            android:layout_height="@dimen/wg_button"
+            android:layout_marginStart="4dp"
+            android:contentDescription="@string/wg_cd_next"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:id="@+id/wg_next_fill"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:scaleType="fitXY"
+                android:src="@drawable/wg_bg_dot"
+                android:tint="@android:color/transparent"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/wg_next_icon"
+                android:layout_width="@dimen/wg_icon"
+                android:layout_height="@dimen/wg_icon"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_wg_skip_forward"
+                android:tint="@color/wg_preview_text" />
+        </FrameLayout>
+    </LinearLayout>
+
+</FrameLayout>

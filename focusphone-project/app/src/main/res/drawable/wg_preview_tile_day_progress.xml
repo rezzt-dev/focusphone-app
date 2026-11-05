@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Static preview of the day progress widget for pickers before Android 12. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <size
+                android:width="96dp"
+                android:height="96dp" />
+            <solid android:color="@color/wg_preview_card" />
+            <corners android:radius="@dimen/wg_radius" />
+        </shape>
+    </item>
+    <item
+        android:width="36dp"
+        android:height="36dp"
+        android:drawable="@drawable/ic_wg_sun"
+        android:gravity="center" />
+</layer-list>
