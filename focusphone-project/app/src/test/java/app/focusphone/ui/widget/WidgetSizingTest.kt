@@ -1,65 +1,62 @@
 package app.focusphone.ui.widget
 
+import app.focusphone.domain.model.SpanLimits
+import app.focusphone.ui.widget.WidgetSizing.ProviderSize
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class WidgetSizingTest {
 
+    /** A 4 × 8 grid of 100 dp cells, about what a phone gets. */
+    private val cell = 100f
+    private val columns = 4
+    private val rows = 8
+
+    private fun span(size: ProviderSize) = WidgetSizing.defaultSpan(size, cell, cell, columns, rows)
+    private fun limits(size: ProviderSize) = WidgetSizing.limits(size, cell, cell, columns, rows)
+
     @Test
-    fun `cells follow the platform launcher formula`() {
-        assertEquals(1, WidgetSizing.cellsFor(40f))
-        assertEquals(2, WidgetSizing.cellsFor(110f))
-        assertEquals(4, WidgetSizing.cellsFor(250f))
-        // Just above a step needs one more cell.
-        assertEquals(3, WidgetSizing.cellsFor(111f))
-        assertEquals(1, WidgetSizing.cellsFor(0f))
+    fun `cells come from the real cell size with a little tolerance`() {
+        assertEquals(1, WidgetSizing.cellsFor(40f, cell))
+        assertEquals(1, WidgetSizing.cellsFor(106f, cell))
+        assertEquals(2, WidgetSizing.cellsFor(110f, cell))
+        assertEquals(3, WidgetSizing.cellsFor(250f, cell))
+        assertEquals(1, WidgetSizing.cellsFor(0f, cell))
     }
 
     @Test
-    fun `target cells win over the minimum size`() {
-        assertEquals(4 to 2, WidgetSizing.span(40f, 40f, targetCellWidth = 4, targetCellHeight = 2))
-        assertEquals(4 to 2, WidgetSizing.span(250f, 110f, targetCellWidth = 0, targetCellHeight = 0))
+    fun `declared cells win over the minimum size`() {
+        assertEquals(4 to 1, span(ProviderSize(minWidthDp = 250f, minHeightDp = 40f, targetCellWidth = 4, targetCellHeight = 1)))
+        assertEquals(3 to 2, span(ProviderSize(minWidthDp = 250f, minHeightDp = 180f)))
     }
 
     @Test
-    fun `cell size follows a four column grid within sane bounds`() {
-        assertEquals(95f, WidgetSizing.cellDp(380f), 0.01f)
-        assertEquals(72f, WidgetSizing.cellDp(200f), 0.01f)
-        assertEquals(120f, WidgetSizing.cellDp(900f), 0.01f)
+    fun `the default span never exceeds the grid`() {
+        assertEquals(4 to 8, span(ProviderSize(minWidthDp = 900f, minHeightDp = 2000f)))
+        assertEquals(4 to 1, span(ProviderSize(minWidthDp = 40f, minHeightDp = 40f, targetCellWidth = 6, targetCellHeight = 1)))
     }
 
     @Test
-    fun `default height uses rows at the launcher cell size`() {
-        // Declared rows win: 2 rows of 95dp.
-        assertEquals(190, WidgetSizing.defaultHeightDp(minHeightDp = 40f, targetCellHeight = 2, cellDp = 95f, windowHeightDp = 800f))
-        // Without declared rows they come from the minimum height (110dp -> 2 rows).
-        assertEquals(190, WidgetSizing.defaultHeightDp(minHeightDp = 110f, targetCellHeight = 0, cellDp = 95f, windowHeightDp = 800f))
-        // Never below the provider's own minimum.
-        assertEquals(250, WidgetSizing.defaultHeightDp(minHeightDp = 250f, targetCellHeight = 1, cellDp = 95f, windowHeightDp = 800f))
+    fun `a resizable widget goes from its resize minimum to the whole grid`() {
+        val size = ProviderSize(minWidthDp = 250f, minHeightDp = 110f, minResizeWidthDp = 180f, minResizeHeightDp = 40f)
+        assertEquals(SpanLimits(minX = 2, minY = 1, maxX = 4, maxY = 8), limits(size))
     }
 
     @Test
-    fun `default height is clamped into the slot range`() {
-        val max = WidgetSizing.maxHeightDp(800f)
-        assertEquals(max, WidgetSizing.defaultHeightDp(2000f, 0, 95f, 800f))
-        assertTrue(max <= 800 * WidgetSizing.MAX_WINDOW_FRACTION)
-        assertEquals(WidgetSizing.MIN_HEIGHT_DP, WidgetSizing.defaultHeightDp(10f, 0, 40f, 800f))
+    fun `a maximum resize size caps the span but never below the default`() {
+        val size = ProviderSize(minWidthDp = 180f, minHeightDp = 40f, maxResizeWidthDp = 300f, maxResizeHeightDp = 60f)
+        val result = limits(size)
+        assertEquals(3, result.maxX)
+        assertEquals(1, result.maxY)
     }
 
     @Test
-    fun `max height sits on a slider tick and never below the minimum`() {
-        val max = WidgetSizing.maxHeightDp(817f)
-        assertEquals(0, (max - WidgetSizing.MIN_HEIGHT_DP) % WidgetSizing.HEIGHT_STEP_DP)
-        assertEquals(WidgetSizing.MIN_HEIGHT_DP, WidgetSizing.maxHeightDp(20f))
-    }
-
-    @Test
-    fun `snap rounds to the nearest slider step`() {
-        assertEquals(64, WidgetSizing.snap(64))
-        assertEquals(64, WidgetSizing.snap(67))
-        assertEquals(72, WidgetSizing.snap(68))
-        assertEquals(112, WidgetSizing.snap(110))
-        assertEquals(192, WidgetSizing.snap(190))
+    fun `an axis that cannot be resized keeps the default span`() {
+        val size = ProviderSize(minWidthDp = 250f, minHeightDp = 110f, resizableX = false, resizableY = true)
+        val result = limits(size)
+        assertEquals(3, result.minX)
+        assertEquals(3, result.maxX)
+        assertEquals(false, result.resizableX)
+        assertEquals(true, result.resizableY)
     }
 }

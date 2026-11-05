@@ -28,6 +28,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.drawable.toDrawable
@@ -54,11 +55,11 @@ import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.data.preferences.ThemePreferences
 import app.focusphone.data.preferences.TutorialPreferences
 import app.focusphone.data.preferences.WallpaperPreferences
-import app.focusphone.data.preferences.WidgetPreferences
 import app.focusphone.data.repository.NotificationRepository
 import app.focusphone.data.repository.PackageChangeMonitor
 import app.focusphone.databinding.ActivityHomeBinding
 import app.focusphone.domain.model.ClockType
+import app.focusphone.domain.model.HomeGridItem
 import app.focusphone.service.FocusAccessibilityService
 import app.focusphone.service.FocusNotificationService
 import app.focusphone.ui.allapps.AllAppsActivity
@@ -66,8 +67,10 @@ import app.focusphone.ui.appselect.AppSelectActivity
 import app.focusphone.ui.base.BaseActivity
 import app.focusphone.ui.home.adapter.FavouriteAppsAdapter
 import app.focusphone.ui.home.adapter.NotificationsAdapter
+import app.focusphone.ui.home.grid.HomeGridController
 import app.focusphone.ui.onboarding.OnboardingActivity
 import app.focusphone.ui.schedule.ScheduleDayLabels
+import app.focusphone.ui.settings.HomeSettingsActivity
 import app.focusphone.ui.settings.SettingsActivity
 import app.focusphone.ui.theme.FocusColors
 import app.focusphone.ui.theme.ScrimSurface
@@ -81,8 +84,6 @@ import app.focusphone.ui.wallpaper.WallpaperStorage
 import app.focusphone.ui.wallpaper.WallpaperUtils
 import app.focusphone.ui.widget.AppWidgetHostManager
 import app.focusphone.ui.widget.ClockRenderer
-import app.focusphone.ui.widget.HomeWidgetActions
-import app.focusphone.ui.widget.WidgetSurface
 import app.focusphone.ui.widget.library.WidgetTrigger
 import app.focusphone.ui.widget.library.WidgetUpdater
 import app.focusphone.util.LauncherUtils
@@ -101,7 +102,6 @@ class HomeActivity : BaseActivity() {
     private lateinit var gestureDetector: GestureDetector
 
     private lateinit var clockRenderer: ClockRenderer
-    private lateinit var widgetSurface: WidgetSurface
 
     private val viewModel: HomeViewModel by viewModels {
         HomeViewModel.factory(focusPhoneApp)
@@ -109,16 +109,34 @@ class HomeActivity : BaseActivity() {
 
     private val adapter = FavouriteAppsAdapter(onAppClick = ::launchApp)
 
-    /** Options of the home widget, offered when the user holds it. */
-    private val widgetActions = HomeWidgetActions(
+    /** Where the clock, the favourites and the widgets sit, and the edit mode that moves them. */
+    private val homeGrid = HomeGridController(
         activity = this,
-        showDialog = { showStyledDialog(it) },
-        onWidgetChanged = ::refreshWidget,
-        onHeightPreview = { heightDp -> widgetSurface.previewHeight(heightDp) }
+        callbacks = object : HomeGridController.Callbacks {
+            override fun showDialog(dialog: AlertDialog) = showStyledDialog(dialog)
+            override fun onEditModeChanged(editing: Boolean) = onHomeEditModeChanged(editing)
+
+            // The favourites spread over their block, whose size may just have changed.
+            override fun onLayoutApplied() {
+                binding.rootHome.post { applyAppSpacing() }
+            }
+
+            override fun openClockSettings() = startActivity(Intent(this@HomeActivity, HomeSettingsActivity::class.java))
+            override fun openAppSelect() = this@HomeActivity.openAppSelect()
+
+            override fun onClockStyleChanged() {
+                applyClockType()
+                applyClockScale()
+                updateClock()
+            }
+        }
     )
 
-    /** Providers come and go with app installs and updates; the slot follows them. */
-    private val providersChangedListener: () -> Unit = { if (homeInitialized) refreshWidget() }
+    /** Providers come and go with app installs and updates; the widgets follow them. */
+    private val providersChangedListener: () -> Unit = { if (homeInitialized) homeGrid.refresh() }
+
+    /** Set when the home screen was opened to edit its layout (see [EXTRA_EDIT_LAYOUT]). */
+    private var pendingEditMode = false
 
     private val reorderCallback = FavouriteReorderCallback(
         adapter = adapter,
@@ -174,12 +192,7 @@ class HomeActivity : BaseActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         clockRenderer = ClockRenderer(this, binding.clockContainer)
-        widgetSurface = WidgetSurface(
-            context = this,
-            mode = WidgetSurface.Mode.HOME,
-            onVisibilityChanged = ::applyClockType,
-            onLongPress = { view -> widgetActions.showOptions(view) }
-        )
+        pendingEditMode = intent?.getBooleanExtra(EXTRA_EDIT_LAYOUT, false) == true
 
         if (!ThemePreferences.isOnboardingComplete(this)) {
             startActivity(Intent(this, OnboardingActivity::class.java))
@@ -192,6 +205,7 @@ class HomeActivity : BaseActivity() {
     /** Completes the expensive launcher setup only when onboarding no longer covers it. */
     private fun initializeHome() {
         if (homeInitialized) return
+        homeGrid.attach(binding.homeGrid, binding.clockContainer, binding.appsContainer, binding.homeContent)
         setupInsets()
         setupClockTap()
         setupRecyclerView()
@@ -224,6 +238,10 @@ class HomeActivity : BaseActivity() {
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
+                    if (homeGrid.isEditing) {
+                        homeGrid.exitEditMode()
+                        return
+                    }
                     if (homeInitialized && isAnyDrawerVisible()) {
                         binding.drawerLayout.closeDrawers()
                         return
@@ -248,6 +266,8 @@ class HomeActivity : BaseActivity() {
         if (!homeInitialized) return
         dismissExclusiveDialog()
         returnToHomePage(animate = lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+        // Home leaves edit mode like any other page; "edit home screen" in the settings enters it.
+        if (intent.getBooleanExtra(EXTRA_EDIT_LAYOUT, false)) pendingEditMode = true else homeGrid.exitEditMode()
     }
 
     private fun isAnyDrawerVisible(): Boolean =
@@ -308,8 +328,11 @@ class HomeActivity : BaseActivity() {
         ProfilePreferences.expireDetoxIfNeeded(this)
         updateProfileLabel()
         WidgetUpdater.refreshIfStyleChanged(this)
-        restoreWidget()
-        applyHomeLayout()
+        homeGrid.refresh()
+        if (pendingEditMode) {
+            pendingEditMode = false
+            binding.homeGrid.post { homeGrid.enterEditMode(null) }
+        }
         refreshNotificationPanelState()
         adapter.updateTypeface(FontPreferences.getTypeface(this))
         applyAlignment()
@@ -357,12 +380,12 @@ class HomeActivity : BaseActivity() {
         hostManager.startListening(this)
         hostManager.addProvidersChangedListener(providersChangedListener)
         // Frees IDs leaked by builds that never released removed or replaced widgets.
-        hostManager.releaseOrphanedIds(this)
+        hostManager.releaseOrphanedIds(homeGrid.widgetIds())
     }
 
     override fun onStop() {
-        // The widget view is kept: coming back must not rebuild (and flash) it. The surface
-        // rebuilds it only if another screen took the widget over in the meantime.
+        // The widget views are kept: coming back must not rebuild (and flash) them. A surface
+        // rebuilds its widget only if another screen took it over in the meantime.
         val hostManager = AppWidgetHostManager.getInstance(this)
         hostManager.removeProvidersChangedListener(providersChangedListener)
         hostManager.stopListening(this)
@@ -391,7 +414,7 @@ class HomeActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        widgetSurface.releaseView()
+        homeGrid.release()
         super.onDestroy()
     }
 
@@ -483,9 +506,10 @@ class HomeActivity : BaseActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 
-            // Apply system-bar padding to the main content container so every component
-            // (clock, widget, apps) is safe regardless of user-defined order.
+            // Apply system-bar padding to the main content container so every block of the
+            // grid is safe wherever the user placed it.
             binding.rootHome.setPadding(0, bars.top, 0, bars.bottom)
+            homeGrid.setSystemInsets(bars.top, bars.bottom)
 
             // Drawers need their own insets so they don't overlap status/nav bars, but the
             // padding belongs on the *content* rather than on the drawer frame: the frame
@@ -532,7 +556,7 @@ class HomeActivity : BaseActivity() {
                     // drawer is open or still sliding, or while a favourite is being
                     // dragged, the same motion belongs to that interaction: a quick drag of
                     // an app downwards used to pull down the system notification shade.
-                    if (isAnyDrawerVisible() || reorderCallback.isDragging) return false
+                    if (isAnyDrawerVisible() || reorderCallback.isDragging || homeGrid.isEditing) return false
 
                     return when {
                         // Horizontal swipe
@@ -613,7 +637,7 @@ class HomeActivity : BaseActivity() {
      * from there, and a favourite being dragged keeps its own gesture.
      */
     private fun shouldClaimSwipe(ev: MotionEvent): Boolean {
-        if (isAnyDrawerVisible() || reorderCallback.isDragging) return false
+        if (isAnyDrawerVisible() || reorderCallback.isDragging || homeGrid.isEditing) return false
         val edge = dp(EDGE_SWIPE_DP)
         if (swipeDownX < edge || swipeDownX > binding.drawerLayout.width - edge) return false
         val dx = kotlin.math.abs(ev.x - swipeDownX)
@@ -661,8 +685,18 @@ class HomeActivity : BaseActivity() {
             binding.tvStackedH, binding.tvStackedM, binding.tvStackedDate,
             binding.tvWordsTime, binding.tvWordsDate,
             binding.viewAnalog, binding.tvAnalogDate
-        ).forEach { it.setOnClickListener(action) }
+        ).forEach {
+            it.setOnClickListener(action)
+            // Holding the clock picks it up, like holding a widget.
+            it.setOnLongClickListener(clockLongClick)
+        }
         binding.clockContainer.setOnClickListener(action)
+        binding.clockContainer.setOnLongClickListener(clockLongClick)
+    }
+
+    private val clockLongClick = View.OnLongClickListener {
+        homeGrid.onBlockLongPressed(HomeGridItem.CLOCK_KEY)
+        true
     }
 
     // ── Clock type (Digital / Stacked / Words / Analog) ────────────
@@ -670,6 +704,7 @@ class HomeActivity : BaseActivity() {
     private fun applyClockType() {
         val type = FontPreferences.getClockType(this)
         clockRenderer.applyType(type)
+        homeGrid.onClockTypeApplied()
 
         // Adjust gravity for the RecyclerView and Empty state
         val rvParams = binding.rvFavouriteApps.layoutParams as android.widget.FrameLayout.LayoutParams
@@ -690,94 +725,17 @@ class HomeActivity : BaseActivity() {
         binding.tvEmpty.layoutParams = emptyParams
     }
 
-    // ── Home layout (order, visibility, sizes) ─────────────────────
+    // ── Home edit mode ─────────────────────────────────────────────
 
-    private fun applyHomeLayout() {
-        val order = HomeLayoutPreferences.getOrder(this)
-        val clockEnabled = HomeLayoutPreferences.isClockEnabled(this)
-        val widgetEnabled = HomeLayoutPreferences.isWidgetEnabled(this)
-
-        // Determine final visibility for each container
-        val clockType = FontPreferences.getClockType(this)
-        val clockVisible = clockEnabled && clockType != ClockType.HIDDEN
-        val widgetVisible = widgetEnabled && WidgetPreferences.hasWidget(this)
-
-        binding.clockContainer.visibility = if (clockVisible) View.VISIBLE else View.GONE
-        binding.widgetContainer.visibility = if (widgetVisible) View.VISIBLE else View.GONE
-        binding.appsContainer.visibility = View.VISIBLE
-
-        val desired = order.map { component ->
-            when (component) {
-                HomeLayoutPreferences.Component.CLOCK -> binding.clockContainer
-                HomeLayoutPreferences.Component.WIDGET -> binding.widgetContainer
-                HomeLayoutPreferences.Component.APPS -> binding.appsContainer
-            }
-        }
-
-        // Runs on every return to the home screen. Detaching and re-attaching the three
-        // blocks each time reset the list and re-attached the widget host view for nothing,
-        // so they are only rebuilt when the order really changed.
-        val root = binding.rootHome
-        val current = (0 until root.childCount).map(root::getChildAt)
-        if (current != desired) {
-            root.removeAllViews()
-            desired.forEach(root::addView)
-        }
-
-        adjustRootGravity()
-    }
-
-    /**
-     * Controls whether the home content behaves as a single centred block
-     * (grouped mode) or as independent layers (separated mode).
-     *
-     * Separated mode is triggered when the screen is empty (no apps and no widget).
-     *
-     * In separated mode the clock stays at the top with a safe margin and the
-     * app list occupies all remaining space, centring itself vertically inside
-     * that area.
-     */
-    private fun adjustRootGravity() {
-        val noApps = binding.tvEmpty.isVisible
-        val noWidget = !binding.widgetContainer.isVisible
-        val clockVisible = binding.clockContainer.isVisible
-
-        val isSeparatedMode = clockVisible && noApps && noWidget
-
-        val clockParams = binding.clockContainer.layoutParams as? LinearLayout.LayoutParams
-            ?: return
-        val widgetParams = binding.widgetContainer.layoutParams as? LinearLayout.LayoutParams
-            ?: return
-        val appsParams = binding.appsContainer.layoutParams as? LinearLayout.LayoutParams
-            ?: return
-
-        if (isSeparatedMode) {
-            // Clock (and widget) at top; apps fill the rest of the screen.
-            binding.rootHome.gravity = Gravity.CENTER_HORIZONTAL or Gravity.TOP
-            clockParams.topMargin = dp(24)
-            clockParams.bottomMargin = dp(8)
-            widgetParams.topMargin = dp(8)
-            widgetParams.bottomMargin = dp(8)
-            appsParams.height = 0
-            appsParams.weight = 1f
-            appsParams.topMargin = dp(8)
-            appsParams.bottomMargin = dp(8)
+    /** While the layout is edited the drawers stay shut: their swipes would fight the drags. */
+    private fun onHomeEditModeChanged(editing: Boolean) {
+        if (editing) {
+            binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            binding.indicatorContainer.animate().alpha(0f).start()
         } else {
-            // Grouped mode: everything wraps and centres as a single block.
-            binding.rootHome.gravity = Gravity.CENTER_HORIZONTAL or Gravity.CENTER_VERTICAL
-            clockParams.topMargin = dp(8)
-            clockParams.bottomMargin = dp(8)
-            widgetParams.topMargin = dp(8)
-            widgetParams.bottomMargin = dp(8)
-            appsParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
-            appsParams.weight = 0f
-            appsParams.topMargin = dp(8)
-            appsParams.bottomMargin = dp(8)
+            binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.END)
+            refreshNotificationPanelState()
         }
-
-        binding.clockContainer.layoutParams = clockParams
-        binding.widgetContainer.layoutParams = widgetParams
-        binding.appsContainer.layoutParams = appsParams
     }
 
     // ── Clock update (called every minute) ────────────────────────
@@ -811,11 +769,9 @@ class HomeActivity : BaseActivity() {
             return
         }
 
-        // Calculate available vertical space for the apps section.
-        val rootHeight = binding.rootHome.height - binding.rootHome.paddingTop - binding.rootHome.paddingBottom
-        val clockHeight = if (binding.clockContainer.isVisible) binding.clockContainer.height else 0
-        val widgetHeight = if (binding.widgetContainer.isVisible) binding.widgetContainer.height else 0
-        val availableHeight = rootHeight - clockHeight - widgetHeight
+        // Vertical space of the apps block on the grid.
+        val apps = binding.appsContainer
+        val availableHeight = apps.height - apps.paddingTop - apps.paddingBottom
 
         // Estimate each item's natural height (wrap_content).
         val estimatedItemHeight = if (binding.rvFavouriteApps.isNotEmpty()) {
@@ -1235,7 +1191,6 @@ class HomeActivity : BaseActivity() {
                     adapter.submitList(apps)
                     WidgetUpdater.refresh(this@HomeActivity, WidgetTrigger.FAVOURITES)
                     applyAppSpacing()
-                    adjustRootGravity()
                     if (!empty) maybeShowLongPressHint()
                 }
             }
@@ -1598,25 +1553,6 @@ class HomeActivity : BaseActivity() {
         ViewCompat.setSystemGestureExclusionRects(binding.drawerLayout, rects)
     }
 
-    // ── Widget Host ────────────────────────────────────────────────
-
-    /**
-     * Restores the system widget (if any) into [binding.widgetContainer].
-     *
-     * This method is intentionally lightweight on repeated calls: if the same
-     * widget ID is already inflated, it skips recreation to avoid visual flicker.
-     * If the provider was uninstalled, the preference is cleared automatically.
-     */
-    private fun restoreWidget() {
-        widgetSurface.restore(binding.widgetContainer)
-    }
-
-    /** Re-renders the widget slot after it was changed, resized or its provider changed. */
-    private fun refreshWidget() {
-        restoreWidget()
-        applyHomeLayout()
-    }
-
     private class VerticalSpacingItemDecoration(
         private val spacingPx: Int
     ) : RecyclerView.ItemDecoration() {
@@ -1739,6 +1675,9 @@ class HomeActivity : BaseActivity() {
     private enum class HomePage { NOTIFICATIONS, HOME, MENU }
 
     companion object {
+        /** Boolean extra: open the home screen straight into edit mode (from the settings). */
+        const val EXTRA_EDIT_LAYOUT = "app.focusphone.extra.EDIT_LAYOUT"
+
         /** Drawer offset past which the indicator treats the drawer's page as the current one. */
         private const val PAGE_SWITCH_OFFSET = 0.5f
         private const val INACTIVE_DOT_SCALE = 0.75f

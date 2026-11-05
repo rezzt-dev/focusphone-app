@@ -11,4 +11,10 @@
     <!-- Screen transitions (see anim/fp_fade_in.xml and anim/fp_fade_out.xml). -->
     <integer name="fp_screen_enter_duration">260</integer>
     <integer name="fp_screen_exit_duration">170</integer>
+
+    <!-- Home grid editor: blocks making way, and entering or leaving edit mode. -->
+    <integer name="fp_grid_reorder_duration">220</integer>
+    <integer name="fp_grid_edit_duration">240</integer>
+    <!-- Time the target cell must stay put under a dragged block before the others make way. -->
+    <integer name="fp_grid_reorder_delay">120</integer>
 </resources>

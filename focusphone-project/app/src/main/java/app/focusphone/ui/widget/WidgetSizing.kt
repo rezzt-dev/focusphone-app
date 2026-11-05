@@ -1,82 +1,97 @@
 package app.focusphone.ui.widget
 
+import app.focusphone.domain.model.SpanLimits
 import kotlin.math.ceil
-import kotlin.math.roundToInt
+import kotlin.math.floor
 
 /**
- * Pure size maths for the home widget slot.
+ * Pure size maths between a widget provider and the cells of the home grid.
  *
- * Widget providers describe their size in grid cells (Android 12+) or in dp following the
- * classic launcher formula `70 × n − 30`. FocusPhone has no grid: the slot is always as wide
- * as the screen allows, and only its height is chosen — by default from the provider, then
- * by the user within [MIN_HEIGHT_DP] and a fraction of the window.
+ * Providers describe their size in dp (minimum, resize bounds) and, on Android 12+, in
+ * cells of a typical launcher grid. FocusPhone turns both into spans of its own grid, from
+ * the real size of its cells rather than the platform's `70 × n − 30` formula, because its
+ * cells are usually larger than that formula assumes.
  */
 object WidgetSizing {
 
-    /** Smallest height the slot accepts; a single row of text still fits. */
-    const val MIN_HEIGHT_DP = 64
-
-    /** Step of the height slider, in dp. */
-    const val HEIGHT_STEP_DP = 8
-
-    /** Share of the window height a widget may take, so the apps always stay reachable. */
-    const val MAX_WINDOW_FRACTION = 0.6f
-
-    private const val CELL_DP = 70
-    private const val CELL_GAP_DP = 30
-
-    private const val GRID_COLUMNS = 4
-    private const val MIN_CELL_DP = 72f
-    private const val MAX_CELL_DP = 120f
-
-    /** Number of grid cells needed for [sizeDp], following the platform launcher formula. */
-    fun cellsFor(sizeDp: Float): Int =
-        ceil((sizeDp + CELL_GAP_DP) / CELL_DP).toInt().coerceAtLeast(1)
+    /**
+     * What a provider declares about its size, in dp and cells. Plain values so the maths
+     * can be tested without an `AppWidgetProviderInfo`.
+     */
+    data class ProviderSize(
+        val minWidthDp: Float,
+        val minHeightDp: Float,
+        val minResizeWidthDp: Float = 0f,
+        val minResizeHeightDp: Float = 0f,
+        val maxResizeWidthDp: Float = 0f,
+        val maxResizeHeightDp: Float = 0f,
+        val targetCellWidth: Int = 0,
+        val targetCellHeight: Int = 0,
+        val resizableX: Boolean = true,
+        val resizableY: Boolean = true
+    )
 
     /**
-     * The span shown in the picker ("4 × 2"). [targetCellWidth] and [targetCellHeight] come
-     * from Android 12+ providers and win when set; older ones only declare a minimum size.
+     * A provider's minimum may exceed a whole number of cells by a few dp of rounding; that
+     * slack is forgiven instead of costing a full extra cell.
      */
-    fun span(minWidthDp: Float, minHeightDp: Float, targetCellWidth: Int, targetCellHeight: Int): Pair<Int, Int> =
-        Pair(
-            if (targetCellWidth > 0) targetCellWidth else cellsFor(minWidthDp),
-            if (targetCellHeight > 0) targetCellHeight else cellsFor(minHeightDp)
+    private const val FIT_TOLERANCE_DP = 8f
+
+    /** Number of home cells of [cellDp] needed to show [sizeDp] without cropping. */
+    fun cellsFor(sizeDp: Float, cellDp: Float): Int {
+        if (cellDp <= 0f) return 1
+        return ceil((sizeDp - FIT_TOLERANCE_DP) / cellDp).toInt().coerceAtLeast(1)
+    }
+
+    /** Whole home cells of [cellDp] that fit inside [sizeDp]. */
+    private fun cellsWithin(sizeDp: Float, cellDp: Float): Int {
+        if (cellDp <= 0f) return 1
+        return floor((sizeDp + FIT_TOLERANCE_DP) / cellDp).toInt().coerceAtLeast(1)
+    }
+
+    /**
+     * The span a widget gets when it is added to a grid of [columns] × [rows] cells of
+     * [cellWidthDp] × [cellHeightDp]: its declared cells (Android 12+) or, for older
+     * providers, the cells its minimum size needs.
+     */
+    fun defaultSpan(size: ProviderSize, cellWidthDp: Float, cellHeightDp: Float, columns: Int, rows: Int): Pair<Int, Int> {
+        val spanX = if (size.targetCellWidth > 0) size.targetCellWidth else cellsFor(size.minWidthDp, cellWidthDp)
+        val spanY = if (size.targetCellHeight > 0) size.targetCellHeight else cellsFor(size.minHeightDp, cellHeightDp)
+        return spanX.coerceIn(1, columns) to spanY.coerceIn(1, rows)
+    }
+
+    /**
+     * How far the widget may be resized on the grid, following its `resizeMode` and resize
+     * bounds the way a stock launcher does: an axis it cannot be resized on keeps its default
+     * span, and the default span always lies within the limits.
+     */
+    fun limits(size: ProviderSize, cellWidthDp: Float, cellHeightDp: Float, columns: Int, rows: Int): SpanLimits {
+        val (spanX, spanY) = defaultSpan(size, cellWidthDp, cellHeightDp, columns, rows)
+        val (minX, maxX) = axisLimits(
+            resizable = size.resizableX,
+            default = spanX,
+            minDp = smallest(size.minResizeWidthDp, size.minWidthDp),
+            maxDp = size.maxResizeWidthDp,
+            cellDp = cellWidthDp,
+            cells = columns
         )
-
-    /** Largest height in dp the slot may take inside a window [windowHeightDp] tall. */
-    fun maxHeightDp(windowHeightDp: Float): Int =
-        snapDown((windowHeightDp * MAX_WINDOW_FRACTION).toInt()).coerceAtLeast(MIN_HEIGHT_DP)
-
-    /**
-     * Size in dp of one cell of a typical launcher grid for a slot [slotWidthDp] wide.
-     *
-     * Providers design their layouts for real home-screen cells (a phone grid has about four
-     * columns), not for the platform's minimum formula, which is far smaller: rendering at
-     * the minimum crops or cramps many widgets.
-     */
-    fun cellDp(slotWidthDp: Float): Float =
-        (slotWidthDp / GRID_COLUMNS).coerceIn(MIN_CELL_DP, MAX_CELL_DP)
-
-    /**
-     * Height in dp the provider asks for by default: its rows (declared on Android 12+, or
-     * derived from its minimum height) at the size of a real launcher cell, never below its
-     * minimum height, clamped to what the slot allows.
-     */
-    fun defaultHeightDp(minHeightDp: Float, targetCellHeight: Int, cellDp: Float, windowHeightDp: Float): Int {
-        val rows = if (targetCellHeight > 0) targetCellHeight else cellsFor(minHeightDp)
-        val requested = maxOf(rows * cellDp, minHeightDp)
-        return clampHeightDp(requested.roundToInt(), windowHeightDp)
+        val (minY, maxY) = axisLimits(
+            resizable = size.resizableY,
+            default = spanY,
+            minDp = smallest(size.minResizeHeightDp, size.minHeightDp),
+            maxDp = size.maxResizeHeightDp,
+            cellDp = cellHeightDp,
+            cells = rows
+        )
+        return SpanLimits(minX, minY, maxX, maxY)
     }
 
-    /** Clamps [heightDp] into the range the slot allows inside a window [windowHeightDp] tall. */
-    fun clampHeightDp(heightDp: Int, windowHeightDp: Float): Int =
-        heightDp.coerceIn(MIN_HEIGHT_DP, maxHeightDp(windowHeightDp))
+    private fun smallest(resizeDp: Float, minDp: Float): Float = if (resizeDp > 0f) minOf(resizeDp, minDp) else minDp
 
-    /** Rounds [heightDp] to the nearest slider step so stored values always sit on a tick. */
-    fun snap(heightDp: Int): Int {
-        val offset = heightDp - MIN_HEIGHT_DP
-        return MIN_HEIGHT_DP + Math.floorDiv(offset + HEIGHT_STEP_DP / 2, HEIGHT_STEP_DP) * HEIGHT_STEP_DP
+    private fun axisLimits(resizable: Boolean, default: Int, minDp: Float, maxDp: Float, cellDp: Float, cells: Int): Pair<Int, Int> {
+        if (!resizable) return default to default
+        val min = cellsFor(minDp, cellDp).coerceIn(1, default)
+        val max = if (maxDp > 0f) cellsWithin(maxDp, cellDp).coerceIn(default, cells) else cells
+        return min to max
     }
-
-    private fun snapDown(heightDp: Int): Int = heightDp - Math.floorMod(heightDp - MIN_HEIGHT_DP, HEIGHT_STEP_DP)
 }

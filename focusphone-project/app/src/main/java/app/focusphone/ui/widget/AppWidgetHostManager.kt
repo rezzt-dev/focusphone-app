@@ -12,8 +12,6 @@ import android.os.Build
 import android.util.Log
 import android.util.SparseArray
 import androidx.core.util.size
-import app.focusphone.data.preferences.HomeLayoutPreferences
-import app.focusphone.data.preferences.WidgetPreferences
 import java.util.Collections
 import java.util.IdentityHashMap
 
@@ -28,24 +26,23 @@ import java.util.IdentityHashMap
  *
  * The host delivers a widget's updates to **one** view per ID. The manager therefore
  * remembers which surface created the live view of each ID, so the home screen keeps its
- * view across visits and only rebuilds it after another surface (the layout preview) took
- * the ID over.
+ * views across visits and only rebuilds one after another surface took its ID over.
  *
  * All host operations are wrapped in try/catch so that widget failures never
  * crash the launcher.
  */
 class AppWidgetHostManager private constructor(context: Context) {
 
-    /** State of the home widget slot as a surface should render it. */
-    sealed interface HomeWidget {
-        /** No widget is assigned. */
-        data object None : HomeWidget
+    /** What a hosted widget can be rendered as. */
+    sealed interface WidgetState {
+        /** The provider is available. */
+        data class Ready(val info: AppWidgetProviderInfo) : WidgetState
 
-        /** A widget is assigned and its provider is available. */
-        data class Ready(val widgetId: Int, val info: AppWidgetProviderInfo) : HomeWidget
+        /** The provider is momentarily missing (its app is being updated): keep the place. */
+        data object Unavailable : WidgetState
 
-        /** A widget is assigned but its provider is momentarily missing (e.g. being updated). */
-        data class Unavailable(val widgetId: Int) : HomeWidget
+        /** The provider's app is gone: the widget can never be shown again. */
+        data object Gone : WidgetState
     }
 
     private val appContext = context.applicationContext
@@ -156,62 +153,24 @@ class AppWidgetHostManager private constructor(context: Context) {
         providerListeners.toList().forEach { it() }
     }
 
-    // ── Home widget slot ───────────────────────────────────────────
+    // ── Hosted widgets ─────────────────────────────────────────────
 
     /**
-     * Makes [widgetId] the home-screen widget, releasing the one it replaces.
+     * Resolves what the home screen should show for [widgetId], last bound to [provider].
      *
-     * Choosing a widget is an explicit wish to see it, so the widget block of the home
-     * layout is switched back on too: it used to stay hidden when it had been turned off
-     * in the layout editor, and the new widget never appeared.
-     *
-     * A released ID lets the old provider receive `onDeleted()` and stop scheduling updates
-     * for a widget nobody displays.
+     * A provider that is missing because its app was uninstalled is reported as
+     * [WidgetState.Gone], and the caller drops the widget. One that is missing while its app
+     * is still installed — mid-update, or on an SD card being mounted — is
+     * [WidgetState.Unavailable] and keeps its place, so an app update never silently removes
+     * one of the user's widgets.
      */
-    fun assignHomeWidget(context: Context, widgetId: Int) {
-        val previous = WidgetPreferences.getWidgetId(context)
-        WidgetPreferences.setWidget(context, widgetId, getAppWidgetInfo(widgetId)?.provider)
-        HomeLayoutPreferences.setWidgetEnabled(context, true)
-        if (previous != WidgetPreferences.INVALID_WIDGET_ID && previous != widgetId) {
-            deleteAppWidgetId(previous)
-        }
-    }
-
-    /** Removes the home-screen widget and releases its ID back to the system. */
-    fun removeHomeWidget(context: Context) {
-        val widgetId = WidgetPreferences.getWidgetId(context)
-        WidgetPreferences.clearWidget(context)
-        if (widgetId != WidgetPreferences.INVALID_WIDGET_ID) {
-            deleteAppWidgetId(widgetId)
-        }
-    }
-
-    /**
-     * Resolves what the home slot should show.
-     *
-     * A provider that is missing because its app was uninstalled clears the slot for good.
-     * One that is missing while its app is still installed — mid-update, or on an SD card
-     * being mounted — is reported as [HomeWidget.Unavailable] and keeps its place, so an
-     * app update never silently removes the user's widget.
-     */
-    fun resolveHomeWidget(context: Context): HomeWidget {
-        if (!WidgetPreferences.hasWidget(context)) return HomeWidget.None
-        val widgetId = WidgetPreferences.getWidgetId(context)
+    fun resolveWidget(context: Context, widgetId: Int, provider: ComponentName?): WidgetState {
         val info = getAppWidgetInfo(widgetId)
-        if (info?.provider != null) return HomeWidget.Ready(widgetId, info)
-
-        val provider = WidgetPreferences.getProvider(context)
-        if (provider != null && isPackageInstalled(context, provider.packageName)) {
-            return HomeWidget.Unavailable(widgetId)
-        }
-        Log.i(TAG, "Home widget id=$widgetId lost its provider $provider; clearing the slot")
-        removeHomeWidget(context)
-        return HomeWidget.None
+        if (info?.provider != null) return WidgetState.Ready(info)
+        if (provider != null && isPackageInstalled(context, provider.packageName)) return WidgetState.Unavailable
+        Log.i(TAG, "Widget id=$widgetId lost its provider $provider")
+        return WidgetState.Gone
     }
-
-    /** The provider of the home widget, when one is assigned and available. */
-    fun homeWidgetInfo(context: Context): AppWidgetProviderInfo? =
-        (resolveHomeWidget(context) as? HomeWidget.Ready)?.info
 
     private fun isPackageInstalled(context: Context, packageName: String): Boolean = try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -226,22 +185,22 @@ class AppWidgetHostManager private constructor(context: Context) {
     }
 
     /**
-     * Releases every ID allocated to this host except the configured home widget.
+     * Releases every ID allocated to this host except the widgets the home screen shows
+     * ([keep]).
      *
      * Cleans up IDs leaked by builds that never released removed or replaced widgets.
      * Skipped while the picker is binding a new widget, whose ID is not saved yet.
      */
-    fun releaseOrphanedIds(context: Context) {
+    fun releaseOrphanedIds(keep: Set<Int>) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         if (WidgetPickerActivity.isSelectionInProgress) return
-        val keep = WidgetPreferences.getWidgetId(context)
         val allocated = try {
             appWidgetHost.appWidgetIds
         } catch (e: RuntimeException) {
             Log.e(TAG, "AppWidgetHost.getAppWidgetIds() failed", e)
             return
         }
-        allocated.filter { it != keep }.forEach { orphan ->
+        allocated.filter { it !in keep }.forEach { orphan ->
             Log.i(TAG, "Releasing orphaned widget id=$orphan")
             deleteAppWidgetId(orphan)
         }

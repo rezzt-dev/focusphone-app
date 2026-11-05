@@ -256,12 +256,8 @@
 
     <!-- Settings: Widget -->
     <string name="settings_section_widget">widget</string>
-    <string name="settings_widget_title">widget d\'accueil</string>
-    <string name="settings_widget_desc">ajoutez un widget système à votre écran d\'accueil</string>
     <string name="settings_widget_add">ajouter un widget</string>
-    <string name="settings_widget_remove">retirer le widget</string>
     <string name="settings_widget_none">aucun</string>
-    <string name="settings_widget_remove_confirm">retirer le widget actuel de l\'écran d\'accueil ?</string>
     <string name="widget_config_title">sélectionner le widget</string>
 
     <!-- Settings: Permissions -->
@@ -371,23 +367,14 @@
     <string name="cd_apps">composant apps</string>
     <string name="cd_clear_all">effacer toutes les notifications</string>
     <string name="cd_clock">composant horloge</string>
-    <string name="cd_drag_handle">glisser pour réorganiser</string>
-    <string name="cd_toggle_visibility">basculer la visibilité</string>
     <string name="cd_widget">composant widget</string>
     <string name="focus_settings_title">focus</string>
-    <string name="home_layout_add_widget">ajouter un widget</string>
     <string name="home_layout_apps">apps</string>
     <string name="home_layout_clock">horloge</string>
-    <string name="home_layout_clock_size">taille de l\'horloge</string>
     <string name="home_layout_done">terminé</string>
-    <string name="home_layout_order">ordre</string>
-    <string name="home_layout_preview">aperçu</string>
-    <string name="home_layout_settings_desc">réorganiser et redimensionner les composants de l\'écran d\'accueil</string>
-    <string name="home_layout_settings_title">disposition d\'accueil</string>
-    <string name="home_layout_sizes">tailles</string>
-    <string name="home_layout_title">disposition d\'accueil</string>
+    <string name="home_layout_settings_desc">déplacer, redimensionner et ajouter des blocs sur l\'écran d\'accueil</string>
+    <string name="home_layout_settings_title">modifier l\'écran d\'accueil</string>
     <string name="home_layout_widget">widget</string>
-    <string name="home_layout_widget_size">taille du widget</string>
     <string name="home_settings_title">écran d\'accueil</string>
     <string name="notification_clear_all">tout effacer</string>
     <string name="notification_settings_title">notifications</string>
@@ -412,7 +399,6 @@
     <string name="settings_clock_type_desc">choisir comment l\'heure est affichée</string>
     <string name="settings_conscious_pause_section_desc">respirer avant d\'ouvrir des apps</string>
     <string name="settings_font_desc">choisir la police pour tout le launcher</string>
-    <string name="settings_home_layout_desc">réorganiser et redimensionner les composants d\'accueil</string>
     <string name="settings_language_desc">changer la langue de l\'app</string>
     <string name="settings_notification_badges_section_desc">afficher les compteurs non lus à côté des apps</string>
     <string name="settings_notification_panel_desc_short">glisser à droite pour voir les notifications</string>
@@ -423,7 +409,7 @@
     <string name="settings_set_default_desc_short">faire de focusphone votre écran d\'accueil</string>
     <string name="settings_text_size_desc">ajuster la taille de tout le texte</string>
     <string name="settings_theme_desc">choisir votre palette de couleurs</string>
-    <string name="settings_widget_settings_desc">ajouter, changer ou redimensionner le widget d\'accueil</string>
+    <string name="settings_widget_settings_desc">placer un widget sur l\'écran d\'accueil</string>
     <string name="settings_work_keywords_section_desc">bloquer les apps par nom en mode travail</string>
     <string name="system_settings_title">système</string>
     <string name="widget_picker_empty">aucun widget disponible</string>
@@ -460,8 +446,6 @@
     <string name="clock_pm">pm</string>
     <string name="notification_now">maintenant</string>
     <string name="app_unknown">app</string>
-    <string name="home_layout_drag_hint">glisser les composants pour réorganiser</string>
-    <string name="home_layout_long_press_hint">appuyer longuement sur l\'aperçu pour modifier</string>
     <string name="clock_preview_words">neuf
 quarante et une</string>
 
@@ -648,10 +632,7 @@ quarante et une</string>
     <string name="widget_picker_in_use_format">utilisé · %1$s</string>
     <string name="widget_picker_add_failed">impossible d\'ajouter le widget</string>
     <string name="widget_picker_config_failed">impossible d\'ouvrir les réglages du widget</string>
-    <string name="widget_option_change">changer de widget</string>
-    <string name="widget_option_height">ajuster la hauteur</string>
     <string name="widget_option_settings">réglages du widget</string>
-    <string name="widget_height_label">hauteur du widget : %1$ddp</string>
 
     <!-- Widget library -->
     <string name="wg_label_clock_digital">horloge</string>
@@ -753,4 +734,32 @@ quarante et une</string>
     <string name="wg_preview_fav_3">appareil photo</string>
     <string name="wg_preview_fav_4">plans</string>
     <string name="wg_preview_fav_5">musique</string>
+
+    <!-- Home grid: edit mode, block actions and grid size -->
+    <string name="home_edit_hint">glissez pour déplacer · touchez un bloc puis tirez ses poignées pour le redimensionner</string>
+    <string name="home_edit_widgets">widgets</string>
+    <string name="home_edit_add_clock">ajouter l\'horloge</string>
+    <string name="home_edit_grid">grille</string>
+    <string name="home_edit_remove">retirer</string>
+    <string name="home_edit_clock_hidden">horloge masquée</string>
+    <string name="home_edit_clock_style">style</string>
+    <string name="home_edit_choose_apps">choisir les apps</string>
+    <string name="home_edit_removed">%1$s retiré</string>
+    <string name="home_edit_move_up">monter</string>
+    <string name="home_edit_move_down">descendre</string>
+    <string name="home_edit_move_left">déplacer à gauche</string>
+    <string name="home_edit_move_right">déplacer à droite</string>
+    <string name="home_edit_wider">élargir</string>
+    <string name="home_edit_narrower">rétrécir</string>
+    <string name="home_edit_taller">agrandir en hauteur</string>
+    <string name="home_edit_shorter">réduire en hauteur</string>
+    <string name="home_grid_title">grille d\'accueil</string>
+    <string name="home_grid_columns">colonnes : %1$d</string>
+    <string name="home_grid_rows">lignes : %1$d</string>
+    <string name="home_grid_no_room">pas de place sur l\'écran d\'accueil. retirez ou réduisez d\'abord un bloc.</string>
+    <plurals name="settings_widget_count">
+        <item quantity="one">%d widget sur l\'accueil</item>
+        <item quantity="many">%d widgets sur l\'accueil</item>
+        <item quantity="other">%d widgets sur l\'accueil</item>
+    </plurals>
 </resources>

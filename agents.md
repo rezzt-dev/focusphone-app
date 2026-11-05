@@ -61,6 +61,8 @@ app/src/main/java/app/focusphone/
 │   │   ├── ConsciousPausePreferences.kt # Enable/disable + duration (seconds)
 │   │   ├── CustomAppLabelsPreferences.kt # User-renamed app labels
 │   │   ├── LibraryWidgetPreferences.kt # Own widgets: encrypted intention, world-clock cities, style signature
+│   │   ├── HomeGridPreferences.kt # Home grid layout; reads (once) the pre-grid column layout to migrate it
+│   │   ├── HomeLayoutPreferences.kt # App spacing and the clock style to restore after hiding it
 │   │   └── AppFolderPreferences.kt   # App-drawer folders and their expanded state
 │   └── repository/
 │       ├── AppRepositoryImpl.kt       # Queries installed launcher apps
@@ -70,6 +72,7 @@ app/src/main/java/app/focusphone/
 │   │   ├── AppInfo.kt            # Installed app domain model
 │   │   ├── AppScheduleRule.kt    # Per-app time window + daily limit, and ScheduleBlockReason
 │   │   ├── AppFolder.kt          # App-drawer folder (id, name, member packages)
+│   │   ├── HomeGrid.kt           # HomeGrid, HomeGridItem (clock | apps | widget), CellRect, SpanLimits
 │   │   ├── ClockType.kt          # DIGITAL | STACKED | WORDS | ANALOG | HIDDEN
 │   │   ├── AppFont.kt            # Font enum (system + downloadable)
 │   │   └── ToggleResult.kt       # Added | Removed | LimitReached
@@ -79,6 +82,8 @@ app/src/main/java/app/focusphone/
 │   ├── util/
 │   │   ├── AppScheduleEvaluator.kt # Pure schedule evaluation + rule serialization
 │   │   ├── AppFolderSerializer.kt  # Pure folder serialization, name sanitizing, ordering
+│   │   ├── GridLayoutEngine.kt     # Pure home-grid maths: vacancy, move/resize with reflow, insert, resize grid
+│   │   ├── HomeGridSerializer.kt   # Pure home-grid text format
 │   │   └── FuzzyMatcher.kt       # Subsequence search scoring
 │   └── usecase/
 │       ├── GetInstalledAppsUseCase.kt
@@ -92,6 +97,14 @@ app/src/main/java/app/focusphone/
     │   ├── HomeActivity.kt       # Launcher activity; clock, calendar, drawer, profiles, reordering
     │   ├── HomeViewModel.kt
     │   ├── FavouriteReorderCallback.kt # Hold in place = options, hold and move = reorder
+    │   ├── grid/                 # The home screen's layout manager (see "Home grid" below)
+    │   │   ├── HomeGridLayout.kt     # ViewGroup: cells, measure/layout, reflow animation, cell geometry
+    │   │   ├── HomeGridController.kt # Model ↔ views, widget surfaces, edit mode, block actions, grid size
+    │   │   ├── HomeGridEditor.kt     # Edit-mode touch: drag with reflow, resize handles, drawing
+    │   │   ├── HomeEditChrome.kt     # Edit-mode bottom bar and floating block actions
+    │   │   ├── HomeGridStore.kt      # Load/repair/save, migration, add/remove widgets (shared with the picker)
+    │   │   ├── HomeGridMetrics.kt    # Cell size in dp, default rows, widget spans and limits on this grid
+    │   │   └── ScaleToFitFrame.kt    # Shrinks the clock style to fit a small block
     │   └── adapter/
     │       └── FavouriteAppsAdapter.kt
     ├── appselect/
@@ -110,12 +123,11 @@ app/src/main/java/app/focusphone/
     │   ├── SettingsSubActivity.kt         # Abstract base for second-level settings screens
     │   ├── SettingsUiHelper.kt            # Reusable row inflaters (category, switch, value)
     │   ├── AppearanceSettingsActivity.kt  # Theme, custom colours, font, text size, alignment, status bar
-    │   ├── HomeSettingsActivity.kt        # Clock type/size, app spacing, widget, home layout
+    │   ├── HomeSettingsActivity.kt        # Clock type/size, app spacing, add widget, edit home screen
     │   ├── FocusSettingsActivity.kt       # Conscious pause and work-mode keywords
     │   ├── NotificationSettingsActivity.kt# Badges, notification panel, swipe-down gesture
     │   ├── SystemSettingsActivity.kt      # Permissions, accessibility, default launcher, language
     │   ├── AboutSettingsActivity.kt       # Version, tutorial, onboarding, open-source licences
-    │   ├── HomeLayoutActivity.kt          # Reorder/resize home-screen components
     │   └── PermissionsActivity.kt         # Required system permissions status
     ├── onboarding/
     │   └── OnboardingActivity.kt # 3-step ViewPager2 onboarding flow
@@ -140,16 +152,14 @@ app/src/main/java/app/focusphone/
     └── widget/
         ├── AnalogClockView.kt
         ├── ClockRenderer.kt          # Renders the home clock in its selected style
-        ├── AppWidgetHostManager.kt   # Single AppWidgetHost: view ownership, home slot, binding, configuration
+        ├── AppWidgetHostManager.kt   # Single AppWidgetHost: view ownership, widget state, binding, configuration, orphans
         ├── WidgetHostContext.kt      # Factory-free inflater for RemoteViews (see note below)
         ├── HomeWidgetHostView.kt     # Host view: themed error, fade-in, long press without stealing taps
-        ├── WidgetSurface.kt          # One rendering of the home widget: HOME (live) or PREVIEW (scaled)
+        ├── WidgetSurface.kt          # Live rendering of one hosted widget inside its grid block
         ├── WidgetScaleFrame.kt       # Renders a widget at its real size and scales it into a box
-        ├── WidgetSizing.kt           # Pure size maths: cell spans, default and allowed heights
-        ├── WidgetHeights.kt          # Height from preference + provider info for the current screen
-        ├── HomeWidgetActions.kt      # Shared options: change, adjust height, widget settings, remove
+        ├── WidgetSizing.kt           # Pure size maths: provider dp sizes → default span and resize limits in cells
         ├── WidgetCatalog.kt          # Picker rows: grouped by app, sorted, fuzzy-searched
-        ├── WidgetPickerActivity.kt   # Picker: bind, configure, save (FocusPhone's own widgets first)
+        ├── WidgetPickerActivity.kt   # Picker: bind, configure, add to the grid (FocusPhone's own widgets first)
         ├── WidgetPickerAdapter.kt    # Picker cards with live/static previews
         └── library/                  # FocusPhone's own widgets (see "Widget library" below)
             ├── FocusWidgetKind.kt        # Registry: provider, renderer, refresh triggers of all 20 widgets
@@ -311,8 +321,9 @@ Three tools, each with a job the others do not do, and **none of them has a base
 
 ### Coverage (Fase 2)
 - **Unit:** `ProfilePreferences` (pure blocking logic, detox expiration, SHA-256→PBKDF2), `ThemePreferences` (theme resolution, auto day/night, hex fallback), `ToggleFavouriteAppUseCase`, `UpdateAppsOrderUseCase`, `FuzzyMatcher`, `AppScheduleEvaluator` (windows, midnight wrap, weekday filtering, daily limits, serialization), `PasswordHasher` (PBKDF2 payloads, legacy upgrade, malformed input), `AppFolderSerializer` (round trip, name sanitizing, corrupted lines, alphabetical order).
+- **Home grid (unit):** `GridLayoutEngine` (vacancy, swap, stack push, squeeze on resize, insert making room, grid resize, repair, defaults), `HomeGridSerializer` (round trip, malformed lines, versions), `WidgetSizing` (spans and resize limits from provider sizes), `HomeGridPreferences` (storage, pre-grid layout read and clean-up).
 - **Widget library (unit):** `CalendarGrid` (week starts, month lengths, leap years), `TimeProgress`, day distances across DST, world-clock offsets, `WidgetStyle` (tone, surface tint, contrast), `LibraryWidgetPreferences` (intention sanitizing, per-widget cities), pinned app in `WidgetCatalog`.
-- **Instrumented:** Onboarding flow (3 steps), app selection (10-app limit), profile switching (Normal ↔ Work), detox password verification & lockout (4 failed attempts), schedule persistence, usage accounting and schedule-password cooldown (`AppScheduleTest`).
+- **Instrumented:** widget IDs released when widgets leave the grid and orphan clean-up (`HomeGridWidgetIdsTest`), onboarding flow (3 steps), app selection (10-app limit), profile switching (Normal ↔ Work), detox password verification & lockout (4 failed attempts), schedule persistence, usage accounting and schedule-password cooldown (`AppScheduleTest`).
 
 ---
 
@@ -390,7 +401,39 @@ midnight alarm and `WidgetSystemReceiver`).
 - **Icons:** Lucide (ISC), converted to stroke-only white vector drawables named `ic_wg_*`;
   add new ones the same way and credit them in `open_source_licenses.html`.
 
-### 9. Migration from SharedPreferences to Room
+### 9. Home grid (layout manager)
+
+The home screen is a grid of `columns × rows` cells (3–6 × 4–12, default 4 columns and rows
+that make cells about square), like the workspace of a stock launcher. Every block — the
+clock, the favourite list and **any number of widgets** — occupies a `CellRect`. There is a
+single page: the drawers already own the horizontal swipes.
+
+- **Model and maths are pure** (`domain`): `HomeGrid`/`HomeGridItem`/`CellRect`/`SpanLimits`
+  and `GridLayoutEngine`, fully unit tested. Every operation returns a new layout or `null`
+  and never leaves overlaps. `place()` moves/resizes a block and makes the others give way
+  (nearest free room, or pushed along a direction like a stack — the least displacement
+  wins); on resize only, a block that cannot move may be *squeezed* down to its minimum.
+  `insert()` adds a widget in reading order and, when the grid is full, shrinks the favourite
+  list first (from its top edge), then other blocks.
+- **Storage** is `HomeGridPreferences` (one text line per block, `HomeGridSerializer`), always
+  read through `HomeGridStore`, which repairs a damaged layout and on first run carries over
+  the pre-grid column (order, hidden clock, the single widget and its height).
+- **Spans come from the real cell size** (`HomeGridMetrics`, `WidgetSizing`), not from the
+  `70 × n − 30` formula: a provider's `targetCell*` (Android 12+) or minimum size gives the
+  default span, and its `resizeMode`/resize bounds give the limits, like Launcher3.
+- **Edit mode** happens on the home screen itself, never in a separate preview screen: long
+  press on empty room, on a widget or on the clock (or "edit home screen" in the settings,
+  `HomeActivity.EXTRA_EDIT_LAYOUT`). Blocks are dragged (the others make way after the target
+  cell holds still for `fp_grid_reorder_delay`), selected with a tap and resized from the
+  handles of the sides they can grow along. The bottom bar adds widgets, adds the clock back
+  and changes the grid size with a live preview; the floating bar of a block offers its own
+  actions (widget settings, clock style, choose apps, remove). The favourite list cannot be
+  removed. Every move is also an accessibility action. The drawers are locked meanwhile.
+- **Widget IDs:** the picker adds the widget to the grid itself (`HomeGridStore.addWidget`),
+  so it works from any caller; removing a block releases its ID, and
+  `AppWidgetHostManager.releaseOrphanedIds(store.widgetIds())` frees anything else.
+
+### 10. Migration from SharedPreferences to Room
 `FavouriteAppRepositoryImpl` contains a `migrateFromSharedPreferences()` method that runs once on init, converting the old pipe-delimited string format into Room entities and then deleting the old key.
 
 ---

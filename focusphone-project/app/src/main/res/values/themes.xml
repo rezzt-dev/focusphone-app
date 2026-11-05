@@ -318,6 +318,21 @@
     </style>
 
     <!-- Custom Material AlertDialog styling -->
+    <!-- Text button of the home screen's edit mode (bottom bar and block actions). -->
+    <style name="HomeEditButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:stateListAnimator">@animator/fp_press_feedback</item>
+    </style>
+
     <style name="FocusPhone.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <!-- Text styling -->
         <item name="materialAlertDialogTitleTextStyle">@style/FocusPhone.DialogTitleTextStyle</item>

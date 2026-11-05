@@ -340,12 +340,8 @@
 
     <!-- Widget -->
     <string name="settings_section_widget">widget</string>
-    <string name="settings_widget_title">home widget</string>
-    <string name="settings_widget_desc">add a system widget to your home screen</string>
     <string name="settings_widget_add">add widget</string>
-    <string name="settings_widget_remove">remove widget</string>
     <string name="settings_widget_none">none</string>
-    <string name="settings_widget_remove_confirm">remove the current widget from your home screen?</string>
     <string name="widget_config_title">select widget</string>
     <string name="widget_picker_title">select widget</string>
     <string name="widget_picker_subtitle">choose a widget to add to your home screen</string>
@@ -373,21 +369,12 @@
     <string name="permissions_go_to_settings">go to settings</string>
 
     <!-- Home Layout -->
-    <string name="home_layout_title">home layout</string>
-    <string name="home_layout_preview">preview</string>
-    <string name="home_layout_order">order</string>
-    <string name="home_layout_sizes">sizes</string>
     <string name="home_layout_clock">clock</string>
     <string name="home_layout_widget">widget</string>
     <string name="home_layout_apps">apps</string>
-    <string name="home_layout_clock_size">clock size</string>
-    <string name="home_layout_widget_size">widget size</string>
-    <string name="home_layout_settings_title">home layout</string>
-    <string name="home_layout_settings_desc">reorder and resize home screen components</string>
+    <string name="home_layout_settings_title">edit home screen</string>
+    <string name="home_layout_settings_desc">move, resize and add blocks on the home screen</string>
     <string name="home_layout_done">done</string>
-    <string name="home_layout_add_widget">add widget</string>
-    <string name="cd_drag_handle">drag to reorder</string>
-    <string name="cd_toggle_visibility">toggle visibility</string>
 
     <!-- Settings: Categories -->
     <string name="settings_category_appearance_title">appearance</string>
@@ -419,8 +406,7 @@
     <string name="settings_clock_type_desc">choose how the time is displayed</string>
     <string name="settings_clock_size_desc">scale the clock up or down</string>
     <string name="settings_app_spacing_desc">space between favourite apps</string>
-    <string name="settings_widget_settings_desc">add, change or resize the home widget</string>
-    <string name="settings_home_layout_desc">reorder and resize home components</string>
+    <string name="settings_widget_settings_desc">place a widget on the home screen</string>
     <string name="settings_conscious_pause_section_desc">take a breath before opening apps</string>
     <string name="settings_work_keywords_section_desc">block apps by name in work mode</string>
     <string name="settings_notification_badges_section_desc">show unread counters next to apps</string>
@@ -435,8 +421,6 @@
     <string name="clock_pm">pm</string>
     <string name="notification_now">now</string>
     <string name="app_unknown">app</string>
-    <string name="home_layout_drag_hint">drag components to reorder</string>
-    <string name="home_layout_long_press_hint">long press preview to edit</string>
     <string name="clock_preview_words">nine
 forty-one</string>
 
@@ -649,11 +633,7 @@ forty-one</string>
     <string name="widget_picker_add_failed">the widget could not be added</string>
     <string name="widget_picker_config_failed">the widget\'s settings could not be opened</string>
     <string name="widget_size_format" translatable="false">%1$d × %2$d</string>
-    <string name="widget_option_change">change widget</string>
-    <string name="widget_option_height">adjust height</string>
     <string name="widget_option_settings">widget settings</string>
-    <string name="widget_height_label">widget height: %1$ddp</string>
-    <string name="widget_height_value" translatable="false">%1$ddp</string>
 
     <!-- Widget library -->
     <string name="wg_label_clock_digital">clock</string>
@@ -755,4 +735,31 @@ forty-one</string>
     <string name="wg_preview_fav_3">camera</string>
     <string name="wg_preview_fav_4">maps</string>
     <string name="wg_preview_fav_5">music</string>
+
+    <!-- Home grid: edit mode, block actions and grid size -->
+    <string name="home_edit_hint">drag to move · tap a block, then pull its handles to resize</string>
+    <string name="home_edit_widgets">widgets</string>
+    <string name="home_edit_add_clock">add clock</string>
+    <string name="home_edit_grid">grid</string>
+    <string name="home_edit_remove">remove</string>
+    <string name="home_edit_clock_hidden">clock hidden</string>
+    <string name="home_edit_clock_style">style</string>
+    <string name="home_edit_choose_apps">choose apps</string>
+    <string name="home_edit_removed">%1$s removed</string>
+    <string name="home_edit_move_up">move up</string>
+    <string name="home_edit_move_down">move down</string>
+    <string name="home_edit_move_left">move left</string>
+    <string name="home_edit_move_right">move right</string>
+    <string name="home_edit_wider">make wider</string>
+    <string name="home_edit_narrower">make narrower</string>
+    <string name="home_edit_taller">make taller</string>
+    <string name="home_edit_shorter">make shorter</string>
+    <string name="home_grid_title">home grid</string>
+    <string name="home_grid_columns">columns: %1$d</string>
+    <string name="home_grid_rows">rows: %1$d</string>
+    <string name="home_grid_no_room">no room for that on the home screen. remove or shrink a block first.</string>
+    <plurals name="settings_widget_count">
+        <item quantity="one">%d widget on home</item>
+        <item quantity="other">%d widgets on home</item>
+    </plurals>
 </resources>

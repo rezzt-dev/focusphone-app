@@ -20,9 +20,11 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import app.focusphone.R
-import app.focusphone.data.preferences.WidgetPreferences
 import app.focusphone.databinding.ActivityWidgetPickerBinding
+import app.focusphone.domain.model.HomeGridItem
 import app.focusphone.ui.base.BaseActivity
+import app.focusphone.ui.home.grid.HomeGridMetrics
+import app.focusphone.ui.home.grid.HomeGridStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,11 +34,13 @@ import kotlin.math.roundToInt
  * FocusPhone's own widget picker.
  *
  * Lists every widget that can live on a home screen, grouped by app, with a faithful
- * preview, its grid size and description, and a search field. Selecting one:
+ * preview, the cells it takes on this home grid and its description, and a search field.
+ * Selecting one:
  * 1. allocates a widget ID and binds it, asking the user through
  *    [AppWidgetManager.ACTION_APPWIDGET_BIND] when the system requires it;
  * 2. opens the provider's configuration screen when it has a mandatory one;
- * 3. saves the widget as the home widget and finishes with [RESULT_OK].
+ * 3. adds the widget to the home grid ([HomeGridStore.addWidget]) and finishes with
+ *    [RESULT_OK], the new ID in [AppWidgetManager.EXTRA_APPWIDGET_ID].
  *
  * Backing out of the permission or configuration screen releases the ID and returns to the
  * list, so the user can pick something else instead of being thrown out of the picker.
@@ -50,6 +54,7 @@ class WidgetPickerActivity : BaseActivity() {
     private lateinit var adapter: WidgetPickerAdapter
 
     private val hostManager by lazy { AppWidgetHostManager.getInstance(this) }
+    private val store by lazy { HomeGridStore(this) }
 
     private var allocatedWidgetId: Int = INVALID_WIDGET_ID
 
@@ -109,25 +114,29 @@ class WidgetPickerActivity : BaseActivity() {
     private fun setupRecyclerView() {
         binding.rvWidgets.layoutManager = LinearLayoutManager(this)
         binding.rvWidgets.itemAnimator = null
+        val grid = store.load()
+        val metrics = HomeGridMetrics.estimate(this, grid.columns, grid.rows)
+        val density = resources.displayMetrics.density
         adapter = WidgetPickerAdapter(
             scope = lifecycleScope,
             palette = palette,
-            homeWidthPx = homeWidthPx(),
+            cellWidthPx = (metrics.cellWidthDp * density).roundToInt(),
+            cellHeightPx = (metrics.cellHeightDp * density).roundToInt(),
+            gridWidthPx = (metrics.cellWidthDp * grid.columns * density).roundToInt(),
             onWidgetClick = ::onWidgetSelected
         )
         binding.rvWidgets.adapter = adapter
     }
-
-    private fun homeWidthPx(): Int =
-        (WidgetHeights.slotWidthDp(this) * resources.displayMetrics.density).roundToInt()
 
     // ── Catalog ────────────────────────────────────────────────────
 
     private fun loadWidgets() {
         showState(R.string.widget_picker_loading, loading = true)
         lifecycleScope.launch {
-            val currentProvider = hostManager.homeWidgetInfo(this@WidgetPickerActivity)?.provider
-            val (loadedEntries, icons) = withContext(Dispatchers.IO) { buildCatalog(currentProvider) }
+            val grid = store.load()
+            val inUse = store.providers()
+            val metrics = HomeGridMetrics.estimate(this@WidgetPickerActivity, grid.columns, grid.rows)
+            val (loadedEntries, icons) = withContext(Dispatchers.IO) { buildCatalog(inUse, metrics) }
             entries = loadedEntries
             appIcons = icons
             catalogLoaded = true
@@ -142,7 +151,10 @@ class WidgetPickerActivity : BaseActivity() {
         }
     }
 
-    private fun buildCatalog(currentProvider: ComponentName?): Pair<List<WidgetEntry>, Map<String, Drawable?>> {
+    private fun buildCatalog(
+        inUse: Set<ComponentName>,
+        metrics: HomeGridMetrics
+    ): Pair<List<WidgetEntry>, Map<String, Drawable?>> {
         val pm = packageManager
         val density = resources.displayMetrics.density
         val appLabels = mutableMapOf<String, String>()
@@ -154,12 +166,7 @@ class WidgetPickerActivity : BaseActivity() {
                 val appLabel = appLabels.getOrPut(packageName) {
                     loadAppLabelAndIcon(pm, packageName, icons)
                 }
-                val (spanX, spanY) = WidgetSizing.span(
-                    minWidthDp = info.minWidth / density,
-                    minHeightDp = info.minHeight / density,
-                    targetCellWidth = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) info.targetCellWidth else 0,
-                    targetCellHeight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) info.targetCellHeight else 0
-                )
+                val (spanX, spanY) = metrics.defaultSpan(info, density)
                 WidgetEntry(
                     info = info,
                     provider = info.provider,
@@ -168,7 +175,7 @@ class WidgetPickerActivity : BaseActivity() {
                     appLabel = appLabel,
                     spanX = spanX,
                     spanY = spanY,
-                    inUse = info.provider == currentProvider
+                    inUse = info.provider in inUse
                 )
             } catch (e: RuntimeException) {
                 // One broken provider must not empty the whole picker.
@@ -311,10 +318,14 @@ class WidgetPickerActivity : BaseActivity() {
     // ── Outcome ────────────────────────────────────────────────────
 
     private fun saveWidgetAndFinish(widgetId: Int) {
-        // Releases the widget being replaced, if any, so its ID does not leak.
-        hostManager.assignHomeWidget(this, widgetId)
+        // The grid makes room by shrinking the favourite list; only a grid already packed
+        // with blocks at their smallest refuses a widget.
+        if (store.addWidget(widgetId) == null) {
+            abortSelection(R.string.home_grid_no_room)
+            return
+        }
         allocatedWidgetId = INVALID_WIDGET_ID
-        setResult(RESULT_OK)
+        setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
         finish()
     }
 
@@ -333,8 +344,8 @@ class WidgetPickerActivity : BaseActivity() {
 
     private fun releasePendingId() {
         val widgetId = allocatedWidgetId
-        // Never release the widget the home screen is showing.
-        if (widgetId != INVALID_WIDGET_ID && widgetId != WidgetPreferences.getWidgetId(this)) {
+        // Never release a widget the home screen is showing.
+        if (widgetId != INVALID_WIDGET_ID && widgetId !in store.widgetIds()) {
             hostManager.deleteAppWidgetId(widgetId)
         }
         allocatedWidgetId = INVALID_WIDGET_ID
@@ -352,7 +363,7 @@ class WidgetPickerActivity : BaseActivity() {
 
     companion object {
         private const val TAG = "WidgetPickerActivity"
-        private const val INVALID_WIDGET_ID = WidgetPreferences.INVALID_WIDGET_ID
+        private const val INVALID_WIDGET_ID = HomeGridItem.NO_WIDGET_ID
         private const val REQUEST_CONFIGURE = 0x5717
         private const val BUSY_ALPHA = 0.5f
 

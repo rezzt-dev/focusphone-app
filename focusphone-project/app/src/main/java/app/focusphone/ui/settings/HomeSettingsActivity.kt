@@ -6,20 +6,22 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import app.focusphone.R
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.HomeLayoutPreferences
-import app.focusphone.data.preferences.WidgetPreferences
 import app.focusphone.databinding.ItemSettingsClockTypeBinding
 import app.focusphone.databinding.SettingsSliderRowBinding
 import app.focusphone.domain.model.ClockType
+import app.focusphone.ui.home.HomeActivity
+import app.focusphone.ui.home.grid.HomeGridStore
 import app.focusphone.ui.util.currentWindowWidthPx
-import app.focusphone.ui.widget.AppWidgetHostManager
-import app.focusphone.ui.widget.HomeWidgetActions
+import app.focusphone.ui.widget.WidgetPickerActivity
 import com.google.android.material.slider.Slider
 
 /**
- * Home screen settings: clock type, clock size, app spacing, widget and layout.
+ * Home screen settings: clock type, clock size, app spacing, adding a widget and editing
+ * the home layout (on the home screen itself).
  */
 class HomeSettingsActivity : SettingsSubActivity() {
 
@@ -27,11 +29,10 @@ class HomeSettingsActivity : SettingsSubActivity() {
     private var clockSizeSlider: Slider? = null
     private var appSpacingSlider: Slider? = null
 
-    private val widgetActions = HomeWidgetActions(
-        activity = this,
-        showDialog = { showStyledDialog(it) },
-        onWidgetChanged = ::updateWidgetStatus
-    )
+    /** A widget added from here is shown on the home screen, selected, ready to be placed. */
+    private val pickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) openHomeEditor()
+    }
 
     override fun getScreenTitleRes(): Int = R.string.home_settings_title
 
@@ -89,20 +90,18 @@ class HomeSettingsActivity : SettingsSubActivity() {
             addView(spacingBinding.root)
 
             widgetValueView = addValueRow(
-                titleResId = R.string.settings_widget_title,
+                titleResId = R.string.settings_widget_add,
                 subtitleResId = R.string.settings_widget_settings_desc,
                 initialValue = getWidgetStatusText(),
                 iconResId = R.drawable.ic_settings_widget,
-                onClick = { widgetActions.showOptions() }
+                onClick = { pickerLauncher.launch(Intent(this@HomeSettingsActivity, WidgetPickerActivity::class.java)) }
             )
 
             addCategoryRow(
                 iconResId = R.drawable.ic_settings_layout,
                 titleResId = R.string.home_layout_settings_title,
                 subtitleResId = R.string.home_layout_settings_desc,
-                onClick = {
-                    startActivity(Intent(this@HomeSettingsActivity, HomeLayoutActivity::class.java))
-                }
+                onClick = ::openHomeEditor
             )
         }
     }
@@ -191,13 +190,23 @@ class HomeSettingsActivity : SettingsSubActivity() {
         widgetValueView?.text = getWidgetStatusText()
     }
 
-    /** The current widget's name, so the row tells which widget is on the home screen. */
+    /** How many widgets the home screen holds. */
     private fun getWidgetStatusText(): String {
-        if (!WidgetPreferences.hasWidget(this)) return getString(R.string.settings_widget_none).lowercase()
-        val info = AppWidgetHostManager.getInstance(this).homeWidgetInfo(this)
-            ?: return getString(R.string.settings_widget_none).lowercase()
-        return info.loadLabel(packageManager)?.toString()?.lowercase()
-            ?: getString(R.string.settings_widget_title)
+        val count = HomeGridStore(this).widgetIds().size
+        if (count == 0) return getString(R.string.settings_widget_none).lowercase()
+        return resources.getQuantityString(R.plurals.settings_widget_count, count, count)
+    }
+
+    /**
+     * The layout is edited on the home screen itself, at its real size, the way a stock
+     * launcher does it: this opens home straight into edit mode.
+     */
+    private fun openHomeEditor() {
+        startActivity(
+            Intent(this, HomeActivity::class.java)
+                .putExtra(HomeActivity.EXTRA_EDIT_LAYOUT, true)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        )
     }
 
     private fun dp(value: Int): Int =

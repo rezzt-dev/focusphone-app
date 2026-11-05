@@ -43,7 +43,9 @@ import java.text.NumberFormat
 class WidgetPickerAdapter(
     private val scope: CoroutineScope,
     private val palette: FocusPalette,
-    private val homeWidthPx: Int,
+    private val cellWidthPx: Int,
+    private val cellHeightPx: Int,
+    private val gridWidthPx: Int,
     private val onWidgetClick: (WidgetEntry) -> Unit
 ) : ListAdapter<WidgetPickerRow, RecyclerView.ViewHolder>(DiffCallback) {
 
@@ -186,7 +188,7 @@ class WidgetPickerAdapter(
                 val view = HomeWidgetHostView(WidgetHostContext(context))
                 view.setAppWidget(NO_WIDGET_ID, entry.info)
                 view.updateAppWidget(RemoteViews(entry.packageName, layout))
-                val (widthPx, heightPx) = naturalPreviewSize(context, entry)
+                val (widthPx, heightPx) = naturalPreviewSize(entry)
                 b.frameLivePreview.addView(view, FrameLayout.LayoutParams(widthPx, heightPx))
                 b.frameLivePreview.setNaturalSize(widthPx, heightPx)
                 b.frameLivePreview.onContentOverflow = {
@@ -205,14 +207,13 @@ class WidgetPickerAdapter(
     }
 
     /**
-     * The size the widget gets in a real launcher grid, used to render its preview: the
-     * layout providers design their previews for. Never below the provider's minimum size,
-     * never wider than the home slot.
+     * The size the widget gets on the home grid, used to render its preview: what the user
+     * will see once it is added. Never below the provider's minimum size, never wider than
+     * the grid.
      */
-    private fun naturalPreviewSize(context: Context, entry: WidgetEntry): Pair<Int, Int> {
-        val cellPx = WidgetHeights.cellPx(context)
-        val widthPx = maxOf(cellPx * entry.spanX, entry.info.minWidth).coerceAtMost(homeWidthPx)
-        val heightPx = maxOf(cellPx * entry.spanY, entry.info.minHeight)
+    private fun naturalPreviewSize(entry: WidgetEntry): Pair<Int, Int> {
+        val widthPx = maxOf(cellWidthPx * entry.spanX, entry.info.minWidth).coerceAtMost(gridWidthPx)
+        val heightPx = maxOf(cellHeightPx * entry.spanY, entry.info.minHeight)
         return widthPx to heightPx
     }
 

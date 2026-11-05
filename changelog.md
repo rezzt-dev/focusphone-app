@@ -33,6 +33,12 @@
 - leer la musica que suena desde el oyente de notificaciones (`MediaWidgetBridge`): caratula, cancion, artista y controles de reproducir, pausar, anterior y siguiente, con estados para "sin acceso" y "no suena nada"
 - añadir pantallas de configuracion para el reloj mundial (hasta tres ciudades con nombre localizado y desfase horario) y para la intencion del dia, guardada cifrada como el resto de textos del usuario (`LibraryWidgetPreferences`)
 - añadir `EXTRA_FOCUS_SEARCH` a `AllAppsActivity` para que los widgets de busqueda abran el cajon con el teclado ya levantado
+- añadir un gestor de disposicion de inicio en cuadricula, como el de los lanzadores de serie: el reloj, la lista de favoritas y cualquier numero de widgets ocupan celdas de una rejilla de 3-6 columnas por 4-12 filas (`HomeGridLayout`, `HomeGridController`)
+- añadir el modo edicion en la propia pantalla de inicio (mantener pulsado un hueco, un widget o el reloj, o "editar pantalla de inicio" en ajustes): arrastrar bloques con recolocacion animada de los demas, seleccionar con un toque y redimensionar desde asas que se ajustan a las celdas dentro de los limites de cada bloque
+- añadir `GridLayoutEngine`, el motor puro de la rejilla: busca hueco, mueve y redimensiona apartando los bloques afectados (al hueco mas cercano o empujando como una pila), encoge la lista de favoritas para hacer sitio a un widget nuevo y reajusta la disposicion al cambiar el tamaño de la rejilla, con pruebas unitarias
+- añadir la barra del modo edicion (widgets, añadir reloj, cuadricula con vista previa en vivo y listo) y una barra flotante por bloque con sus acciones: ajustes del widget, estilo del reloj, elegir apps y quitar
+- añadir acciones de accesibilidad por bloque en modo edicion (mover arriba/abajo/izquierda/derecha, ensanchar, estrechar, hacer mas alto o mas bajo) para cambiar la disposicion sin arrastrar
+- calcular el tamaño de cada widget en celdas reales de la rejilla (`HomeGridMetrics`, `WidgetSizing`) a partir de `targetCellWidth`/`targetCellHeight`, el tamaño minimo, `resizeMode` y los limites de redimensionado del proveedor
 
 #### CAMBIADO
 - reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
@@ -63,6 +69,11 @@
 - dar al widget por defecto la altura de las filas que declara el proveedor con celdas de lanzador reales y comunicarle su tamaño en dp con `updateAppWidgetSize`
 - mostrar el nombre del widget actual en ajustes de inicio en lugar de "quitar widget"
 - listar primero los widgets de focusphone en el selector de widgets, antes que los del resto de apps
+- sustituir la columna fija reloj/widget/apps por la rejilla y migrar automaticamente la disposicion anterior (orden, reloj oculto, el widget y su altura) en `HomeGridStore`
+- hacer que el selector de widgets añada el widget a la rejilla en vez de reemplazar el unico widget, muestre su tamaño en celdas de esta rejilla, marque como "en uso" todos los widgets colocados y avise si no hay sitio
+- convertir la fila de widget de ajustes de inicio en "añadir widget" (con el numero de widgets en inicio) y abrir "editar pantalla de inicio" directamente en el modo edicion de inicio
+- encoger el reloj elegido cuando su bloque es mas pequeño que el estilo (`ScaleToFitFrame`) en vez de recortarlo
+- liberar los ids de widget huerfanos comparando con todos los widgets de la rejilla y resolver cada widget por separado (`AppWidgetHostManager.resolveWidget`)
 
 #### CORREGIDO
 - aplicar los bloqueos de horario y limite diario al abrir aplicaciones desde recientes y accesos frecuentes mediante cambios de ventana, y avisar de la necesidad del servicio de accesibilidad para todas las reglas
@@ -108,6 +119,7 @@
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` y el subsistema de tamaño de icono inalcanzable, junto con `backup_rules.xml` y el `values-night/themes.xml` vacio
 - codigo muerto detectado por detekt: el callback `onDismiss` de `NotificationsAdapter`, que nunca se invocaba porque el deslizamiento llama a `dismissNotification` directamente; la constante `TAG` sin uso de `HomeActivity`; y el parametro `totalSteps` de `TutorialOverlayView.showStep`
 - el menu emergente `menu_app_context.xml` y su entrada "abrir", redundante con tocar la app
+- eliminar `HomeLayoutActivity` y su vista previa, `HomeWidgetActions`, `WidgetHeights` y `WidgetPreferences` (un unico widget con altura en dp), junto con sus layouts, iconos y textos
 
 #### SEGURIDAD
 - unificar el bloqueo de detox y horarios bajo una unica politica de intentos cifrada (5 intentos, 15 min de espera); una contraseña incorrecta ya no finaliza la sesion de detox y la verificacion corre pbkdf2 fuera del hilo principal
@@ -145,6 +157,12 @@
 - read what is playing through the notification listener (`MediaWidgetBridge`): artwork, track, artist and play, pause, previous and next controls, with "no access" and "nothing playing" states
 - add configuration screens for the world clock (up to three cities with localised names and time offsets) and for the daily intention, stored encrypted like every other user-written text (`LibraryWidgetPreferences`)
 - add `EXTRA_FOCUS_SEARCH` to `AllAppsActivity` so the search widgets open the drawer with the keyboard already up
+- add a grid home layout manager, like a stock launcher's workspace: the clock, the favourites list and any number of widgets occupy cells of a grid of 3-6 columns by 4-12 rows (`HomeGridLayout`, `HomeGridController`)
+- add edit mode on the home screen itself (long press empty room, a widget or the clock, or "edit home screen" in the settings): drag blocks while the others reflow with animation, tap to select and resize from handles that snap to cells within each block's limits
+- add `GridLayoutEngine`, the pure grid engine: finds free room, moves and resizes while the affected blocks make way (to the nearest free room or pushed like a stack), shrinks the favourites list to make room for a new widget and refits the layout when the grid size changes, with unit tests
+- add the edit-mode bar (widgets, add clock, grid with a live preview and done) and a floating bar per block with its actions: widget settings, clock style, choose apps and remove
+- add per-block accessibility actions in edit mode (move up/down/left/right, make wider, narrower, taller or shorter) to change the layout without dragging
+- size every widget in real grid cells (`HomeGridMetrics`, `WidgetSizing`) from the provider's `targetCellWidth`/`targetCellHeight`, minimum size, `resizeMode` and resize bounds
 
 #### CHANGED
 - reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone
@@ -175,6 +193,11 @@
 - give the widget its provider's declared rows at real launcher cell size by default and report its size in dp through `updateAppWidgetSize`
 - show the current widget's name in home settings instead of "remove widget"
 - list focusphone's own widgets first in the widget picker, before every other app's
+- replace the fixed clock/widget/apps column with the grid and migrate the previous layout automatically (order, hidden clock, the widget and its height) in `HomeGridStore`
+- make the widget picker add the widget to the grid instead of replacing the single widget, show its size in cells of this grid, mark every placed widget as "in use" and say when there is no room
+- turn the widget row of the home settings into "add widget" (with the number of widgets on home) and open "edit home screen" straight into the home screen's edit mode
+- shrink the chosen clock style when its block is smaller than the style needs (`ScaleToFitFrame`) instead of cropping it
+- release orphaned widget ids against every widget on the grid and resolve each widget on its own (`AppWidgetHostManager.resolveWidget`)
 
 #### FIXED
 - enforce time windows and daily limits when apps open from recents and suggested shortcuts through window change events, and show the accessibility warning for every schedule rule
@@ -220,6 +243,7 @@
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` and the unreachable icon-size-slider subsystem, along with `backup_rules.xml` and the empty `values-night/themes.xml`
 - dead code found by detekt: the `onDismiss` callback of `NotificationsAdapter`, never invoked because the swipe handler calls `dismissNotification` directly; the unused `TAG` constant in `HomeActivity`; and the `totalSteps` parameter of `TutorialOverlayView.showStep`
 - the `menu_app_context.xml` popup menu and its "open" entry, redundant with tapping the app
+- remove `HomeLayoutActivity` and its preview, `HomeWidgetActions`, `WidgetHeights` and `WidgetPreferences` (a single widget with a height in dp), along with their layouts, icons and strings
 
 #### SECURITY
 - unify detox and schedule locks under one encrypted attempt policy (5 attempts, 15 min cooldown); a wrong password no longer ends a detox session, and verification now runs pbkdf2 off the main thread

@@ -84,11 +84,6 @@
             android:exported="false"
             android:launchMode="singleTop" />
 
-        <!-- ── Home Layout Activity ───────────────────────────────── -->
-        <activity
-            android:name=".ui.settings.HomeLayoutActivity"
-            android:exported="false" />
-
         <!-- ── Permissions Activity ───────────────────────────────── -->
         <activity
             android:name=".ui.settings.PermissionsActivity"

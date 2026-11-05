@@ -283,12 +283,8 @@ facebook</string>
 
     <!-- Settings: Widget -->
     <string name="settings_section_widget">widget</string>
-    <string name="settings_widget_title">widget de inicio</string>
-    <string name="settings_widget_desc">añade un widget del sistema a tu pantalla de inicio</string>
     <string name="settings_widget_add">añadir widget</string>
-    <string name="settings_widget_remove">quitar widget</string>
     <string name="settings_widget_none">ninguno</string>
-    <string name="settings_widget_remove_confirm">¿quitar el widget actual de la pantalla de inicio?</string>
     <string name="widget_config_title">seleccionar widget</string>
     <string name="widget_picker_title">seleccionar widget</string>
     <string name="widget_picker_subtitle">elige un widget para añadir a tu pantalla de inicio</string>
@@ -383,23 +379,14 @@ facebook</string>
     <string name="cd_apps">componente de apps</string>
     <string name="cd_clear_all">borrar todas las notificaciones</string>
     <string name="cd_clock">componente de reloj</string>
-    <string name="cd_drag_handle">arrastrar para reordenar</string>
-    <string name="cd_toggle_visibility">alternar visibilidad</string>
     <string name="cd_widget">componente de widget</string>
     <string name="focus_settings_title">focus</string>
-    <string name="home_layout_add_widget">añadir widget</string>
     <string name="home_layout_apps">apps</string>
     <string name="home_layout_clock">reloj</string>
-    <string name="home_layout_clock_size">tamaño del reloj</string>
     <string name="home_layout_done">listo</string>
-    <string name="home_layout_order">orden</string>
-    <string name="home_layout_preview">vista previa</string>
-    <string name="home_layout_settings_desc">reordenar y redimensionar los componentes de la pantalla de inicio</string>
-    <string name="home_layout_settings_title">diseño de inicio</string>
-    <string name="home_layout_sizes">tamaños</string>
-    <string name="home_layout_title">diseño de inicio</string>
+    <string name="home_layout_settings_desc">mueve, redimensiona y añade bloques en la pantalla de inicio</string>
+    <string name="home_layout_settings_title">editar pantalla de inicio</string>
     <string name="home_layout_widget">widget</string>
-    <string name="home_layout_widget_size">tamaño del widget</string>
     <string name="home_settings_title">pantalla de inicio</string>
     <string name="notification_clear_all">borrar todas</string>
     <string name="notification_settings_title">notificaciones</string>
@@ -424,7 +411,6 @@ facebook</string>
     <string name="settings_clock_type_desc">elige cómo se muestra la hora</string>
     <string name="settings_conscious_pause_section_desc">respira antes de abrir apps</string>
     <string name="settings_font_desc">elige la tipografía de toda la pantalla de inicio</string>
-    <string name="settings_home_layout_desc">reordenar y redimensionar componentes de inicio</string>
     <string name="settings_language_desc">cambiar el idioma de la app</string>
     <string name="settings_notification_badges_section_desc">mostrar contadores de no leídos junto a las apps</string>
     <string name="settings_notification_panel_desc_short">desliza a la derecha para ver notificaciones</string>
@@ -435,7 +421,7 @@ facebook</string>
     <string name="settings_set_default_desc_short">hacer focusphone tu pantalla de inicio</string>
     <string name="settings_text_size_desc">ajusta el tamaño de todo el texto</string>
     <string name="settings_theme_desc">elige tu esquema de color</string>
-    <string name="settings_widget_settings_desc">añadir, cambiar o redimensionar el widget de inicio</string>
+    <string name="settings_widget_settings_desc">coloca un widget en la pantalla de inicio</string>
     <string name="settings_work_keywords_section_desc">bloquear apps por nombre en modo trabajo</string>
     <string name="system_settings_title">sistema</string>
     <string name="settings_wallpaper_blur_desc">suaviza el fondo para mejorar la legibilidad</string>
@@ -469,8 +455,6 @@ facebook</string>
     <string name="clock_pm">pm</string>
     <string name="notification_now">ahora</string>
     <string name="app_unknown">app</string>
-    <string name="home_layout_drag_hint">arrastra los componentes para reordenar</string>
-    <string name="home_layout_long_press_hint">mantén pulsada la vista previa para editar</string>
     <string name="clock_preview_words">nueve
 cuarenta y uno</string>
 
@@ -657,10 +641,7 @@ cuarenta y uno</string>
     <string name="widget_picker_in_use_format">en uso · %1$s</string>
     <string name="widget_picker_add_failed">no se pudo añadir el widget</string>
     <string name="widget_picker_config_failed">no se pudieron abrir los ajustes del widget</string>
-    <string name="widget_option_change">cambiar widget</string>
-    <string name="widget_option_height">ajustar altura</string>
     <string name="widget_option_settings">ajustes del widget</string>
-    <string name="widget_height_label">altura del widget: %1$ddp</string>
 
     <!-- Widget library -->
     <string name="wg_label_clock_digital">reloj</string>
@@ -762,4 +743,32 @@ cuarenta y uno</string>
     <string name="wg_preview_fav_3">cámara</string>
     <string name="wg_preview_fav_4">mapas</string>
     <string name="wg_preview_fav_5">música</string>
+
+    <!-- Home grid: edit mode, block actions and grid size -->
+    <string name="home_edit_hint">arrastra para mover · toca un bloque y tira de sus asas para redimensionarlo</string>
+    <string name="home_edit_widgets">widgets</string>
+    <string name="home_edit_add_clock">añadir reloj</string>
+    <string name="home_edit_grid">cuadrícula</string>
+    <string name="home_edit_remove">quitar</string>
+    <string name="home_edit_clock_hidden">reloj oculto</string>
+    <string name="home_edit_clock_style">estilo</string>
+    <string name="home_edit_choose_apps">elegir apps</string>
+    <string name="home_edit_removed">%1$s quitado</string>
+    <string name="home_edit_move_up">subir</string>
+    <string name="home_edit_move_down">bajar</string>
+    <string name="home_edit_move_left">mover a la izquierda</string>
+    <string name="home_edit_move_right">mover a la derecha</string>
+    <string name="home_edit_wider">ensanchar</string>
+    <string name="home_edit_narrower">estrechar</string>
+    <string name="home_edit_taller">hacer más alto</string>
+    <string name="home_edit_shorter">hacer más bajo</string>
+    <string name="home_grid_title">cuadrícula de inicio</string>
+    <string name="home_grid_columns">columnas: %1$d</string>
+    <string name="home_grid_rows">filas: %1$d</string>
+    <string name="home_grid_no_room">no hay sitio en la pantalla de inicio. quita o reduce un bloque primero.</string>
+    <plurals name="settings_widget_count">
+        <item quantity="one">%d widget en inicio</item>
+        <item quantity="many">%d widgets en inicio</item>
+        <item quantity="other">%d widgets en inicio</item>
+    </plurals>
 </resources>

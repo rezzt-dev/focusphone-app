@@ -253,12 +253,8 @@
 
     <!-- Settings: Widget -->
     <string name="settings_section_widget">widget</string>
-    <string name="settings_widget_title">startbildschirm-widget</string>
-    <string name="settings_widget_desc">füge ein system-widget zum startbildschirm hinzu</string>
     <string name="settings_widget_add">widget hinzufügen</string>
-    <string name="settings_widget_remove">widget entfernen</string>
     <string name="settings_widget_none">keines</string>
-    <string name="settings_widget_remove_confirm">aktuelles widget vom startbildschirm entfernen?</string>
     <string name="widget_config_title">widget auswählen</string>
 
     <!-- Settings: Permissions -->
@@ -367,23 +363,14 @@
     <string name="cd_apps">apps-komponente</string>
     <string name="cd_clear_all">alle benachrichtigungen löschen</string>
     <string name="cd_clock">uhr-komponente</string>
-    <string name="cd_drag_handle">ziehen zum neuordnen</string>
-    <string name="cd_toggle_visibility">sichtbarkeit umschalten</string>
     <string name="cd_widget">widget-komponente</string>
     <string name="focus_settings_title">fokus</string>
-    <string name="home_layout_add_widget">widget hinzufügen</string>
     <string name="home_layout_apps">apps</string>
     <string name="home_layout_clock">uhr</string>
-    <string name="home_layout_clock_size">uhrgröße</string>
     <string name="home_layout_done">fertig</string>
-    <string name="home_layout_order">reihenfolge</string>
-    <string name="home_layout_preview">vorschau</string>
-    <string name="home_layout_settings_desc">startbildschirm-komponenten neu ordnen und in der größe anpassen</string>
-    <string name="home_layout_settings_title">startbildschirm-layout</string>
-    <string name="home_layout_sizes">größen</string>
-    <string name="home_layout_title">startbildschirm-layout</string>
+    <string name="home_layout_settings_desc">blöcke auf dem startbildschirm verschieben, anpassen und hinzufügen</string>
+    <string name="home_layout_settings_title">startbildschirm bearbeiten</string>
     <string name="home_layout_widget">widget</string>
-    <string name="home_layout_widget_size">widget-größe</string>
     <string name="home_settings_title">startbildschirm</string>
     <string name="notification_clear_all">alle löschen</string>
     <string name="notification_settings_title">benachrichtigungen</string>
@@ -408,7 +395,6 @@
     <string name="settings_clock_type_desc">wähle, wie die uhrzeit angezeigt wird</string>
     <string name="settings_conscious_pause_section_desc">atme vor dem öffnen von apps durch</string>
     <string name="settings_font_desc">wähle die schriftart für den gesamten launcher</string>
-    <string name="settings_home_layout_desc">startbildschirm-komponenten neu ordnen und anpassen</string>
     <string name="settings_language_desc">app-sprache ändern</string>
     <string name="settings_notification_badges_section_desc">ungelesene zähler neben apps anzeigen</string>
     <string name="settings_notification_panel_desc_short">wische nach rechts, um benachrichtigungen zu sehen</string>
@@ -419,7 +405,7 @@
     <string name="settings_set_default_desc_short">focusphone als startbildschirm festlegen</string>
     <string name="settings_text_size_desc">größe des gesamten textes anpassen</string>
     <string name="settings_theme_desc">wähle dein farbschema</string>
-    <string name="settings_widget_settings_desc">startbildschirm-widget hinzufügen, ändern oder anpassen</string>
+    <string name="settings_widget_settings_desc">ein widget auf dem startbildschirm platzieren</string>
     <string name="settings_work_keywords_section_desc">apps im arbeitsmodus nach namen blockieren</string>
     <string name="system_settings_title">system</string>
     <string name="widget_picker_empty">keine widgets verfügbar</string>
@@ -457,8 +443,6 @@
     <string name="clock_pm">pm</string>
     <string name="notification_now">jetzt</string>
     <string name="app_unknown">app</string>
-    <string name="home_layout_drag_hint">komponenten zum neuordnen ziehen</string>
-    <string name="home_layout_long_press_hint">vorschau gedrückt halten zum bearbeiten</string>
     <string name="clock_preview_words">neun
 einundvierzig</string>
 
@@ -640,10 +624,7 @@ einundvierzig</string>
     <string name="widget_picker_in_use_format">in verwendung · %1$s</string>
     <string name="widget_picker_add_failed">das widget konnte nicht hinzugefügt werden</string>
     <string name="widget_picker_config_failed">die widget-einstellungen konnten nicht geöffnet werden</string>
-    <string name="widget_option_change">widget ändern</string>
-    <string name="widget_option_height">höhe anpassen</string>
     <string name="widget_option_settings">widget-einstellungen</string>
-    <string name="widget_height_label">widget-höhe: %1$ddp</string>
 
     <!-- Widget library -->
     <string name="wg_label_clock_digital">uhr</string>
@@ -745,4 +726,31 @@ einundvierzig</string>
     <string name="wg_preview_fav_3">kamera</string>
     <string name="wg_preview_fav_4">karten</string>
     <string name="wg_preview_fav_5">musik</string>
+
+    <!-- Home grid: edit mode, block actions and grid size -->
+    <string name="home_edit_hint">ziehen zum verschieben · block antippen, dann an den griffen die größe ändern</string>
+    <string name="home_edit_widgets">widgets</string>
+    <string name="home_edit_add_clock">uhr hinzufügen</string>
+    <string name="home_edit_grid">raster</string>
+    <string name="home_edit_remove">entfernen</string>
+    <string name="home_edit_clock_hidden">uhr ausgeblendet</string>
+    <string name="home_edit_clock_style">stil</string>
+    <string name="home_edit_choose_apps">apps wählen</string>
+    <string name="home_edit_removed">%1$s entfernt</string>
+    <string name="home_edit_move_up">nach oben</string>
+    <string name="home_edit_move_down">nach unten</string>
+    <string name="home_edit_move_left">nach links</string>
+    <string name="home_edit_move_right">nach rechts</string>
+    <string name="home_edit_wider">breiter</string>
+    <string name="home_edit_narrower">schmaler</string>
+    <string name="home_edit_taller">höher</string>
+    <string name="home_edit_shorter">niedriger</string>
+    <string name="home_grid_title">startbildschirm-raster</string>
+    <string name="home_grid_columns">spalten: %1$d</string>
+    <string name="home_grid_rows">zeilen: %1$d</string>
+    <string name="home_grid_no_room">kein platz auf dem startbildschirm. entferne oder verkleinere zuerst einen block.</string>
+    <plurals name="settings_widget_count">
+        <item quantity="one">%d widget auf dem startbildschirm</item>
+        <item quantity="other">%d widgets auf dem startbildschirm</item>
+    </plurals>
 </resources>

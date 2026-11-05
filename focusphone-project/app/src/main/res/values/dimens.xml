@@ -47,8 +47,14 @@
     <dimen name="pager_dot_active_width">20dp</dimen>
     <dimen name="pager_dot_gap">6dp</dimen>
 
+    <!-- Home grid -->
+    <dimen name="home_grid_padding_horizontal">12dp</dimen>
+    <dimen name="home_grid_padding_vertical">8dp</dimen>
+    <dimen name="home_grid_item_inset">4dp</dimen>
+    <dimen name="home_grid_corner">16dp</dimen>
+    <dimen name="home_grid_handle_radius">7dp</dimen>
+    <dimen name="home_grid_handle_touch">28dp</dimen>
     <!-- Home widget -->
-    <dimen name="home_widget_side_padding">16dp</dimen>
     <dimen name="widget_card_corner">20dp</dimen>
     <dimen name="widget_preview_height">132dp</dimen>
     <!-- Widget library -->

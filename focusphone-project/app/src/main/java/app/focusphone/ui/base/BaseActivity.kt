@@ -131,7 +131,8 @@ abstract class BaseActivity : AppCompatActivity() {
             R.id.content_container,
             R.id.scroll_content,
             R.id.preview_container,
-            R.id.preview_root
+            R.id.home_grid,
+            R.id.edit_chrome
         )
     }
 
