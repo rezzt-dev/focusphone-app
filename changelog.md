@@ -42,6 +42,8 @@
 - añadir el slider "tamaño de texto de la home" (8-24 pt) en ajustes > apariencia, junto al de la app, traducido a es/en/fr/de
 - añadir `notice` y `third_party_licenses.md` con el inventario real de terceros: las 88 dependencias del `releaseRuntimeClasspath` (todas apache-2.0), las tipografias poppins 4.004, comfortaa 3.105 y jetbrains mono 2.304 (ofl-1.1), los iconos lucide 1.69.0 (isc) y los derivados de feather (mit), las herramientas de compilacion y prueba, y los textos de licencia literales
 - añadir `disclaimer.md` y `disclaimer.es.md`: los bloqueos son un compromiso personal y no una herramienta de seguridad, control parental ni supervision, y el uso de los nombres "focusphone" y "rezzt-dev" se limita segun la clausula 3.d de la licencia
+- añadir `privacy.md` y `privacy.es.md`, una politica de privacidad independiente contrastada con el manifest y el codigo: datos guardados y cifrados, datos que se leen sin guardarse, widgets en otros launchers, permisos, copias de seguridad, registros, derechos rgpd/lopdgdd, menores, cambios y contacto
+- añadir `permissions.md` y `permissions.es.md` con la justificacion tecnica de cada permiso, de los servicios de accesibilidad y de notificaciones, de los componentes exportados y las declaraciones que pediria google play
 
 #### CAMBIADO
 - reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
@@ -124,6 +126,8 @@
 - repartir la barra inferior del modo edicion a lo ancho y encoger sus etiquetas cuando no caben, en vez de partir "listo" letra a letra y estirar la barra en pantallas estrechas o con fuente grande (samsung galaxy a21)
 - volver a dejar de versionar `.docs/` (447 ficheros, incluidos 67 paquetes `agent-skills` de terceros con licencia mit publicados sin su aviso de copyright y analisis internos), que el commit `0839151` habia reintroducido pese a estar en `.gitignore`
 - dejar de versionar `focusphone-project/.vscode/settings.json`, que estaba ignorado pero seguia en el repositorio con una ruta de jdk propia de una maquina
+- corregir la politica de privacidad de la app (`assets/privacy_policy.html`), que decia que las contraseñas se guardaban con sha-256, solo mencionaba `QUERY_ALL_PACKAGES` y remitia a una ficha de google play inexistente; ahora es bilingue y coincide con `privacy.md`
+- completar la pantalla de licencias de la app (`assets/open_source_licenses.html`) con las tipografias y su texto ofl-1.1, el aviso mit de los iconos derivados de feather, la biblioteca estandar de kotlin y el texto completo de apache-2.0, y quitar las bibliotecas de prueba que no viajan en el apk
 
 #### ELIMINADO
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` y el subsistema de tamaño de icono inalcanzable, junto con `backup_rules.xml` y el `values-night/themes.xml` vacio
@@ -176,6 +180,8 @@
 - add a "home text size" slider (8-24 pt) in settings > appearance, next to the app one, translated to es/en/fr/de
 - add `notice` and `third_party_licenses.md` with the real third-party inventory: the 88 artifacts of the `releaseRuntimeClasspath` (all apache-2.0), the poppins 4.004, comfortaa 3.105 and jetbrains mono 2.304 typefaces (ofl-1.1), the lucide 1.69.0 icons (isc) and those derived from feather (mit), the build and test tools, and the verbatim license texts
 - add `disclaimer.md` and `disclaimer.es.md`: locks are a personal commitment and not a security, parental control or monitoring tool, and use of the names "focusphone" and "rezzt-dev" is limited by clause 3.d of the license
+- add `privacy.md` and `privacy.es.md`, a standalone privacy policy checked against the manifest and the code: stored and encrypted data, data read but not stored, widgets in other launchers, permissions, backups, logs, gdpr/lopdgdd rights, children, changes and contact
+- add `permissions.md` and `permissions.es.md` with the technical justification of every permission, of the accessibility and notification services, of the exported components and of the declarations google play would require
 
 #### CHANGED
 - reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone
@@ -258,6 +264,8 @@
 - share the edit mode bottom bar's width equally and shrink its labels when they do not fit, instead of breaking "done" one letter per line and stretching the bar on narrow screens or with a large font (samsung galaxy a21)
 - stop versioning `.docs/` again (447 files, including 67 third-party mit-licensed `agent-skills` packages published without their copyright notice and internal analyses), which commit `0839151` had brought back despite being in `.gitignore`
 - stop versioning `focusphone-project/.vscode/settings.json`, which was ignored but still tracked with a machine-specific jdk path
+- fix the in-app privacy policy (`assets/privacy_policy.html`), which said passwords were stored with sha-256, only mentioned `QUERY_ALL_PACKAGES` and pointed to a google play listing that does not exist; it is now bilingual and matches `privacy.md`
+- complete the in-app licenses screen (`assets/open_source_licenses.html`) with the typefaces and their ofl-1.1 text, the mit notice of the feather-derived icons, the kotlin standard library and the full apache-2.0 text, and drop the test libraries that are not shipped in the apk
 
 #### REMOVED
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` and the unreachable icon-size-slider subsystem, along with `backup_rules.xml` and the empty `values-night/themes.xml`

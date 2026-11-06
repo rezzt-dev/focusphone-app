@@ -2,37 +2,77 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FocusPhone Privacy Policy</title>
-<style>
-body { font-family: sans-serif; line-height: 1.6; padding: 16px; max-width: 640px; margin: auto; color: #333; }
-h1 { font-size: 1.5em; }
-h2 { font-size: 1.2em; margin-top: 1.5em; }
-</style>
+<title>focusphone privacy policy</title>
 </head>
 <body>
-<h1>focusphone privacy policy</h1>
-<p><strong>last updated:</strong> 2026-05-13</p>
+<h1>privacy policy</h1>
+<p><b>last updated:</b> 2026-11-06 · <b>contact:</b> contacto@rezzt.dev</p>
+<p>the full policy, in english and spanish, is privacy.md in the repository: https://github.com/rezzt-dev/focusphone-app</p>
 
-<h2>1. information we collect</h2>
-<p>focusphone is an offline minimalist launcher. we do not collect, transmit, or store any personal data on external servers.</p>
-<p>the app reads the list of installed applications solely to display them in the app drawer and favourite selector. this information never leaves your device.</p>
+<h2>nothing leaves your device</h2>
+<p>focusphone declares no internet permission, so android does not let it connect to any network. there are no accounts, servers, ads, analytics, crash reports or remote configuration. the author receives no data from the app.</p>
 
-<h2>2. permissions</h2>
+<h2>what is stored, and where</h2>
+<p>everything is kept in the app's private storage. favourites, layout, theme, text sizes and wallpaper copies are stored as they are. custom app names, folders, profiles, blocked apps, work keywords, schedules, usage counters and the intention text are encrypted with aes-256/gcm using a key held by the android keystore. detox and schedule passwords are never stored: only a pbkdf2-hmac-sha256 digest with a random salt.</p>
+
+<h2>what is read but not stored</h2>
 <ul>
-<li><strong>QUERY_ALL_PACKAGES</strong> — required to list installed apps for the launcher functionality.</li>
+<li>the list of installed apps (query_all_packages), to show the drawer and the pickers.</li>
+<li>with the optional accessibility service: only the package name of the app in the foreground, to apply blocks, schedules and daily limits. it never reads screen text or acts for you.</li>
+<li>with the optional notification access: your current notifications, kept in memory only, and what is playing in media apps for the music widgets.</li>
 </ul>
 
-<h2>3. data storage</h2>
-<p>all data (favourite apps, themes, settings, detox passwords) is stored locally on your device using android room and sharedpreferences. detox passwords are hashed using sha-256 before storage.</p>
+<h2>permissions</h2>
+<ul>
+<li>query_all_packages: list your apps.</li>
+<li>request_delete_packages: open android's uninstall dialog; android always asks you to confirm.</li>
+<li>expand_status_bar: open the notification shade with a swipe on older android versions.</li>
+<li>accessibility service and notification access: optional, enabled by you in android settings, and revocable at any time.</li>
+</ul>
 
-<h2>4. third-party services</h2>
-<p>focusphone does not use any third-party analytics, advertising, or tracking libraries.</p>
+<h2>widgets in other launchers</h2>
+<p>a launcher that hosts a focusphone widget receives what that widget shows, such as your favourites, your intention or the song playing.</p>
 
-<h2>5. changes</h2>
-<p>we may update this policy as the app evolves. continued use after changes constitutes acceptance.</p>
+<h2>backups</h2>
+<p>focusphone's data is excluded from cloud backup, adb backup and device-to-device transfer. uninstalling the app or clearing its storage deletes all of it.</p>
 
-<h2>6. contact</h2>
-<p>for questions about this policy, please contact the developer through the play store listing.</p>
+<h2>your rights</h2>
+<p>the author holds none of your app data. if you write to the author, your message is used only to answer you; you can ask for its access or erasure at contacto@rezzt.dev and complain to a data protection authority (in spain, the aepd).</p>
+
+<hr>
+
+<h1>política de privacidad</h1>
+<p><b>última actualización:</b> 2026-11-06 · <b>contacto:</b> contacto@rezzt.dev</p>
+<p>la política completa, en inglés y castellano, es privacy.es.md en el repositorio: https://github.com/rezzt-dev/focusphone-app</p>
+
+<h2>nada sale de tu dispositivo</h2>
+<p>focusphone no declara el permiso de internet, así que android no le deja conectarse a ninguna red. no hay cuentas, servidores, publicidad, analítica, informes de errores ni configuración remota. el autor no recibe ningún dato de la app.</p>
+
+<h2>qué se guarda y dónde</h2>
+<p>todo se guarda en el almacenamiento privado de la app. las favoritas, la disposición, el tema, los tamaños de texto y las copias de los fondos se guardan tal cual. los nombres personalizados, las carpetas, los perfiles, las apps bloqueadas, las palabras clave del modo trabajo, los horarios, los contadores de uso y el texto de intención se cifran con aes-256/gcm con una clave que custodia el almacén de claves de android. las contraseñas de detox y de horarios nunca se guardan: solo un resumen pbkdf2-hmac-sha256 con sal aleatoria.</p>
+
+<h2>qué se lee pero no se guarda</h2>
+<ul>
+<li>la lista de apps instaladas (query_all_packages), para mostrar el cajón y los selectores.</li>
+<li>con el servicio de accesibilidad opcional: solo el nombre de paquete de la app en primer plano, para aplicar bloqueos, horarios y límites diarios. nunca lee el texto de la pantalla ni actúa por ti.</li>
+<li>con el acceso a notificaciones opcional: tus notificaciones actuales, solo en memoria, y lo que suena en las apps de música para los widgets de música.</li>
+</ul>
+
+<h2>permisos</h2>
+<ul>
+<li>query_all_packages: listar tus apps.</li>
+<li>request_delete_packages: abrir el diálogo de desinstalación de android; android siempre pide confirmación.</li>
+<li>expand_status_bar: abrir la persiana de notificaciones con un gesto en versiones antiguas de android.</li>
+<li>servicio de accesibilidad y acceso a notificaciones: opcionales, los activas tú en los ajustes de android y puedes retirarlos en cualquier momento.</li>
+</ul>
+
+<h2>widgets en otros launchers</h2>
+<p>un launcher que aloja un widget de focusphone recibe lo que ese widget muestra, como tus favoritas, tu intención o la canción que suena.</p>
+
+<h2>copias de seguridad</h2>
+<p>los datos de focusphone están excluidos de la copia en la nube, de adb backup y de la transferencia entre dispositivos. desinstalar la app o borrar su almacenamiento los elimina todos.</p>
+
+<h2>tus derechos</h2>
+<p>el autor no tiene ninguno de los datos de tu app. si escribes al autor, tu mensaje se usa solo para responderte; puedes pedir su acceso o supresión en contacto@rezzt.dev y reclamar ante una autoridad de protección de datos (en españa, la aepd).</p>
 </body>
 </html>
