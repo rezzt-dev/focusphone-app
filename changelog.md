@@ -2,29 +2,16 @@
 
 ## SIN PUBLICAR / UNRELEASED
 
+## [1.4.0] - 2026-11-06
+
 ### CASTELLANO
 
 #### ANADIDO
-- añadir `FocusColors`, `FocusPalette` y `SurfaceScrim` como fuente unica de color en tiempo de ejecucion del tema, sustituyendo las resoluciones de atributo que devolvian un id de recurso en vez de un color
-- añadir `ensureContrast` para garantizar contraste wcag en el tema personalizado cuando el usuario elige un fondo y un primer plano poco legibles
-- añadir un scrim de legibilidad adaptativo sobre el fondo de pantalla, con un nuevo slider "legibilidad de texto" en ajustes, para todos los temas
-- añadir una vista previa del fondo en ajustes que se toca para elegir la imagen y refleja en vivo el desenfoque y la legibilidad sobre un reloj de muestra
-- añadir la opcion "usar el fondo de inicio" en notificaciones y ajustes para reutilizar la misma imagen sin volver a elegirla
-- añadir una politica de dependencias sin actualizaciones automaticas: `.github/dependabot.yml` con `open-pull-requests-limit: 0`, `renovate.json` desactivado y el workflow `dependency-policy` que falla las pull requests de bots, de modo que `gradle/libs.versions.toml` solo se actualiza a mano
-- añadir analisis estatico de kotlin con ktlint y detekt, sin linea base en ninguno de los dos: `.editorconfig` en la raiz define el formato para el ide y para ktlint, `config/detekt/detekt.yml` registra solo las desviaciones respecto a los valores por defecto de detekt, y la tarea raiz `staticAnalysis` ejecuta ambos
-- añadir el paso `staticAnalysis` al workflow `android-ci`, antes de las pruebas y la compilacion, porque no necesita compilar y falla en segundos
-- añadir `security.md` en la raiz del repositorio, que es donde github lo busca para activar la pestaña "security" y el formulario de aviso privado: declara la version soportada, los dos canales de reporte, los plazos de respuesta, el alcance dentro y fuera de la politica, y enlaza la documentacion completa de `08-seguridad.md`
-- añadir las plantillas de github que faltaban para que la pestaña de issues y las pull requests tengan una estructura: `.github/ISSUE_TEMPLATE/bug_report.yml` (version, dispositivo, area, reproducibilidad y una casilla que descarta que sea un problema de seguridad), `.github/ISSUE_TEMPLATE/feature_request.yml` (problema antes que solucion, y las restricciones de offline, sin analitica y menos atencion) y `.github/ISSUE_TEMPLATE/config.yml`, que desactiva el issue en blanco y redirige los avisos de seguridad, las dudas de documentacion y el contacto general
-- añadir `.github/pull_request_template.md`, que convierte en formulario el procedimiento ya escrito: el fragmento de changelog en los dos idiomas como descripcion, las ordenes de verificacion (`staticAnalysis` y `testDebugUnitTest`/`lintDebug`/`assembleRelease`), los dispositivos probados y la lista de comprobacion de convenciones
-- añadir `contributing.md` en la raiz del repositorio, que es donde github lo busca para mostrar el boton "contributing" al abrir un issue o una pull request: resume el flujo, el formato de commit, el entorno y las reglas innegociables, y enlaza `12-contribuir.md` como version detallada y vinculante
-- añadir `code_of_conduct.md` en la raiz, adaptado del contributor covenant 2.1 con la seccion de aplicacion reescrita para un proyecto de autor unico, y `.github/CODEOWNERS`, que asigna automaticamente la revision
 - rediseñar la pausa consciente como una sola respiracion guiada: `BreathingOrbView` dibuja un disco que crece al inspirar y se recoge al espirar dentro de un anillo que se llena con el tiempo, con un toque haptico al cambiar de fase y, si la app tiene limite diario, los minutos que quedan hoy
 - abrir la mejor coincidencia al pulsar intro en el buscador de todas las apps, y nombrar la busqueda cuando no hay resultados
 - hacer que el estado vacio de la pantalla de inicio abra directamente el selector de apps
 - añadir una respuesta tactil serena (atenuado y leve escala, `@animator/fp_press_feedback`) a favoritos, filas del cajon, entradas del menu y botones de texto, y tokens de movimiento comunes en `values/motion.xml`
 - añadir un selector de widgets rehecho: agrupado por app con su icono, busqueda difusa, vista previa fiel (el `previewLayout` de android 12+ renderizado en vivo al tamaño real y escalado, o la imagen estatica cuando la del proveedor no se sostiene sola), tamaño en celdas, descripcion, marca "en uso" y estados de carga, vacio y sin resultados
-- añadir opciones del widget al mantenerlo pulsado en inicio, al tocarlo en el editor de disposicion y desde ajustes de inicio: cambiar widget, ajustar altura, ajustes del widget (si el proveedor es reconfigurable) y quitar widget, compartidas en `HomeWidgetActions`
-- añadir el ajuste de altura del widget con un slider que redimensiona el widget en vivo detras del dialogo, con guardar, restablecer al tamaño del proveedor y cancelar
 - añadir un estado "widget no disponible" cuando el proveedor desaparece mientras su app se actualiza, en vez de borrar el widget
 - añadir una biblioteca de 20 widgets propios en `ui/widget/library`, disponibles en el selector de focusphone y en cualquier otro lanzador: reloj, reloj analogico, reloj mundial, hoy, mes, semana, barra de musica, reproductor, mosaico de musica, busqueda, spotlight, favoritas, bateria, almacenamiento, sistema, ajustes rapidos, proxima alarma, perfil de enfoque, intencion y progreso, en formatos redondos, cuadrados, de pastilla y rectangulares de 2 x 1 a 4 x 3
 - pintar los widgets propios con el tema activo del lanzador (`WidgetStyle`, derivado de `FocusPalette` y del tono de superficie de cada tema, incluido el personalizado) y repintarlos al cambiar de tema, de colores, de modo dia/noche o de idioma
@@ -49,23 +36,6 @@
 - añadir `readme.es.md`, la version en castellano del readme con las mismas secciones, enlazada desde un selector de idioma
 
 #### CAMBIADO
-- reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
-- abrir el selector de imagenes directamente cuando elegir es la unica opcion y mostrar "aplicando…" mientras se copia la imagen
-- renombrar la accion "editar aplicaciones" a "editar dashboard" en ingles, español, frances y aleman
-- reestructurar las pantallas de ajustes (apariencia, inicio, enfoque, notificaciones, sistema y acerca de) alrededor de un `settingsSection` comun que gestiona cabeceras y separadores
-- optimizar el rendimiento en tiempo de ejecucion y el proceso de build/ci: lint sin errores en release, dependencias actualizadas, wrapper de gradle versionado y un workflow de ci
-- eliminar codigo muerto y simplificar el proyecto: `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView`, el subsistema de tamaño de icono inalcanzable y metodos publicos sin uso
-- unificar el flujo de desinstalacion tras `LauncherUtils.requestUninstall` y migrar `WidgetPickerActivity` a la activity result api
-- mejorar la accesibilidad, los textos i18n y los plurales en es/fr/de, y aplicar las sugerencias `UseKtx` restantes en la capa de preferencias y ui
-- bajar `agp` a `9.3.0` en `libs.versions.toml` para restaurar la compatibilidad con la version actual de android studio
-- reescribir `readme.md` como presentacion tecnica completa del proyecto, con arquitectura, stack, compilacion, pruebas, seguridad e indice de la documentacion, y corregir la url de clonado, el arbol de fuentes y las versiones obsoletas
-- dejar de ignorar `.github/` para que los workflows de ci y la configuracion de dependabot viajen con el repositorio, que es la unica forma de que surtan efecto
-- documentar la politica de dependencias en `03-entorno-y-compilacion.md`, `11-ci-y-publicacion.md` y `agents.md`, incluyendo el procedimiento manual para subir la version de una biblioteca
-- aplicar el formato de ktlint a las 130 fuentes kotlin del proyecto, incluido `AllAppsActivity.kt`, que estaba indentado a 2 espacios frente a los 4 del resto
-- documentar el analisis estatico en `readme.md`, `agents.md` y la documentacion de desarrolladores (`03`, `10`, `11` y `12`) en castellano e ingles: reglas desactivadas con su motivo, umbrales de complejidad como trinquete y el reparto de trabajo entre android lint, ktlint y detekt
-- renombrar a minusculas los ficheros de la raiz del repositorio (`agents.md`, `claude.md`, `license`, `readme.md` y `security.md`) para que todos sigan la misma convencion que `changelog.md`, `.editorconfig`, `.gitignore` y `renovate.json`, y actualizar los enlaces, los arboles de ficheros y el mapa del proyecto que los citaban
-- dejar de versionar `.docs/`, que se estaba publicando entero por un `.gitignore` cuyo comentario explicaba la exclusion pero no incluia ningun patron: eran unos 860 ficheros y 5 mb de habilidades de agentes ajenas al proyecto, y `agents.md`, `claude.md` y `03-entorno-y-compilacion.md` ya documentaban esa carpeta como ignorada
-- dejar de versionar el estado local de `.idea/` (`gradle.xml`, `misc.xml`, `compiler.xml`, `deviceManager.xml`, `vcs.xml`, `runConfigurations.xml`, `material_theme_project_new.xml` y `AndroidProjectSystem.xml`) y sustituir la lista de exclusiones sueltas por `/.idea/*` con reinclusiones, de modo que solo viajan con el repositorio el estilo de codigo compartido y el nombre del proyecto
 - unificar el lanzamiento de apps en `BaseActivity.openApp` y `BaseActivity.openShortcut` (bloqueo de perfil, horario, pausa consciente y destino de la notificacion), sustituyendo las copias de inicio, todas las apps y el panel de notificaciones; los atajos ahora tambien respetan el bloqueo del perfil
 - abrir las apps desde inicio y todas las apps creciendo desde la fila pulsada y declarar las transiciones de pantalla con `overrideActivityTransition` en android 14+, para que el gesto atras tambien use el fundido de la app
 - sustituir el menu emergente de un favorito por el dialogo de opciones con el nombre de la app, igual que en todas las apps, y separar mantener pulsado (opciones) de arrastrar (reordenar) en `FavouriteReorderCallback`
@@ -75,7 +45,6 @@
 - reescribir los textos del estado vacio, del aviso de mantener pulsado y del paso "añadir apps" del tutorial para que nombren la accion real ("editar dashboard") en los cuatro idiomas
 - rehacer el alojamiento de widgets: `HomeWidgetHostView` (error en los colores del tema, aparicion con fundido y pulsacion larga que no roba toques ni desplazamientos al widget), `WidgetSurface` con modos de inicio y vista previa escalada, y `AppWidgetHostManager` con propiedad de la vista por pantalla para que volver a inicio no reconstruya el widget
 - dar al widget por defecto la altura de las filas que declara el proveedor con celdas de lanzador reales y comunicarle su tamaño en dp con `updateAppWidgetSize`
-- mostrar el nombre del widget actual en ajustes de inicio en lugar de "quitar widget"
 - listar primero los widgets de focusphone en el selector de widgets, antes que los del resto de apps
 - sustituir la columna fija reloj/widget/apps por la rejilla y migrar automaticamente la disposicion anterior (orden, reloj oculto, el widget y su altura) en `HomeGridStore`
 - hacer que el selector de widgets añada el widget a la rejilla en vez de reemplazar el unico widget, muestre su tamaño en celdas de esta rejilla, marque como "en uso" todos los widgets colocados y avise si no hay sitio
@@ -96,26 +65,6 @@
 
 #### CORREGIDO
 - aplicar los bloqueos de horario y limite diario al abrir aplicaciones desde recientes y accesos frecuentes mediante cambios de ventana, y avisar de la necesidad del servicio de accesibilidad para todas las reglas
-- restaurar los gestos de deslizar en la pantalla de inicio (apertura de cajones y despliegue de notificaciones), rotos tras mover el detector de gestos a un listener que no consumia `ACTION_DOWN`
-- dar a el calendario y a ambos cajones laterales un scrim de legibilidad real y resolver sus colores desde `FocusPalette` en vez de `resolveAttribute`
-- aplicar los colores del tema personalizado cuando ya esta activo, en vez de ignorarlos por un cortocircuito en `applyTheme()`
-- preservar la asignacion de carpetas de aplicaciones entre reinicios y arranques con resultados incompletos del package manager
-- confirmar los cambios de carpetas cifrados de forma sincrona y actualizar el estado en memoria solo tras persistir correctamente
-- corregir el reordenado de favoritos para que nunca pueda borrar un favorito, y copiar los fondos de pantalla elegidos a almacenamiento privado para que sobrevivan a reinicios
-- desplegar notificaciones al deslizar hacia abajo usando la accion de accesibilidad oficial `GLOBAL_ACTION_NOTIFICATIONS`
-- mostrar un error en linea al crear o renombrar una carpeta con un nombre duplicado, en vez de cerrar el dialogo silenciosamente
-- respetar el formato de 12/24 horas del sistema en el reloj y corregir el informe de estado del permiso `QUERY_ALL_PACKAGES`
-- corregir `EncryptedPrefs.commitString`, que devolvia `Unit` en vez del `Boolean` prometido tras la limpieza `UseKtx`
-- permitir establecer y ver un fondo con el tema personalizado: `colorizeViewTree` pintaba todos los contenedores de un color opaco que nunca se deshacia y tapaba la imagen; ahora solo repinta los fondos que usaban un color del tema
-- evitar que el texto secundario pasara a primario al repintar la vista mas de una vez, recordando el rol de color de cada vista
-- no dejar todas las pantallas sin fondo al activar "mismo fondo en todas las pantallas": se parte de la imagen de inicio, y al desactivarlo cada pantalla recupera la suya o conserva la compartida
-- aplicar al momento en la propia pantalla de ajustes los cambios de mostrar/ocultar, elegir, quitar, modo compartido, desenfoque y legibilidad, sin recrearla
-- descartar las cargas de fondo obsoletas para que una imagen quitada u oculta no reaparezca al terminar de decodificarse
-- conservar el destino del selector de imagenes al rotar la pantalla o si el sistema cierra la app mientras se elige
-- tintar los interruptores con el tema personalizado, que se trataban como texto y conservaban los colores del tema base
-- nombrar `_` las excepciones que se descartan a proposito en trece `catch` que devolvian un repliegue documentado, para que se distingan de un error perdido (detekt `SwallowedException`)
-- extraer `styleCalendarDay` de `populateCalendar` en `HomeActivity`, que anidaba seis niveles de bloques para pintar un numero del calendario
-- evitar el cierre de la app al cambiar un fondo ya elegido y al abrir cualquier dialogo de material: `FocusPhone.DialogTitleTextStyle` heredaba de un `TextAppearance` sin `layout_width` y el titulo de `m3_alert_dialog` no se podia inflar; ahora los estilos de titulo y cuerpo heredan de `MaterialAlertDialog.Material3.*.Text` y `MaterialAlertDialogThemeTest` lo comprueba para cada tema
 - evitar que deslizar en horizontal sobre un favorito o el reloj para abrir el menu o las notificaciones abriera tambien esa app o la alarma: el gesto se reclama y cancela el toque de las vistas
 - volver siempre a la pagina de inicio al pulsar el boton home, cerrar el cajon abierto con atras en vez de ignorarlo, y no mostrar a la vuelta un cajon a medio cerrar tras abrir ajustes, todas las apps o una notificacion
 - impedir que un arrastre rapido de un favorito hacia abajo desplegara la persiana de notificaciones del sistema
@@ -127,12 +76,10 @@
 - corregir el salto de linea literal del estado vacio en castellano, que android unia en una sola linea
 - volver arriba de la lista de todas las apps tras abrir una app desde una busqueda y limpiarla, y dejar de borrar el primer plano de las filas tras un arrastre a carpeta
 - arreglar que ningun widget cargase en inicio ni en la vista previa de ajustes: el `LayoutInflater` de la activity llevaba la factory de appcompat y `RemoteViews` fallaba al inflar cada `TextView` del proveedor ("can't convert value to dimension"); las vistas se crean ahora con `WidgetHostContext`, que usa un inflater sin factory
-- volver a activar el bloque del widget en la disposicion de inicio al elegir un widget, que quedaba oculto si se habia desactivado antes
 - informar del tamaño del widget en dp y tras el primer layout, en vez de en pixeles y a menudo 0 × 0, y darle una altura explicita en vez de `wrap_content`, que dejaba sin altura a los widgets con raiz `match_parent`
 - abrir la configuracion del widget con `startAppWidgetConfigureActivityForResult`, que funciona con actividades de configuracion no exportadas, y comprobar el enlace con `getAppWidgetInfo` en vez de volver a enlazar, que descartaba el widget al conceder el permiso "solo esta vez"
 - calcular el tamaño en celdas del selector a partir de dp (el sistema da `minWidth`/`minHeight` en pixeles) y respetar `targetCellWidth`/`targetCellHeight`
 - evitar que el recoloreado del tema y el cambio de fuente de `BaseActivity` alteren el contenido de los widgets alojados
-- ajustar las filas de la vista previa de apps del editor de disposicion para que quepan todos los favoritos sin cortar los nombres
 - quitar el padding por defecto que cada fabricante aplica a los widgets (`HomeWidgetHostView`) y encoger el widget cuando su contenido no cabe en su bloque (`WidgetFitFrame`) en vez de recortarlo, para que la rejilla de inicio se vea igual en todos los dispositivos (p. ej. samsung, con celdas mas bajas, zoom o fuente mayor)
 - repartir la barra inferior del modo edicion a lo ancho y encoger sus etiquetas cuando no caben, en vez de partir "listo" letra a letra y estirar la barra en pantallas estrechas o con fuente grande (samsung galaxy a21)
 - volver a dejar de versionar `.docs/` (447 ficheros, incluidos 67 paquetes `agent-skills` de terceros con licencia mit publicados sin su aviso de copyright y analisis internos), que el commit `0839151` habia reintroducido pese a estar en `.gitignore`
@@ -142,39 +89,17 @@
 - ejecutar `android-ci` tambien en los push a `version-beta` y `beta-*`, que con el flujo de ramas actual quedaban sin verificar porque el workflow solo escuchaba `main` y `alfa-*`
 
 #### ELIMINADO
-- `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` y el subsistema de tamaño de icono inalcanzable, junto con `backup_rules.xml` y el `values-night/themes.xml` vacio
-- codigo muerto detectado por detekt: el callback `onDismiss` de `NotificationsAdapter`, que nunca se invocaba porque el deslizamiento llama a `dismissNotification` directamente; la constante `TAG` sin uso de `HomeActivity`; y el parametro `totalSteps` de `TutorialOverlayView.showStep`
 - el menu emergente `menu_app_context.xml` y su entrada "abrir", redundante con tocar la app
-- eliminar `HomeLayoutActivity` y su vista previa, `HomeWidgetActions`, `WidgetHeights` y `WidgetPreferences` (un unico widget con altura en dp), junto con sus layouts, iconos y textos
-
-#### SEGURIDAD
-- unificar el bloqueo de detox y horarios bajo una unica politica de intentos cifrada (5 intentos, 15 min de espera); una contraseña incorrecta ya no finaliza la sesion de detox y la verificacion corre pbkdf2 fuera del hilo principal
-- hacer que el almacenamiento seguro reporte resultados tipados (ausente/presente/no disponible/perdido) en vez de fallar en silencio, y dejar de regenerar la clave de keystore sobre un alias existente
-- aplicar `data_extraction_rules.xml` para excluir todos los dominios de la transferencia de dispositivo en android 12+, ya que `allowBackup=false` no la cubre
+- `HomeLayoutActivity` y su vista previa y `WidgetPreferences` (un unico widget con altura en dp), sustituidos por la cuadricula de inicio y su modo edicion, junto con sus layouts, iconos y textos
 
 ### ENGLISH
 
 #### ADDED
-- add `FocusColors`, `FocusPalette` and `SurfaceScrim` as the single source of runtime theme colour, replacing attribute resolutions that returned a resource id instead of a colour
-- add `ensureContrast` to guarantee wcag contrast for the custom theme when the user picks a hard-to-read background/foreground pair
-- add an adaptive legibility scrim over the wallpaper, with a new "text legibility" slider in settings, for every theme
-- add a tappable wallpaper preview in settings that picks the image and follows blur and legibility live over a sample clock
-- add a "use the home wallpaper" option for notifications and settings to reuse the same image without picking it again
-- add a dependency policy with no automated updates: `.github/dependabot.yml` with `open-pull-requests-limit: 0`, `renovate.json` disabled and a `dependency-policy` workflow that fails bot pull requests, so `gradle/libs.versions.toml` is only ever updated by hand
-- add kotlin static analysis with ktlint and detekt, neither with a baseline: `.editorconfig` at the repository root defines the format for both the ide and ktlint, `config/detekt/detekt.yml` records only the deviations from detekt's defaults, and the root `staticAnalysis` task runs both
-- add a `staticAnalysis` step to the `android-ci` workflow, ahead of the tests and the build, because it needs no compilation and fails in seconds
-- add `security.md` at the repository root, where github looks for it to enable the "security" tab and the private advisory form: it states the supported version, the two reporting channels, the response targets, what is in and out of scope, and links the full `08-security.md` documentation
-- add the missing github templates, so the issues tab and pull requests have a structure: `.github/ISSUE_TEMPLATE/bug_report.yml` (version, device, area, reproducibility and a checkbox ruling out a security problem), `.github/ISSUE_TEMPLATE/feature_request.yml` (problem before solution, and the offline, no-analytics, less-attention constraints) and `.github/ISSUE_TEMPLATE/config.yml`, which disables the blank issue and routes security reports, documentation questions and general contact
-- add `.github/pull_request_template.md`, turning the already written procedure into a form: the bilingual changelog fragment as the description, the verification commands (`staticAnalysis` and `testDebugUnitTest`/`lintDebug`/`assembleRelease`), the devices tested and the conventions checklist
-- add `contributing.md` at the repository root, where github looks for it to show the "contributing" button when opening an issue or a pull request: it summarises the workflow, the commit format, the setup and the non-negotiable rules, and links `12-contributing.md` as the detailed, binding version
-- add `code_of_conduct.md` at the root, adapted from contributor covenant 2.1 with the enforcement section rewritten for a single-author project, and `.github/CODEOWNERS`, which assigns review automatically
 - redesign the conscious pause as a single guided breath: `BreathingOrbView` draws a disc that swells on the inhale and settles on the exhale inside a ring that fills over time, with a haptic tick when the breath turns and, for apps with a daily limit, the minutes left today
 - open the best match when enter is pressed in the all-apps search, and name the query when nothing matches
 - make the empty home-screen state open the app picker directly
 - add calm touch feedback (dim and slight scale, `@animator/fp_press_feedback`) to favourites, drawer rows, menu entries and text buttons, and shared motion tokens in `values/motion.xml`
 - add a rebuilt widget picker: grouped by app with its icon, fuzzy search, faithful previews (android 12+ `previewLayout` rendered live at real size and scaled, or the static image when the provider's layout does not stand on its own), cell size, description, an "in use" tag and loading, empty and no-results states
-- add widget options on long press on home, on tap in the layout editor and from home settings: change widget, adjust height, widget settings (when the provider is reconfigurable) and remove widget, shared through `HomeWidgetActions`
-- add widget height adjustment with a slider that resizes the widget live behind the dialog, with save, reset to the provider's size and cancel
 - add a "widget unavailable" state when the provider disappears while its app updates, instead of deleting the widget
 - add a library of 20 built-in widgets in `ui/widget/library`, offered in focusphone's picker and in any other launcher: clock, analog clock, world clock, today, month, week, music bar, music player, music tile, search, spotlight, favourites, battery, storage, system, quick settings, next alarm, focus profile, intention and progress, in round, square, pill and rectangular formats from 2 x 1 to 4 x 3
 - paint the built-in widgets with the launcher's active theme (`WidgetStyle`, derived from `FocusPalette` and each theme's surface tone, the custom theme included) and repaint them when the theme, its colours, day/night mode or the language change
@@ -199,23 +124,6 @@
 - add `readme.es.md`, the spanish readme with the same sections, linked from a language selector
 
 #### CHANGED
-- reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone
-- open the image picker straight away when choosing is the only option, and show "applying…" while the image is copied
-- rename the "edit applications" action to "edit dashboard" across english, spanish, french and german
-- restructure the settings screens (appearance, home, focus, notifications, system and about) around a shared `settingsSection` helper that owns headers and separators
-- optimize runtime performance and the build/ci pipeline: lint runs clean on release builds, dependencies updated, gradle wrapper jar versioned and a ci workflow added
-- remove dead code and simplify the project: `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView`, the unreachable icon-size-slider subsystem and unused public methods
-- unify the uninstall flow behind `LauncherUtils.requestUninstall` and move `WidgetPickerActivity` to the activity result api
-- improve accessibility, i18n text and plurals across es/fr/de, and apply the remaining `UseKtx` suggestions across the preferences layer and ui
-- downgrade `agp` to `9.3.0` in `libs.versions.toml` to restore build compatibility with the current android studio release
-- rewrite `readme.md` as a complete technical presentation of the project, with architecture, stack, build, testing, security and a documentation index, fixing the wrong clone url, the stale source tree and the outdated versions
-- stop ignoring `.github/` so the ci workflows and the dependabot configuration ship with the repository, the only way for them to take effect
-- document the dependency policy in `03-environment-and-build.md`, `11-ci-and-release.md` and `agents.md`, including the manual procedure for bumping a library version
-- apply ktlint's formatting to all 130 kotlin sources, including `AllAppsActivity.kt`, which was indented with 2 spaces against the project's 4
-- document static analysis in `readme.md`, `agents.md` and the developer documentation (`03`, `10`, `11` and `12`) in both spanish and english: every disabled rule with its reason, the complexity thresholds as a ratchet, and how the work is split between android lint, ktlint and detekt
-- rename the repository root files to lowercase (`agents.md`, `claude.md`, `license`, `readme.md` and `security.md`) so they all follow the same convention as `changelog.md`, `.editorconfig`, `.gitignore` and `renovate.json`, updating every link, file tree and project map that referenced them
-- stop versioning `.docs/`, which was being published in full because its `.gitignore` block carried the comment explaining the exclusion but no pattern: around 860 files and 5 mb of agent skills unrelated to the project, in a folder `agents.md`, `claude.md` and `03-environment-and-build.md` already documented as ignored
-- stop versioning local `.idea/` state (`gradle.xml`, `misc.xml`, `compiler.xml`, `deviceManager.xml`, `vcs.xml`, `runConfigurations.xml`, `material_theme_project_new.xml` and `AndroidProjectSystem.xml`), replacing the list of individual exclusions with `/.idea/*` plus re-inclusions, so only the shared code style and the project name travel with the repository
 - unify app launching in `BaseActivity.openApp` and `BaseActivity.openShortcut` (profile block, schedule, conscious pause and notification target), replacing the copies in home, all apps and the notification panel; shortcuts now also respect the profile block
 - open apps from home and all apps growing out of the tapped row, and declare screen transitions with `overrideActivityTransition` on android 14+ so the back gesture also uses the app fade
 - replace a favourite's popup menu with the options dialog titled with the app name, as in all apps, and tell hold (options) from drag (reorder) in `FavouriteReorderCallback`
@@ -225,7 +133,6 @@
 - rewrite the empty state, the hold hint and the "add apps" tutorial step so they name the real action ("edit dashboard") in all four languages
 - rework widget hosting: `HomeWidgetHostView` (error in theme colours, fade-in and a long press that never steals taps or scrolls from the widget), `WidgetSurface` with home and scaled preview modes, and `AppWidgetHostManager` with per-screen view ownership so returning home no longer rebuilds the widget
 - give the widget its provider's declared rows at real launcher cell size by default and report its size in dp through `updateAppWidgetSize`
-- show the current widget's name in home settings instead of "remove widget"
 - list focusphone's own widgets first in the widget picker, before every other app's
 - replace the fixed clock/widget/apps column with the grid and migrate the previous layout automatically (order, hidden clock, the widget and its height) in `HomeGridStore`
 - make the widget picker add the widget to the grid instead of replacing the single widget, show its size in cells of this grid, mark every placed widget as "in use" and say when there is no room
@@ -246,6 +153,139 @@
 
 #### FIXED
 - enforce time windows and daily limits when apps open from recents and suggested shortcuts through window change events, and show the accessibility warning for every schedule rule
+- stop a horizontal swipe over a favourite or the clock, meant to open the menu or notifications, from also opening that app or the alarm: the gesture is claimed and the views' touch is cancelled
+- always return to the home page on the home button, close an open drawer with back instead of ignoring it, and no longer show a half-closed drawer after coming back from settings, all apps or a notification
+- stop a fast downward drag of a favourite from pulling down the system notification shade
+- stop rebuilding the home layout and rebinding rows on every return to the screen, and stop allocating three drawables per frame while drawers slide
+- track the home profile and detox dialogs so they close with the screen and on the home button instead of leaking their window
+- show the hold hint only once there are favourites and the tutorial is done, instead of over its first step on an empty screen
+- block touches under the tutorial and actually animate its pulse, which was computed without being redrawn
+- honour the 12-hour format in the stacked clock, which always showed 24-hour time
+- fix the literal line break in the spanish empty state, which android collapsed into a single line
+- scroll the all-apps list back to the top after opening an app from a search and clearing it, and stop wiping row foregrounds after a folder drag
+- fix no widget ever loading on home or in the settings preview: the activity's `LayoutInflater` carried appcompat's factory and `RemoteViews` failed to inflate every provider `TextView` ("can't convert value to dimension"); views are now created with `WidgetHostContext`, which uses a factory-free inflater
+- report the widget size in dp and after the first layout, instead of in pixels and often 0 × 0, and give it an explicit height instead of `wrap_content`, which left widgets with a `match_parent` root without height
+- open widget configuration with `startAppWidgetConfigureActivityForResult`, which works with non-exported configuration activities, and verify the bind with `getAppWidgetInfo` instead of binding again, which discarded the widget when permission was granted "only this time"
+- compute the picker's cell size from dp (the system gives `minWidth`/`minHeight` in pixels) and honour `targetCellWidth`/`targetCellHeight`
+- keep `BaseActivity` theme recolouring and font swapping from altering hosted widget content
+- drop the default padding each manufacturer applies to widgets (`HomeWidgetHostView`) and shrink a widget whose content does not fit its block (`WidgetFitFrame`) instead of cropping it, so the home grid looks the same on every device (e.g. samsung, with shorter cells, display zoom or a larger font)
+- share the edit mode bottom bar's width equally and shrink its labels when they do not fit, instead of breaking "done" one letter per line and stretching the bar on narrow screens or with a large font (samsung galaxy a21)
+- stop versioning `.docs/` again (447 files, including 67 third-party mit-licensed `agent-skills` packages published without their copyright notice and internal analyses), which commit `0839151` had brought back despite being in `.gitignore`
+- stop versioning `focusphone-project/.vscode/settings.json`, which was ignored but still tracked with a machine-specific jdk path
+- fix the in-app privacy policy (`assets/privacy_policy.html`), which said passwords were stored with sha-256, only mentioned `QUERY_ALL_PACKAGES` and pointed to a google play listing that does not exist; it is now bilingual and matches `privacy.md`
+- complete the in-app licenses screen (`assets/open_source_licenses.html`) with the typefaces and their ofl-1.1 text, the mit notice of the feather-derived icons, the kotlin standard library and the full apache-2.0 text, and drop the test libraries that are not shipped in the apk
+- also run `android-ci` on pushes to `version-beta` and `beta-*`, which the current branch flow left unverified because the workflow only listened to `main` and `alfa-*`
+
+#### REMOVED
+- the `menu_app_context.xml` popup menu and its "open" entry, redundant with tapping the app
+- `HomeLayoutActivity` and its preview and `WidgetPreferences` (a single widget with a height in dp), replaced by the home grid and its edit mode, along with their layouts, icons and strings
+
+## [1.0.0] - 2026-09-15
+
+### CASTELLANO
+
+#### ANADIDO
+- añadir `FocusColors`, `FocusPalette` y `SurfaceScrim` como fuente unica de color en tiempo de ejecucion del tema, sustituyendo las resoluciones de atributo que devolvian un id de recurso en vez de un color
+- añadir `ensureContrast` para garantizar contraste wcag en el tema personalizado cuando el usuario elige un fondo y un primer plano poco legibles
+- añadir un scrim de legibilidad adaptativo sobre el fondo de pantalla, con un nuevo slider "legibilidad de texto" en ajustes, para todos los temas
+- añadir una vista previa del fondo en ajustes que se toca para elegir la imagen y refleja en vivo el desenfoque y la legibilidad sobre un reloj de muestra
+- añadir la opcion "usar el fondo de inicio" en notificaciones y ajustes para reutilizar la misma imagen sin volver a elegirla
+- añadir una politica de dependencias sin actualizaciones automaticas: `.github/dependabot.yml` con `open-pull-requests-limit: 0`, `renovate.json` desactivado y el workflow `dependency-policy` que falla las pull requests de bots, de modo que `gradle/libs.versions.toml` solo se actualiza a mano
+- añadir analisis estatico de kotlin con ktlint y detekt, sin linea base en ninguno de los dos: `.editorconfig` en la raiz define el formato para el ide y para ktlint, `config/detekt/detekt.yml` registra solo las desviaciones respecto a los valores por defecto de detekt, y la tarea raiz `staticAnalysis` ejecuta ambos
+- añadir el paso `staticAnalysis` al workflow `android-ci`, antes de las pruebas y la compilacion, porque no necesita compilar y falla en segundos
+- añadir `security.md` en la raiz del repositorio, que es donde github lo busca para activar la pestaña "security" y el formulario de aviso privado: declara la version soportada, los dos canales de reporte, los plazos de respuesta, el alcance dentro y fuera de la politica, y enlaza la documentacion completa de `08-seguridad.md`
+- añadir las plantillas de github que faltaban para que la pestaña de issues y las pull requests tengan una estructura: `.github/ISSUE_TEMPLATE/bug_report.yml` (version, dispositivo, area, reproducibilidad y una casilla que descarta que sea un problema de seguridad), `.github/ISSUE_TEMPLATE/feature_request.yml` (problema antes que solucion, y las restricciones de offline, sin analitica y menos atencion) y `.github/ISSUE_TEMPLATE/config.yml`, que desactiva el issue en blanco y redirige los avisos de seguridad, las dudas de documentacion y el contacto general
+- añadir `.github/pull_request_template.md`, que convierte en formulario el procedimiento ya escrito: el fragmento de changelog en los dos idiomas como descripcion, las ordenes de verificacion (`staticAnalysis` y `testDebugUnitTest`/`lintDebug`/`assembleRelease`), los dispositivos probados y la lista de comprobacion de convenciones
+- añadir `contributing.md` en la raiz del repositorio, que es donde github lo busca para mostrar el boton "contributing" al abrir un issue o una pull request: resume el flujo, el formato de commit, el entorno y las reglas innegociables, y enlaza `12-contribuir.md` como version detallada y vinculante
+- añadir `code_of_conduct.md` en la raiz, adaptado del contributor covenant 2.1 con la seccion de aplicacion reescrita para un proyecto de autor unico, y `.github/CODEOWNERS`, que asigna automaticamente la revision
+
+#### CAMBIADO
+- reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
+- abrir el selector de imagenes directamente cuando elegir es la unica opcion y mostrar "aplicando…" mientras se copia la imagen
+- renombrar la accion "editar aplicaciones" a "editar dashboard" en ingles, español, frances y aleman
+- reestructurar las pantallas de ajustes (apariencia, inicio, enfoque, notificaciones, sistema y acerca de) alrededor de un `settingsSection` comun que gestiona cabeceras y separadores
+- optimizar el rendimiento en tiempo de ejecucion y el proceso de build/ci: lint sin errores en release, dependencias actualizadas, wrapper de gradle versionado y un workflow de ci
+- eliminar codigo muerto y simplificar el proyecto: `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView`, el subsistema de tamaño de icono inalcanzable y metodos publicos sin uso
+- unificar el flujo de desinstalacion tras `LauncherUtils.requestUninstall` y migrar `WidgetPickerActivity` a la activity result api
+- mejorar la accesibilidad, los textos i18n y los plurales en es/fr/de, y aplicar las sugerencias `UseKtx` restantes en la capa de preferencias y ui
+- bajar `agp` a `9.3.0` en `libs.versions.toml` para restaurar la compatibilidad con la version actual de android studio
+- reescribir `readme.md` como presentacion tecnica completa del proyecto, con arquitectura, stack, compilacion, pruebas, seguridad e indice de la documentacion, y corregir la url de clonado, el arbol de fuentes y las versiones obsoletas
+- dejar de ignorar `.github/` para que los workflows de ci y la configuracion de dependabot viajen con el repositorio, que es la unica forma de que surtan efecto
+- documentar la politica de dependencias en `03-entorno-y-compilacion.md`, `11-ci-y-publicacion.md` y `agents.md`, incluyendo el procedimiento manual para subir la version de una biblioteca
+- aplicar el formato de ktlint a las 130 fuentes kotlin del proyecto, incluido `AllAppsActivity.kt`, que estaba indentado a 2 espacios frente a los 4 del resto
+- documentar el analisis estatico en `readme.md`, `agents.md` y la documentacion de desarrolladores (`03`, `10`, `11` y `12`) en castellano e ingles: reglas desactivadas con su motivo, umbrales de complejidad como trinquete y el reparto de trabajo entre android lint, ktlint y detekt
+- renombrar a minusculas los ficheros de la raiz del repositorio (`agents.md`, `claude.md`, `license`, `readme.md` y `security.md`) para que todos sigan la misma convencion que `changelog.md`, `.editorconfig`, `.gitignore` y `renovate.json`, y actualizar los enlaces, los arboles de ficheros y el mapa del proyecto que los citaban
+- dejar de versionar `.docs/`, que se estaba publicando entero por un `.gitignore` cuyo comentario explicaba la exclusion pero no incluia ningun patron: eran unos 860 ficheros y 5 mb de habilidades de agentes ajenas al proyecto, y `agents.md`, `claude.md` y `03-entorno-y-compilacion.md` ya documentaban esa carpeta como ignorada
+- dejar de versionar el estado local de `.idea/` (`gradle.xml`, `misc.xml`, `compiler.xml`, `deviceManager.xml`, `vcs.xml`, `runConfigurations.xml`, `material_theme_project_new.xml` y `AndroidProjectSystem.xml`) y sustituir la lista de exclusiones sueltas por `/.idea/*` con reinclusiones, de modo que solo viajan con el repositorio el estilo de codigo compartido y el nombre del proyecto
+
+#### CORREGIDO
+- restaurar los gestos de deslizar en la pantalla de inicio (apertura de cajones y despliegue de notificaciones), rotos tras mover el detector de gestos a un listener que no consumia `ACTION_DOWN`
+- dar a el calendario y a ambos cajones laterales un scrim de legibilidad real y resolver sus colores desde `FocusPalette` en vez de `resolveAttribute`
+- aplicar los colores del tema personalizado cuando ya esta activo, en vez de ignorarlos por un cortocircuito en `applyTheme()`
+- preservar la asignacion de carpetas de aplicaciones entre reinicios y arranques con resultados incompletos del package manager
+- confirmar los cambios de carpetas cifrados de forma sincrona y actualizar el estado en memoria solo tras persistir correctamente
+- corregir el reordenado de favoritos para que nunca pueda borrar un favorito, y copiar los fondos de pantalla elegidos a almacenamiento privado para que sobrevivan a reinicios
+- desplegar notificaciones al deslizar hacia abajo usando la accion de accesibilidad oficial `GLOBAL_ACTION_NOTIFICATIONS`
+- mostrar un error en linea al crear o renombrar una carpeta con un nombre duplicado, en vez de cerrar el dialogo silenciosamente
+- respetar el formato de 12/24 horas del sistema en el reloj y corregir el informe de estado del permiso `QUERY_ALL_PACKAGES`
+- corregir `EncryptedPrefs.commitString`, que devolvia `Unit` en vez del `Boolean` prometido tras la limpieza `UseKtx`
+- permitir establecer y ver un fondo con el tema personalizado: `colorizeViewTree` pintaba todos los contenedores de un color opaco que nunca se deshacia y tapaba la imagen; ahora solo repinta los fondos que usaban un color del tema
+- evitar que el texto secundario pasara a primario al repintar la vista mas de una vez, recordando el rol de color de cada vista
+- no dejar todas las pantallas sin fondo al activar "mismo fondo en todas las pantallas": se parte de la imagen de inicio, y al desactivarlo cada pantalla recupera la suya o conserva la compartida
+- aplicar al momento en la propia pantalla de ajustes los cambios de mostrar/ocultar, elegir, quitar, modo compartido, desenfoque y legibilidad, sin recrearla
+- descartar las cargas de fondo obsoletas para que una imagen quitada u oculta no reaparezca al terminar de decodificarse
+- conservar el destino del selector de imagenes al rotar la pantalla o si el sistema cierra la app mientras se elige
+- tintar los interruptores con el tema personalizado, que se trataban como texto y conservaban los colores del tema base
+- nombrar `_` las excepciones que se descartan a proposito en trece `catch` que devolvian un repliegue documentado, para que se distingan de un error perdido (detekt `SwallowedException`)
+- extraer `styleCalendarDay` de `populateCalendar` en `HomeActivity`, que anidaba seis niveles de bloques para pintar un numero del calendario
+- evitar el cierre de la app al cambiar un fondo ya elegido y al abrir cualquier dialogo de material: `FocusPhone.DialogTitleTextStyle` heredaba de un `TextAppearance` sin `layout_width` y el titulo de `m3_alert_dialog` no se podia inflar; ahora los estilos de titulo y cuerpo heredan de `MaterialAlertDialog.Material3.*.Text` y `MaterialAlertDialogThemeTest` lo comprueba para cada tema
+
+#### ELIMINADO
+- `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` y el subsistema de tamaño de icono inalcanzable, junto con `backup_rules.xml` y el `values-night/themes.xml` vacio
+- codigo muerto detectado por detekt: el callback `onDismiss` de `NotificationsAdapter`, que nunca se invocaba porque el deslizamiento llama a `dismissNotification` directamente; la constante `TAG` sin uso de `HomeActivity`; y el parametro `totalSteps` de `TutorialOverlayView.showStep`
+
+#### SEGURIDAD
+- unificar el bloqueo de detox y horarios bajo una unica politica de intentos cifrada (5 intentos, 15 min de espera); una contraseña incorrecta ya no finaliza la sesion de detox y la verificacion corre pbkdf2 fuera del hilo principal
+- hacer que el almacenamiento seguro reporte resultados tipados (ausente/presente/no disponible/perdido) en vez de fallar en silencio, y dejar de regenerar la clave de keystore sobre un alias existente
+- aplicar `data_extraction_rules.xml` para excluir todos los dominios de la transferencia de dispositivo en android 12+, ya que `allowBackup=false` no la cubre
+
+### ENGLISH
+
+#### ADDED
+- add `FocusColors`, `FocusPalette` and `SurfaceScrim` as the single source of runtime theme colour, replacing attribute resolutions that returned a resource id instead of a colour
+- add `ensureContrast` to guarantee wcag contrast for the custom theme when the user picks a hard-to-read background/foreground pair
+- add an adaptive legibility scrim over the wallpaper, with a new "text legibility" slider in settings, for every theme
+- add a tappable wallpaper preview in settings that picks the image and follows blur and legibility live over a sample clock
+- add a "use the home wallpaper" option for notifications and settings to reuse the same image without picking it again
+- add a dependency policy with no automated updates: `.github/dependabot.yml` with `open-pull-requests-limit: 0`, `renovate.json` disabled and a `dependency-policy` workflow that fails bot pull requests, so `gradle/libs.versions.toml` is only ever updated by hand
+- add kotlin static analysis with ktlint and detekt, neither with a baseline: `.editorconfig` at the repository root defines the format for both the ide and ktlint, `config/detekt/detekt.yml` records only the deviations from detekt's defaults, and the root `staticAnalysis` task runs both
+- add a `staticAnalysis` step to the `android-ci` workflow, ahead of the tests and the build, because it needs no compilation and fails in seconds
+- add `security.md` at the repository root, where github looks for it to enable the "security" tab and the private advisory form: it states the supported version, the two reporting channels, the response targets, what is in and out of scope, and links the full `08-security.md` documentation
+- add the missing github templates, so the issues tab and pull requests have a structure: `.github/ISSUE_TEMPLATE/bug_report.yml` (version, device, area, reproducibility and a checkbox ruling out a security problem), `.github/ISSUE_TEMPLATE/feature_request.yml` (problem before solution, and the offline, no-analytics, less-attention constraints) and `.github/ISSUE_TEMPLATE/config.yml`, which disables the blank issue and routes security reports, documentation questions and general contact
+- add `.github/pull_request_template.md`, turning the already written procedure into a form: the bilingual changelog fragment as the description, the verification commands (`staticAnalysis` and `testDebugUnitTest`/`lintDebug`/`assembleRelease`), the devices tested and the conventions checklist
+- add `contributing.md` at the repository root, where github looks for it to show the "contributing" button when opening an issue or a pull request: it summarises the workflow, the commit format, the setup and the non-negotiable rules, and links `12-contributing.md` as the detailed, binding version
+- add `code_of_conduct.md` at the root, adapted from contributor covenant 2.1 with the enforcement section rewritten for a single-author project, and `.github/CODEOWNERS`, which assigns review automatically
+
+#### CHANGED
+- reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone
+- open the image picker straight away when choosing is the only option, and show "applying…" while the image is copied
+- rename the "edit applications" action to "edit dashboard" across english, spanish, french and german
+- restructure the settings screens (appearance, home, focus, notifications, system and about) around a shared `settingsSection` helper that owns headers and separators
+- optimize runtime performance and the build/ci pipeline: lint runs clean on release builds, dependencies updated, gradle wrapper jar versioned and a ci workflow added
+- remove dead code and simplify the project: `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView`, the unreachable icon-size-slider subsystem and unused public methods
+- unify the uninstall flow behind `LauncherUtils.requestUninstall` and move `WidgetPickerActivity` to the activity result api
+- improve accessibility, i18n text and plurals across es/fr/de, and apply the remaining `UseKtx` suggestions across the preferences layer and ui
+- downgrade `agp` to `9.3.0` in `libs.versions.toml` to restore build compatibility with the current android studio release
+- rewrite `readme.md` as a complete technical presentation of the project, with architecture, stack, build, testing, security and a documentation index, fixing the wrong clone url, the stale source tree and the outdated versions
+- stop ignoring `.github/` so the ci workflows and the dependabot configuration ship with the repository, the only way for them to take effect
+- document the dependency policy in `03-environment-and-build.md`, `11-ci-and-release.md` and `agents.md`, including the manual procedure for bumping a library version
+- apply ktlint's formatting to all 130 kotlin sources, including `AllAppsActivity.kt`, which was indented with 2 spaces against the project's 4
+- document static analysis in `readme.md`, `agents.md` and the developer documentation (`03`, `10`, `11` and `12`) in both spanish and english: every disabled rule with its reason, the complexity thresholds as a ratchet, and how the work is split between android lint, ktlint and detekt
+- rename the repository root files to lowercase (`agents.md`, `claude.md`, `license`, `readme.md` and `security.md`) so they all follow the same convention as `changelog.md`, `.editorconfig`, `.gitignore` and `renovate.json`, updating every link, file tree and project map that referenced them
+- stop versioning `.docs/`, which was being published in full because its `.gitignore` block carried the comment explaining the exclusion but no pattern: around 860 files and 5 mb of agent skills unrelated to the project, in a folder `agents.md`, `claude.md` and `03-environment-and-build.md` already documented as ignored
+- stop versioning local `.idea/` state (`gradle.xml`, `misc.xml`, `compiler.xml`, `deviceManager.xml`, `vcs.xml`, `runConfigurations.xml`, `material_theme_project_new.xml` and `AndroidProjectSystem.xml`), replacing the list of individual exclusions with `/.idea/*` plus re-inclusions, so only the shared code style and the project name travel with the repository
+
+#### FIXED
 - restore home screen swipe gestures (drawers and notification expansion), broken after the gesture detector moved to a touch listener that never consumed `ACTION_DOWN`
 - give the calendar and both side drawers a real legibility scrim and resolve their colours through `FocusPalette` instead of `resolveAttribute`
 - apply custom theme colours when the custom theme is already active, instead of ignoring them due to a short-circuit in `applyTheme()`
@@ -266,36 +306,10 @@
 - name `_` the exceptions that are dropped on purpose in thirteen `catch` blocks that returned a documented fallback, so they read differently from a lost error (detekt `SwallowedException`)
 - extract `styleCalendarDay` out of `HomeActivity.populateCalendar`, which nested six levels of blocks to paint a single calendar number
 - stop the app crashing when changing an already chosen wallpaper and when opening any material dialog: `FocusPhone.DialogTitleTextStyle` inherited from a `TextAppearance` with no `layout_width`, so the `m3_alert_dialog` title could not be inflated; the title and body styles now inherit from `MaterialAlertDialog.Material3.*.Text` and `MaterialAlertDialogThemeTest` checks it for every theme
-- stop a horizontal swipe over a favourite or the clock, meant to open the menu or notifications, from also opening that app or the alarm: the gesture is claimed and the views' touch is cancelled
-- always return to the home page on the home button, close an open drawer with back instead of ignoring it, and no longer show a half-closed drawer after coming back from settings, all apps or a notification
-- stop a fast downward drag of a favourite from pulling down the system notification shade
-- stop rebuilding the home layout and rebinding rows on every return to the screen, and stop allocating three drawables per frame while drawers slide
-- track the home profile and detox dialogs so they close with the screen and on the home button instead of leaking their window
-- show the hold hint only once there are favourites and the tutorial is done, instead of over its first step on an empty screen
-- block touches under the tutorial and actually animate its pulse, which was computed without being redrawn
-- honour the 12-hour format in the stacked clock, which always showed 24-hour time
-- fix the literal line break in the spanish empty state, which android collapsed into a single line
-- scroll the all-apps list back to the top after opening an app from a search and clearing it, and stop wiping row foregrounds after a folder drag
-- fix no widget ever loading on home or in the settings preview: the activity's `LayoutInflater` carried appcompat's factory and `RemoteViews` failed to inflate every provider `TextView` ("can't convert value to dimension"); views are now created with `WidgetHostContext`, which uses a factory-free inflater
-- switch the home layout's widget block back on when a widget is chosen, as it stayed hidden if it had been turned off before
-- report the widget size in dp and after the first layout, instead of in pixels and often 0 × 0, and give it an explicit height instead of `wrap_content`, which left widgets with a `match_parent` root without height
-- open widget configuration with `startAppWidgetConfigureActivityForResult`, which works with non-exported configuration activities, and verify the bind with `getAppWidgetInfo` instead of binding again, which discarded the widget when permission was granted "only this time"
-- compute the picker's cell size from dp (the system gives `minWidth`/`minHeight` in pixels) and honour `targetCellWidth`/`targetCellHeight`
-- keep `BaseActivity` theme recolouring and font swapping from altering hosted widget content
-- fit the layout editor's apps preview rows so every favourite shows without cut-off names
-- drop the default padding each manufacturer applies to widgets (`HomeWidgetHostView`) and shrink a widget whose content does not fit its block (`WidgetFitFrame`) instead of cropping it, so the home grid looks the same on every device (e.g. samsung, with shorter cells, display zoom or a larger font)
-- share the edit mode bottom bar's width equally and shrink its labels when they do not fit, instead of breaking "done" one letter per line and stretching the bar on narrow screens or with a large font (samsung galaxy a21)
-- stop versioning `.docs/` again (447 files, including 67 third-party mit-licensed `agent-skills` packages published without their copyright notice and internal analyses), which commit `0839151` had brought back despite being in `.gitignore`
-- stop versioning `focusphone-project/.vscode/settings.json`, which was ignored but still tracked with a machine-specific jdk path
-- fix the in-app privacy policy (`assets/privacy_policy.html`), which said passwords were stored with sha-256, only mentioned `QUERY_ALL_PACKAGES` and pointed to a google play listing that does not exist; it is now bilingual and matches `privacy.md`
-- complete the in-app licenses screen (`assets/open_source_licenses.html`) with the typefaces and their ofl-1.1 text, the mit notice of the feather-derived icons, the kotlin standard library and the full apache-2.0 text, and drop the test libraries that are not shipped in the apk
-- also run `android-ci` on pushes to `version-beta` and `beta-*`, which the current branch flow left unverified because the workflow only listened to `main` and `alfa-*`
 
 #### REMOVED
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` and the unreachable icon-size-slider subsystem, along with `backup_rules.xml` and the empty `values-night/themes.xml`
 - dead code found by detekt: the `onDismiss` callback of `NotificationsAdapter`, never invoked because the swipe handler calls `dismissNotification` directly; the unused `TAG` constant in `HomeActivity`; and the `totalSteps` parameter of `TutorialOverlayView.showStep`
-- the `menu_app_context.xml` popup menu and its "open" entry, redundant with tapping the app
-- remove `HomeLayoutActivity` and its preview, `HomeWidgetActions`, `WidgetHeights` and `WidgetPreferences` (a single widget with a height in dp), along with their layouts, icons and strings
 
 #### SECURITY
 - unify detox and schedule locks under one encrypted attempt policy (5 attempts, 15 min cooldown); a wrong password no longer ends a detox session, and verification now runs pbkdf2 off the main thread
