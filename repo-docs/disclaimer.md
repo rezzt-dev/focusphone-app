@@ -2,7 +2,7 @@
 
 # DISCLAIMER: PURPOSE AND NAMES
 
-<sub>english · <a href="./disclaimer.es.md">castellano</a> · <a href="./readme.md">readme</a> · <a href="./license">license</a> · <a href="./privacy.md">privacy</a></sub>
+<sub>english · <a href="./disclaimer.es.md">castellano</a> · <a href="../readme.md">readme</a> · <a href="../license">license</a> · <a href="./privacy.md">privacy</a></sub>
 
 </div>
 
@@ -12,7 +12,7 @@
 
 this page explains what focusphone is for and what it is not, and how the names
 "focusphone" and "rezzt-dev" may be used. it summarises points already binding in the
-[`license`](./license) (clauses 3.d, 5 and 6); if anything here differs from the license,
+[`license`](../license) (clauses 3.d, 5 and 6); if anything here differs from the license,
 the license prevails.
 
 ---
@@ -40,7 +40,7 @@ device management tool, as a way to restrict someone else's phone, or as a guara
 an app cannot be opened. it is not a medical device and does not diagnose or treat any
 condition; if your phone use worries you, consider talking to a professional.
 
-focusphone is **beta software** (see [`readme.md`](./readme.md#project-status)). it stores
+focusphone is **beta software** (see [`readme.md`](../readme.md#project-status)). it stores
 everything on the device and excludes itself from backups and device-to-device transfer
 ([`privacy.md`](./privacy.md)), so uninstalling it, clearing its data or changing phones
 loses its configuration.
@@ -50,7 +50,7 @@ loses its configuration.
 ## NAMES AND MARKS
 
 - "focusphone" and "rezzt-dev" are names the author uses to identify this project. the
-  [`license`](./license), clause 3.d, does not allow using them, the author's name or any
+  [`license`](../license), clause 3.d, does not allow using them, the author's name or any
   associated sign to promote a derivative product or service, or to suggest an endorsement
   or affiliation, without written permission. this page does not state that either name
   is a registered trademark.

@@ -106,7 +106,7 @@ aplicacion puede acceder.
 > favoritas, tu intencion o la cancion que suena). focusphone no le envia nada mas.
 >
 > la politica de privacidad formal, con tus derechos y la direccion de contacto, es
-> [`privacy.es.md`](../../../privacy.es.md).
+> [`privacy.es.md`](../../../repo-docs/privacy.es.md).
 
 <details>
 <summary><strong>que significa "cifrado con aes-256/gcm"</strong></summary>

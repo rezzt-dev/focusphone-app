@@ -55,7 +55,7 @@ flowchart LR
 every release attaches a `SHA256SUMS` file. on a computer, `sha256sum -c SHA256SUMS` checks the
 download, and `apksigner verify --print-certs focusphone-*.apk` (android sdk build tools)
 shows the signing certificate, whose sha-256 must be the one published in
-[`security.md`](../../../security.md#verifying-an-apk).
+[`security.md`](../../../.github/security.md#verifying-an-apk).
 
 **if you installed `v1.0.0-beta`**: that build was signed with a different key, so android
 will refuse to install a newer version over it ("app not installed"). uninstall it first —

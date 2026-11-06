@@ -2,7 +2,7 @@
 
 # PRIVACY POLICY
 
-<sub>english · <a href="./privacy.es.md">castellano</a> · <a href="./readme.md">readme</a> · <a href="./permissions.md">permissions</a> · <a href="./security.md">security</a></sub>
+<sub>english · <a href="./privacy.es.md">castellano</a> · <a href="../readme.md">readme</a> · <a href="./permissions.md">permissions</a> · <a href="../.github/security.md">security</a></sub>
 
 </div>
 
@@ -21,7 +21,7 @@ this policy describes what the app does with data. it does not cover the website
 <https://focusphone.rezzt.dev>, which has its own privacy page, or github, which hosts this
 repository under the [github general privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement).
 it is published in english and in spanish ([`privacy.es.md`](./privacy.es.md)); if they
-differ, the spanish version prevails, as in the [`license`](./license).
+differ, the spanish version prevails, as in the [`license`](../license).
 
 ---
 

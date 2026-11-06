@@ -2,7 +2,7 @@
 
 # THIRD-PARTY LICENSES · LICENCIAS DE TERCEROS
 
-<sub><a href="./readme.md">readme</a> · <a href="./notice">notice</a> · <a href="./license">license</a></sub>
+<sub><a href="../readme.md">readme</a> · <a href="../notice">notice</a> · <a href="../license">license</a></sub>
 
 </div>
 
@@ -10,7 +10,7 @@
 
 <!-- TODO(owner): legal review before treating this inventory as final. -->
 
-**english.** focusphone's own code is covered by the non-commercial [`license`](./license).
+**english.** focusphone's own code is covered by the non-commercial [`license`](../license).
 the third-party components below are **not**: each one keeps its own license, which
 focusphone's license neither restricts nor extends (clause 1.4). this inventory is
 generated from the resolved `releaseRuntimeClasspath` of `:app` and from the files under
@@ -19,7 +19,7 @@ shown inside the app in **settings → about → open source licenses**
 (`assets/open_source_licenses.html`). the license texts below are reproduced verbatim, in
 their original english, as their terms require.
 
-**castellano.** el código propio de focusphone está cubierto por la [`license`](./license)
+**castellano.** el código propio de focusphone está cubierto por la [`license`](../license)
 no comercial. los componentes de terceros de abajo **no**: cada uno conserva su propia
 licencia, que la de focusphone no restringe ni amplía (cláusula 1.4). este inventario se
 genera a partir del `releaseRuntimeClasspath` resuelto de `:app` y de los ficheros de

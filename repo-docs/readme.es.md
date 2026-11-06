@@ -1,13 +1,13 @@
 <div align="center">
 
-<img src="./focusphone-project/app/src/main/res/mipmap-xxxhdpi/icon_alfa_version.webp" width="112" alt="focusphone" />
+<img src="../focusphone-project/app/src/main/res/mipmap-xxxhdpi/icon_alfa_version.webp" width="112" alt="focusphone" />
 
 # FOCUSPHONE
 
 <strong>un launcher minimalista para android que sustituye tu pantalla de inicio por texto:<br>
 un reloj, tus widgets y solo las apps que de verdad usas.</strong>
 
-<sub><a href="./readme.md">english</a> · castellano</sub>
+<sub><a href="../readme.md">english</a> · castellano</sub>
 
 <br><br>
 
@@ -21,15 +21,15 @@ un reloj, tus widgets y solo las apps que de verdad usas.</strong>
 <img src="https://img.shields.io/badge/target%20sdk-36-3DDC84?style=flat-square" alt="target sdk 36" />
 <img src="https://img.shields.io/badge/kotlin-100%25-7F52FF?style=flat-square&logo=kotlin&logoColor=white" alt="100% kotlin" />
 <img src="https://img.shields.io/badge/permisos-sin%20internet-4c1?style=flat-square" alt="sin permiso de internet" />
-<a href="./license"><img src="https://img.shields.io/badge/licencia-no%20comercial%20(no%20osi)-orange?style=flat-square" alt="licencia no comercial, no aprobada por la osi" /></a>
+<a href="../license"><img src="https://img.shields.io/badge/licencia-no%20comercial%20(no%20osi)-orange?style=flat-square" alt="licencia no comercial, no aprobada por la osi" /></a>
 
 <br><br>
 
-<a href="./documentation/es/README.md"><b>documentación</b></a> ·
+<a href="../documentation/es/README.md"><b>documentación</b></a> ·
 <a href="./changelog.md"><b>changelog</b></a> ·
 <a href="./privacy.es.md"><b>privacidad</b></a> ·
-<a href="./security.es.md"><b>seguridad</b></a> ·
-<a href="./contributing.es.md"><b>contribuir</b></a> ·
+<a href="../.github/security.es.md"><b>seguridad</b></a> ·
+<a href="../.github/contributing.es.md"><b>contribuir</b></a> ·
 <a href="https://focusphone.rezzt.dev"><b>web</b></a>
 
 </div>
@@ -91,7 +91,7 @@ launcher. consulta [`disclaimer.es.md`](./disclaimer.es.md).
 | **notificaciones** | un panel lateral opcional y un gesto hacia abajo para la persiana del sistema |
 | **idiomas** | inglés, inglés británico, español, francés y alemán |
 
-la guía de usuario completa está en [`documentation/es`](./documentation/es/README.md).
+la guía de usuario completa está en [`documentation/es`](../documentation/es/README.md).
 
 ---
 
@@ -127,7 +127,7 @@ apksigner verify --print-certs focusphone-*.apk     # build-tools del sdk de and
 | sha-256 del certificado de firma (desde `v1.4-beta`) | `0f:f1:f8:3c:32:e0:5d:c5:4b:c2:2b:a2:8a:13:df:4c:5c:37:ec:79:c4:1d:b3:e1:4a:d7:20:e7:c8:a0:76:2f` |
 
 un apk firmado con cualquier otro certificado no es una compilación oficial. detalles en
-[`security.es.md`](./security.es.md#verificar-un-apk).
+[`security.es.md`](../.github/security.es.md#verificar-un-apk).
 
 ---
 
@@ -156,7 +156,7 @@ de verificación, el mismo que ejecuta la ci en cada push y pull request:
 
 la firma de publicación es opcional y se configura con cuatro propiedades `RELEASE_*` fuera
 del control de versiones; sin ellas `assembleRelease` genera un apk sin firmar. consulta
-[`03-entorno-y-compilacion.md`](./documentation/es/desarrolladores/03-entorno-y-compilacion.md).
+[`03-entorno-y-compilacion.md`](../documentation/es/desarrolladores/03-entorno-y-compilacion.md).
 
 ---
 
@@ -168,15 +168,17 @@ focusphone-app/
 ├── documentation/               # documentación bilingüe de usuario y de desarrollo
 │   ├── en/{users,developers}/
 │   └── es/{usuarios,desarrolladores}/
-├── .github/                     # ci, política de dependencias, plantillas de issues y pr, soporte
+├── .github/                     # ci, política de dependencias, plantillas de issues y pr, y
+│                                # los ficheros de comunidad: security, contributing,
+│                                # code_of_conduct, support (cada uno + .es.md)
+├── repo-docs/                   # información del proyecto
+│   ├── changelog.md             # changelog bilingüe, fuente de verdad de las releases
+│   ├── readme.es.md             # este readme en castellano
+│   ├── privacy.md · permissions.md · disclaimer.md   # (cada uno + .es.md)
+│   └── third_party_licenses.md  # inventario y textos de las licencias de terceros
 ├── agents.md · claude.md        # guía de trabajo para agentes de ia y mantenedores
-├── changelog.md                 # changelog bilingüe, fuente de verdad de las releases
 ├── license · notice             # licencia no comercial y aviso de copyright
-├── third_party_licenses.md      # inventario y textos de las licencias de terceros
-├── privacy.md · permissions.md  # política de privacidad y justificación de permisos (+ .es.md)
-├── security.md · disclaimer.md  # política de seguridad, propósito y nombres (+ .es.md)
-├── contributing.md · code_of_conduct.md   # (+ .es.md)
-└── readme.md · readme.es.md
+└── readme.md
 ```
 
 ---
@@ -198,9 +200,9 @@ inyección de dependencias es manual, mediante `AppContainer`.
 | calidad | android lint y detekt `1.23.8` sin línea base · ktlint `1.8.0` |
 | pruebas | junit4 · mockk · robolectric · turbine · espresso |
 
-detalles: [arquitectura](./documentation/es/desarrolladores/01-arquitectura.md) ·
-[estructura del proyecto](./documentation/es/desarrolladores/02-estructura-del-proyecto.md) ·
-[`agents.md`](./agents.md). componentes de terceros y sus licencias:
+detalles: [arquitectura](../documentation/es/desarrolladores/01-arquitectura.md) ·
+[estructura del proyecto](../documentation/es/desarrolladores/02-estructura-del-proyecto.md) ·
+[`agents.md`](../agents.md). componentes de terceros y sus licencias:
 [`third_party_licenses.md`](./third_party_licenses.md).
 
 ---
@@ -209,10 +211,10 @@ detalles: [arquitectura](./documentation/es/desarrolladores/01-arquitectura.md) 
 
 | | castellano | english |
 |---|---|---|
-| índice | [documentation/es](./documentation/es/README.md) | [documentation/en](./documentation/en/README.md) |
-| usuarios (12 capítulos) | [qué es focusphone](./documentation/es/usuarios/01-que-es-focusphone.md) | [what is focusphone](./documentation/en/users/01-what-is-focusphone.md) |
-| desarrolladores (12 capítulos) | [arquitectura](./documentation/es/desarrolladores/01-arquitectura.md) | [architecture](./documentation/en/developers/01-architecture.md) |
-| preguntas frecuentes | [preguntas frecuentes](./documentation/es/usuarios/12-preguntas-frecuentes.md) | [faq](./documentation/en/users/12-faq.md) |
+| índice | [documentation/es](../documentation/es/README.md) | [documentation/en](../documentation/en/README.md) |
+| usuarios (12 capítulos) | [qué es focusphone](../documentation/es/usuarios/01-que-es-focusphone.md) | [what is focusphone](../documentation/en/users/01-what-is-focusphone.md) |
+| desarrolladores (12 capítulos) | [arquitectura](../documentation/es/desarrolladores/01-arquitectura.md) | [architecture](../documentation/en/developers/01-architecture.md) |
+| preguntas frecuentes | [preguntas frecuentes](../documentation/es/usuarios/12-preguntas-frecuentes.md) | [faq](../documentation/en/users/12-faq.md) |
 
 <!-- TODO(owner): capturas de la cuadrícula de inicio, del modo edición y del selector de widgets; todavía no hay ninguna versionada. -->
 
@@ -228,7 +230,7 @@ detalles: [arquitectura](./documentation/es/desarrolladores/01-arquitectura.md) 
 - los datos sensibles se cifran con aes-256/gcm mediante el almacén de claves de android y se
   excluyen de las copias de seguridad y de la transferencia entre dispositivos.
 - informa de vulnerabilidades en privado, nunca en un issue público:
-  [`security.es.md`](./security.es.md).
+  [`security.es.md`](../.github/security.es.md).
 
 ---
 
@@ -249,22 +251,22 @@ validando en más dispositivos y versiones de android. cada cambio está en
 
 ## CONTRIBUIR
 
-las contribuciones son bienvenidas. lee [`contributing.es.md`](./contributing.es.md)
+las contribuciones son bienvenidas. lee [`contributing.es.md`](../.github/contributing.es.md)
 (entorno, ramas, formato de commits y de changelog, código sensible) y el
-[código de conducta](./code_of_conduct.es.md). para pedir ayuda, consulta
-[`.github/support.es.md`](./.github/support.es.md).
+[código de conducta](../.github/code_of_conduct.es.md). para pedir ayuda, consulta
+[`.github/support.es.md`](../.github/support.es.md).
 
 ---
 
 ## LICENCIA
 
-focusphone se distribuye con una **licencia no comercial propia** ([`license`](./license)):
+focusphone se distribuye con una **licencia no comercial propia** ([`license`](../license)):
 puedes verlo, ejecutarlo, modificarlo y compartirlo con fines personales, educativos, de
 investigación o de evaluación no comercial; el uso comercial requiere permiso por escrito del
 autor. **no es una licencia de código abierto aprobada por la osi**. el texto en castellano
 es el vinculante.
 
-los componentes de terceros conservan sus propias licencias ([`notice`](./notice),
+los componentes de terceros conservan sus propias licencias ([`notice`](../notice),
 [`third_party_licenses.md`](./third_party_licenses.md)). contacto: `contacto@rezzt.dev`.
 
 ---

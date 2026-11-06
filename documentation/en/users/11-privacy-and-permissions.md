@@ -104,7 +104,7 @@ all data lives in the app's private storage, which no other app can reach.
 > intention or the song playing). focusphone sends it nothing else.
 >
 > the formal privacy policy, with your rights and the contact address, is
-> [`privacy.md`](../../../privacy.md).
+> [`privacy.md`](../../../repo-docs/privacy.md).
 
 <details>
 <summary><strong>what "encrypted with aes-256/gcm" means</strong></summary>

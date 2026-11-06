@@ -540,8 +540,9 @@ single page: the drawers already own the horizontal swipes.
 - Output is in `app/release/`.
 - `versionCode` and `versionName` are defined in `app/build.gradle.kts` (`defaultConfig`). `versionName` is `<x.y.z>-beta` while in beta and matches the `## [x.y.z]` changelog section and the `v<x.y.z>` tag; bump `versionCode` on every published build.
 - Branch flow: `beta-1.X` (development) → `version-beta` (stable versions) → `main` (published, updated last), always with a merge commit.
-- Releases are signed with the release key whose certificate SHA-256 is published in `security.md`; attach `SHA256SUMS` and mark beta releases as pre-release.
-- Legal and policy files live at the repository root (`license`, `notice`, `third_party_licenses.md`, `privacy*.md`, `permissions*.md`, `disclaimer*.md`). A new dependency, permission or data type must update them and the in-app `assets/open_source_licenses.html` / `assets/privacy_policy.html`.
+- Releases are signed with the release key whose certificate SHA-256 is published in `.github/security.md`; attach `SHA256SUMS` and mark beta releases as pre-release.
+- Documentation layout: `license`, `notice`, `readme.md`, `agents.md` and `claude.md` stay at the root (GitHub and agents only find them there); `repo-docs/` holds `changelog.md`, `readme.es.md`, `privacy*.md`, `permissions*.md`, `disclaimer*.md` and `third_party_licenses.md`; `.github/` holds the community files GitHub detects (`security*.md`, `contributing*.md`, `code_of_conduct*.md`, `support*.md`). When this guide says `changelog.md`, it means `repo-docs/changelog.md`.
+- Legal and policy files (`license`, `notice`, `repo-docs/third_party_licenses.md`, `repo-docs/privacy*.md`, `repo-docs/permissions*.md`, `repo-docs/disclaimer*.md`) must stay in sync with the code. A new dependency, permission or data type must update them and the in-app `assets/open_source_licenses.html` / `assets/privacy_policy.html`.
 - The launcher intent filter in `AndroidManifest.xml` uses `android:priority="1"` on `HOME` / `DEFAULT` / `LAUNCHER` categories.
 
 ---

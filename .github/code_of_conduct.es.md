@@ -1,6 +1,6 @@
 <div align="center">
 
-<sub><a href="./code_of_conduct.md">english</a> · castellano · <a href="./readme.es.md">readme</a> · <a href="./contributing.es.md">contribuir</a> · <a href="./security.es.md">política de seguridad</a></sub>
+<sub><a href="./code_of_conduct.md">english</a> · castellano · <a href="../repo-docs/readme.es.md">readme</a> · <a href="./contributing.es.md">contribuir</a> · <a href="./security.es.md">política de seguridad</a></sub>
 
 </div>
 

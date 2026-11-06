@@ -297,8 +297,8 @@ nunca sale del dispositivo, asi que una copia restaurada no seria legible.
 
 no abras una issue publica: usa el [aviso privado de seguridad de github](https://github.com/rezzt-dev/focusphone-app/security/advisories/new)
 (cuando este activado en el repositorio) o escribe a `contacto@rezzt.dev`. la version soportada, los plazos de respuesta, la politica de
-divulgacion y el alcance dentro y fuera de la politica estan en [`security.md`](../../../security.md),
-en la raiz del repositorio, que es donde github lo lee para activar la pestaña "security".
+divulgacion y el alcance dentro y fuera de la politica estan en [`security.md`](../../../.github/security.md),
+en `.github/`, uno de los sitios donde github lo lee para activar la pestaña "security".
 
 ---
 

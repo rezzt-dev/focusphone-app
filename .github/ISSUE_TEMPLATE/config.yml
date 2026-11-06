@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: security vulnerability · vulnerabilidad de seguridad
-    url: https://github.com/rezzt-dev/focusphone-app/blob/main/security.md
+    url: https://github.com/rezzt-dev/focusphone-app/blob/main/.github/security.md
     about: never report a vulnerability in a public issue; write to contacto@rezzt.dev. · nunca informes de una vulnerabilidad en un issue público; escribe a contacto@rezzt.dev.
   - name: help and questions · ayuda y preguntas
     url: https://github.com/rezzt-dev/focusphone-app/blob/main/.github/support.md

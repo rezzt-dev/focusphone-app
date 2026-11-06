@@ -248,7 +248,7 @@ the output lands in `app/release/`, which is **not** under version control.
 - [ ] the merge is done with *create a merge commit*
 - [ ] the release carries the `v<x.y.z>` tag and the `### ENGLISH` block as its body
 - [ ] while in beta, the release is marked as a **pre-release**
-- [ ] the apk is signed with the release key (certificate sha-256 in [`security.md`](../../../security.md#verifying-an-apk)), checked with `apksigner verify --print-certs`
+- [ ] the apk is signed with the release key (certificate sha-256 in [`security.md`](../../../.github/security.md#verifying-an-apk)), checked with `apksigner verify --print-certs`
 - [ ] a `SHA256SUMS` file (`sha256sum focusphone-*.apk > SHA256SUMS`) is attached next to the apk
 
 </details>

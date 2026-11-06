@@ -36,7 +36,7 @@ trabajo basado en el Software.
 
 1.4. "Componentes de Terceros": las bibliotecas, tipografías, iconos y demás material
 de terceros que el Software incluye o con el que se compila, enumerados en los ficheros
-"notice" y "third_party_licenses.md" de este repositorio. Los Componentes de Terceros se
+"notice" y "repo-docs/third_party_licenses.md" de este repositorio. Los Componentes de Terceros se
 rigen exclusivamente por sus propias licencias, y esta licencia no los restringe ni
 amplía.
 
@@ -197,7 +197,7 @@ based on the Software.
 
 1.4. "Third-Party Components": the libraries, typefaces, icons and other third-party
 material that the Software includes or is built with, listed in the "notice" and
-"third_party_licenses.md" files of this repository. Third-Party Components are governed
+"repo-docs/third_party_licenses.md" files of this repository. Third-Party Components are governed
 exclusively by their own licenses, which this license neither restricts nor extends.
 
 2. LICENSE GRANT

@@ -247,7 +247,7 @@ la salida queda en `app/release/`, que **no** esta bajo control de versiones.
 - [ ] el merge se hace con *create a merge commit*
 - [ ] la release lleva la etiqueta `v<x.y.z>` y el bloque `### ENGLISH` como cuerpo
 - [ ] mientras la app este en beta, la release se marca como **pre-release**
-- [ ] el apk esta firmado con la clave de publicacion (sha-256 del certificado en [`security.es.md`](../../../security.es.md#verificar-un-apk)), comprobado con `apksigner verify --print-certs`
+- [ ] el apk esta firmado con la clave de publicacion (sha-256 del certificado en [`security.es.md`](../../../.github/security.es.md#verificar-un-apk)), comprobado con `apksigner verify --print-certs`
 - [ ] se adjunta un fichero `SHA256SUMS` (`sha256sum focusphone-*.apk > SHA256SUMS`) junto al apk
 
 </details>

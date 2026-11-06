@@ -2,7 +2,7 @@
 
 # PERMISSIONS AND EXPORTED COMPONENTS
 
-<sub>english · <a href="./permissions.es.md">castellano</a> · <a href="./privacy.md">privacy</a> · <a href="./security.md">security</a> · <a href="./readme.md">readme</a></sub>
+<sub>english · <a href="./permissions.es.md">castellano</a> · <a href="./privacy.md">privacy</a> · <a href="../.github/security.md">security</a> · <a href="../readme.md">readme</a></sub>
 
 </div>
 
@@ -13,7 +13,7 @@ technical justification of every permission and exported component in
 of the `1.4.0-beta` release build (`aapt2 dump permissions`). it is meant for store review
 (google play) and for security audits; the user-facing summary is in
 [`privacy.md`](./privacy.md) and in
-[`11-privacy-and-permissions.md`](./documentation/en/users/11-privacy-and-permissions.md).
+[`11-privacy-and-permissions.md`](../documentation/en/users/11-privacy-and-permissions.md).
 
 **the app does not request `INTERNET` or any other network permission**, nor any runtime
 ("dangerous") permission: there is no permission dialog at first launch.

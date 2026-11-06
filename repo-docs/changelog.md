@@ -62,6 +62,7 @@
 - actualizar la documentacion de desarrolladores a `HomeGridPreferences`, `LibraryWidgetPreferences`, `ui/home/grid`, `ui/widget/library`, `WidgetLaunchActivity`, el lanzamiento por `BaseActivity.openApp`, las pruebas nuevas, el esquema de versiones `<x.y.z>-beta` y el flujo de ramas `beta-1.X` → `version-beta` → `main`, con paridad exacta de secciones entre idiomas
 - reescribir `readme.md` para la beta: insignias reales (release, estado, `android-ci`, sdk, sin internet, licencia no comercial y no osi), funcionalidades de la cuadricula y los widgets, instalacion, verificacion con `SHA256SUMS` y la huella del certificado, compilacion, estructura, documentacion, privacidad, seguridad, estado del proyecto y licencia
 - actualizar `agents.md` con la version `1.4.0-beta`, agp `9.3.0`, room `2.8.5`, la cuadricula y los widgets en la descripcion, el flujo de ramas, la firma de releases y los ficheros legales que hay que mantener al cambiar dependencias, permisos o datos
+- reorganizar la documentacion del repositorio: `changelog.md`, `readme.es.md`, `privacy*.md`, `permissions*.md`, `disclaimer*.md` y `third_party_licenses.md` pasan a `repo-docs/`, y `security*.md`, `contributing*.md` y `code_of_conduct*.md` a `.github/`, donde github los sigue detectando; en la raiz quedan `readme.md`, `license`, `notice`, `agents.md` y `claude.md`, y todos los enlaces se recalculan
 
 #### CORREGIDO
 - aplicar los bloqueos de horario y limite diario al abrir aplicaciones desde recientes y accesos frecuentes mediante cambios de ventana, y avisar de la necesidad del servicio de accesibilidad para todas las reglas
@@ -150,6 +151,7 @@
 - update the developer documentation to `HomeGridPreferences`, `LibraryWidgetPreferences`, `ui/home/grid`, `ui/widget/library`, `WidgetLaunchActivity`, launching through `BaseActivity.openApp`, the new tests, the `<x.y.z>-beta` version scheme and the `beta-1.X` → `version-beta` → `main` branch flow, with exact section parity between languages
 - rewrite `readme.md` for the beta: real badges (release, status, `android-ci`, sdk, no internet, non-commercial non-osi license), grid and widget features, install, verification with `SHA256SUMS` and the certificate fingerprint, build, layout, documentation, privacy, security, project status and license
 - update `agents.md` with version `1.4.0-beta`, agp `9.3.0`, room `2.8.5`, the grid and widgets in the description, the branch flow, release signing and the legal files to keep in sync when dependencies, permissions or data change
+- reorganize the repository documentation: `changelog.md`, `readme.es.md`, `privacy*.md`, `permissions*.md`, `disclaimer*.md` and `third_party_licenses.md` move to `repo-docs/`, and `security*.md`, `contributing*.md` and `code_of_conduct*.md` to `.github/`, where github still detects them; `readme.md`, `license`, `notice`, `agents.md` and `claude.md` stay at the root, and every link is recomputed
 
 #### FIXED
 - enforce time windows and daily limits when apps open from recents and suggested shortcuts through window change events, and show the accessibility warning for every schedule rule

@@ -2,7 +2,7 @@
 
 # AVISO: PROPÓSITO Y NOMBRES
 
-<sub><a href="./disclaimer.md">english</a> · castellano · <a href="./readme.es.md">readme</a> · <a href="./license">licencia</a> · <a href="./privacy.es.md">privacidad</a></sub>
+<sub><a href="./disclaimer.md">english</a> · castellano · <a href="./readme.es.md">readme</a> · <a href="../license">licencia</a> · <a href="./privacy.es.md">privacidad</a></sub>
 
 </div>
 
@@ -12,7 +12,7 @@
 
 esta página explica para qué sirve focusphone y para qué no, y cómo pueden usarse los
 nombres "focusphone" y "rezzt-dev". resume puntos que ya son vinculantes en la
-[`license`](./license) (cláusulas 3.d, 5 y 6); si algo de aquí difiere de la licencia,
+[`license`](../license) (cláusulas 3.d, 5 y 6); si algo de aquí difiere de la licencia,
 prevalece la licencia.
 
 ---
@@ -51,7 +51,7 @@ desinstalarlo, borrar sus datos o cambiar de móvil se pierde su configuración.
 ## NOMBRES Y MARCAS
 
 - "focusphone" y "rezzt-dev" son nombres que el autor usa para identificar este proyecto.
-  la [`license`](./license), cláusula 3.d, no permite usarlos, ni el nombre del autor ni
+  la [`license`](../license), cláusula 3.d, no permite usarlos, ni el nombre del autor ni
   ningún signo asociado, para promocionar un producto o servicio derivado ni para dar a
   entender un respaldo o afiliación, sin permiso por escrito. esta página no afirma que
   ninguno de los dos nombres sea una marca registrada.

@@ -2,7 +2,7 @@
 
 # POLÍTICA DE SEGURIDAD
 
-<sub><a href="./security.md">english</a> · castellano · <a href="./readme.es.md">readme</a> · <a href="./documentation/es/desarrolladores/08-seguridad.md">documentación de seguridad completa</a> · <a href="./permissions.es.md">permisos</a></sub>
+<sub><a href="./security.md">english</a> · castellano · <a href="../repo-docs/readme.es.md">readme</a> · <a href="../documentation/es/desarrolladores/08-seguridad.md">documentación de seguridad completa</a> · <a href="../repo-docs/permissions.es.md">permisos</a></sub>
 
 <br>
 
@@ -96,12 +96,12 @@ un compromiso de mejor esfuerzo, no un sla contractual.
 ## DIVULGACIÓN COORDINADA
 
 - las correcciones se desarrollan en privado y se publican junto con un aviso de seguridad
-  de github y una entrada `#### SEGURIDAD` en [`changelog.md`](./changelog.md).
+  de github y una entrada `#### SEGURIDAD` en [`changelog.md`](../repo-docs/changelog.md).
 - mantén el informe en privado hasta que se publique la corrección, o durante 90 días desde
   el acuse de recibo, lo que ocurra antes.
 - quien informa recibe el crédito con el nombre o alias que elija, salvo que pida
   permanecer en el anonimato.
-- un informe se trata como describe [`privacy.es.md`](./privacy.es.md#8-tus-derechos): los
+- un informe se trata como describe [`privacy.es.md`](../repo-docs/privacy.es.md#8-tus-derechos): los
   datos que envíes solo se usan para tramitarlo.
 
 ---
@@ -111,7 +111,7 @@ un compromiso de mejor esfuerzo, no un sla contractual.
 focusphone **no tiene el permiso `INTERNET`**: no hay backend, cuenta, sdk de analítica ni
 informes de errores. así que no hay superficie de ataque remota, y el modelo de amenazas es
 enteramente local. lo que la app protege está documentado en detalle en
-[`08-seguridad.md`](./documentation/es/desarrolladores/08-seguridad.md); en resumen:
+[`08-seguridad.md`](../documentation/es/desarrolladores/08-seguridad.md); en resumen:
 
 | protege frente a | mecanismo |
 |---|---|
@@ -131,7 +131,7 @@ enteramente local. lo que la app protege está documentado en detalle en
   (parámetros débiles, reutilización del iv, una clave regenerada sobre un alias existente).
 - un componente exportado, intent, widget o camino de los servicios de accesibilidad o de
   notificaciones que permita a un tercero actuar en nombre del usuario (consulta
-  [`permissions.es.md`](./permissions.es.md#3-componentes-exportados)).
+  [`permissions.es.md`](../repo-docs/permissions.es.md#3-componentes-exportados)).
 - una fuga de hábitos del usuario —apps bloqueadas, palabras clave, contadores de uso,
   nombres personalizados, el texto de intención— a través de registros, capturas, copias de
   seguridad o cualquier fichero legible por todos.
@@ -139,7 +139,7 @@ enteramente local. lo que la app protege está documentado en detalle en
 ### FUERA DEL ALCANCE
 
 son decisiones de diseño conocidas y documentadas, no vulnerabilidades
-([`disclaimer.es.md`](./disclaimer.es.md)):
+([`disclaimer.es.md`](../repo-docs/disclaimer.es.md)):
 
 - focusphone **no es administrador del dispositivo**: no impide su propia desinstalación ni
   el cambio de launcher. es un compromiso reforzado, no una jaula.
@@ -159,12 +159,12 @@ son decisiones de diseño conocidas y documentadas, no vulnerabilidades
 ## SI VAS A TOCAR CÓDIGO DE SEGURIDAD
 
 cualquier cambio que toque contraseñas, cifrado o pantallas de bloqueo debe seguir las
-reglas de [`08-seguridad.md`](./documentation/es/desarrolladores/08-seguridad.md), sección
+reglas de [`08-seguridad.md`](../documentation/es/desarrolladores/08-seguridad.md), sección
 "reglas al tocar seguridad" —entre ellas: no borrar nunca la configuración protegida ante
 intentos fallidos, no tratar nunca un estado `Unavailable` del almacén de claves como una
 lista vacía, no ejecutar nunca pbkdf2 en el hilo principal y no regenerar nunca la clave del
 almacén sobre un alias existente—. los casos límite nuevos necesitan pruebas unitarias, y la
-pull request necesita la revisión del mantenedor ([`.github/CODEOWNERS`](./.github/CODEOWNERS)).
+pull request necesita la revisión del mantenedor ([`.github/CODEOWNERS`](./CODEOWNERS)).
 
 ---
 

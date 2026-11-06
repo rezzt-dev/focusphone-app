@@ -2,7 +2,7 @@
 
 # SECURITY POLICY
 
-<sub>english · <a href="./security.es.md">castellano</a> · <a href="./readme.md">readme</a> · <a href="./documentation/en/developers/08-security.md">full security documentation</a> · <a href="./permissions.md">permissions</a></sub>
+<sub>english · <a href="./security.es.md">castellano</a> · <a href="../readme.md">readme</a> · <a href="../documentation/en/developers/08-security.md">full security documentation</a> · <a href="../repo-docs/permissions.md">permissions</a></sub>
 
 <br>
 
@@ -94,12 +94,12 @@ contractual sla.
 ## COORDINATED DISCLOSURE
 
 - fixes are developed in private and published together with a github security advisory
-  and a `#### SECURITY` entry in [`changelog.md`](./changelog.md).
+  and a `#### SECURITY` entry in [`changelog.md`](../repo-docs/changelog.md).
 - please keep the report private until the fix is published, or for 90 days from the
   acknowledgement, whichever comes first.
 - reporters are credited by the name or handle they choose, unless they ask to stay
   anonymous.
-- a report is handled as described in [`privacy.md`](./privacy.md#8-your-rights): the data
+- a report is handled as described in [`privacy.md`](../repo-docs/privacy.md#8-your-rights): the data
   you send is used only to process it.
 
 ---
@@ -109,7 +109,7 @@ contractual sla.
 focusphone **has no `INTERNET` permission**: there is no backend, no account, no analytics
 sdk and no crash reporter. so there is no remote attack surface, and the threat model is
 entirely local. what the app does protect is documented in detail in
-[`08-security.md`](./documentation/en/developers/08-security.md); in summary:
+[`08-security.md`](../documentation/en/developers/08-security.md); in summary:
 
 | protected against | mechanism |
 |---|---|
@@ -128,14 +128,14 @@ entirely local. what the app does protect is documented in detail in
 - misuse of the keystore, of `SecureStorageHelper` or of `PasswordHasher` (weak
   parameters, iv reuse, a key regenerated over an existing alias).
 - an exported component, intent, widget or accessibility/notification service path that
-  lets a third party act on the user's behalf (see [`permissions.md`](./permissions.md#3-exported-components)).
+  lets a third party act on the user's behalf (see [`permissions.md`](../repo-docs/permissions.md#3-exported-components)).
 - a leak of user habits — blocked apps, keywords, usage counters, custom labels, the
   intention text — through logs, screenshots, backups or any world-readable file.
 
 ### OUT OF SCOPE
 
 these are known, documented design decisions, not vulnerabilities
-([`disclaimer.md`](./disclaimer.md)):
+([`disclaimer.md`](../repo-docs/disclaimer.md)):
 
 - focusphone is **not a device administrator**: it does not prevent its own uninstall and
   does not prevent switching launchers. it is a reinforced commitment, not a cage.
@@ -155,12 +155,12 @@ these are known, documented design decisions, not vulnerabilities
 ## IF YOU ARE PATCHING SECURITY CODE
 
 any change touching passwords, encryption or block screens must follow the rules in
-[`08-security.md`](./documentation/en/developers/08-security.md), section "rules when
+[`08-security.md`](../documentation/en/developers/08-security.md), section "rules when
 touching security" — among them: never delete protected configuration in response to
 failed attempts, never treat an `Unavailable` keystore state as an empty list, never run
 pbkdf2 on the main thread, and never regenerate the keystore key over an existing alias.
 new edge cases need unit tests, and the pull request needs the maintainer's review
-([`.github/CODEOWNERS`](./.github/CODEOWNERS)).
+([`.github/CODEOWNERS`](./CODEOWNERS)).
 
 ---
 

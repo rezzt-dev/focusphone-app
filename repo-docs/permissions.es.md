@@ -2,7 +2,7 @@
 
 # PERMISOS Y COMPONENTES EXPORTADOS
 
-<sub><a href="./permissions.md">english</a> · castellano · <a href="./privacy.es.md">privacidad</a> · <a href="./security.es.md">seguridad</a> · <a href="./readme.es.md">readme</a></sub>
+<sub><a href="./permissions.md">english</a> · castellano · <a href="./privacy.es.md">privacidad</a> · <a href="../.github/security.es.md">seguridad</a> · <a href="./readme.es.md">readme</a></sub>
 
 </div>
 
@@ -13,7 +13,7 @@ justificación técnica de cada permiso y componente exportado de
 combinado de la compilación de publicación `1.4.0-beta` (`aapt2 dump permissions`). está
 pensada para la revisión de tiendas (google play) y para auditorías de seguridad; el resumen
 para usuarios está en [`privacy.es.md`](./privacy.es.md) y en
-[`11-privacidad-y-permisos.md`](./documentation/es/usuarios/11-privacidad-y-permisos.md).
+[`11-privacidad-y-permisos.md`](../documentation/es/usuarios/11-privacidad-y-permisos.md).
 
 **la app no solicita `INTERNET` ni ningún otro permiso de red**, ni ningún permiso en
 tiempo de ejecución ("peligroso"): no aparece ningún diálogo de permisos al abrirla por

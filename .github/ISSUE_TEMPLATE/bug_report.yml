@@ -8,8 +8,8 @@ body:
       value: |
         thanks for taking the time to report this. · gracias por dedicar tiempo a informar de esto.
 
-        **do not use this form for a security problem.** follow [`security.md`](https://github.com/rezzt-dev/focusphone-app/blob/main/security.md) and write to `contacto@rezzt.dev`.
-        **no uses este formulario para un problema de seguridad.** sigue [`security.es.md`](https://github.com/rezzt-dev/focusphone-app/blob/main/security.es.md) y escribe a `contacto@rezzt.dev`.
+        **do not use this form for a security problem.** follow [`security.md`](https://github.com/rezzt-dev/focusphone-app/blob/main/.github/security.md) and write to `contacto@rezzt.dev`.
+        **no uses este formulario para un problema de seguridad.** sigue [`security.es.md`](https://github.com/rezzt-dev/focusphone-app/blob/main/.github/security.es.md) y escribe a `contacto@rezzt.dev`.
 
         you can write in english or in spanish. · puedes escribir en inglés o en castellano.
 

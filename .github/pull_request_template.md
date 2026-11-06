@@ -13,7 +13,7 @@
 ### CASTELLANO
 
 <!-- copia aquí, literalmente, los ítems que esta rama añade a `## SIN PUBLICAR /
-     UNRELEASED` de `changelog.md`, bajo su categoría: ANADIDO / CAMBIADO / CORREGIDO /
+     UNRELEASED` de `repo-docs/changelog.md`, bajo su categoría: ANADIDO / CAMBIADO / CORREGIDO /
      ELIMINADO / SEGURIDAD. omite las categorías vacías. -->
 
 #### ANADIDO
@@ -49,8 +49,8 @@
 - [ ] new colours go through `FocusPalette` / `FocusColors`, never a hardcoded hex. · colores nuevos por `FocusPalette` / `FocusColors`.
 - [ ] new singletons are registered in `AppContainer`; new settings live inside an existing settings sub-screen. · singletons en `AppContainer`; ajustes en una subpantalla existente.
 - [ ] pure logic is covered by a unit test; a new flow is covered by an instrumented test. · lógica pura con prueba unitaria; flujo nuevo con prueba instrumentada.
-- [ ] no new permission, dependency or network call — or the notes explain it, and `permissions*.md`, `privacy*.md` and `third_party_licenses.md` are updated. · sin permisos, dependencias ni red nuevos, o se justifican y se actualizan los documentos legales.
-- [ ] sensitive code (see `contributing.md`) has an issue and is flagged for the maintainer's review. · el código sensible tiene issue y pide revisión del mantenedor.
+- [ ] no new permission, dependency or network call — or the notes explain it, and `repo-docs/permissions*.md`, `repo-docs/privacy*.md` and `repo-docs/third_party_licenses.md` are updated. · sin permisos, dependencias ni red nuevos, o se justifican y se actualizan los documentos legales.
+- [ ] sensitive code (see `.github/contributing.md`) has an issue and is flagged for the maintainer's review. · el código sensible tiene issue y pide revisión del mantenedor.
 - [ ] `documentation/es` and `documentation/en` are updated, with the same sections, if this changes observable behaviour. · la documentación está actualizada en los dos idiomas.
 
 ---

@@ -7,7 +7,7 @@
 <strong>a minimalist android launcher that replaces your home screen with text:<br>
 a clock, your widgets and only the apps you actually use.</strong>
 
-<sub>english · <a href="./readme.es.md">castellano</a></sub>
+<sub>english · <a href="./repo-docs/readme.es.md">castellano</a></sub>
 
 <br><br>
 
@@ -26,10 +26,10 @@ a clock, your widgets and only the apps you actually use.</strong>
 <br><br>
 
 <a href="./documentation/en/README.md"><b>documentation</b></a> ·
-<a href="./changelog.md"><b>changelog</b></a> ·
-<a href="./privacy.md"><b>privacy</b></a> ·
-<a href="./security.md"><b>security</b></a> ·
-<a href="./contributing.md"><b>contributing</b></a> ·
+<a href="./repo-docs/changelog.md"><b>changelog</b></a> ·
+<a href="./repo-docs/privacy.md"><b>privacy</b></a> ·
+<a href="./.github/security.md"><b>security</b></a> ·
+<a href="./.github/contributing.md"><b>contributing</b></a> ·
 <a href="https://focusphone.rezzt.dev"><b>website</b></a>
 
 </div>
@@ -63,7 +63,7 @@ password — is designed to hold.
 
 its locks are **a commitment to yourself, not a security tool**: focusphone is not a device
 administrator and cannot stop you from uninstalling it or changing launcher. see
-[`disclaimer.md`](./disclaimer.md).
+[`disclaimer.md`](./repo-docs/disclaimer.md).
 
 ### DESIGN PRINCIPLES
 
@@ -127,7 +127,7 @@ apksigner verify --print-certs focusphone-*.apk     # android sdk build-tools
 | signing certificate sha-256 (from `v1.4-beta` on) | `0f:f1:f8:3c:32:e0:5d:c5:4b:c2:2b:a2:8a:13:df:4c:5c:37:ec:79:c4:1d:b3:e1:4a:d7:20:e7:c8:a0:76:2f` |
 
 an apk signed with any other certificate is not an official build. details in
-[`security.md`](./security.md#verifying-an-apk).
+[`security.md`](./.github/security.md#verifying-an-apk).
 
 ---
 
@@ -168,15 +168,17 @@ focusphone-app/
 ├── documentation/               # bilingual user and developer documentation
 │   ├── en/{users,developers}/
 │   └── es/{usuarios,desarrolladores}/
-├── .github/                     # ci, dependency policy, issue and pr templates, support
+├── .github/                     # ci, dependency policy, issue and pr templates, and the
+│                                # community files: security, contributing, code_of_conduct,
+│                                # support (each + .es.md)
+├── repo-docs/                   # project information
+│   ├── changelog.md             # bilingual changelog, source of truth for releases
+│   ├── readme.es.md             # this readme in spanish
+│   ├── privacy.md · permissions.md · disclaimer.md   # (each + .es.md)
+│   └── third_party_licenses.md  # inventory and texts of third-party licenses
 ├── agents.md · claude.md        # operating guide for ai agents and maintainers
-├── changelog.md                 # bilingual changelog, source of truth for releases
 ├── license · notice             # non-commercial license and copyright notice
-├── third_party_licenses.md      # inventory and texts of third-party licenses
-├── privacy.md · permissions.md  # privacy policy and permission justification (+ .es.md)
-├── security.md · disclaimer.md  # security policy, purpose and names (+ .es.md)
-├── contributing.md · code_of_conduct.md   # (+ .es.md)
-└── readme.md · readme.es.md
+└── readme.md
 ```
 
 ---
@@ -201,7 +203,7 @@ manual, through `AppContainer`.
 details: [architecture](./documentation/en/developers/01-architecture.md) ·
 [project structure](./documentation/en/developers/02-project-structure.md) ·
 [`agents.md`](./agents.md). third-party components and their licenses:
-[`third_party_licenses.md`](./third_party_licenses.md).
+[`third_party_licenses.md`](./repo-docs/third_party_licenses.md).
 
 ---
 
@@ -221,13 +223,13 @@ details: [architecture](./documentation/en/developers/01-architecture.md) ·
 ## PRIVACY AND SECURITY
 
 - no `INTERNET` permission, no accounts, no analytics, no crash reporting: nothing leaves
-  the device. the full policy is [`privacy.md`](./privacy.md).
+  the device. the full policy is [`privacy.md`](./repo-docs/privacy.md).
 - three install-time permissions (`QUERY_ALL_PACKAGES`, `REQUEST_DELETE_PACKAGES`,
   `EXPAND_STATUS_BAR`) and two optional services (accessibility, notification access),
-  each justified in [`permissions.md`](./permissions.md).
+  each justified in [`permissions.md`](./repo-docs/permissions.md).
 - sensitive data is encrypted with aes-256/gcm through the android keystore, and excluded
   from backups and device-to-device transfer.
-- report vulnerabilities privately, never in a public issue: [`security.md`](./security.md).
+- report vulnerabilities privately, never in a public issue: [`security.md`](./.github/security.md).
 
 ---
 
@@ -241,15 +243,15 @@ details: [architecture](./documentation/en/developers/01-architecture.md) ·
 | **branches** | `beta-1.X` (development) → `version-beta` (stable versions) → `main` (published) |
 
 beta means the feature set is complete and tested, but the app is still being validated on
-more devices and android versions. every change is listed in [`changelog.md`](./changelog.md).
+more devices and android versions. every change is listed in [`changelog.md`](./repo-docs/changelog.md).
 
 ---
 
 ## CONTRIBUTING
 
-contributions are welcome. read [`contributing.md`](./contributing.md) (setup, branches,
+contributions are welcome. read [`contributing.md`](./.github/contributing.md) (setup, branches,
 commit and changelog format, sensitive code) and the
-[code of conduct](./code_of_conduct.md). for help, see
+[code of conduct](./.github/code_of_conduct.md). for help, see
 [`.github/support.md`](./.github/support.md).
 
 ---
@@ -263,7 +265,7 @@ from the author. it is **not an open source license approved by the osi**. the s
 is the binding one.
 
 third-party components keep their own licenses ([`notice`](./notice),
-[`third_party_licenses.md`](./third_party_licenses.md)). contact: `contacto@rezzt.dev`.
+[`third_party_licenses.md`](./repo-docs/third_party_licenses.md)). contact: `contacto@rezzt.dev`.
 
 ---
 

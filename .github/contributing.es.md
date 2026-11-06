@@ -2,7 +2,7 @@
 
 # CONTRIBUIR
 
-<sub><a href="./contributing.md">english</a> · castellano · <a href="./readme.es.md">readme</a> · <a href="./documentation/es/desarrolladores/12-contribuir.md">guía completa</a> · <a href="./security.es.md">política de seguridad</a> · <a href="./code_of_conduct.es.md">código de conducta</a></sub>
+<sub><a href="./contributing.md">english</a> · castellano · <a href="../repo-docs/readme.es.md">readme</a> · <a href="../documentation/es/desarrolladores/12-contribuir.md">guía completa</a> · <a href="./security.es.md">política de seguridad</a> · <a href="./code_of_conduct.es.md">código de conducta</a></sub>
 
 </div>
 
@@ -10,8 +10,8 @@
 
 esta página es la versión corta, y es la que github enlaza desde los formularios de issues
 y pull requests. la versión detallada y vinculante es
-[`documentation/es/desarrolladores/12-contribuir.md`](./documentation/es/desarrolladores/12-contribuir.md)
-([english](./documentation/en/developers/12-contributing.md)): léela antes de tu primera
+[`documentation/es/desarrolladores/12-contribuir.md`](../documentation/es/desarrolladores/12-contribuir.md)
+([english](../documentation/en/developers/12-contributing.md)): léela antes de tu primera
 pull request.
 
 focusphone es un proyecto personal con un historial público. las contribuciones son
@@ -25,9 +25,9 @@ pruebas omitidas, sin comportamiento sin documentar. quien participa sigue el
 
 | quieres | haz esto |
 |---|---|
-| preguntar algo o pedir ayuda | consulta [`.github/support.es.md`](./.github/support.es.md) |
+| preguntar algo o pedir ayuda | consulta [`.github/support.es.md`](./support.es.md) |
 | informar de un error | abre un [informe de error](https://github.com/rezzt-dev/focusphone-app/issues/new?template=bug_report.yml) |
-| proponer una funcionalidad | abre una [propuesta](https://github.com/rezzt-dev/focusphone-app/issues/new?template=feature_request.yml) — lee antes los [principios de diseño](./readme.es.md#principios-de-diseño) |
+| proponer una funcionalidad | abre una [propuesta](https://github.com/rezzt-dev/focusphone-app/issues/new?template=feature_request.yml) — lee antes los [principios de diseño](../repo-docs/readme.es.md#principios-de-diseño) |
 | informar de una vulnerabilidad | **nunca** en un issue público: sigue [`security.es.md`](./security.es.md) (`contacto@rezzt.dev`) |
 | cambiar código | el flujo de abajo |
 
@@ -75,7 +75,7 @@ se conserven junto al resumen de la pull request.
 
 1. haz un **fork** y crea tu rama desde la rama `beta-1.X` activa:
    `git checkout -b feature/tu-funcionalidad`.
-2. **escribe el cambio** siguiendo las convenciones de [`agents.md`](./agents.md):
+2. **escribe el cambio** siguiendo las convenciones de [`agents.md`](../agents.md):
    comentarios y kdoc en inglés, colores nuevos a través de `FocusPalette`, ajustes nuevos
    dentro de una subpantalla de ajustes existente, singletons nuevos registrados en
    `AppContainer`.
@@ -89,12 +89,12 @@ se conserven junto al resumen de la pull request.
    ```
 
 5. **regístralo** en la sección `## SIN PUBLICAR / UNRELEASED` de
-   [`changelog.md`](./changelog.md), **en los dos idiomas** (`### CASTELLANO` y
+   [`changelog.md`](../repo-docs/changelog.md), **en los dos idiomas** (`### CASTELLANO` y
    `### ENGLISH`), en la categoría correcta: `ANADIDO` / `ADDED`, `CAMBIADO` / `CHANGED`,
    `CORREGIDO` / `FIXED`, `ELIMINADO` / `REMOVED`, `SEGURIDAD` / `SECURITY`. una línea por
    ítem, en imperativo, en minúsculas y sin acentos.
 6. **abre una pull request** cuya descripción sea el fragmento de changelog que añade tu
-   rama. la [plantilla](./.github/pull_request_template.md) ya lo prepara.
+   rama. la [plantilla](./pull_request_template.md) ya lo prepara.
 
 ---
 
@@ -112,7 +112,7 @@ los títulos van en minúsculas, en imperativo, y usan un conjunto cerrado de pr
 | `fix` | un error o comportamiento incorrecto detectado durante el desarrollo, sin urgencia |
 | `hotfix` | una corrección urgente que afecta a una versión publicada o a un bloqueo crítico |
 | `changes` | trabajo estructural o no funcional: reorganizar, renombrar, herramientas, dependencias |
-| `changelog` | el único propósito del commit es editar `changelog.md` |
+| `changelog` | el único propósito del commit es editar `repo-docs/changelog.md` |
 
 el cuerpo es una lista de markdown no numerada, una línea continua por bloque lógico, con
 ficheros, rutas e identificadores entre backticks, que explica el qué y el porqué, no el
@@ -123,7 +123,7 @@ diff.
 ## CÓDIGO SENSIBLE
 
 un cambio en cualquiera de estos necesita antes un issue y la revisión explícita del
-mantenedor ([`.github/CODEOWNERS`](./.github/CODEOWNERS)), además de pruebas unitarias para
+mantenedor ([`.github/CODEOWNERS`](./CODEOWNERS)), además de pruebas unitarias para
 cada caso límite nuevo:
 
 - `focusphone-project/app/src/main/java/app/focusphone/security/` (`PasswordHasher`,
@@ -135,11 +135,12 @@ cada caso límite nuevo:
   `res/xml/accessibility_service_config.xml` y `proguard-rules.pro`;
 - `.github/workflows/`, `.github/dependabot.yml`, `renovate.json` y
   `gradle/libs.versions.toml`;
-- los ficheros legales: `license`, `notice`, `third_party_licenses.md`, `privacy*.md`,
-  `permissions*.md`, `disclaimer*.md` y los `assets/*.html` de la app.
+- los ficheros legales: `license`, `notice`, y `repo-docs/third_party_licenses.md`,
+  `repo-docs/privacy*.md`, `repo-docs/permissions*.md`, `repo-docs/disclaimer*.md` y los
+  `assets/*.html` de la app.
 
 las reglas para el código de seguridad están en
-[`08-seguridad.md`](./documentation/es/desarrolladores/08-seguridad.md#reglas-al-tocar-seguridad).
+[`08-seguridad.md`](../documentation/es/desarrolladores/08-seguridad.md#reglas-al-tocar-seguridad).
 
 ---
 
@@ -151,8 +152,8 @@ las reglas para el código de seguridad están en
   registran como deuda aceptada.
 - **sin actualizaciones automáticas de dependencias.** `gradle/libs.versions.toml` se edita
   a mano, en un commit que lleva su propia verificación. las pull requests de bots las
-  rechaza [`dependency-policy.yml`](./.github/workflows/dependency-policy.yml). una
-  dependencia nueva actualiza también [`third_party_licenses.md`](./third_party_licenses.md)
+  rechaza [`dependency-policy.yml`](./workflows/dependency-policy.yml). una
+  dependencia nueva actualiza también [`third_party_licenses.md`](../repo-docs/third_party_licenses.md)
   y la pantalla de licencias de la app.
 - **los textos visibles viven en `strings.xml`** y se traducen a `es`, `fr` y `de`.
 - **la documentación es bilingüe.** un cambio de comportamiento que un usuario o un
@@ -160,13 +161,13 @@ las reglas para el código de seguridad están en
   mismos ficheros, secciones y datos.
 
 la lista completa, con el motivo de cada regla, está en
-[`12-contribuir.md`](./documentation/es/desarrolladores/12-contribuir.md#reglas-innegociables).
+[`12-contribuir.md`](../documentation/es/desarrolladores/12-contribuir.md#reglas-innegociables).
 
 ---
 
 ## LICENCIA
 
-focusphone se distribuye con una [licencia no comercial propia](./license), que no es una
+focusphone se distribuye con una [licencia no comercial propia](../license), que no es una
 licencia de código abierto aprobada por la osi. al abrir una pull request aceptas que tu
 contribución quede bajo esos mismos términos.
 
