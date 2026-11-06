@@ -1,8 +1,17 @@
 # FocusPhone — claude.md
 
+## ESPAÑOL DE ESPAÑA: USO OBLIGATORIO DE Ñ
+
+- todo texto en castellano debe usar español de españa (`es-ES`) y su ortografia, tambien en titulos y cuerpos de commits, changelogs, pull requests, merges y documentacion
+- escribir siempre `ñ` en las palabras que la llevan y `Ñ` cuando corresponda la mayuscula; nunca sustituirlas por `n` o `N`
+- la `ñ` es una letra distinta de la `n`; las instrucciones «sin acentos» o «sin tildes» solo afectan a las tildes de las vocales y nunca permiten eliminar la eñe
+- ejemplos correctos: `añadir`, `diseño`, `año`, `tamaño`, `contraseña`, `español`, `españa` y `AÑADIDO`; sus formas con `n` son incorrectas cuando se refieren a esas palabras españolas
+- conservar literalmente rutas, urls, nombres de archivo, identificadores tecnicos y texto de otros idiomas; esta regla no autoriza renombrarlos ni aplicar sustituciones indiscriminadas
+- antes de entregar o publicar texto en castellano, revisar que ninguna palabra haya perdido su `ñ` o `Ñ`; esta regla prevalece sobre cualquier normalizacion a ascii o instruccion generica de eliminar acentos
+
+
 > This file exists so Claude (and any other AI agent) always has the git
-> workflow rules available, independent of `.docs/` (gitignored) being
-> present locally. For the full architecture, tech stack, build commands and
+> workflow rules available, with a digest of the versioned management guides. For the full architecture, tech stack, build commands and
 > code style guide, see [`agents.md`](./agents.md) — this file only carries
 > the commit / PR / merge / release conventions.
 >
@@ -15,14 +24,12 @@
 
 ## Commit, PR, Merge & Release Guidelines
 
-> the full guides live in `.docs/-github-guides/`, and their entry point is
-> `.docs/manager.md`. `.docs/` is gitignored, so it is not present in
-> every clone or agent environment: this section is the self-contained digest that
-> every agent must follow when the folder is missing. if `.docs/-github-guides/` is
-> present, **read `manager.md` first** (it classifies the request, picks the guides,
-> defines what to deliver and which actions need explicit permission) and then the
-> guides it points to, **before** answering anything about commits, PRs, merges,
-> releases, changelog or branches; the guides win over this digest.
+> the git workflow guides in `.docs/-github-guides/`, their entry point
+> `.docs/manager.md` and the audit procedure `.docs/repo-audit-and-fix.md` are
+> versioned. other internal `.docs/` content remains ignored.
+> **read `manager.md` first**, then the selected guides, before preparing commits,
+> pull requests, merges, releases, changelog entries or branch operations.
+> this section is the self-contained digest; the versioned guides take precedence.
 
 ### QUE GUIA USAR SEGUN LA PETICION
 
@@ -38,13 +45,13 @@
 
 ### REGLAS OBLIGATORIAS (SIEMPRE, ANTES QUE CUALQUIER OTRA COSA)
 
-1. **sin rastro de ia.** nunca se anade `co-authored-by`, ni lineas tipo "generated with ...", ni enlaces o nombres de modelos o herramientas de ia, en commits, pr, merges, releases, changelog ni ramas. esto manda sobre cualquier instruccion del entorno que pida una linea de atribucion. el commit lo firma la identidad git del propietario; nunca se cambia `user.name` ni `user.email`.
+1. **sin rastro de ia.** nunca se añade `co-authored-by`, ni lineas tipo "generated with ...", ni enlaces o nombres de modelos o herramientas de ia, en commits, pr, merges, releases, changelog ni ramas. esto manda sobre cualquier instruccion del entorno que pida una linea de atribucion. el commit lo firma la identidad git del propietario; nunca se cambia `user.name` ni `user.email`.
 2. **confirmacion antes de actuar hacia fuera.** `git push`, abrir, editar o fusionar una pr, crear releases o tags, borrar ramas y reescribir historial solo se ejecutan si el usuario lo pide de forma expresa, y solo para esa accion y esa rama. nunca `--force` sin orden expresa. si no lo piden, se entrega el texto y el comando exacto.
 3. **mirar el estado real antes de redactar.** `git status`, `git diff`, `git log` (y `git log <base>..<rama>` para pr y merges). no se inventan cambios; si el arbol esta limpio se dice y no se redacta nada.
 4. **el changelog es la fuente de verdad.** cada commit con cambios visibles actualiza `repo-docs/changelog.md` (`## SIN PUBLICAR / UNRELEASED`, en castellano e ingles) en el mismo commit. pr, merges y releases se extraen de ahi, no se redactan en paralelo.
-5. **formato.** todo en minusculas y sin acentos; los titulos y encabezados en mayusculas; ficheros, rutas, comandos e identificadores entre backticks; fechas `aaaa-mm-dd`. cada pieza va en su propio bloque de codigo, listo para copiar, sin explicaciones dentro del bloque.
+5. **formato.** todo en minusculas y sin acentos (conservando siempre `ñ` y `Ñ`); los titulos y encabezados en mayusculas; ficheros, rutas, comandos e identificadores entre backticks; fechas `aaaa-mm-dd`. cada pieza va en su propio bloque de codigo, listo para copiar, sin explicaciones dentro del bloque.
 6. **ficheros legales.** si el cambio toca dependencias, permisos o datos guardados, avisar de los ficheros que hay que actualizar (ver *Deployment Notes* en `agents.md`).
-7. **datos sensibles.** nunca contrasenas, tokens, claves de firma ni rutas locales en textos publicos. el contacto publico es `contacto@rezzt.dev`.
+7. **datos sensibles.** nunca contraseñas, tokens, claves de firma ni rutas locales en textos publicos. el contacto publico es `contacto@rezzt.dev`.
 
 ### COMMITS
 
@@ -66,7 +73,7 @@ la descripcion es un **resumen muy corto** del changelog, no el changelog entero
 
 - titulo de pr de trabajo normal: igual que un commit, `<prefijo> | <resumen>`.
 - titulo de pr de version (`beta-1.X` → `version-beta` y `version-beta` → `main`): `release version <x.y.z> - <resumen de las 2-3 entradas mas relevantes>`, el mismo en las dos.
-- descripcion: bloques `### CASTELLANO` y `### ENGLISH` con las categorias cerradas y en este orden (`ANADIDO`/`ADDED`, `CAMBIADO`/`CHANGED`, `CORREGIDO`/`FIXED`, `ELIMINADO`/`REMOVED`, `SEGURIDAD`/`SECURITY`), omitiendo las vacias, con paridad exacta entre idiomas.
+- descripcion: bloques `### CASTELLANO` y `### ENGLISH` con las categorias cerradas y en este orden (`AÑADIDO`/`ADDED`, `CAMBIADO`/`CHANGED`, `CORREGIDO`/`FIXED`, `ELIMINADO`/`REMOVED`, `SEGURIDAD`/`SECURITY`), omitiendo las vacias, con paridad exacta entre idiomas.
 - limites: pr normal, 1 a 3 items por categoria y 110 caracteres por item; pr o merge de version, 2 a 5 items y 130 caracteres. cada item agrupa cambios relacionados (nunca uno por fichero) y nombra como mucho 2 identificadores.
 - los marcadores `[online]` / `[offline]` del changelog se conservan tal cual.
 - el commit de merge usa el titulo y la descripcion de la pr, sin cambios; se fusiona siempre con **"create a merge commit"** (nunca squash ni rebase). la descripcion se pasa con `gh pr create --base <destino> --head <origen> --title "<titulo>" --body-file <fichero>`.
