@@ -87,6 +87,7 @@
 - actualizar `security.md` a la beta: tabla real de versiones soportadas, verificacion del apk con `SHA256SUMS` y la huella sha-256 del certificado de firma, aviso de que `v1.0.0-beta` se firmo con otra clave y hay que desinstalarla, y `contacto@rezzt.dev` como canal mientras el informe privado de github no este activado
 - sustituir `code_of_conduct.md` por el texto literal del contributor covenant 2.1 con `contacto@rezzt.dev` como contacto de cumplimiento, y ampliar `contributing.md` con el flujo de ramas `beta-1.X` → `version-beta` → `main`, el formato del changelog y la lista de codigo sensible que exige revision
 - hacer bilingues las plantillas de issues y de pull request, sustituir `privacy@rezzt.dev` y `conduct@rezzt.dev` por `contacto@rezzt.dev`, añadir el origen del apk y las areas de cuadricula y widgets al informe de error, y alinear la plantilla de pull request con el bloque `### CASTELLANO` / `### ENGLISH` del changelog
+- subir la version a `versionName` `1.4.0-beta` y `versionCode` 4 en `app/build.gradle.kts`, porque `v1.0.0-beta` y `v1.4-beta` se publicaron las dos como `1.0.6` (`versionCode` 3) y "acerca de" no permitia distinguirlas
 
 #### CORREGIDO
 - aplicar los bloqueos de horario y limite diario al abrir aplicaciones desde recientes y accesos frecuentes mediante cambios de ventana, y avisar de la necesidad del servicio de accesibilidad para todas las reglas
@@ -230,6 +231,7 @@
 - update `security.md` for the beta: the real supported versions table, apk verification with `SHA256SUMS` and the signing certificate sha-256 fingerprint, a warning that `v1.0.0-beta` was signed with another key and must be uninstalled, and `contacto@rezzt.dev` as the channel while github private reporting is not enabled
 - replace `code_of_conduct.md` with the verbatim contributor covenant 2.1 text with `contacto@rezzt.dev` as the enforcement contact, and extend `contributing.md` with the `beta-1.X` → `version-beta` → `main` branch flow, the changelog format and the list of sensitive code that requires review
 - make the issue and pull request templates bilingual, replace `privacy@rezzt.dev` and `conduct@rezzt.dev` with `contacto@rezzt.dev`, add the apk source and the grid and widget areas to the bug report, and align the pull request template with the changelog `### CASTELLANO` / `### ENGLISH` block
+- bump the version to `versionName` `1.4.0-beta` and `versionCode` 4 in `app/build.gradle.kts`, because `v1.0.0-beta` and `v1.4-beta` both shipped as `1.0.6` (`versionCode` 3) and "about" could not tell them apart
 
 #### FIXED
 - enforce time windows and daily limits when apps open from recents and suggested shortcuts through window change events, and show the accessibility warning for every schedule rule
