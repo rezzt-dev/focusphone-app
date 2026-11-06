@@ -49,7 +49,8 @@
     <string name="settings_clock_style_label">style d\'horloge</string>
     <string name="settings_clock_size">taille de l\'horloge</string>
     <string name="settings_text_size">taille du texte</string>
-    <string name="settings_text_size_pt">taille du texte : %1$dpt</string>
+    <string name="settings_text_size_pt">taille du texte de l\'app : %1$dpt</string>
+    <string name="settings_home_text_size_pt">taille du texte de l\'accueil : %1$dpt</string>
     <string name="settings_section_font">police</string>
     <string name="settings_section_text_layout">texte et disposition</string>
     <string name="settings_font_label">police du launcher</string>

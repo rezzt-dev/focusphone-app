@@ -47,7 +47,8 @@
     <string name="settings_clock_style_label">uhrstil</string>
     <string name="settings_clock_size">uhrgröße</string>
     <string name="settings_text_size">textgröße</string>
-    <string name="settings_text_size_pt">textgröße: %1$dpt</string>
+    <string name="settings_text_size_pt">textgröße app: %1$dpt</string>
+    <string name="settings_home_text_size_pt">textgröße startseite: %1$dpt</string>
     <string name="settings_section_font">schriftart</string>
     <string name="settings_section_text_layout">text und layout</string>
     <string name="settings_font_label">launcher-schriftart</string>

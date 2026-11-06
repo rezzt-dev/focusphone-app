@@ -98,6 +98,9 @@ import java.util.Locale
 
 class HomeActivity : BaseActivity() {
 
+    override fun userFontScale(context: android.content.Context): Float =
+        FontPreferences.getHomeFontScale(context)
+
     private lateinit var binding: ActivityHomeBinding
     private lateinit var gestureDetector: GestureDetector
 

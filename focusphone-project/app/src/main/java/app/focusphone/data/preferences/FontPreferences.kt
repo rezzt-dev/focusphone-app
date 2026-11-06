@@ -124,6 +124,25 @@ object FontPreferences {
         return size / DEFAULT_FONT_SIZE_PT.toFloat()
     }
 
+    // ── Home text size (independent from the app/settings size above) ──
+
+    private const val KEY_HOME_FONT_SIZE_PT = "home_font_size_pt"
+
+    /** Until the user picks a home size it follows the app size, so upgrading changes nothing. */
+    fun getHomeFontSizePt(context: Context): Int {
+        val p = prefs(context)
+        if (!p.contains(KEY_HOME_FONT_SIZE_PT)) return getFontSizePt(context)
+        return sanitizeFontSize(p.getInt(KEY_HOME_FONT_SIZE_PT, DEFAULT_FONT_SIZE_PT))
+    }
+
+    fun setHomeFontSizePt(context: Context, size: Int) {
+        val coerced = size.coerceIn(MIN_FONT_SIZE_PT, MAX_FONT_SIZE_PT)
+        prefs(context).edit { putInt(KEY_HOME_FONT_SIZE_PT, coerced) }
+    }
+
+    fun getHomeFontScale(context: Context): Float =
+        getHomeFontSizePt(context) / DEFAULT_FONT_SIZE_PT.toFloat()
+
     /** Invalid persisted values recover to the calm default, never to an extreme. */
     internal fun sanitizeFontSize(size: Int): Int =
         if (size in MIN_FONT_SIZE_PT..MAX_FONT_SIZE_PT) size else DEFAULT_FONT_SIZE_PT

@@ -136,11 +136,18 @@ abstract class BaseActivity : AppCompatActivity() {
         )
     }
 
+    /**
+     * User text-size multiplier for this screen. Called from attachBaseContext, so it must not
+     * touch instance state. The home screen overrides it with its own, independent size.
+     */
+    protected open fun userFontScale(context: android.content.Context): Float =
+        FontPreferences.getFontScale(context)
+
     override fun attachBaseContext(newBase: android.content.Context) {
         try {
             val config = android.content.res.Configuration(newBase.resources.configuration)
             val systemFontScale = newBase.resources.configuration.fontScale
-            val userMultiplier = FontPreferences.getFontScale(newBase)
+            val userMultiplier = userFontScale(newBase)
             config.fontScale = (systemFontScale * userMultiplier).coerceIn(0.5f, 2.0f)
             val context = newBase.createConfigurationContext(config)
             super.attachBaseContext(context)
@@ -151,7 +158,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        currentFontScale = FontPreferences.getFontScale(this)
+        currentFontScale = userFontScale(this)
         currentFontFamily = FontPreferences.getFont(this).key
         applyTheme()
         super.onCreate(savedInstanceState)
@@ -713,7 +720,7 @@ abstract class BaseActivity : AppCompatActivity() {
         // records the new state, which used to make this comparison always equal, so
         // screens inflated with (or without) a wallpaper never picked up the change.
         val activeTheme = ThemePreferences.getEffectiveTheme(this)
-        val activeFontScale = FontPreferences.getFontScale(this)
+        val activeFontScale = userFontScale(this)
         val activeFontFamily = FontPreferences.getFont(this).key
         val activeHasWallpaper = hasSurfaceWallpaper()
         val fontScaleChanged = kotlin.math.abs(activeFontScale - (currentFontScale ?: 0f)) > 0.01f

@@ -145,7 +145,8 @@
     <string name="nav_back">atrás</string>
     <string name="settings_clock_size">tamaño del reloj</string>
     <string name="settings_text_size">tamaño de texto</string>
-    <string name="settings_text_size_pt">tamaño de texto: %1$dpt</string>
+    <string name="settings_text_size_pt">tamaño de texto de la app: %1$dpt</string>
+    <string name="settings_home_text_size_pt">tamaño de texto de la home: %1$dpt</string>
     <string name="settings_hide_status_bar">ocultar barra de estado</string>
     <string name="settings_hide_status_bar_desc">esconde la barra superior para mayor minimalismo</string>
 

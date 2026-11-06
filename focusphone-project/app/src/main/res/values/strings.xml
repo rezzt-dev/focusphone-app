@@ -183,7 +183,8 @@
     <string name="settings_privacy_policy_fallback">see privacy_policy.html in app assets.</string>
     <string name="settings_clock_size">clock size</string>
     <string name="settings_text_size">text size</string>
-    <string name="settings_text_size_pt">text size: %1$dpt</string>
+    <string name="settings_text_size_pt">app text size: %1$dpt</string>
+    <string name="settings_home_text_size_pt">home text size: %1$dpt</string>
     <string name="settings_app_spacing">app spacing</string>
     <string name="settings_app_spacing_dp">app spacing: %1$ddp</string>
     <string name="settings_hide_status_bar">hide status bar</string>
