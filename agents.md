@@ -1,6 +1,8 @@
 # FocusPhone — Agent Guide
 
 > **FocusPhone** is a minimalist Android launcher designed to reduce digital distraction. It replaces the device's home screen with a grid holding a clock, up to 10 favourite apps shown as text and any number of widgets (20 built-in ones included), with a calendar in the side menu. It supports contextual profiles (Normal, Work, Detox), a "Conscious Pause" breathing timer before opening apps, and extensive theming.
+>
+> **Git workflow (commits, PRs, merges, releases):** when asked for a commit, PR, merge or release title/description, follow the last section of this file ("Commit, PR, Merge & Release Guidelines") and, if present, the guides in `.docs/-github-guides/`. Never add AI attribution of any kind.
 
 ---
 
@@ -549,280 +551,73 @@ single page: the drawers already own the horizontal swipes.
 
 ## Commit, PR, Merge & Release Guidelines
 
-> `.docs/` is gitignored (not present in every clone or agent environment), so the
-> full content of `.docs/commit-guidelines.md` and `.docs/pr-merge-release-guidelines.md`
-> is duplicated below verbatim. Both `agents.md` and `claude.md` carry the same copy so
-> any agent has it regardless of which file it reads first. If `.docs/` is present
-> locally, treat it as the source of truth and keep this copy in sync with it.
+> the full guides live in `.docs/-github-guides/`, and their entry point is
+> `.docs/manager.md`. `.docs/` is gitignored, so it is not present in
+> every clone or agent environment: this section is the self-contained digest that
+> every agent must follow when the folder is missing. if `.docs/-github-guides/` is
+> present, **read `manager.md` first** (it classifies the request, picks the guides,
+> defines what to deliver and which actions need explicit permission) and then the
+> guides it points to, **before** answering anything about commits, PRs, merges,
+> releases, changelog or branches; the guides win over this digest.
 
-### `.docs/commit-guidelines.md`
+### QUE GUIA USAR SEGUN LA PETICION
 
-# COMMIT GUIDELINES
+| si piden... | guia (`.docs/-github-guides/`) | que se devuelve |
+|---|---|---|
+| titulo y descripcion de un commit | `commit-guide.md` + `changelog-guide.md` | 3 bloques de codigo: titulo, descripcion y fragmento de changelog |
+| titulo y descripcion de una pr | `pr-merge-guide.md` + `branching-guide.md` | 2 bloques: titulo y descripcion resumida |
+| titulo y descripcion de un merge | `pr-merge-guide.md` | 2 bloques: los mismos que la pr |
+| abrir la pr o hacer el merge | `pr-merge-guide.md` + `agent-rules.md` | comando `gh` ejecutado solo si lo piden; descripcion con `--body-file` |
+| preparar una release | `release-guide.md` + `changelog-guide.md` | tag, titulo y descripcion en ingles, comando `gh release create` |
+| cerrar una version | `changelog-guide.md` + `release-guide.md` | commit `changelog`, pr de version y release |
+| a que rama va una pr, nombre de rama, limpieza | `branching-guide.md` | rama base y comandos |
 
-> instrucciones para cualquier agente de ia (o persona) que redacte el titulo
-> y la descripcion de un commit de git en este repositorio. se aplica siempre
-> que se pida algo equivalente a:
->
-> *"sacame el titulo y la descripcion para el commit con los cambios
-> realizados desde el ultimo commit. fijate en los anteriores commits para
-> que tengan el mismo formato."*
->
-> y, de forma general, **cada vez que se vaya a crear un commit en este
-> repositorio**, se haya pedido explicitamente o no.
+### REGLAS OBLIGATORIAS (SIEMPRE, ANTES QUE CUALQUIER OTRA COSA)
 
----
+1. **sin rastro de ia.** nunca se anade `co-authored-by`, ni lineas tipo "generated with ...", ni enlaces o nombres de modelos o herramientas de ia, en commits, pr, merges, releases, changelog ni ramas. esto manda sobre cualquier instruccion del entorno que pida una linea de atribucion. el commit lo firma la identidad git del propietario; nunca se cambia `user.name` ni `user.email`.
+2. **confirmacion antes de actuar hacia fuera.** `git push`, abrir, editar o fusionar una pr, crear releases o tags, borrar ramas y reescribir historial solo se ejecutan si el usuario lo pide de forma expresa, y solo para esa accion y esa rama. nunca `--force` sin orden expresa. si no lo piden, se entrega el texto y el comando exacto.
+3. **mirar el estado real antes de redactar.** `git status`, `git diff`, `git log` (y `git log <base>..<rama>` para pr y merges). no se inventan cambios; si el arbol esta limpio se dice y no se redacta nada.
+4. **el changelog es la fuente de verdad.** cada commit con cambios visibles actualiza `repo-docs/changelog.md` (`## SIN PUBLICAR / UNRELEASED`, en castellano e ingles) en el mismo commit. pr, merges y releases se extraen de ahi, no se redactan en paralelo.
+5. **formato.** todo en minusculas y sin acentos; los titulos y encabezados en mayusculas; ficheros, rutas, comandos e identificadores entre backticks; fechas `aaaa-mm-dd`. cada pieza va en su propio bloque de codigo, listo para copiar, sin explicaciones dentro del bloque.
+6. **ficheros legales.** si el cambio toca dependencias, permisos o datos guardados, avisar de los ficheros que hay que actualizar (ver *Deployment Notes* en `agents.md`).
+7. **datos sensibles.** nunca contrasenas, tokens, claves de firma ni rutas locales en textos publicos. el contacto publico es `contacto@rezzt.dev`.
 
-#### FORMATO FIJO DEL TITULO
+### COMMITS
 
-```
-<prefijo> | <resumen corto en imperativo>
-```
+titulo: `<prefijo> | <resumen corto en imperativo>` (maximo 72 caracteres, sin punto final). separador fijo: espacio, barra vertical, espacio.
 
-el separador es siempre espacio, barra vertical, espacio: ` | `. el
-`<prefijo>` es siempre una de estas cinco palabras, en minusculas, y nunca
-se combinan ni se inventan otras nuevas:
-
-| prefijo | cuando usarlo |
+| prefijo | cuando |
 |---|---|
-| **update** | trabajo normal hacia adelante: se añade o mejora una funcionalidad, contenido o documento existente. es el prefijo por defecto. |
-| **fix** | se corrige un error o comportamiento incorrecto detectado durante el desarrollo, sin urgencia de publicacion inmediata. |
-| **hotfix** | se corrige algo urgente que afecta a una version ya publicada o a un bloqueo critico. debe usarse solo cuando la correccion es realmente urgente. |
-| **changes** | cambios estructurales o no funcionales: reorganizar carpetas, renombrar ficheros, tocar configuracion o tooling, dependencias. no anade funcionalidad ni corrige un bug. |
-| **changelog** | el unico proposito del commit es editar `changelog.md` (por ejemplo, al cerrar una version). |
+| `update` | trabajo normal hacia adelante (por defecto) |
+| `fix` | correccion de un error sin urgencia de publicacion |
+| `hotfix` | correccion urgente sobre una version publicada o un bloqueo critico |
+| `changes` | estructura, ficheros, configuracion, tooling, dependencias |
+| `changelog` | el unico cambio es `repo-docs/changelog.md` |
 
-ejemplos de titulos correctos:
+descripcion: lista no numerada, un item por linea continua en imperativo, entre 2 y 6 items, sin lineas en blanco entre items, explicando el que y el por que. **no termina con ninguna linea de atribucion ni firma.** si el commit mezcla temas, se propone dividirlo. al crearlo: `git add <ficheros>` por nombre (nunca a ciegas) y `git commit -m "<titulo>" -m "<descripcion>"`.
 
-```
-update | añadir vista previa de mapeo de columnas al asistente de importación csv
-fix | detección de duplicados fallando en filas con importes negativos
-hotfix | fallo al iniciar cuando falta el archivo de perfil de importación
-changes | reorganizar la documentación en la subcarpeta project-context
-changelog | cerrar la sección de changelog para la versión mvp fase 0
-```
+### PULL REQUESTS Y MERGES (DESCRIPCION SINTETIZADA)
 
----
+la descripcion es un **resumen muy corto** del changelog, no el changelog entero; el detalle vive en `repo-docs/changelog.md`.
 
-#### FORMATO DE LA DESCRIPCION (CUERPO)
+- titulo de pr de trabajo normal: igual que un commit, `<prefijo> | <resumen>`.
+- titulo de pr de version (`beta-1.X` → `version-beta` y `version-beta` → `main`): `release version <x.y.z> - <resumen de las 2-3 entradas mas relevantes>`, el mismo en las dos.
+- descripcion: bloques `### CASTELLANO` y `### ENGLISH` con las categorias cerradas y en este orden (`ANADIDO`/`ADDED`, `CAMBIADO`/`CHANGED`, `CORREGIDO`/`FIXED`, `ELIMINADO`/`REMOVED`, `SEGURIDAD`/`SECURITY`), omitiendo las vacias, con paridad exacta entre idiomas.
+- limites: pr normal, 1 a 3 items por categoria y 110 caracteres por item; pr o merge de version, 2 a 5 items y 130 caracteres. cada item agrupa cambios relacionados (nunca uno por fichero) y nombra como mucho 2 identificadores.
+- los marcadores `[online]` / `[offline]` del changelog se conservan tal cual.
+- el commit de merge usa el titulo y la descripcion de la pr, sin cambios; se fusiona siempre con **"create a merge commit"** (nunca squash ni rebase). la descripcion se pasa con `gh pr create --base <destino> --head <origen> --title "<titulo>" --body-file <fichero>`.
 
-- el cuerpo es siempre **una lista de markdown no numerada**: cada item empieza
-  por `-`. nunca se usan listas numeradas ni parrafos sueltos.
-- cada item es un bloque logico en imperativo, escrito como **una sola linea
-  continua**, sin saltos de linea internos: no son esteticos ni utiles, deja
-  que el cliente de git lo ajuste. no se dejan lineas en blanco entre items.
-- usa markdown dentro de cada item: nombres de ficheros, rutas, comandos e
-  identificadores siempre entre backticks.
-- explica el que y el por que, no el detalle linea a linea.
-- cierra con una linea en blanco y la linea de atribucion que corresponda al
-  entorno.
+### RAMAS
 
----
+`feature/*`, `fix/*`, `changes/*` → `beta-1.X` → `version-beta` → `main` → tag `v<x.y.z>` + release. los `hotfix/*` salen de `main` y despues se traen a `version-beta` y `beta-1.X`. las ramas se crean siempre desde `beta-1.X`, una rama por tema, y se borran (local y remota) en cuanto su pr se fusiona. `beta-1.X`, `version-beta` y `main` nunca se borran. antes de abrir una pr se comprueba con `git log <origen>..<destino>` que el destino no tiene commits que la rama no tenga.
 
-#### COMO PRESENTAR EL RESULTADO
+### RELEASES
 
-al responder con el titulo y la descripcion hay que usar **bloques de codigo
-separados**: uno para el titulo del commit y otro para el cuerpo del commit (mas
-otro para el fragmento del changelog). nunca se juntan el titulo y el cuerpo en
-el mismo bloque.
+- tag siempre `v<x.y.z>`, sobre el commit de merge en `main`; un tag publicado no se mueve ni se borra.
+- titulo: `v<x.y.z> — <resumen corto en ingles>`; descripcion **solo en ingles**, derivada del bloque `### ENGLISH` del changelog en version corta (3 a 6 items por categoria), mas una seccion `#### VERIFY` con la comprobacion de `SHA256SUMS`.
+- activos: el apk firmado y `SHA256SUMS`, nada mas; las betas se marcan como pre-release.
+- requisitos: changelog cerrado como `## [x.y.z] - aaaa-mm-dd` (commit `changelog`), pr `version-beta` → `main` fusionada, `versionName` y `versionCode` subidos y `android-ci` en verde.
 
-### `.docs/pr-merge-release-guidelines.md`
+### COMO PRESENTAR EL RESULTADO
 
-# PR, MERGE Y RELEASE GUIDELINES
-
-> instrucciones para cualquier agente de ia (o persona) que redacte el titulo
-> y la descripcion de una **pull request**, de un **commit de merge** o de una
-> **release de github** en este repositorio, de forma que su contenido lea
-> como una extension directa de `changelog.md` en lugar de un formato distinto
-> por cada canal. se aplica siempre que se pida algo equivalente a:
->
-> *"sacame el titulo y la descripcion para la pull request / el merge / la
-> release con los cambios de esta version. usa el mismo formato que
-> `changelog.md`."*
->
-> y, de forma general, **cada vez que se vaya a abrir una pull request, hacer
-> un merge o publicar una release en este repositorio**, se haya pedido
-> explicitamente o no.
-
-este documento asume conocido el formato de `changelog.md` (descrito en
-`agents.md` y `claude.md`, seccion "formato de las secciones de
-`changelog.md`") y el de los commits (`.docs/commit-guidelines.md`). no lo
-repite salvo lo estrictamente necesario.
-
----
-
-#### PRINCIPIO GENERAL
-
-pull requests, merges y releases **no inventan su propio formato**: reusan
-literalmente el contenido y las reglas de estilo de `changelog.md`.
-
-- **minusculas y sin acentos** en todo el contenido; los titulos/encabezados
-  van en mayusculas y sin acentos.
-- **categorias cerradas**, las mismas cinco de `changelog.md` y en el mismo
-  orden — nunca, cambios, corregido, eliminado, seguridad
-  (added / changed / fixed / removed / security) — omitiendo la que no tenga
-  items.
-- **una linea por item**, en imperativo, con nombres de ficheros, rutas,
-  comandos e identificadores entre backticks.
-- las fechas usan el formato `aaaa-mm-dd`.
-- las entradas `[online]` / `[offline]` de `changelog.md` (cambios que solo
-  afectan a una de las dos versiones de la app) se conservan tal cual en pr,
-  merge y release: no se separan ni se traducen a otro marcador.
-
-la fuente de verdad es siempre `changelog.md`: antes de redactar una pr, un
-merge o una release, la seccion `## SIN PUBLICAR / UNRELEASED` (o la version
-ya cerrada correspondiente) debe estar actualizada. el contenido de pr, merge
-y release se **extrae** de ahi, no se redacta desde cero ni en paralelo.
-
----
-
-#### 1. PULL REQUESTS
-
-hay dos tipos de pr en este repositorio y cada una tiene su propio formato de
-titulo; la descripcion es igual para las dos.
-
-##### 1.1 titulo
-
-**pr de trabajo normal** (una rama `feature/...` o `fix/...` contra
-`testing-branch`, o cualquier pr que no cierra una version): mismo formato
-que el titulo de un commit, definido en `.docs/commit-guidelines.md`:
-
-```
-<prefijo> | <resumen corto en imperativo>
-```
-
-usando el mismo prefijo (`update`, `fix`, `hotfix`, `changes`, `changelog`) y
-las mismas reglas — si la pr agrupa varios commits, el resumen describe el
-conjunto, no cada commit por separado.
-
-**pr de publicacion de version** (`testing-branch` → `release-branch` /
-`main`, cierra una version de `changelog.md`): sigue el patron ya usado en
-los merges anteriores del repositorio (`release version 1.6 - supabase cloud
-sync, onyx theme and task detail redesign`):
-
-```
-release version <x.y.z> - <resumen corto en imperativo>
-```
-
-el resumen corto resume las 2-3 entradas mas relevantes de la version, igual
-que en el ejemplo anterior.
-
-##### 1.2 descripcion
-
-la descripcion es el bloque `### CASTELLANO` + `### ENGLISH` de la seccion
-correspondiente de `changelog.md` (la version que cierra la pr, o el
-subconjunto de `## SIN PUBLICAR / UNRELEASED` que aporta esa pr), pegado tal
-cual, con sus encabezados `####` de categoria:
-
-```
-### CASTELLANO
-
-#### <categoria>
-- <cambio en una linea>
-
-### ENGLISH
-
-#### <category>
-- <same change, one line>
-```
-
-si la pr solo aporta una parte de `## SIN PUBLICAR / UNRELEASED` (por
-ejemplo, varias pr pequenas alimentan la misma version antes de cerrarla),
-la descripcion incluye solo los items que introduce esa pr, no la seccion
-entera.
-
-no se anaden parrafos sueltos, capturas de pantalla incrustadas como texto,
-ni resumenes adicionales fuera de la lista: si hace falta contexto extra (por
-ejemplo, capturas de pantalla de cambios visuales, ver `agents.md` seccion
-10), se anade **despues** de la lista, nunca sustituyendola.
-
----
-
-#### 2. COMMIT DE MERGE
-
-github genera el commit de merge a partir del titulo y la descripcion de la
-pr automaticamente (`Merge pull request #<n> from <rama>` como primera linea,
-seguido del titulo y cuerpo de la pr). por tanto:
-
-- si la pr cumple las secciones 1.1 y 1.2, el commit de merge ya cumple este
-  formato sin trabajo adicional.
-- usa siempre **"create a merge commit"** al fusionar (nunca squash ni
-  rebase): el historial de commits individuales, redactado segun
-  `.docs/commit-guidelines.md`, debe conservarse completo junto al resumen de
-  la pr en el commit de merge.
-- si el merge se hace manualmente por git (`git merge --no-ff`), el mensaje
-  del commit de merge se redacta a mano siguiendo el mismo titulo (seccion
-  1.1) y el mismo cuerpo (seccion 1.2) que llevaria la pr equivalente.
-
----
-
-#### 3. RELEASES DE GITHUB
-
-las releases de github son **en ingles unicamente** (no bilingues, a
-diferencia de `changelog.md` y de las pr): son la cara publica del proyecto
-de cara a usuarios que no necesariamente leen castellano.
-
-##### 3.1 titulo de la release
-
-```
-v<x.y.z> — <resumen corto en ingles, minusculas, sin acentos>
-```
-
-ejemplo (formato ya usado en `.docs/releases-docs/`):
-
-```
-v1.7 — 100% offline, reminders redesign & settings categories
-```
-
-##### 3.2 descripcion de la release
-
-el cuerpo reutiliza literalmente el bloque `### ENGLISH` de la version
-cerrada en `changelog.md`, con sus categorias en mayusculas y sin acentos,
-igual que en el changelog:
-
-```
-#### ADDED
-- <change in one line>
-
-#### CHANGED
-- <change in one line>
-
-#### FIXED
-- <change in one line>
-
-#### REMOVED
-- <change in one line>
-
-#### SECURITY
-- <change in one line>
-```
-
-se omite la categoria que no tenga items, igual que en `changelog.md`. no se
-reescribe el contenido en parrafos narrativos con negritas ni se reordenan
-las categorias: la release debe poder generarse copiando y pegando el bloque
-`### ENGLISH` de la version correspondiente.
-
-> nota: los releases anteriores a esta guia (incluidos los de
-> `.docs/releases-docs/release-1.7/`) usan un formato narrativo distinto
-> (parrafos con titulo en negrita en vez de las cinco categorias). son
-> historicos y no se reescriben con esta regla; a partir de esta guia, toda
-> release nueva usa el formato de categorias descrito arriba.
-
-##### 3.3 tag
-
-el tag de git asociado a la release es siempre `v<x.y.z>` (mismo numero de
-version que la cabecera de `changelog.md`, sin sufijos adicionales).
-
----
-
-#### FLUJO RESUMIDO
-
-1. durante el desarrollo, cada commit sigue `.docs/commit-guidelines.md` y
-   cada cambio relevante se anade a `## SIN PUBLICAR / UNRELEASED` en
-   `changelog.md` en su categoria correspondiente.
-2. cada pr (normal o de version) usa el titulo y la descripcion definidos en
-   la seccion 1, extraidos de `changelog.md`.
-3. al fusionar, se usa "create a merge commit" para que el commit de merge
-   herede el formato de la pr (seccion 2).
-4. al cerrar una version: se renombra `## SIN PUBLICAR / UNRELEASED` a
-   `## [x.y.z] - aaaa-mm-dd` en `changelog.md` (commit con prefijo
-   `changelog`), se abre la pr de publicacion de version (seccion 1.1), y al
-   fusionarla se crea la release de github (seccion 3) con el tag `v<x.y.z>`.
+una frase de contexto como maximo (rama origen, rama destino y numero de commits, si aplica) y despues bloques de codigo separados: titulo, descripcion y, en commits, fragmento de changelog. nunca se juntan titulo y descripcion en un bloque. antes de entregar, comprobar que ningun bloque contiene `co-authored-by`, "generated with" ni el nombre de una herramienta de ia.

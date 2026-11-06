@@ -2,6 +2,22 @@
 
 ## SIN PUBLICAR / UNRELEASED
 
+### CASTELLANO
+
+#### CAMBIADO
+- sustituir en `agents.md` y `claude.md` la copia literal de las guias de commits y pull requests por un resumen que se entiende solo: tabla de peticion a guia, reglas obligatorias, formatos de commit, pr, merge, ramas y release, y como presentar el resultado
+- hacer que ambos ficheros remitan a `.docs/manager.md` como punto de entrada cuando exista, y que mande sobre el resumen
+- fijar que ningun commit, pr, merge ni release lleve atribucion de ia ni `co-authored-by`, y que push, pr, merge, release y borrado de ramas solo se ejecuten si se piden de forma expresa
+- pasar las descripciones de pr y merge a un resumen corto con limites de items y de longitud, en vez del bloque completo del changelog
+
+### ENGLISH
+
+#### CHANGED
+- replace the verbatim copy of the commit and pull request guides in `agents.md` and `claude.md` with a self-contained digest: request-to-guide table, mandatory rules, commit, pr, merge, branch and release formats, and how to present the result
+- make both files point to `.docs/manager.md` as the entry point when it exists, and let it take precedence over the digest
+- state that no commit, pr, merge or release carries ai attribution or `co-authored-by`, and that push, pr, merge, release and branch deletion only run when explicitly requested
+- shorten pr and merge descriptions to a brief summary with item and length limits, instead of the full changelog block
+
 ## [1.4.0] - 2026-11-06
 
 ### CASTELLANO
