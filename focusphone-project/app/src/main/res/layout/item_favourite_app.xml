@@ -5,11 +5,11 @@
 -->
 <TextView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/tv_app_name"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
+    android:minHeight="48dp"
+    android:stateListAnimator="@animator/fp_press_feedback"
     android:fontFamily="sans-serif"
     android:textStyle="bold"
     android:gravity="center_vertical|start"
@@ -18,10 +18,7 @@
     android:paddingTop="4dp"
     android:paddingEnd="44dp"
     android:paddingBottom="4dp"
-    android:textColor="?attr/android:textColorPrimary"
+    android:textColor="?android:attr/textColorPrimary"
     android:textSize="32sp"
-    app:autoSizeTextType="uniform"
-    app:autoSizeMinTextSize="16sp"
-    app:autoSizeMaxTextSize="38sp"
-    app:autoSizeStepGranularity="2sp"
+    android:ellipsize="end"
     android:maxLines="1" />

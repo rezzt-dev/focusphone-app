@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Focus profile: the active profile, and the detox time left (2 x 2). RemoteViews ignore app:tint, so android:tint is right here. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wg_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UseAppTint">
+
+    <ImageView
+        android:id="@+id/wg_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitCenter"
+        android:src="@drawable/wg_bg_squircle"
+        android:tint="@color/wg_preview_card" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/wg_badge"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:id="@+id/wg_badge_fill"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:scaleType="fitXY"
+                android:src="@drawable/wg_bg_dot"
+                android:tint="@color/wg_preview_chip" />
+
+            <ImageView
+                android:id="@+id/wg_badge_icon"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_wg_target"
+                android:tint="@color/wg_preview_text" />
+        </FrameLayout>
+        <TextView
+            android:id="@+id/wg_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-light"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/profile_normal"
+            android:textColor="@color/wg_preview_text"
+            android:textSize="22sp" />
+        <TextView
+            android:id="@+id/wg_caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/wg_profile_caption"
+            android:textColor="@color/wg_preview_text_secondary"
+            android:textSize="12sp" />
+
+        <Chronometer
+            android:id="@+id/wg_countdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:textColor="@color/wg_preview_text_secondary"
+            android:textSize="12sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</FrameLayout>

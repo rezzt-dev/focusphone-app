@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- World clock: up to three cities side by side (4 x 1). RemoteViews ignore app:tint, so android:tint is right here. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wg_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UseAppTint">
+
+    <ImageView
+        android:id="@+id/wg_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/wg_bg_card"
+        android:tint="@color/wg_preview_card" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/wg_padding_compact"
+        android:paddingEnd="@dimen/wg_padding_compact">
+
+        <LinearLayout
+            android:id="@+id/wg_col_1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/wg_city_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_city_1"
+                android:textColor="@color/wg_preview_text_secondary"
+                android:textSize="12sp" />
+
+            <TextClock
+                android:id="@+id/wg_zone_time_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-light"
+                android:format12Hour="@string/wg_format_time_12_ampm"
+                android:format24Hour="@string/wg_format_time_24"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:textColor="@color/wg_preview_text"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/wg_offset_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_offset_1"
+                android:textColor="@color/wg_preview_text_tertiary"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/wg_divider_1"
+            android:layout_width="1dp"
+            android:layout_height="32dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitXY"
+            android:src="@drawable/wg_bg_line"
+            android:tint="@color/wg_preview_track" />
+
+        <LinearLayout
+            android:id="@+id/wg_col_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/wg_city_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_city_2"
+                android:textColor="@color/wg_preview_text_secondary"
+                android:textSize="12sp" />
+
+            <TextClock
+                android:id="@+id/wg_zone_time_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-light"
+                android:format12Hour="@string/wg_format_time_12_ampm"
+                android:format24Hour="@string/wg_format_time_24"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:textColor="@color/wg_preview_text"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/wg_offset_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_offset_2"
+                android:textColor="@color/wg_preview_text_tertiary"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/wg_divider_2"
+            android:layout_width="1dp"
+            android:layout_height="32dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitXY"
+            android:src="@drawable/wg_bg_line"
+            android:tint="@color/wg_preview_track" />
+
+        <LinearLayout
+            android:id="@+id/wg_col_3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/wg_city_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_city_3"
+                android:textColor="@color/wg_preview_text_secondary"
+                android:textSize="12sp" />
+
+            <TextClock
+                android:id="@+id/wg_zone_time_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-light"
+                android:format12Hour="@string/wg_format_time_12_ampm"
+                android:format24Hour="@string/wg_format_time_24"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:textColor="@color/wg_preview_text"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/wg_offset_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_offset_3"
+                android:textColor="@color/wg_preview_text_tertiary"
+                android:textSize="11sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

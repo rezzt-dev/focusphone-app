@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_input"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tv_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/profile_select_title"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="20sp"
+        android:letterSpacing="0.02" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/textColorSecondary"
+        android:alpha="0.15"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Option: Libre -->
+    <TextView
+        android:id="@+id/btn_profile_normal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="sans-serif-light"
+        android:paddingTop="18dp"
+        android:paddingBottom="18dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/profile_normal"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="17sp" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/textColorSecondary"
+        android:alpha="0.1"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Option: Trabajo -->
+    <TextView
+        android:id="@+id/btn_profile_work"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="sans-serif-light"
+        android:paddingTop="18dp"
+        android:paddingBottom="18dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/profile_work"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="17sp" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/textColorSecondary"
+        android:alpha="0.1"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Option: Detox -->
+    <TextView
+        android:id="@+id/btn_profile_detox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="sans-serif-light"
+        android:paddingTop="18dp"
+        android:paddingBottom="18dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/profile_detox"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="17sp" />
+
+</LinearLayout>

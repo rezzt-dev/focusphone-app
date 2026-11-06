@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FocusPhone widget library: clock world (4 x 1). Sizes follow the 70 x n - 30 launcher formula. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:minWidth="250dp"
+    android:minHeight="40dp"
+    android:minResizeWidth="180dp"
+    android:minResizeHeight="40dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="1"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/widget_clock_world"
+    android:previewLayout="@layout/widget_clock_world"
+    android:previewImage="@drawable/wg_preview_tile_clock_world"
+    android:description="@string/wg_desc_clock_world"
+    android:configure="app.focusphone.ui.widget.library.WorldClockConfigActivity"
+    android:widgetFeatures="reconfigurable|configuration_optional"
+    android:widgetCategory="home_screen"
+    tools:targetApi="31" />

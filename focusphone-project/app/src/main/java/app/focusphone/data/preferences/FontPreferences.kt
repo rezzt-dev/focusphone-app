@@ -2,8 +2,8 @@ package app.focusphone.data.preferences
 
 import android.content.Context
 import android.graphics.Typeface
-import android.os.Handler
-import android.os.Looper
+import android.util.Log
+import androidx.core.content.edit
 import androidx.core.content.res.ResourcesCompat
 import app.focusphone.domain.model.AppFont
 import app.focusphone.domain.model.ClockType
@@ -23,36 +23,55 @@ object FontPreferences {
     }
 
     fun setFont(context: Context, font: AppFont) =
-        prefs(context).edit().putString(KEY_FONT, font.key).apply()
+        prefs(context).edit { putString(KEY_FONT, font.key) }
 
     /**
-     * Resolves the selected [AppFont] asynchronously.
-     * Callback is always invoked on the **main thread**.
-     * For system fonts (no download needed) it fires synchronously.
-     * For downloadable fonts it triggers an auto-download if not cached.
+     * Returns the [Typeface] for the currently selected font synchronously.
+     * Falls back to sans-serif if the font resource cannot be loaded.
      */
-    fun resolveTypeface(context: Context, callback: (Typeface) -> Unit) {
+    fun getTypeface(context: Context): Typeface {
         val font = getFont(context)
-        val mainHandler = Handler(Looper.getMainLooper())
+        return when (font) {
+            AppFont.SYSTEM -> Typeface.create("sans-serif", Typeface.BOLD)
 
-        // System fonts — instant, no download
-        when (font) {
-            AppFont.SYSTEM -> { callback(Typeface.create("sans-serif", Typeface.BOLD)); return }
-            AppFont.ARIAL  -> { callback(Typeface.SANS_SERIF); return }
-            else -> { /* downloadable — fall through */ }
+            else -> {
+                val resId = font.fontResId
+                if (resId != null) {
+                    try {
+                        ResourcesCompat.getFont(context, resId)
+                            ?: Typeface.create("sans-serif", Typeface.BOLD)
+                    } catch (e: Exception) {
+                        Log.w("FontPreferences", "Failed to load font resource $resId, falling back to sans-serif", e)
+                        Typeface.create("sans-serif", Typeface.BOLD)
+                    }
+                } else {
+                    Typeface.create("sans-serif", Typeface.BOLD)
+                }
+            }
         }
+    }
 
-        val resId = font.fontResId ?: run { callback(Typeface.DEFAULT); return }
+    /**
+     * Returns the selected bundled [Typeface], or **null** for the system font.
+     * Useful when the caller wants to reset to the theme default for SYSTEM.
+     */
+    fun getTypefaceOrNull(context: Context): Typeface? {
+        val font = getFont(context)
+        return when (font) {
+            AppFont.SYSTEM -> null
 
-        ResourcesCompat.getFont(context, resId, object : ResourcesCompat.FontCallback() {
-            override fun onFontRetrieved(typeface: Typeface) {
-                mainHandler.post { callback(typeface) }
+            else -> {
+                val resId = font.fontResId
+                if (resId != null) {
+                    try {
+                        ResourcesCompat.getFont(context, resId)
+                    } catch (e: Exception) {
+                        Log.w("FontPreferences", "Failed to resolve font $resId", e)
+                        null
+                    }
+                } else null
             }
-            override fun onFontRetrievalFailed(reason: Int) {
-                // Font unavailable (no internet / Play Services). Fall back gracefully.
-                mainHandler.post { callback(Typeface.create("sans-serif", Typeface.BOLD)) }
-            }
-        }, mainHandler)
+        }
     }
 
     // ── Clock type ────────────────────────────────────────────────
@@ -63,22 +82,70 @@ object FontPreferences {
     }
 
     fun setClockType(context: Context, type: ClockType) =
-        prefs(context).edit().putString(KEY_CLOCK, type.key).apply()
+        prefs(context).edit { putString(KEY_CLOCK, type.key) }
 
     // ── Clock size ────────────────────────────────────────────────
 
     fun getClockSize(context: Context): Float {
         val size = prefs(context).getInt(KEY_CLOCK_SIZE, 50)
-        // map 0..100 to 0.7f..1.3f multiplier for a subtle but noticeable scale
-        return 0.7f + (size / 100f * 0.6f)
+        return 0.6f + (size / 100f * 1.4f)
     }
 
-    fun getClockSizePercent(context: Context): Int {
-        return prefs(context).getInt(KEY_CLOCK_SIZE, 50)
-    }
+    fun getClockSizePercent(context: Context): Int = prefs(context).getInt(KEY_CLOCK_SIZE, 50)
 
     fun setClockSizePercent(context: Context, percent: Int) =
-        prefs(context).edit().putInt(KEY_CLOCK_SIZE, percent).apply()
+        prefs(context).edit { putInt(KEY_CLOCK_SIZE, percent) }
+
+    // ── Font Size Scale ───────────────────────────────────────────
+
+    private const val KEY_FONT_SIZE_PT = "font_size_pt"
+    private const val MIN_FONT_SIZE_PT = 8
+    private const val MAX_FONT_SIZE_PT = 24
+    private const val DEFAULT_FONT_SIZE_PT = 14
+
+    fun getFontSizePt(context: Context): Int {
+        val stored = prefs(context).getInt(KEY_FONT_SIZE_PT, DEFAULT_FONT_SIZE_PT)
+        val size = sanitizeFontSize(stored)
+        if (size != stored) {
+            // Keep this getter side-effect free: it runs from attachBaseContext() on every
+            // Activity, before onCreate and on the main thread.
+            Log.w("FontPreferences", "font_size_pt was out of range ($stored); using $size")
+        }
+        return size
+    }
+
+    fun setFontSizePt(context: Context, size: Int) {
+        val coerced = size.coerceIn(MIN_FONT_SIZE_PT, MAX_FONT_SIZE_PT)
+        prefs(context).edit { putInt(KEY_FONT_SIZE_PT, coerced) }
+    }
+
+    fun getFontScale(context: Context): Float {
+        val size = getFontSizePt(context)
+        return size / DEFAULT_FONT_SIZE_PT.toFloat()
+    }
+
+    // ── Home text size (independent from the app/settings size above) ──
+
+    private const val KEY_HOME_FONT_SIZE_PT = "home_font_size_pt"
+
+    /** Until the user picks a home size it follows the app size, so upgrading changes nothing. */
+    fun getHomeFontSizePt(context: Context): Int {
+        val p = prefs(context)
+        if (!p.contains(KEY_HOME_FONT_SIZE_PT)) return getFontSizePt(context)
+        return sanitizeFontSize(p.getInt(KEY_HOME_FONT_SIZE_PT, DEFAULT_FONT_SIZE_PT))
+    }
+
+    fun setHomeFontSizePt(context: Context, size: Int) {
+        val coerced = size.coerceIn(MIN_FONT_SIZE_PT, MAX_FONT_SIZE_PT)
+        prefs(context).edit { putInt(KEY_HOME_FONT_SIZE_PT, coerced) }
+    }
+
+    fun getHomeFontScale(context: Context): Float =
+        getHomeFontSizePt(context) / DEFAULT_FONT_SIZE_PT.toFloat()
+
+    /** Invalid persisted values recover to the calm default, never to an extreme. */
+    internal fun sanitizeFontSize(size: Int): Int =
+        if (size in MIN_FONT_SIZE_PT..MAX_FONT_SIZE_PT) size else DEFAULT_FONT_SIZE_PT
 
     // ── Internal ──────────────────────────────────────────────────
 

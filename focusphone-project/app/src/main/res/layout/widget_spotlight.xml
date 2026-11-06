@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Spotlight: search plus the first four favourite apps (4 x 2). RemoteViews ignore app:tint, so android:tint is right here. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wg_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UseAppTint">
+
+    <ImageView
+        android:id="@+id/wg_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/wg_bg_card"
+        android:tint="@color/wg_preview_card" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:padding="@dimen/wg_padding_compact">
+
+        <FrameLayout
+            android:id="@+id/wg_pill"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:contentDescription="@string/wg_search_hint">
+
+            <ImageView
+                android:id="@+id/wg_pill_bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:scaleType="fitXY"
+                android:src="@drawable/wg_bg_field"
+                android:tint="@color/wg_preview_chip" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:paddingStart="20dp"
+                android:paddingEnd="6dp">
+
+                <ImageView
+                    android:id="@+id/wg_search_icon"
+                    android:layout_width="@dimen/wg_icon"
+                    android:layout_height="@dimen/wg_icon"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_wg_search"
+                    android:tint="@color/wg_preview_text_secondary" />
+
+                <TextView
+                    android:id="@+id/wg_search_hint"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="@string/wg_search_hint"
+                    android:textColor="@color/wg_preview_text_secondary"
+                    android:textSize="15sp" />
+
+                <FrameLayout
+                    android:id="@+id/wg_apps"
+                    android:layout_width="@dimen/wg_button"
+                    android:layout_height="@dimen/wg_button"
+                    android:contentDescription="@string/wg_cd_all_apps">
+
+                    <ImageView
+                        android:id="@+id/wg_apps_icon"
+                        android:layout_width="@dimen/wg_icon"
+                        android:layout_height="@dimen/wg_icon"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_wg_layout_grid"
+                        android:tint="@color/wg_preview_text" />
+                </FrameLayout>
+            </LinearLayout>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/wg_fav_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="8dp"
+            android:letterSpacing="0.06"
+            android:fontFamily="sans-serif-medium"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/wg_favourites_header"
+            android:textColor="@color/wg_preview_text_tertiary"
+            android:textSize="11sp" />
+
+        <LinearLayout
+            android:id="@+id/wg_fav_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/wg_fav_0"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/wg_fav_0_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_chip"
+                    android:tint="@color/wg_preview_chip" />
+
+                <TextView
+                    android:id="@+id/wg_fav_0_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="@string/wg_preview_fav_1"
+                    android:textColor="@color/wg_preview_text"
+                    android:textSize="13sp" />
+            </FrameLayout>
+            <FrameLayout
+                android:id="@+id/wg_fav_1"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/wg_fav_1_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_chip"
+                    android:tint="@color/wg_preview_chip" />
+
+                <TextView
+                    android:id="@+id/wg_fav_1_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="@string/wg_preview_fav_2"
+                    android:textColor="@color/wg_preview_text"
+                    android:textSize="13sp" />
+            </FrameLayout>
+            <FrameLayout
+                android:id="@+id/wg_fav_2"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/wg_fav_2_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_chip"
+                    android:tint="@color/wg_preview_chip" />
+
+                <TextView
+                    android:id="@+id/wg_fav_2_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="@string/wg_preview_fav_3"
+                    android:textColor="@color/wg_preview_text"
+                    android:textSize="13sp" />
+            </FrameLayout>
+            <FrameLayout
+                android:id="@+id/wg_fav_3"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="0dp"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/wg_fav_3_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_chip"
+                    android:tint="@color/wg_preview_chip" />
+
+                <TextView
+                    android:id="@+id/wg_fav_3_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="@string/wg_preview_fav_4"
+                    android:textColor="@color/wg_preview_text"
+                    android:textSize="13sp" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/wg_fav_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:visibility="gone"
+            android:fontFamily="sans-serif"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="@string/wg_favourites_empty"
+            android:textColor="@color/wg_preview_text_secondary"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+</FrameLayout>

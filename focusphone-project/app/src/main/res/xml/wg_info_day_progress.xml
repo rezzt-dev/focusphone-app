@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FocusPhone widget library: day progress (4 x 2). Sizes follow the 70 x n - 30 launcher formula. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:minWidth="250dp"
+    android:minHeight="110dp"
+    android:minResizeWidth="180dp"
+    android:minResizeHeight="110dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="1800000"
+    android:initialLayout="@layout/widget_day_progress"
+    android:previewLayout="@layout/widget_day_progress"
+    android:previewImage="@drawable/wg_preview_tile_day_progress"
+    android:description="@string/wg_desc_day_progress"
+    android:widgetCategory="home_screen"
+    tools:targetApi="31" />

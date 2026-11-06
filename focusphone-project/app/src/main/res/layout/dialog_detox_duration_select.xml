@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_input"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tv_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/profile_detox_select_duration"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="20sp"
+        android:letterSpacing="0.02" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/textColorSecondary"
+        android:alpha="0.15"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Option: 15 Minutes -->
+    <TextView
+        android:id="@+id/btn_duration_15m"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="sans-serif-light"
+        android:paddingTop="18dp"
+        android:paddingBottom="18dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/detox_duration_15m"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="17sp" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/textColorSecondary"
+        android:alpha="0.1"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Option: 30 Minutes -->
+    <TextView
+        android:id="@+id/btn_duration_30m"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="sans-serif-light"
+        android:paddingTop="18dp"
+        android:paddingBottom="18dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/detox_duration_30m"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="17sp" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/textColorSecondary"
+        android:alpha="0.1"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Option: 1 Hour -->
+    <TextView
+        android:id="@+id/btn_duration_1h"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="sans-serif-light"
+        android:paddingTop="18dp"
+        android:paddingBottom="18dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/detox_duration_1h"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="17sp" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/textColorSecondary"
+        android:alpha="0.1"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Option: 2 Hours -->
+    <TextView
+        android:id="@+id/btn_duration_2h"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="sans-serif-light"
+        android:paddingTop="18dp"
+        android:paddingBottom="18dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/detox_duration_2h"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="17sp" />
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/textColorSecondary"
+        android:alpha="0.1"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Option: Custom -->
+    <TextView
+        android:id="@+id/btn_duration_custom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="sans-serif-light"
+        android:paddingTop="18dp"
+        android:paddingBottom="18dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/detox_duration_custom"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="17sp" />
+
+</LinearLayout>

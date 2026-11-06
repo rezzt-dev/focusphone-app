@@ -1,0 +1,80 @@
+name: feature request · propuesta de funcionalidad
+description: propose a feature, a setting or a change of behaviour. · propón una funcionalidad, un ajuste o un cambio de comportamiento.
+title: "feature | "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        focusphone is a launcher whose value is what it *does not* do: no feed, no badges competing for attention, no engagement loop. a proposal that adds a screen, a toggle or a notification has to earn its place against that. read the [design principles](https://github.com/rezzt-dev/focusphone-app/blob/main/readme.md#design-principles) first.
+
+        focusphone es un launcher cuyo valor está en lo que *no* hace: sin feed, sin globos que compitan por tu atención, sin bucles de enganche. una propuesta que añade una pantalla, un interruptor o una notificación tiene que ganarse su sitio frente a eso. lee antes los [principios de diseño](https://github.com/rezzt-dev/focusphone-app/blob/main/repo-docs/readme.es.md#principios-de-diseño).
+
+        you can write in english or in spanish. · puedes escribir en inglés o en castellano.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: before proposing · antes de proponer
+      options:
+        - label: i searched the open and closed issues and this is not a duplicate. · he buscado en los issues abiertos y cerrados y no está repetida.
+          required: true
+        - label: i checked the documentation and the feature does not already exist under another name. · he revisado la documentación y la funcionalidad no existe ya con otro nombre.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: the problem · el problema
+      description: |
+        what you are trying to do today and why the app gets in the way. describe the situation, not the solution.
+        qué intentas hacer hoy y por qué la app te lo impide. describe la situación, no la solución.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: the proposal · la propuesta
+      description: what the app would do instead, and where it would live in the interface. · qué haría la app en su lugar y dónde estaría en la interfaz.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: area · área
+      options:
+        - home screen grid, edit mode, gestures or clock · cuadrícula de inicio, modo edición, gestos o reloj
+        - widgets or widget picker · widgets o selector de widgets
+        - all apps, folders or search · todas las apps, carpetas o búsqueda
+        - profiles or detox · perfiles o detox
+        - app schedules · horarios de apps
+        - conscious pause · pausa consciente
+        - notifications · notificaciones
+        - appearance, themes, fonts or wallpaper · apariencia, temas, tipografías o fondo
+        - onboarding, permissions or launcher setup · bienvenida, permisos o elegir launcher
+        - settings, other or not sure · ajustes, otro o no lo sé
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: alternatives you considered · alternativas que has considerado
+      description: including doing nothing, or solving it with the settings that already exist. · incluido no hacer nada, o resolverlo con los ajustes que ya existen.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: constraints it respects · restricciones que respeta
+      description: a proposal that breaks one of these is not necessarily rejected, but it has to say so up front. · una propuesta que rompe alguna no se rechaza necesariamente, pero tiene que decirlo desde el principio.
+      options:
+        - label: it works fully offline, with no network permission and no account. · funciona sin conexión, sin permiso de red y sin cuenta.
+          required: false
+        - label: it collects no analytics and sends nothing off the device. · no recoge analítica ni envía nada fuera del dispositivo.
+          required: false
+        - label: it reduces attention spent on the phone rather than increasing it. · reduce la atención que se dedica al móvil en vez de aumentarla.
+          required: false

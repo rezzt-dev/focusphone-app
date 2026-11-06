@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Marks a view as a standard settings row, so `settingsSection` knows where a
+        hairline separator belongs and where it would only add noise (slider rows,
+        selectors and inline panels).
+    -->
+    <item name="tag_settings_row" type="id" />
+    <!-- Opts a custom-drawn ViewGroup out of BaseActivity's background recolouring. -->
+    <item name="tag_skip_recolor" type="id" />
+    <!--
+        Remember the colour role BaseActivity recognised for a view's text, icon tint and
+        background, so repainting the tree after a wallpaper change is repeatable.
+    -->
+    <item name="tag_recolor_text" type="id" />
+    <item name="tag_recolor_tint" type="id" />
+    <item name="tag_recolor_background" type="id" />
+    <!-- A row's press-feedback animator, parked while a drag owns the row's alpha and scale. -->
+    <item name="tag_press_animator" type="id" />
+    <!-- Width animator of an onboarding page dot, so a new page change can cancel it. -->
+    <item name="tag_pager_dot_animator" type="id" />
+</resources>

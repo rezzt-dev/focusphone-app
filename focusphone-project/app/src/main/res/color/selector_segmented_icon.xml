@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Activated / selected state: icon uses background color for contrast against primary-filled background -->
+    <item android:state_activated="true" android:color="?android:attr/colorBackground" />
+    <!-- Default state: icon uses primary text color -->
+    <item android:color="?android:attr/textColorPrimary" />
+</selector>

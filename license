@@ -1,0 +1,315 @@
+LICENCIA DE USO NO COMERCIAL — FocusPhone
+Copyright © 2026 Juan García Cazallas ("rezzt-dev")
+Todos los derechos reservados salvo lo expresamente concedido en este documento.
+
+Este documento contiene la licencia en castellano, que es el texto vinculante, seguida de
+su traducción completa al inglés. En caso de discrepancia prevalece el texto en castellano
+(cláusula 12).
+
+Este documento constituye un contrato de licencia de software entre el titular de los
+derechos de propiedad intelectual indicado arriba (en adelante, el "Autor") y cualquier
+persona física o jurídica que acceda, descargue, copie o utilice el software distribuido
+en este repositorio (en adelante, el "Software").
+
+1. DEFINICIONES
+
+1.1. "Software": el código fuente, código objeto, documentación, recursos gráficos,
+scripts de build, ficheros de configuración y cualquier otro material contenido en este
+repositorio, así como sus versiones futuras que el Autor publique bajo esta misma licencia,
+con la excepción de los Componentes de Terceros definidos en la cláusula 1.4.
+
+1.2. "Uso Comercial": cualquier uso del Software, directo o indirecto, que persiga o
+resulte en una ventaja o contraprestación económica, incluyendo, sin carácter limitativo:
+   a) la venta, licencia, alquiler, cesión o distribución del Software o de obras
+      derivadas, a cambio de un precio o cualquier otra contraprestación;
+   b) su incorporación en un producto o servicio de pago, financiado mediante publicidad,
+      o que genere ingresos directa o indirectamente para quien lo explota;
+   c) su uso para prestar servicios a terceros a cambio de una contraprestación
+      (incluyendo consultoría, alojamiento como servicio o integración a medida);
+   d) su uso interno por parte de cualquier persona física con actividad económica o
+      persona jurídica con ánimo de lucro en el desarrollo de su actividad profesional
+      o empresarial, salvo que se trate de una evaluación técnica de duración razonable
+      (máximo 30 días) previa a una eventual solicitud de licencia comercial.
+
+1.3. "Obra Derivada": cualquier modificación, traducción, adaptación, compilación o
+trabajo basado en el Software.
+
+1.4. "Componentes de Terceros": las bibliotecas, tipografías, iconos y demás material
+de terceros que el Software incluye o con el que se compila, enumerados en los ficheros
+"notice" y "repo-docs/third_party_licenses.md" de este repositorio. Los Componentes de Terceros se
+rigen exclusivamente por sus propias licencias, y esta licencia no los restringe ni
+amplía.
+
+2. CONCESIÓN DE LICENCIA
+
+Sujeto al cumplimiento estricto de los términos de este documento, el Autor concede a
+cualquier persona que obtenga una copia del Software una licencia limitada, no exclusiva,
+intransferible, revocable y de ámbito mundial para, exclusivamente con fines personales,
+educativos, de investigación académica o de evaluación técnica no comercial:
+
+   a) ver, descargar, instalar y ejecutar el Software;
+   b) modificar el Software y crear Obras Derivadas;
+   c) compartir copias del Software, modificadas o no, siempre que se conserve íntegro
+      este aviso de licencia y no se realice ningún Uso Comercial.
+
+3. RESTRICCIONES
+
+Queda expresamente prohibido, salvo autorización previa y por escrito del Autor:
+
+   a) realizar cualquier Uso Comercial del Software o de Obras Derivadas;
+   b) sublicenciar, vender, alquilar, arrendar o transferir a terceros los derechos
+      concedidos en este documento;
+   c) eliminar, ocultar o alterar los avisos de copyright, autoría o de esta licencia
+      presentes en el Software o en sus copias;
+   d) utilizar el nombre "FocusPhone", el nombre del Autor, la marca "rezzt-dev"
+      o cualquier signo distintivo asociado, para promocionar, anunciar o dar a entender
+      un respaldo o afiliación de productos o servicios derivados, sin consentimiento
+      expreso y por escrito.
+
+4. PROPIEDAD INTELECTUAL
+
+El Software está protegido por la legislación española de propiedad intelectual (Real
+Decreto Legislativo 1/1996, de 12 de abril, por el que se aprueba el Texto Refundido de
+la Ley de Propiedad Intelectual, y normativa que la desarrolle o sustituya) y por los
+tratados internacionales de los que España es parte, incluido el Convenio de Berna para
+la Protección de las Obras Literarias y Artísticas y el Acuerdo sobre los ADPIC/TRIPS.
+Todos los derechos no concedidos expresamente en este documento quedan reservados al
+Autor. Esta licencia no transmite ni cede la titularidad de ningún derecho de propiedad
+intelectual o industrial sobre el Software.
+
+5. AUSENCIA DE GARANTÍA
+
+EL SOFTWARE SE PROPORCIONA "TAL CUAL" ("AS IS") Y "SEGÚN DISPONIBILIDAD", SIN GARANTÍA
+DE NINGÚN TIPO, YA SEA EXPRESA, IMPLÍCITA O LEGAL, INCLUYENDO, SIN CARÁCTER LIMITATIVO,
+LAS GARANTÍAS IMPLÍCITAS DE COMERCIABILIDAD, CALIDAD SATISFACTORIA, IDONEIDAD PARA UN FIN
+DETERMINADO, EXACTITUD Y NO INFRACCIÓN DE DERECHOS DE TERCEROS. EL AUTOR NO GARANTIZA QUE
+EL SOFTWARE ESTÉ LIBRE DE ERRORES O VULNERABILIDADES, QUE SU FUNCIONAMIENTO SEA
+ININTERRUMPIDO, NI QUE RESULTE ADECUADO PARA UN USO O RESULTADO EN PARTICULAR. EN
+PARTICULAR, LOS BLOQUEOS, HORARIOS Y LÍMITES DEL SOFTWARE SON UNA HERRAMIENTA DE
+COMPROMISO PERSONAL Y NO UN MECANISMO DE SEGURIDAD, CONTROL PARENTAL NI SUPERVISIÓN.
+
+6. LIMITACIÓN DE RESPONSABILIDAD
+
+EN LA MÁXIMA MEDIDA PERMITIDA POR LA LEY APLICABLE Y, EN PARTICULAR, POR LOS ARTÍCULOS
+1902 Y CONCORDANTES DEL CÓDIGO CIVIL ESPAÑOL, EN NINGÚN CASO EL AUTOR SERÁ RESPONSABLE
+FRENTE AL USUARIO O A TERCEROS POR DAÑOS DIRECTOS, INDIRECTOS, INCIDENTALES, ESPECIALES,
+PUNITIVOS O CONSECUENTES —INCLUYENDO, SIN CARÁCTER LIMITATIVO, PÉRDIDA DE DATOS, PÉRDIDA
+DE BENEFICIOS, INTERRUPCIÓN DE LA ACTIVIDAD O DAÑOS A TERCEROS— QUE DERIVEN DEL USO, LA
+IMPOSIBILIDAD DE USO O EL MAL FUNCIONAMIENTO DEL SOFTWARE, AUN CUANDO SE HUBIERA ADVERTIDO
+DE LA POSIBILIDAD DE TALES DAÑOS. EL USUARIO ASUME BAJO SU EXCLUSIVA RESPONSABILIDAD EL
+RIESGO DERIVADO DE LA INSTALACIÓN, CONFIGURACIÓN, CALIDAD Y RENDIMIENTO DEL SOFTWARE. LO
+ANTERIOR NO EXCLUYE LA RESPONSABILIDAD QUE, CONFORME A DERECHO, NO PUEDA SER LIMITADA O
+EXCLUIDA VÁLIDAMENTE (POR EJEMPLO, DOLO O NEGLIGENCIA GRAVE DEL AUTOR).
+
+7. TERMINACIÓN
+
+Esta licencia y los derechos concedidos en ella se extinguirán automáticamente, sin
+necesidad de notificación previa, en caso de incumplimiento de cualquiera de sus términos.
+Tras la extinción, el usuario deberá cesar de inmediato todo uso del Software y destruir
+o eliminar cualquier copia en su poder, salvo autorización expresa en contrario del Autor.
+Las cláusulas 4, 5, 6, 9 y 10 subsisten tras la extinción.
+
+8. LICENCIA COMERCIAL
+
+Para obtener una licencia que permita el Uso Comercial del Software, contacte con el
+Autor en la dirección indicada en la cláusula 13. El Autor se reserva el derecho a
+conceder dichas licencias en los términos económicos, técnicos y contractuales que estime
+oportunos, así como a denegarlas sin necesidad de justificar su decisión.
+
+9. LEY APLICABLE Y JURISDICCIÓN
+
+Esta licencia se rige e interpreta de conformidad con la legislación española, con
+independencia del país de residencia del usuario. Para cualquier controversia derivada
+de su interpretación, ejecución o cumplimiento, las partes se someten, con renuncia
+expresa a cualquier otro fuero que pudiera corresponderles, a los Juzgados y Tribunales
+del domicilio del Autor en España, sin perjuicio de las normas imperativas de protección
+que, en su caso, resulten de aplicación a los consumidores conforme a su legislación
+local. Para usuarios y licenciatarios fuera de España, esta licencia debe interpretarse
+de forma coherente con el Convenio de Berna y demás tratados internacionales de
+propiedad intelectual de los que España es parte, a fin de garantizar su reconocimiento
+y ejecutabilidad en otras jurisdicciones.
+
+10. DIVISIBILIDAD Y ACUERDO COMPLETO
+
+Si alguna disposición de esta licencia fuera declarada inválida, nula o inaplicable por
+un tribunal u organismo competente, las restantes disposiciones permanecerán en pleno
+vigor y efecto, y la disposición afectada se sustituirá por otra válida que refleje en
+la mayor medida posible la intención original de las partes. Este documento constituye
+el acuerdo completo entre las partes respecto de su objeto y sustituye a cualquier
+entendimiento previo, oral o escrito, sobre la misma materia.
+
+11. NATURALEZA DE ESTA LICENCIA
+
+Esta licencia NO es una licencia de código abierto ni de software libre: no está
+aprobada por la Open Source Initiative (OSI) ni cumple la Definición de Código Abierto ni
+la definición de software libre de la Free Software Foundation, porque restringe el Uso
+Comercial. Que el código fuente sea públicamente visible no implica ninguna concesión de
+derechos distinta de las recogidas en la cláusula 2.
+
+12. IDIOMAS
+
+Este documento se ofrece en castellano y en inglés. El texto en castellano es el único
+jurídicamente vinculante; la traducción al inglés es informativa y, en caso de
+discrepancia entre ambas versiones, prevalecerá en todo caso la versión en castellano.
+
+13. CONTACTO
+
+Para cualquier cuestión relativa a esta licencia, incluidas las solicitudes de licencia
+comercial y de autorización previa conforme a la cláusula 3: contacto@rezzt.dev.
+
+================================================================================
+
+NON-COMMERCIAL LICENSE — FocusPhone
+Copyright © 2026 Juan García Cazallas ("rezzt-dev")
+All rights reserved except as expressly granted in this document.
+
+English translation, for information only. The Spanish text above is the only legally
+binding version and prevails in case of any discrepancy (clause 12).
+
+This document constitutes a software license agreement between the holder of the
+intellectual property rights named above (the "Author") and any natural or legal person
+who accesses, downloads, copies or uses the software distributed in this repository (the
+"Software").
+
+1. DEFINITIONS
+
+1.1. "Software": the source code, object code, documentation, graphic assets, build
+scripts, configuration files and any other material contained in this repository, as
+well as its future versions that the Author releases under this same license, with the
+exception of the Third-Party Components defined in clause 1.4.
+
+1.2. "Commercial Use": any use of the Software, direct or indirect, that seeks or results
+in an economic advantage or consideration, including, without limitation:
+   a) selling, licensing, renting, assigning or distributing the Software or derivative
+      works in exchange for a price or any other consideration;
+   b) incorporating it into a product or service that is paid for, funded by
+      advertising, or that directly or indirectly generates revenue for whoever operates
+      it;
+   c) using it to provide services to third parties in exchange for consideration
+      (including consulting, hosting as a service or custom integration);
+   d) internal use by any natural person carrying out an economic activity, or by any
+      for-profit legal person, in the course of their professional or business activity,
+      except for a technical evaluation of reasonable duration (30 days at most) prior to
+      a possible request for a commercial license.
+
+1.3. "Derivative Work": any modification, translation, adaptation, compilation or work
+based on the Software.
+
+1.4. "Third-Party Components": the libraries, typefaces, icons and other third-party
+material that the Software includes or is built with, listed in the "notice" and
+"repo-docs/third_party_licenses.md" files of this repository. Third-Party Components are governed
+exclusively by their own licenses, which this license neither restricts nor extends.
+
+2. LICENSE GRANT
+
+Subject to strict compliance with the terms of this document, the Author grants anyone who
+obtains a copy of the Software a limited, non-exclusive, non-transferable, revocable,
+worldwide license to, solely for personal, educational, academic research or
+non-commercial technical evaluation purposes:
+
+   a) view, download, install and run the Software;
+   b) modify the Software and create Derivative Works;
+   c) share copies of the Software, modified or not, provided that this license notice
+      is kept in full and no Commercial Use is made.
+
+3. RESTRICTIONS
+
+Except with the Author's prior written permission, it is expressly prohibited to:
+
+   a) make any Commercial Use of the Software or of Derivative Works;
+   b) sublicense, sell, rent, lease or transfer to third parties the rights granted in
+      this document;
+   c) remove, hide or alter the copyright, authorship or license notices present in the
+      Software or in its copies;
+   d) use the name "FocusPhone", the Author's name, the "rezzt-dev" mark or any
+      associated distinctive sign to promote or advertise derivative products or
+      services, or to suggest an endorsement of or affiliation with them, without express
+      written consent.
+
+4. INTELLECTUAL PROPERTY
+
+The Software is protected by Spanish intellectual property law (Royal Legislative Decree
+1/1996, of 12 April, approving the Consolidated Text of the Intellectual Property Law, and
+any regulations implementing or replacing it) and by the international treaties to which
+Spain is a party, including the Berne Convention for the Protection of Literary and
+Artistic Works and the TRIPS Agreement. All rights not expressly granted in this document
+are reserved to the Author. This license does not transfer or assign ownership of any
+intellectual or industrial property right in the Software.
+
+5. NO WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTY OF ANY KIND,
+WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR PURPOSE,
+ACCURACY AND NON-INFRINGEMENT OF THIRD-PARTY RIGHTS. THE AUTHOR DOES NOT WARRANT THAT THE
+SOFTWARE IS FREE OF ERRORS OR VULNERABILITIES, THAT ITS OPERATION WILL BE UNINTERRUPTED,
+OR THAT IT IS SUITABLE FOR ANY PARTICULAR USE OR RESULT. IN PARTICULAR, THE SOFTWARE'S
+BLOCKS, SCHEDULES AND LIMITS ARE A PERSONAL COMMITMENT TOOL, NOT A SECURITY, PARENTAL
+CONTROL OR MONITORING MECHANISM.
+
+6. LIMITATION OF LIABILITY
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW AND, IN PARTICULAR, BY ARTICLE 1902 AND
+RELATED ARTICLES OF THE SPANISH CIVIL CODE, IN NO EVENT SHALL THE AUTHOR BE LIABLE TO THE
+USER OR TO THIRD PARTIES FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, PUNITIVE OR
+CONSEQUENTIAL DAMAGES — INCLUDING, WITHOUT LIMITATION, LOSS OF DATA, LOSS OF PROFITS,
+BUSINESS INTERRUPTION OR DAMAGE TO THIRD PARTIES — ARISING FROM THE USE OF, INABILITY TO
+USE OR MALFUNCTION OF THE SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+THE USER ASSUMES, UNDER THEIR SOLE RESPONSIBILITY, THE RISK ARISING FROM THE
+INSTALLATION, CONFIGURATION, QUALITY AND PERFORMANCE OF THE SOFTWARE. THE FOREGOING DOES
+NOT EXCLUDE ANY LIABILITY THAT, UNDER THE LAW, CANNOT BE VALIDLY LIMITED OR EXCLUDED (FOR
+EXAMPLE, WILFUL MISCONDUCT OR GROSS NEGLIGENCE OF THE AUTHOR).
+
+7. TERMINATION
+
+This license and the rights granted in it terminate automatically, without prior notice,
+upon breach of any of its terms. Upon termination, the user must immediately cease all
+use of the Software and destroy or delete any copy in their possession, unless the
+Author expressly authorises otherwise. Clauses 4, 5, 6, 9 and 10 survive termination.
+
+8. COMMERCIAL LICENSE
+
+To obtain a license that permits Commercial Use of the Software, contact the Author at
+the address given in clause 13. The Author reserves the right to grant such licenses on
+the economic, technical and contractual terms the Author sees fit, and to refuse them
+without having to justify that decision.
+
+9. GOVERNING LAW AND JURISDICTION
+
+This license is governed by and construed in accordance with Spanish law, regardless of
+the user's country of residence. For any dispute arising from its interpretation,
+performance or enforcement, the parties submit, expressly waiving any other jurisdiction
+that might correspond to them, to the Courts and Tribunals of the Author's domicile in
+Spain, without prejudice to any mandatory protection rules that may apply to consumers
+under their local law. For users and licensees outside Spain, this license shall be
+interpreted consistently with the Berne Convention and the other international
+intellectual property treaties to which Spain is a party, so as to ensure its
+recognition and enforceability in other jurisdictions.
+
+10. SEVERABILITY AND ENTIRE AGREEMENT
+
+If any provision of this license is declared invalid, void or unenforceable by a
+competent court or authority, the remaining provisions shall remain in full force and
+effect, and the affected provision shall be replaced by a valid one that reflects the
+original intention of the parties as closely as possible. This document constitutes the
+entire agreement between the parties regarding its subject matter and supersedes any
+prior understanding, oral or written, on the same matter.
+
+11. NATURE OF THIS LICENSE
+
+This license is NOT an open source or free software license: it is not approved by the
+Open Source Initiative (OSI) and does not meet the Open Source Definition or the Free
+Software Foundation's definition of free software, because it restricts Commercial Use.
+The fact that the source code is publicly visible does not imply any grant of rights
+other than those set out in clause 2.
+
+12. LANGUAGES
+
+This document is offered in Spanish and in English. The Spanish text is the only legally
+binding version; the English translation is informative and, in case of any discrepancy
+between the two versions, the Spanish version shall prevail in all cases.
+
+13. CONTACT
+
+For any matter relating to this license, including requests for a commercial license and
+for prior permission under clause 3: contacto@rezzt.dev.

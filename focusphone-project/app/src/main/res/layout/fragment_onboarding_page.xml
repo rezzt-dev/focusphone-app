@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Single onboarding page: title + body + optional action button -->
+<!--
+  Single onboarding page: animated icon + title + body + optional action button.
+  Designed for a calm, professional first-run experience.
+-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
@@ -10,17 +13,41 @@
     android:paddingStart="@dimen/spacing_xxl"
     android:paddingEnd="@dimen/spacing_xxl">
 
+    <ImageView
+        android:id="@+id/iv_page_icon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginBottom="@dimen/spacing_xl"
+        android:scaleType="fitCenter"
+        android:importantForAccessibility="no"
+        tools:src="@drawable/ic_tutorial_home" />
+
+    <TextView
+        android:id="@+id/tv_page_tagline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:letterSpacing="0.08"
+        android:lineSpacingMultiplier="1.1"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="13sp"
+        android:visibility="gone"
+        tools:text="less noise. more focus."
+        tools:visibility="visible" />
+
     <TextView
         android:id="@+id/tv_page_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_m"
         android:fontFamily="sans-serif-thin"
-        android:gravity="start"
+        android:gravity="center"
         android:letterSpacing="-0.01"
         android:lineSpacingMultiplier="1.1"
-        android:textColor="?attr/android:textColorPrimary"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="@dimen/text_onboarding_title"
-        tools:text="welcome." />
+        tools:text="welcome to focusphone." />
 
     <TextView
         android:id="@+id/tv_page_body"
@@ -28,12 +55,26 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_l"
         android:fontFamily="sans-serif-light"
-        android:gravity="start"
+        android:gravity="center"
         android:letterSpacing="0.02"
         android:lineSpacingMultiplier="1.6"
-        android:textColor="?attr/android:textColorSecondary"
+        android:textColor="?android:attr/textColorSecondary"
         android:textSize="@dimen/text_onboarding_body"
-        tools:text="focusphone turns your Android into a distraction-free tool." />
+        tools:text="your digital space, simplified." />
+
+    <TextView
+        android:id="@+id/tv_page_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_l"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:letterSpacing="0.04"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="14sp"
+        android:visibility="gone"
+        tools:text="verified"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/btn_page_action"
@@ -45,9 +86,10 @@
         android:letterSpacing="0.06"
         android:padding="@dimen/spacing_l"
         android:textAllCaps="false"
-        android:textColor="?attr/android:textColorPrimary"
+        android:textColor="?android:attr/textColorPrimary"
         android:textSize="15sp"
         android:visibility="gone"
-        tools:text="Set as default" />
+        tools:text="set as default"
+        tools:visibility="visible" />
 
 </LinearLayout>

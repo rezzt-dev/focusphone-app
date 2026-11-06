@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FocusPhone widget library: calendar month (4 x 3). Sizes follow the 70 x n - 30 launcher formula. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:minWidth="250dp"
+    android:minHeight="180dp"
+    android:minResizeWidth="250dp"
+    android:minResizeHeight="180dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="3"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/widget_calendar_month"
+    android:previewLayout="@layout/widget_calendar_month"
+    android:previewImage="@drawable/wg_preview_tile_calendar_month"
+    android:description="@string/wg_desc_calendar_month"
+    android:widgetCategory="home_screen"
+    tools:targetApi="31" />

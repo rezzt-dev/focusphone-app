@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Live preview of the home screen wallpaper. Tapping it chooses or changes the image; the
+    scrim and the sample clock follow the blur and legibility sliders while they move, so
+    the result can be judged before leaving settings.
+-->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
+    android:layout_marginStart="24dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="24dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/shape_wallpaper_preview_placeholder"
+    android:clickable="true"
+    android:contentDescription="@string/settings_wallpaper_preview_cd"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/iv_wallpaper_preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        android:importantForAccessibility="no" />
+
+    <View
+        android:id="@+id/view_wallpaper_preview_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tv_wallpaper_preview_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:fontFamily="sans-serif-light"
+        android:importantForAccessibility="no"
+        android:includeFontPadding="false"
+        android:letterSpacing="-0.02"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="40sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tv_wallpaper_preview_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:importantForAccessibility="no"
+        android:padding="16dp"
+        android:text="@string/settings_wallpaper_preview_hint"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="14sp" />
+
+</FrameLayout>
