@@ -63,7 +63,7 @@ focusphone declara tres permisos en total, y solicita dos servicios opcionales.
 <tr>
 <td><strong>acceso a notificaciones</strong></td>
 <td>al activar el panel de notificaciones</td>
-<td><strong>hace</strong>: muestra tus notificaciones en el cajon lateral y permite descartarlas.<br><strong>no hace</strong>: no guarda el contenido en disco, no lo indexa y no lo envia a ningun sitio.</td>
+<td><strong>hace</strong>: muestra tus notificaciones en el cajon lateral y permite descartarlas, y muestra lo que suena en los widgets de musica.<br><strong>no hace</strong>: no guarda el contenido en disco, no lo indexa y no lo envia a ningun sitio.</td>
 </tr>
 </table>
 
@@ -86,7 +86,9 @@ aplicacion puede acceder.
 </tr>
 <tr><td>aplicaciones favoritas y su orden</td><td>base de datos local</td><td>no, no es informacion sensible por si misma</td></tr>
 <tr><td>tema, tipografia, tamaño, alineacion</td><td>preferencias locales</td><td>no</td></tr>
-<tr><td>ajustes del reloj, widget y distribucion</td><td>preferencias locales</td><td>no</td></tr>
+<tr><td>ajustes del reloj y la cuadricula de inicio (bloques, tamaños, ids de widget)</td><td>preferencias locales</td><td>no</td></tr>
+<tr><td>ciudades del reloj mundial</td><td>preferencias locales</td><td>no</td></tr>
+<tr><td><strong>texto de intencion del widget de intencion</strong></td><td>preferencias locales</td><td><strong>si</strong>, aes-256/gcm</td></tr>
 <tr><td>ajustes del fondo de pantalla</td><td>preferencias locales</td><td>no</td></tr>
 <tr><td>imagen de fondo de pantalla</td><td>copia en el almacenamiento privado de la app</td><td>no, pero es inaccesible para otras apps</td></tr>
 <tr><td><strong>nombres personalizados de aplicaciones</strong></td><td>preferencias locales</td><td><strong>si</strong>, aes-256/gcm</td></tr>
@@ -96,7 +98,15 @@ aplicacion puede acceder.
 <tr><td><strong>reglas de horarios y contadores de uso</strong></td><td>preferencias locales</td><td><strong>si</strong>, aes-256/gcm</td></tr>
 <tr><td><strong>contraseñas de detox y de horarios</strong></td><td>preferencias locales</td><td><strong>nunca se guarda la contraseña</strong>: solo un resumen criptografico con sal aleatoria</td></tr>
 <tr><td>notificaciones mostradas en el panel</td><td>solo en memoria ram</td><td>no llegan a escribirse en disco</td></tr>
+<tr><td>lo que suena en las apps de musica</td><td>se lee al momento para los widgets de musica</td><td>nunca se guarda</td></tr>
 </table>
+
+> **widgets en otros launchers**: si colocas un widget de focusphone en otro launcher, es ese
+> launcher quien lo dibuja, asi que recibe lo que muestra el widget (por ejemplo tus
+> favoritas, tu intencion o la cancion que suena). focusphone no le envia nada mas.
+>
+> la politica de privacidad formal, con tus derechos y la direccion de contacto, es
+> [`privacy.es.md`](../../../privacy.es.md).
 
 <details>
 <summary><strong>que significa "cifrado con aes-256/gcm"</strong></summary>

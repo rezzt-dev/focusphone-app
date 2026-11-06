@@ -187,6 +187,14 @@ next connection.
 each notification's `PendingIntent` is held in a concurrent map and released when it is
 dismissed or when the listener disconnects.
 
+### MUSIC WIDGETS
+
+`MediaWidgetBridge` calls `MediaSessionManager.getActiveSessions` with this listener's
+component, which android only allows while the listener is enabled. it reads the active
+session's title, artist, artwork and playback state on demand for the three music widgets,
+and sends play/pause, previous and next through the session's transport controls. nothing
+is stored; without access the widgets render a "no access" state.
+
 ---
 
 ## BLOCK ENFORCEMENT POINTS
@@ -196,7 +204,7 @@ there are **two** paths through which a block is enforced, and both must stay co
 ```mermaid
 flowchart LR
     subgraph INSIDE["inside focusphone"]
-        A["tap on an app"] --> B["BaseActivity.enforceAppSchedule()"]
+        A["tap on an app, a shortcut or a built-in widget"] --> B["BaseActivity.openApp / openShortcut"]
         B --> C["ProfilePreferences.isAppBlocked()"]
     end
     subgraph OUTSIDE["outside focusphone"]
@@ -208,11 +216,13 @@ flowchart LR
 
 | path | covers | needs the service |
 |---|---|---|
-| `BaseActivity.enforceAppSchedule()` | any launch started inside focusphone | no |
+| `BaseActivity.openApp` / `openShortcut` (profile block, `enforceAppSchedule()`, conscious pause) | any launch started inside focusphone, and taps on a built-in widget in any launcher, through `WidgetLaunchActivity` | no |
 | `FocusAccessibilityService` | any system launch | yes |
 
-> when adding a new launch path in the app, **call `enforceAppSchedule()`**, or that path
-> becomes a hole through which blocks are not enforced.
+> when adding a new launch path in the app, **go through `BaseActivity.openApp` /
+> `openShortcut`** (or, for a widget, `WidgetIntents.openApp`), never
+> `getLaunchIntentForPackage` + `startActivity`, or that path becomes a hole through which
+> blocks are not enforced.
 
 ---
 

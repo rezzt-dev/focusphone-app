@@ -147,21 +147,22 @@ lifecycleScope.launch {
 <tr><td><code>AllAppsActivity</code></td><td>cajon completo: busqueda, carpetas, arrastre y menu de opciones</td></tr>
 <tr><td><code>SettingsActivity</code></td><td>menu de seis categorias; no contiene ningun control</td></tr>
 <tr><td><code>SettingsSubActivity</code></td><td>base abstracta de las subpantallas: barra superior, boton de atras, insets y contenedor vertical</td></tr>
-<tr><td><code>AppearanceSettingsActivity</code></td><td>tema, colores personalizados, tipografia, tamaño de texto, alineacion, barra de estado y fondo de pantalla</td></tr>
-<tr><td><code>HomeSettingsActivity</code></td><td>tipo y tamaño de reloj, espaciado, widget y distribucion</td></tr>
+<tr><td><code>AppearanceSettingsActivity</code></td><td>tema, colores personalizados, tipografia, tamaño de texto de la app y de la home, alineacion, barra de estado y fondo de pantalla</td></tr>
+<tr><td><code>HomeSettingsActivity</code></td><td>tipo y tamaño de reloj, espaciado, añadir widget y editar pantalla de inicio (abre <code>HomeActivity</code> con <code>EXTRA_EDIT_LAYOUT</code>)</td></tr>
 <tr><td><code>FocusSettingsActivity</code></td><td>pausa consciente, horarios y palabras clave del modo trabajo</td></tr>
 <tr><td><code>NotificationSettingsActivity</code></td><td>acceso a notificaciones, panel lateral y gesto hacia abajo</td></tr>
 <tr><td><code>SystemSettingsActivity</code></td><td>permisos, accesibilidad, lanzador por defecto e idioma</td></tr>
 <tr><td><code>AboutSettingsActivity</code></td><td>version, tutorial, reinicio de bienvenida y licencias</td></tr>
-<tr><td><code>HomeLayoutActivity</code></td><td>reordenacion y visibilidad de los componentes, con vista previa <strong>real y funcional</strong></td></tr>
 <tr><td><code>PermissionsActivity</code></td><td>estado de cada permiso</td></tr>
 <tr><td><code>OnboardingActivity</code></td><td>bienvenida de 5 pasos con <code>ViewPager2</code> y verificacion en vivo del lanzador por defecto</td></tr>
-<tr><td><code>ConsciousPauseActivity</code></td><td>cuenta atras respirada antes de abrir la aplicacion destino</td></tr>
+<tr><td><code>ConsciousPauseActivity</code></td><td>una sola respiracion guiada (<code>BreathingOrbView</code>) antes de abrir la aplicacion destino, con los minutos que quedan hoy en apps con limite diario</td></tr>
 <tr><td><code>DetoxBlockedActivity</code></td><td>bloqueo a pantalla completa con cuenta atras en vivo y desbloqueo por contraseña</td></tr>
 <tr><td><code>AppScheduleActivity</code></td><td>lista de reglas, protegida por contraseña; no renderiza nada hasta desbloquear</td></tr>
 <tr><td><code>AppScheduleEditActivity</code></td><td>editor de una regla; revalida <code>ScheduleAccessGate</code> en cada <code>onResume</code></td></tr>
 <tr><td><code>ScheduleBlockedActivity</code></td><td>bloqueo por horario; <strong>sin boton de desbloqueo</strong> a proposito</td></tr>
-<tr><td><code>WidgetPickerActivity</code></td><td>seleccion del unico widget, mediante la activity result api</td></tr>
+<tr><td><code>WidgetPickerActivity</code></td><td>el selector de widgets: agrupado por app, busqueda difusa, vistas previas en vivo, tamaño en celdas de la cuadricula; añade el widget a la cuadricula el mismo (<code>HomeGridStore.addWidget</code>)</td></tr>
+<tr><td><code>WidgetLaunchActivity</code></td><td>trampolin invisible y no exportado que aplica <code>BaseActivity.openApp</code> a las apps abiertas desde un widget propio, en cualquier launcher</td></tr>
+<tr><td><code>WorldClockConfigActivity</code> · <code>IntentionConfigActivity</code></td><td>pantallas de configuracion de los widgets de reloj mundial (hasta tres ciudades) y de intencion</td></tr>
 </table>
 
 ---

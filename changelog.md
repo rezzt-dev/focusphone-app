@@ -88,6 +88,8 @@
 - sustituir `code_of_conduct.md` por el texto literal del contributor covenant 2.1 con `contacto@rezzt.dev` como contacto de cumplimiento, y ampliar `contributing.md` con el flujo de ramas `beta-1.X` → `version-beta` → `main`, el formato del changelog y la lista de codigo sensible que exige revision
 - hacer bilingues las plantillas de issues y de pull request, sustituir `privacy@rezzt.dev` y `conduct@rezzt.dev` por `contacto@rezzt.dev`, añadir el origen del apk y las areas de cuadricula y widgets al informe de error, y alinear la plantilla de pull request con el bloque `### CASTELLANO` / `### ENGLISH` del changelog
 - subir la version a `versionName` `1.4.0-beta` y `versionCode` 4 en `app/build.gradle.kts`, porque `v1.0.0-beta` y `v1.4-beta` se publicaron las dos como `1.0.6` (`versionCode` 3) y "acerca de" no permitia distinguirlas
+- actualizar la documentacion de usuario en castellano e ingles a la cuadricula de inicio y su modo edicion, los 20 widgets propios y el selector, la pausa consciente guiada, el tamaño de texto de la home, la verificacion del apk y el aviso de `v1.0.0-beta`, y retirar la columna fija, el widget unico y la pantalla de distribucion
+- actualizar la documentacion de desarrolladores a `HomeGridPreferences`, `LibraryWidgetPreferences`, `ui/home/grid`, `ui/widget/library`, `WidgetLaunchActivity`, el lanzamiento por `BaseActivity.openApp`, las pruebas nuevas, el esquema de versiones `<x.y.z>-beta` y el flujo de ramas `beta-1.X` → `version-beta` → `main`, con paridad exacta de secciones entre idiomas
 
 #### CORREGIDO
 - aplicar los bloqueos de horario y limite diario al abrir aplicaciones desde recientes y accesos frecuentes mediante cambios de ventana, y avisar de la necesidad del servicio de accesibilidad para todas las reglas
@@ -134,6 +136,7 @@
 - dejar de versionar `focusphone-project/.vscode/settings.json`, que estaba ignorado pero seguia en el repositorio con una ruta de jdk propia de una maquina
 - corregir la politica de privacidad de la app (`assets/privacy_policy.html`), que decia que las contraseñas se guardaban con sha-256, solo mencionaba `QUERY_ALL_PACKAGES` y remitia a una ficha de google play inexistente; ahora es bilingue y coincide con `privacy.md`
 - completar la pantalla de licencias de la app (`assets/open_source_licenses.html`) con las tipografias y su texto ofl-1.1, el aviso mit de los iconos derivados de feather, la biblioteca estandar de kotlin y el texto completo de apache-2.0, y quitar las bibliotecas de prueba que no viajan en el apk
+- ejecutar `android-ci` tambien en los push a `version-beta` y `beta-*`, que con el flujo de ramas actual quedaban sin verificar porque el workflow solo escuchaba `main` y `alfa-*`
 
 #### ELIMINADO
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` y el subsistema de tamaño de icono inalcanzable, junto con `backup_rules.xml` y el `values-night/themes.xml` vacio
@@ -232,6 +235,8 @@
 - replace `code_of_conduct.md` with the verbatim contributor covenant 2.1 text with `contacto@rezzt.dev` as the enforcement contact, and extend `contributing.md` with the `beta-1.X` → `version-beta` → `main` branch flow, the changelog format and the list of sensitive code that requires review
 - make the issue and pull request templates bilingual, replace `privacy@rezzt.dev` and `conduct@rezzt.dev` with `contacto@rezzt.dev`, add the apk source and the grid and widget areas to the bug report, and align the pull request template with the changelog `### CASTELLANO` / `### ENGLISH` block
 - bump the version to `versionName` `1.4.0-beta` and `versionCode` 4 in `app/build.gradle.kts`, because `v1.0.0-beta` and `v1.4-beta` both shipped as `1.0.6` (`versionCode` 3) and "about" could not tell them apart
+- update the spanish and english user documentation to the home grid and its edit mode, the 20 built-in widgets and the picker, the guided conscious pause, the home text size, apk verification and the `v1.0.0-beta` warning, and drop the fixed column, the single widget and the layout screen
+- update the developer documentation to `HomeGridPreferences`, `LibraryWidgetPreferences`, `ui/home/grid`, `ui/widget/library`, `WidgetLaunchActivity`, launching through `BaseActivity.openApp`, the new tests, the `<x.y.z>-beta` version scheme and the `beta-1.X` → `version-beta` → `main` branch flow, with exact section parity between languages
 
 #### FIXED
 - enforce time windows and daily limits when apps open from recents and suggested shortcuts through window change events, and show the accessibility warning for every schedule rule
@@ -278,6 +283,7 @@
 - stop versioning `focusphone-project/.vscode/settings.json`, which was ignored but still tracked with a machine-specific jdk path
 - fix the in-app privacy policy (`assets/privacy_policy.html`), which said passwords were stored with sha-256, only mentioned `QUERY_ALL_PACKAGES` and pointed to a google play listing that does not exist; it is now bilingual and matches `privacy.md`
 - complete the in-app licenses screen (`assets/open_source_licenses.html`) with the typefaces and their ofl-1.1 text, the mit notice of the feather-derived icons, the kotlin standard library and the full apache-2.0 text, and drop the test libraries that are not shipped in the apk
+- also run `android-ci` on pushes to `version-beta` and `beta-*`, which the current branch flow left unverified because the workflow only listened to `main` and `alfa-*`
 
 #### REMOVED
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` and the unreachable icon-size-slider subsystem, along with `backup_rules.xml` and the empty `values-night/themes.xml`

@@ -106,15 +106,16 @@ app/src/main/java/app/focusphone/
 | `preferences/AppSchedulePreferences.kt` | reglas de horario, contraseña y contadores de uso; cifrado |
 | `preferences/ConsciousPausePreferences.kt` | activacion y duracion de la pausa consciente |
 | `preferences/CustomAppLabelsPreferences.kt` | nombres personalizados; cifrado, con migracion desde texto plano |
-| `preferences/FontPreferences.kt` | tipografia, tipo y tamaño de reloj, tamaño de texto |
+| `preferences/FontPreferences.kt` | tipografia, tipo y tamaño de reloj, tamaño de texto de la app y de la home |
 | `preferences/GesturePreferences.kt` | gesto de deslizar hacia abajo |
-| `preferences/HomeLayoutPreferences.kt` | orden y visibilidad de los componentes de inicio, espaciado |
+| `preferences/HomeGridPreferences.kt` | la cuadricula de inicio, una linea por bloque (`HomeGridSerializer`); lee y limpia una vez la disposicion anterior a la cuadricula |
+| `preferences/HomeLayoutPreferences.kt` | el aspecto de los bloques de inicio: espaciado entre apps, tipo de reloj antes de ocultarlo |
+| `preferences/LibraryWidgetPreferences.kt` | opciones de los widgets propios: ciudades del reloj mundial, el texto de intencion (cifrado) |
 | `preferences/NotificationPanelPreferences.kt` | activacion del panel de notificaciones |
 | `preferences/ProfilePreferences.kt` | perfil, detox, contraseña, apps bloqueadas y palabras clave; cifrado |
 | `preferences/ThemePreferences.kt` | tema, colores personalizados, alineacion, barra de estado, bienvenida |
 | `preferences/TutorialPreferences.kt` | progreso del tutorial |
 | `preferences/WallpaperPreferences.kt` | fondos por superficie, modo compartido, desenfoque y legibilidad |
-| `preferences/WidgetPreferences.kt` | id del unico widget |
 | `repository/AppRepositoryImpl.kt` | consulta de aplicaciones instaladas con cache breve |
 | `repository/FavouriteAppRepositoryImpl.kt` | room mas fusion de etiquetas y migracion desde preferencias |
 | `repository/NotificationRepository.kt` | notificaciones activas, solo en memoria |
@@ -135,6 +136,7 @@ app/src/main/java/app/focusphone/
 | `model/AppScheduleRule.kt` | regla de horario y motivo de bloqueo |
 | `model/AppShortcut.kt` | acceso directo de aplicacion |
 | `model/ClockType.kt` | los cinco estilos de reloj |
+| `model/HomeGrid.kt` | modelo de la cuadricula: `HomeGrid`, `HomeGridItem`, `CellRect`, `SpanLimits` (3-6 columnas × 4-12 filas) |
 | `model/ToggleResult.kt` | resultado de alternar un favorito |
 | `repository/AppRepository.kt` | interfaz de aplicaciones instaladas |
 | `repository/FavouriteAppRepository.kt` | interfaz crud de favoritos |
@@ -148,6 +150,8 @@ app/src/main/java/app/focusphone/
 | `util/AppScheduleEvaluator.kt` | evaluacion pura de horarios y su serializacion |
 | `util/FavouriteOrdering.kt` | regla pura de reordenacion como fusion |
 | `util/FuzzyMatcher.kt` | busqueda difusa por subsecuencia |
+| `util/GridLayoutEngine.kt` | matematica pura de la cuadricula: hueco libre, mover, redimensionar, insertar, encoger, reajustar |
+| `util/HomeGridSerializer.kt` | serializacion de la cuadricula, versionada y tolerante a lineas mal formadas |
 | `util/TextExtensions.kt` | normalizacion de nombres y de texto para buscar |
 
 </details>
@@ -161,6 +165,7 @@ app/src/main/java/app/focusphone/
 |---|---|
 | `base` | `BaseActivity`, base de todas las pantallas |
 | `home` | `HomeActivity`, `HomeViewModel`, adaptadores de favoritos y notificaciones |
+| `home/grid` | `HomeGridLayout`, `HomeGridController`, `HomeGridEditor`, `HomeGridStore`, `HomeGridMetrics`, `HomeEditChrome`, `WidgetFitFrame`, `ScaleToFitFrame` |
 | `appselect` | seleccion de favoritos con busqueda |
 | `allapps` | cajon completo, filas mixtas, arrastre a carpetas y adaptador |
 | `settings` | menu de categorias, base de subpantallas, ayudantes de filas y seis subpantallas |
@@ -171,7 +176,8 @@ app/src/main/java/app/focusphone/
 | `theme` | `FocusColors`, `FocusPalette`, `SurfaceScrim` |
 | `tutorial` | contenido y superposicion del tutorial |
 | `wallpaper` | copia, escalado y utilidades de fondo |
-| `widget` | reloj analogico, renderizador de reloj, superficie y selector de widget |
+| `widget` | alojamiento de widgets (`AppWidgetHostManager`, `HomeWidgetHostView`, `WidgetHostContext`, `WidgetSurface`, `WidgetSizing`), el selector de widgets, el reloj analogico y el renderizador de reloj |
+| `widget/library` | los 20 widgets propios: `FocusWidgetKind`, proveedores, renderizadores, `WidgetStyle`, `WidgetUpdater`, `MediaWidgetBridge`, `WidgetLaunchActivity` y las dos pantallas de configuracion |
 | `util` | metricas de ventana |
 
 </details>
@@ -188,7 +194,7 @@ app/src/main/java/app/focusphone/
 | `security/PasswordHasher.kt` | pbkdf2-hmac-sha256 con sal, y deteccion del formato heredado |
 | `security/PasswordAttemptPolicy.kt` | politica compartida de intentos y espera |
 | `service/FocusAccessibilityService.kt` | bloqueo a nivel de sistema y contabilidad de uso |
-| `service/FocusNotificationService.kt` | escucha de notificaciones para el panel lateral |
+| `service/FocusNotificationService.kt` | escucha de notificaciones para el panel lateral y los widgets de musica |
 
 </details>
 
@@ -253,7 +259,7 @@ app/src/androidTest/java/app/focusphone/   # instrumentadas
 ├── AppScheduleTest.kt, AppSelectFlowTest.kt, ClockRendererTest.kt,
 ├── DetoxPasswordTest.kt, FavouriteAppDaoTest.kt, OnboardingFlowTest.kt,
 ├── ProfilePreferencesStorageTest.kt, ProfileSwitchTest.kt,
-└── WallpaperStorageTest.kt, WidgetSlotTest.kt
+└── WallpaperStorageTest.kt, HomeGridWidgetIdsTest.kt
 ```
 
 detalle completo en [pruebas y calidad](./10-pruebas-y-calidad.md).

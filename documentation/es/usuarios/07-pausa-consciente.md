@@ -10,14 +10,22 @@
 
 ## QUE ES
 
-la pausa consciente es una cuenta atras de unos segundos que aparece **entre** el momento
-en que tocas una aplicacion y el momento en que se abre. durante esa cuenta atras ves un
-circulo que respira, una indicacion de *inspira* / *manten* / *espira*, y la pregunta:
+la pausa consciente es **una sola respiracion guiada** de unos segundos que aparece
+**entre** el momento en que tocas una aplicacion y el momento en que se abre:
+
+- durante la primera mitad un disco **crece** (*inspira…*) y durante la segunda **se
+  recoge** (*espira…*), dentro de un anillo que se llena a medida que pasa el tiempo.
+- un leve toque haptico marca el momento en que cambia la respiracion.
+- la pregunta se mantiene en pantalla todo el rato:
 
 > ¿seguro que quieres abrir *x*?
 
-cuando la cuenta atras termina, la aplicacion se abre sola. si en algun momento decides
-que no, pulsas **cancelar** y vuelves a la pantalla de inicio.
+- si la app tiene un limite diario (consulta [horarios de aplicaciones](./06-horarios-de-aplicaciones.md)),
+  la pausa tambien te dice cuantos **minutos te quedan hoy**.
+
+cuando la respiracion termina, la aplicacion se abre sola. si en algun momento decides que
+no, pulsas **cancelar** y vuelves a la pantalla de inicio. con las animaciones de android
+desactivadas, el disco se queda quieto y solo se mueven el anillo y el texto.
 
 ---
 
@@ -75,6 +83,14 @@ flowchart LR
 </tr>
 <tr>
 <td>abres una app desde el cajon de todas las apps</td>
+<td>aparece la pausa</td>
+</tr>
+<tr>
+<td>abres una app desde un widget de focusphone, en focusphone o en otro launcher</td>
+<td>aparece la pausa</td>
+</tr>
+<tr>
+<td>abres un acceso directo de la app desde el menu de mantener pulsado de una favorita</td>
 <td>aparece la pausa</td>
 </tr>
 <tr>

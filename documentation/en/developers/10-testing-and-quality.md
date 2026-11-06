@@ -98,6 +98,14 @@ invalidated when a double is swapped, rather than created fresh on every read.
 <tr><td><code>UpdateAppsOrderUseCaseTest</code></td><td>lossless reordering</td></tr>
 <tr><td><code>FocusColorsTest</code></td><td>luminance, contrast ratio, <code>ensureContrast</code></td></tr>
 <tr><td><code>SurfaceScrimTest</code></td><td>per-surface alpha, blur relief, the no-wallpaper case</td></tr>
+<tr><td><code>GridLayoutEngineTest</code></td><td>vacancy, swap, stack push, squeeze on resize, insert making room, grid resize, repair, defaults</td></tr>
+<tr><td><code>HomeGridSerializerTest</code></td><td>round trip, malformed lines, versions</td></tr>
+<tr><td><code>HomeGridPreferencesTest</code></td><td>grid storage, reading and clearing the pre-grid layout</td></tr>
+<tr><td><code>HomeLayoutPreferencesTest</code></td><td>retired layout keys are removed and the rest kept</td></tr>
+<tr><td><code>WidgetSizingTest</code></td><td>spans and resize limits from provider sizes</td></tr>
+<tr><td><code>FontPreferencesTest</code></td><td>valid sizes kept, corrupt sizes recovered to the default without writing, setter sanitizing</td></tr>
+<tr><td><code>CalendarGridTest</code> · <code>WidgetTimeMathTest</code></td><td>week starts, month lengths, leap years, time progress, day distances across dst, world-clock offsets</td></tr>
+<tr><td><code>WidgetStyleTest</code> · <code>LibraryWidgetPreferencesTest</code> · <code>WidgetCatalogTest</code></td><td>widget tone, surface tint and contrast; intention sanitizing and per-widget cities; the widget catalog grouped by app, the pinned app first, search by widget or app name</td></tr>
 <tr><td><code>MaterialAlertDialogThemeTest</code></td><td>that material dialogs inflate in <strong>every</strong> theme</td></tr>
 <tr><td><code>AllAppsViewModelTest</code></td><td>drawer row construction</td></tr>
 <tr><td><code>FocusAccessibilityServiceTest</code></td><td>service logic isolated from the platform</td></tr>
@@ -117,7 +125,7 @@ invalidated when a double is swapped, rather than created fresh on every read.
 | `FavouriteAppDaoTest` | dao transactions |
 | `ClockRendererTest` | rendering of the clock types |
 | `WallpaperStorageTest` | image copying, replacement and cleanup |
-| `WidgetSlotTest` | the single widget slot |
+| `HomeGridWidgetIdsTest` | widget ids released when widgets leave the grid, and orphan clean-up |
 
 ---
 

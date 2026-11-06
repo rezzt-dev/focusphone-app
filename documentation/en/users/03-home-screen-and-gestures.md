@@ -10,24 +10,23 @@
 
 ## ANATOMY OF THE HOME SCREEN
 
-the home screen has three components and two side drawers. all three components can be
-hidden and reordered relative to each other.
+the home screen is a **grid**, like the workspace of a stock launcher, with two side drawers.
+it holds three kinds of block, and each one occupies a rectangle of cells:
 
 ```
 ┌──────────────────────────────────┐
-│                                  │
-│              09:41               │  ← clock (5 styles, tap it for alarms)
-│          monday, 12 may          │
-│                                  │
-│  ┌────────────────────────────┐  │
-│  │      optional widget       │  │  ← widget (exactly one, optional)
-│  └────────────────────────────┘  │
-│                                  │
-│              phone               │
-│             messages             │  ← favourites (up to 10, text only)
-│              camera              │
-│               notes              │
-│                                  │
+│ ┌──────────────────────────────┐ │
+│ │            09:41             │ │  ← clock (5 styles, tap it for alarms)
+│ │        monday, 12 may        │ │
+│ └──────────────────────────────┘ │
+│ ┌─────────────┐ ┌──────────────┐ │
+│ │   battery   │ │    music     │ │  ← widgets (any number, optional)
+│ └─────────────┘ └──────────────┘ │
+│ ┌──────────────────────────────┐ │
+│ │            phone             │ │
+│ │           messages           │ │  ← favourites (up to 10, text only)
+│ │            camera            │ │
+│ └──────────────────────────────┘ │
 └──────────────────────────────────┘
    ↑ swipe right         ↑ swipe left
    notifications         menu
@@ -35,18 +34,18 @@ hidden and reordered relative to each other.
 
 <table>
 <tr>
-<th align="left">component</th>
+<th align="left">block</th>
 <th align="left">what it is</th>
-<th align="left">can be hidden</th>
+<th align="left">can be removed</th>
 </tr>
 <tr>
 <td>clock</td>
-<td>the time and date, in one of five styles</td>
-<td>yes</td>
+<td>the time and date, in one of five styles; it shrinks to fit a small block instead of being cut</td>
+<td>yes, and added back from edit mode</td>
 </tr>
 <tr>
-<td>widget</td>
-<td>a single widget from another app, if you add one</td>
+<td>widgets</td>
+<td>any number of widgets: focusphone's own 20 or those of your other apps (see <a href="./09-notifications-and-widgets.md">notifications and widgets</a>)</td>
 <td>yes</td>
 </tr>
 <tr>
@@ -56,8 +55,55 @@ hidden and reordered relative to each other.
 </tr>
 </table>
 
-> the order of the three components is changed in
-> **settings → home screen → layout**, with a real, working preview.
+| grid | value |
+|---|---|
+| columns | 3 to 6 (4 by default) |
+| rows | 4 to 12 (by default, the number that makes the cells about square on your screen) |
+| pages | one: the side swipes already belong to the drawers |
+
+> if you used an earlier version, your previous layout (order, hidden clock, the widget and
+> its height) is moved onto the grid automatically the first time.
+
+---
+
+## EDIT MODE
+
+the layout is edited on the home screen itself.
+
+**to enter edit mode**: long press an empty spot, a widget or the clock, or use
+**settings → home screen → edit home screen**. the drawers are locked while you edit.
+
+| you want to | do this |
+|---|---|
+| move a block | drag it; the other blocks make room once the target cell holds still for a moment |
+| resize a block | tap it to select it, then pull the handles on the sides it can grow along; sizes snap to whole cells |
+| use a block's actions | tap it: a floating bar shows its actions — **widget settings** and **remove** for a widget, **style** and **remove** for the clock, **choose apps** for the favourites |
+| add a widget | **widgets** in the bottom bar opens the widget picker |
+| bring the clock back | **add clock** in the bottom bar |
+| change the grid size | **grid** in the bottom bar, with a live preview of the columns and rows |
+| finish | **done** in the bottom bar |
+
+<details>
+<summary><strong>when there is no room</strong></summary>
+
+<br>
+
+a new widget is placed in reading order. if the grid is full, focusphone first shrinks the
+favourites list from its top edge, then other blocks. if there is still no room, it tells
+you: *no room for that on the home screen. remove or shrink a block first.*
+
+</details>
+
+<details>
+<summary><strong>editing without dragging</strong></summary>
+
+<br>
+
+every block in edit mode also offers accessibility actions — move up, down, left or right,
+make wider or narrower, make taller or shorter — so the layout can be changed with talkback
+or switch access.
+
+</details>
 
 ---
 
@@ -90,6 +136,7 @@ flowchart TD
     H -->|"swipe right"| N["side notification panel"]
     H -->|"swipe down"| S["system notification shade"]
     H -->|"tap the clock"| A["alarm app"]
+    H -->|"long press an empty spot, a widget or the clock"| E["edit mode"]
     H -->|"long press an app"| C["app menu"]
     H -->|"long press and drag an app"| R["reorder the list"]
 ```
@@ -121,8 +168,13 @@ flowchart TD
 <td>always available, if the clock is visible</td>
 </tr>
 <tr>
+<td><strong>long press an empty spot, a widget or the clock</strong></td>
+<td>enters <a href="#edit-mode">edit mode</a></td>
+<td>always available</td>
+</tr>
+<tr>
 <td><strong>long press an app</strong></td>
-<td>opens its menu: open, remove from list, app info, uninstall</td>
+<td>opens its options: the app's shortcuts, remove from home, app info, uninstall</td>
 <td>always available</td>
 </tr>
 <tr>
@@ -180,7 +232,8 @@ changes, without you having to leave the screen and come back.
 - aligns left, centre or right (**settings → appearance → alignment**), which helps for
   one-handed use
 - the spacing between apps is adjustable (**settings → home screen → spacing**)
-- when empty, it shows *no apps selected. tap the menu to add apps.*
+- when empty, it shows *no apps yet. tap here to choose the few you really need.*, and
+  tapping it opens the app selector directly
 
 <details>
 <summary><strong>reordering the list</strong></summary>
@@ -198,12 +251,13 @@ reorder does not include one of your favourites, that app is kept after the othe
 
 <br>
 
-long pressing an app without dragging opens its menu:
+long pressing an app without dragging opens a dialog titled with the app's name (a tap
+already opens the app, so there is no "open" entry):
 
 | option | what it does |
 |---|---|
-| open | opens it (going through the conscious pause if you have it enabled) |
-| remove from list | takes it out of favourites, without uninstalling it |
+| the app's shortcuts | the shortcuts the app publishes (for example "new message"), opened through the same profile, schedule and conscious pause checks as the app |
+| remove from home | takes it out of favourites, without uninstalling it |
 | app info | opens the app's page in android settings |
 | uninstall | launches the system uninstall dialog |
 

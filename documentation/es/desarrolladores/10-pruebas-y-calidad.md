@@ -99,6 +99,14 @@ intercambiar un doble, en lugar de crearse uno nuevo en cada lectura.
 <tr><td><code>UpdateAppsOrderUseCaseTest</code></td><td>reordenacion sin perdida</td></tr>
 <tr><td><code>FocusColorsTest</code></td><td>luminancia, ratio de contraste, <code>ensureContrast</code></td></tr>
 <tr><td><code>SurfaceScrimTest</code></td><td>alfa por superficie, descuento por desenfoque, caso sin fondo</td></tr>
+<tr><td><code>GridLayoutEngineTest</code></td><td>hueco libre, intercambio, empuje en pila, encogido al redimensionar, insercion haciendo sitio, cambio de cuadricula, reparacion, valores por defecto</td></tr>
+<tr><td><code>HomeGridSerializerTest</code></td><td>ida y vuelta, lineas mal formadas, versiones</td></tr>
+<tr><td><code>HomeGridPreferencesTest</code></td><td>almacenamiento de la cuadricula, lectura y limpieza de la disposicion anterior</td></tr>
+<tr><td><code>HomeLayoutPreferencesTest</code></td><td>se borran las claves de disposicion retiradas y se conserva el resto</td></tr>
+<tr><td><code>WidgetSizingTest</code></td><td>tamaños en celdas y limites de redimensionado a partir del proveedor</td></tr>
+<tr><td><code>FontPreferencesTest</code></td><td>se conservan los tamaños validos, los corruptos vuelven al valor por defecto sin escribir, y el setter sanea</td></tr>
+<tr><td><code>CalendarGridTest</code> · <code>WidgetTimeMathTest</code></td><td>inicio de semana, duracion de los meses, años bisiestos, progreso del tiempo, distancias entre dias con cambio de hora, desfases del reloj mundial</td></tr>
+<tr><td><code>WidgetStyleTest</code> · <code>LibraryWidgetPreferencesTest</code> · <code>WidgetCatalogTest</code></td><td>tono, tinte de superficie y contraste de los widgets; saneado de la intencion y ciudades por widget; el catalogo de widgets agrupado por app, la app fijada primero, busqueda por widget o por app</td></tr>
 <tr><td><code>MaterialAlertDialogThemeTest</code></td><td>que los dialogos de material se inflan en <strong>todos</strong> los temas</td></tr>
 <tr><td><code>AllAppsViewModelTest</code></td><td>construccion de filas del cajon</td></tr>
 <tr><td><code>FocusAccessibilityServiceTest</code></td><td>logica del servicio aislada de la plataforma</td></tr>
@@ -118,7 +126,7 @@ intercambiar un doble, en lugar de crearse uno nuevo en cada lectura.
 | `FavouriteAppDaoTest` | transacciones del dao |
 | `ClockRendererTest` | renderizado de los tipos de reloj |
 | `WallpaperStorageTest` | copia, sustitucion y limpieza de imagenes |
-| `WidgetSlotTest` | la ranura del unico widget |
+| `HomeGridWidgetIdsTest` | ids de widget liberados cuando un widget sale de la cuadricula, y limpieza de huerfanos |
 
 ---
 

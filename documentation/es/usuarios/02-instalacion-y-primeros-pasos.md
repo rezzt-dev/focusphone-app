@@ -49,6 +49,23 @@ flowchart LR
 </details>
 
 <details>
+<summary><strong>comprobar que el apk es autentico</strong></summary>
+
+<br>
+
+cada release adjunta un fichero `SHA256SUMS`. en un ordenador, `sha256sum -c SHA256SUMS`
+comprueba la descarga, y `apksigner verify --print-certs focusphone-*.apk` (build tools del sdk
+de android) muestra el certificado de firma, cuyo sha-256 debe ser el publicado en
+[`security.es.md`](../../../security.es.md#verificar-un-apk).
+
+**si instalaste `v1.0.0-beta`**: esa compilacion se firmo con otra clave, asi que android no
+deja instalar una version nueva encima ("aplicacion no instalada"). desinstalala primero —se
+borran sus ajustes, porque focusphone no guarda copias de seguridad— e instala despues la
+release actual.
+
+</details>
+
+<details>
 <summary><strong>compilar el apk tu mismo</strong></summary>
 
 <br>

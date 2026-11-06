@@ -23,11 +23,11 @@
 
 ```mermaid
 flowchart LR
-    A["fork"] --> B["branch<br>feature/... or fix/..."]
+    A["fork"] --> B["branch from beta-1.X<br>feature/... or fix/..."]
     B --> C["commits<br>following the guideline"]
     C --> D["local verification"]
     D --> E["changelog.md entry"]
-    E --> F["pull request"]
+    E --> F["pull request<br>into beta-1.X"]
     F --> G["green ci"]
     G --> H["merge commit"]
 ```
@@ -41,6 +41,10 @@ git checkout -b feature/descriptive-name
 git commit
 git push origin feature/descriptive-name
 ```
+
+pull requests target the active `beta-1.X` branch (today `beta-1.5`). the maintainer then
+merges `beta-1.X` into `version-beta`, which holds the stable versions, and `version-beta`
+into `main`, which is updated last — always with a merge commit.
 
 ---
 

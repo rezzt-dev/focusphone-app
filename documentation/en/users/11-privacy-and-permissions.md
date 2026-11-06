@@ -63,7 +63,7 @@ focusphone declares three permissions in total, and requests two optional servic
 <tr>
 <td><strong>notification access</strong></td>
 <td>when enabling the notification panel</td>
-<td><strong>does</strong>: show your notifications in the side drawer and let you dismiss them.<br><strong>does not</strong>: store the content on disk, index it, or send it anywhere.</td>
+<td><strong>does</strong>: show your notifications in the side drawer and let you dismiss them, and show what is playing in the music widgets.<br><strong>does not</strong>: store the content on disk, index it, or send it anywhere.</td>
 </tr>
 </table>
 
@@ -84,7 +84,9 @@ all data lives in the app's private storage, which no other app can reach.
 </tr>
 <tr><td>favourite apps and their order</td><td>local database</td><td>no, it is not sensitive by itself</td></tr>
 <tr><td>theme, typeface, size, alignment</td><td>local preferences</td><td>no</td></tr>
-<tr><td>clock, widget and layout settings</td><td>local preferences</td><td>no</td></tr>
+<tr><td>clock settings and the home screen grid (blocks, sizes, widget ids)</td><td>local preferences</td><td>no</td></tr>
+<tr><td>world clock cities</td><td>local preferences</td><td>no</td></tr>
+<tr><td><strong>intention text of the intention widget</strong></td><td>local preferences</td><td><strong>yes</strong>, aes-256/gcm</td></tr>
 <tr><td>wallpaper settings</td><td>local preferences</td><td>no</td></tr>
 <tr><td>wallpaper image</td><td>a copy in the app's private storage</td><td>no, but unreachable by other apps</td></tr>
 <tr><td><strong>custom app names</strong></td><td>local preferences</td><td><strong>yes</strong>, aes-256/gcm</td></tr>
@@ -94,7 +96,15 @@ all data lives in the app's private storage, which no other app can reach.
 <tr><td><strong>schedule rules and usage counters</strong></td><td>local preferences</td><td><strong>yes</strong>, aes-256/gcm</td></tr>
 <tr><td><strong>detox and schedule passwords</strong></td><td>local preferences</td><td><strong>the password is never stored</strong>: only a cryptographic digest with a random salt</td></tr>
 <tr><td>notifications shown in the panel</td><td>ram only</td><td>never written to disk</td></tr>
+<tr><td>what is playing in media apps</td><td>read live for the music widgets</td><td>never stored</td></tr>
 </table>
+
+> **widgets in other launchers**: if you place a focusphone widget in another launcher, that
+> launcher draws it, so it receives what the widget shows (for example your favourites, your
+> intention or the song playing). focusphone sends it nothing else.
+>
+> the formal privacy policy, with your rights and the contact address, is
+> [`privacy.md`](../../../privacy.md).
 
 <details>
 <summary><strong>what "encrypted with aes-256/gcm" means</strong></summary>
