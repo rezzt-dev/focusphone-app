@@ -40,6 +40,8 @@
 - añadir acciones de accesibilidad por bloque en modo edicion (mover arriba/abajo/izquierda/derecha, ensanchar, estrechar, hacer mas alto o mas bajo) para cambiar la disposicion sin arrastrar
 - calcular el tamaño de cada widget en celdas reales de la rejilla (`HomeGridMetrics`, `WidgetSizing`) a partir de `targetCellWidth`/`targetCellHeight`, el tamaño minimo, `resizeMode` y los limites de redimensionado del proveedor
 - añadir el slider "tamaño de texto de la home" (8-24 pt) en ajustes > apariencia, junto al de la app, traducido a es/en/fr/de
+- añadir `notice` y `third_party_licenses.md` con el inventario real de terceros: las 88 dependencias del `releaseRuntimeClasspath` (todas apache-2.0), las tipografias poppins 4.004, comfortaa 3.105 y jetbrains mono 2.304 (ofl-1.1), los iconos lucide 1.69.0 (isc) y los derivados de feather (mit), las herramientas de compilacion y prueba, y los textos de licencia literales
+- añadir `disclaimer.md` y `disclaimer.es.md`: los bloqueos son un compromiso personal y no una herramienta de seguridad, control parental ni supervision, y el uso de los nombres "focusphone" y "rezzt-dev" se limita segun la clausula 3.d de la licencia
 
 #### CAMBIADO
 - reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
@@ -77,6 +79,7 @@
 - liberar los ids de widget huerfanos comparando con todos los widgets de la rejilla y resolver cada widget por separado (`AppWidgetHostManager.resolveWidget`)
 - suavizar las esquinas de los widgets propios: el campo de busqueda de `widget_search_pill` y `widget_spotlight` pasa de pastilla a rectangulo redondeado (`wg_bg_field`) y se reducen los radios de tarjeta, chip, cuadrado y caratula; las barras del modo edicion de inicio pasan tambien de pastilla a esquinas suaves
 - separar el tamaño de texto de la pantalla de inicio del de la app y los ajustes: `FontPreferences.getHomeFontSizePt` guarda su propio valor (`home_font_size_pt`, que hasta que se elige sigue al de la app para no alterar instalaciones existentes) y `HomeActivity` lo aplica mediante el nuevo `BaseActivity.userFontScale`, y el slider existente pasa a llamarse "tamaño de texto de la app"
+- traducir `license` al ingles de forma completa y fiel (antes era un resumen) y añadir los componentes de terceros (1.4), la naturaleza no comercial y no osi de la licencia (11), los idiomas con prevalencia del castellano (12), el contacto `contacto@rezzt.dev` (13), las clausulas que subsisten tras la terminacion y el caracter de compromiso personal de los bloqueos en la ausencia de garantia
 
 #### CORREGIDO
 - aplicar los bloqueos de horario y limite diario al abrir aplicaciones desde recientes y accesos frecuentes mediante cambios de ventana, y avisar de la necesidad del servicio de accesibilidad para todas las reglas
@@ -171,6 +174,8 @@
 - add per-block accessibility actions in edit mode (move up/down/left/right, make wider, narrower, taller or shorter) to change the layout without dragging
 - size every widget in real grid cells (`HomeGridMetrics`, `WidgetSizing`) from the provider's `targetCellWidth`/`targetCellHeight`, minimum size, `resizeMode` and resize bounds
 - add a "home text size" slider (8-24 pt) in settings > appearance, next to the app one, translated to es/en/fr/de
+- add `notice` and `third_party_licenses.md` with the real third-party inventory: the 88 artifacts of the `releaseRuntimeClasspath` (all apache-2.0), the poppins 4.004, comfortaa 3.105 and jetbrains mono 2.304 typefaces (ofl-1.1), the lucide 1.69.0 icons (isc) and those derived from feather (mit), the build and test tools, and the verbatim license texts
+- add `disclaimer.md` and `disclaimer.es.md`: locks are a personal commitment and not a security, parental control or monitoring tool, and use of the names "focusphone" and "rezzt-dev" is limited by clause 3.d of the license
 
 #### CHANGED
 - reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone
@@ -208,6 +213,7 @@
 - release orphaned widget ids against every widget on the grid and resolve each widget on its own (`AppWidgetHostManager.resolveWidget`)
 - soften the corners of the built-in widgets: the search field of `widget_search_pill` and `widget_spotlight` turns from a pill into a rounded rectangle (`wg_bg_field`) and the card, chip, square and artwork radii get smaller; the home edit mode bars also turn from pills into softly rounded panels
 - split the home screen text size from the app and settings text size: `FontPreferences.getHomeFontSizePt` stores its own value (`home_font_size_pt`, which follows the app size until one is chosen so existing installs are unchanged) and `HomeActivity` applies it through the new `BaseActivity.userFontScale`, and the existing slider is renamed "app text size"
+- translate `license` into english in full and faithfully (it was a summary) and add third-party components (1.4), the non-commercial, non-osi nature of the license (11), languages with spanish prevailing (12), the `contacto@rezzt.dev` contact (13), the clauses that survive termination and the personal-commitment nature of the locks in the no-warranty clause
 
 #### FIXED
 - enforce time windows and daily limits when apps open from recents and suggested shortcuts through window change events, and show the accessibility warning for every schedule rule
