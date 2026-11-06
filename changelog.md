@@ -46,6 +46,7 @@
 - añadir `permissions.md` y `permissions.es.md` con la justificacion tecnica de cada permiso, de los servicios de accesibilidad y de notificaciones, de los componentes exportados y las declaraciones que pediria google play
 - añadir las versiones en castellano `security.es.md`, `contributing.es.md` y `code_of_conduct.es.md` (traduccion oficial del contributor covenant 2.1), enlazadas con su version inglesa
 - añadir `.github/support.md` y `.github/support.es.md` con los canales de ayuda, y un enlace de ayuda en `.github/ISSUE_TEMPLATE/config.yml`
+- añadir `readme.es.md`, la version en castellano del readme con las mismas secciones, enlazada desde un selector de idioma
 
 #### CAMBIADO
 - reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
@@ -90,6 +91,8 @@
 - subir la version a `versionName` `1.4.0-beta` y `versionCode` 4 en `app/build.gradle.kts`, porque `v1.0.0-beta` y `v1.4-beta` se publicaron las dos como `1.0.6` (`versionCode` 3) y "acerca de" no permitia distinguirlas
 - actualizar la documentacion de usuario en castellano e ingles a la cuadricula de inicio y su modo edicion, los 20 widgets propios y el selector, la pausa consciente guiada, el tamaño de texto de la home, la verificacion del apk y el aviso de `v1.0.0-beta`, y retirar la columna fija, el widget unico y la pantalla de distribucion
 - actualizar la documentacion de desarrolladores a `HomeGridPreferences`, `LibraryWidgetPreferences`, `ui/home/grid`, `ui/widget/library`, `WidgetLaunchActivity`, el lanzamiento por `BaseActivity.openApp`, las pruebas nuevas, el esquema de versiones `<x.y.z>-beta` y el flujo de ramas `beta-1.X` → `version-beta` → `main`, con paridad exacta de secciones entre idiomas
+- reescribir `readme.md` para la beta: insignias reales (release, estado, `android-ci`, sdk, sin internet, licencia no comercial y no osi), funcionalidades de la cuadricula y los widgets, instalacion, verificacion con `SHA256SUMS` y la huella del certificado, compilacion, estructura, documentacion, privacidad, seguridad, estado del proyecto y licencia
+- actualizar `agents.md` con la version `1.4.0-beta`, agp `9.3.0`, room `2.8.5`, la cuadricula y los widgets en la descripcion, el flujo de ramas, la firma de releases y los ficheros legales que hay que mantener al cambiar dependencias, permisos o datos
 
 #### CORREGIDO
 - aplicar los bloqueos de horario y limite diario al abrir aplicaciones desde recientes y accesos frecuentes mediante cambios de ventana, y avisar de la necesidad del servicio de accesibilidad para todas las reglas
@@ -193,6 +196,7 @@
 - add `permissions.md` and `permissions.es.md` with the technical justification of every permission, of the accessibility and notification services, of the exported components and of the declarations google play would require
 - add the spanish versions `security.es.md`, `contributing.es.md` and `code_of_conduct.es.md` (official contributor covenant 2.1 translation), linked to their english counterparts
 - add `.github/support.md` and `.github/support.es.md` with the help channels, and a help link in `.github/ISSUE_TEMPLATE/config.yml`
+- add `readme.es.md`, the spanish readme with the same sections, linked from a language selector
 
 #### CHANGED
 - reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone
@@ -237,6 +241,8 @@
 - bump the version to `versionName` `1.4.0-beta` and `versionCode` 4 in `app/build.gradle.kts`, because `v1.0.0-beta` and `v1.4-beta` both shipped as `1.0.6` (`versionCode` 3) and "about" could not tell them apart
 - update the spanish and english user documentation to the home grid and its edit mode, the 20 built-in widgets and the picker, the guided conscious pause, the home text size, apk verification and the `v1.0.0-beta` warning, and drop the fixed column, the single widget and the layout screen
 - update the developer documentation to `HomeGridPreferences`, `LibraryWidgetPreferences`, `ui/home/grid`, `ui/widget/library`, `WidgetLaunchActivity`, launching through `BaseActivity.openApp`, the new tests, the `<x.y.z>-beta` version scheme and the `beta-1.X` → `version-beta` → `main` branch flow, with exact section parity between languages
+- rewrite `readme.md` for the beta: real badges (release, status, `android-ci`, sdk, no internet, non-commercial non-osi license), grid and widget features, install, verification with `SHA256SUMS` and the certificate fingerprint, build, layout, documentation, privacy, security, project status and license
+- update `agents.md` with version `1.4.0-beta`, agp `9.3.0`, room `2.8.5`, the grid and widgets in the description, the branch flow, release signing and the legal files to keep in sync when dependencies, permissions or data change
 
 #### FIXED
 - enforce time windows and daily limits when apps open from recents and suggested shortcuts through window change events, and show the accessibility warning for every schedule rule
