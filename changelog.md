@@ -119,6 +119,8 @@
 - ajustar las filas de la vista previa de apps del editor de disposicion para que quepan todos los favoritos sin cortar los nombres
 - quitar el padding por defecto que cada fabricante aplica a los widgets (`HomeWidgetHostView`) y encoger el widget cuando su contenido no cabe en su bloque (`WidgetFitFrame`) en vez de recortarlo, para que la rejilla de inicio se vea igual en todos los dispositivos (p. ej. samsung, con celdas mas bajas, zoom o fuente mayor)
 - repartir la barra inferior del modo edicion a lo ancho y encoger sus etiquetas cuando no caben, en vez de partir "listo" letra a letra y estirar la barra en pantallas estrechas o con fuente grande (samsung galaxy a21)
+- volver a dejar de versionar `.docs/` (447 ficheros, incluidos 67 paquetes `agent-skills` de terceros con licencia mit publicados sin su aviso de copyright y analisis internos), que el commit `0839151` habia reintroducido pese a estar en `.gitignore`
+- dejar de versionar `focusphone-project/.vscode/settings.json`, que estaba ignorado pero seguia en el repositorio con una ruta de jdk propia de una maquina
 
 #### ELIMINADO
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` y el subsistema de tamaño de icono inalcanzable, junto con `backup_rules.xml` y el `values-night/themes.xml` vacio
@@ -248,6 +250,8 @@
 - fit the layout editor's apps preview rows so every favourite shows without cut-off names
 - drop the default padding each manufacturer applies to widgets (`HomeWidgetHostView`) and shrink a widget whose content does not fit its block (`WidgetFitFrame`) instead of cropping it, so the home grid looks the same on every device (e.g. samsung, with shorter cells, display zoom or a larger font)
 - share the edit mode bottom bar's width equally and shrink its labels when they do not fit, instead of breaking "done" one letter per line and stretching the bar on narrow screens or with a large font (samsung galaxy a21)
+- stop versioning `.docs/` again (447 files, including 67 third-party mit-licensed `agent-skills` packages published without their copyright notice and internal analyses), which commit `0839151` had brought back despite being in `.gitignore`
+- stop versioning `focusphone-project/.vscode/settings.json`, which was ignored but still tracked with a machine-specific jdk path
 
 #### REMOVED
 - `WidgetConfigActivity`, `ClockStyle`, `WeightGradientTextView` and the unreachable icon-size-slider subsystem, along with `backup_rules.xml` and the empty `values-night/themes.xml`
