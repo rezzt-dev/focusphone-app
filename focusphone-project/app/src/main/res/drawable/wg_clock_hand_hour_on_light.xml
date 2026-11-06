@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Analog clock hour hand, drawn pointing at twelve from the centre. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#333333"
+        android:strokeWidth="9"
+        android:strokeLineCap="round"
+        android:pathData="M120,120L120,66" />
+</vector>

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<set xmlns:android="http://schemas.android.com/apk/res/android">
+<!-- Outgoing screen: a short, plain fade that gets out of the way of the incoming one. -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:interpolator/fast_out_linear_in">
     <alpha
-        android:duration="180"
+        android:duration="@integer/fp_screen_exit_duration"
         android:fromAlpha="1.0"
-        android:interpolator="@android:anim/accelerate_interpolator"
         android:toAlpha="0.0" />
 </set>

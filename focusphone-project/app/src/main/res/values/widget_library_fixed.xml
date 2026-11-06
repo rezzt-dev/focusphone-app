@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Placeholders of the widget previews and fixed time formats; never shown once a widget is drawn. -->
+<resources>
+    <string name="wg_format_time_12" translatable="false">h:mm</string>
+    <string name="wg_format_time_12_ampm" translatable="false">h:mm a</string>
+    <string name="wg_format_time_24" translatable="false">HH:mm</string>
+    <string name="wg_format_ampm" translatable="false">a</string>
+    <string name="wg_format_none" translatable="false"></string>
+    <string name="wg_preview_alarm_time" translatable="false">07:30</string>
+    <string name="wg_preview_day" translatable="false">5</string>
+    <string name="wg_preview_year" translatable="false">2026</string>
+    <string name="wg_preview_percent" translatable="false">72%</string>
+    <string name="wg_preview_percent_storage" translatable="false">64%</string>
+    <string name="wg_preview_memory" translatable="false">3.1 gb</string>
+    <string name="wg_preview_city_1" translatable="false">london</string>
+    <string name="wg_preview_city_2" translatable="false">new york</string>
+    <string name="wg_preview_city_3" translatable="false">tokyo</string>
+    <string name="wg_preview_offset_1" translatable="false">−1 h</string>
+    <string name="wg_preview_offset_2" translatable="false">−6 h</string>
+    <string name="wg_preview_offset_3" translatable="false">+8 h</string>
+    <string name="wg_preview_wd_0" translatable="false">m</string>
+    <string name="wg_preview_wd_1" translatable="false">t</string>
+    <string name="wg_preview_wd_2" translatable="false">w</string>
+    <string name="wg_preview_wd_3" translatable="false">t</string>
+    <string name="wg_preview_wd_4" translatable="false">f</string>
+    <string name="wg_preview_wd_5" translatable="false">s</string>
+    <string name="wg_preview_wd_6" translatable="false">s</string>
+    <string name="wg_n_1" translatable="false">1</string>
+    <string name="wg_n_2" translatable="false">2</string>
+    <string name="wg_n_3" translatable="false">3</string>
+    <string name="wg_n_4" translatable="false">4</string>
+    <string name="wg_n_5" translatable="false">5</string>
+    <string name="wg_n_6" translatable="false">6</string>
+    <string name="wg_n_7" translatable="false">7</string>
+    <string name="wg_n_8" translatable="false">8</string>
+    <string name="wg_n_9" translatable="false">9</string>
+    <string name="wg_n_10" translatable="false">10</string>
+    <string name="wg_n_11" translatable="false">11</string>
+    <string name="wg_n_12" translatable="false">12</string>
+    <string name="wg_n_13" translatable="false">13</string>
+    <string name="wg_n_14" translatable="false">14</string>
+    <string name="wg_n_15" translatable="false">15</string>
+    <string name="wg_n_16" translatable="false">16</string>
+    <string name="wg_n_17" translatable="false">17</string>
+    <string name="wg_n_18" translatable="false">18</string>
+    <string name="wg_n_19" translatable="false">19</string>
+    <string name="wg_n_20" translatable="false">20</string>
+    <string name="wg_n_21" translatable="false">21</string>
+    <string name="wg_n_22" translatable="false">22</string>
+    <string name="wg_n_23" translatable="false">23</string>
+    <string name="wg_n_24" translatable="false">24</string>
+    <string name="wg_n_25" translatable="false">25</string>
+    <string name="wg_n_26" translatable="false">26</string>
+    <string name="wg_n_27" translatable="false">27</string>
+    <string name="wg_n_28" translatable="false">28</string>
+    <string name="wg_n_29" translatable="false">29</string>
+    <string name="wg_n_30" translatable="false">30</string>
+</resources>

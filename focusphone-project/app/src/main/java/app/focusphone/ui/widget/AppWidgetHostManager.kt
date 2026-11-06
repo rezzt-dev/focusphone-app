@@ -1,14 +1,17 @@
 package app.focusphone.ui.widget
 
+import android.app.Activity
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
-import app.focusphone.data.preferences.WidgetPreferences
+import android.util.SparseArray
+import androidx.core.util.size
 import java.util.Collections
 import java.util.IdentityHashMap
 
@@ -21,14 +24,33 @@ import java.util.IdentityHashMap
  * `RuntimeException: system server dead?` (often rooted in
  * [android.os.TransactionTooLargeException]).
  *
+ * The host delivers a widget's updates to **one** view per ID. The manager therefore
+ * remembers which surface created the live view of each ID, so the home screen keeps its
+ * views across visits and only rebuilds one after another surface took its ID over.
+ *
  * All host operations are wrapped in try/catch so that widget failures never
  * crash the launcher.
  */
 class AppWidgetHostManager private constructor(context: Context) {
 
-    private val appWidgetHost = AppWidgetHost(context.applicationContext, HOST_ID)
-    private val appWidgetManager = AppWidgetManager.getInstance(context.applicationContext)
+    /** What a hosted widget can be rendered as. */
+    sealed interface WidgetState {
+        /** The provider is available. */
+        data class Ready(val info: AppWidgetProviderInfo) : WidgetState
+
+        /** The provider is momentarily missing (its app is being updated): keep the place. */
+        data object Unavailable : WidgetState
+
+        /** The provider's app is gone: the widget can never be shown again. */
+        data object Gone : WidgetState
+    }
+
+    private val appContext = context.applicationContext
+    private val appWidgetHost = FocusAppWidgetHost(appContext, HOST_ID) { notifyProvidersChanged() }
+    private val appWidgetManager = AppWidgetManager.getInstance(appContext)
     private val listeningOwners = Collections.newSetFromMap(IdentityHashMap<Any, Boolean>())
+    private val viewOwners = SparseArray<Any>()
+    private val providerListeners = Collections.newSetFromMap(IdentityHashMap<() -> Unit, Boolean>())
 
     /** Starts listening while at least one lifecycle [owner] is visible. */
     @Synchronized
@@ -62,15 +84,45 @@ class AppWidgetHostManager private constructor(context: Context) {
         null
     }
 
-    /**
-     * Creates an [AppWidgetHostView] for the given widget.
-     * Returns null on any system-level failure so the UI can degrade gracefully.
-     */
-    fun createView(context: Context, widgetId: Int, info: AppWidgetProviderInfo): AppWidgetHostView? = try {
-        appWidgetHost.createView(context, widgetId, info)
+    /** Every widget provider that may be placed on a home screen, or an empty list on failure. */
+    fun getHomeScreenProviders(): List<AppWidgetProviderInfo> = try {
+        appWidgetManager.installedProviders.filter { info ->
+            info.provider != null &&
+                info.widgetCategory and AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN != 0 &&
+                !(
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+                        info.widgetFeatures and AppWidgetProviderInfo.WIDGET_FEATURE_HIDE_FROM_PICKER != 0
+                    )
+        }
     } catch (e: RuntimeException) {
-        Log.e(TAG, "AppWidgetHost.createView($widgetId) failed", e)
-        null
+        Log.e(TAG, "getInstalledProviders() failed", e)
+        emptyList()
+    }
+
+    /**
+     * Creates the live view of [widgetId] on behalf of [owner], which becomes the only
+     * surface receiving its updates. Returns null on any system-level failure so the UI can
+     * degrade gracefully.
+     */
+    fun createView(owner: Any, context: Context, widgetId: Int, info: AppWidgetProviderInfo): HomeWidgetHostView? {
+        val view = try {
+            appWidgetHost.createView(WidgetHostContext(context), widgetId, info) as? HomeWidgetHostView
+        } catch (e: RuntimeException) {
+            Log.e(TAG, "AppWidgetHost.createView($widgetId) failed", e)
+            null
+        }
+        if (view != null) viewOwners.put(widgetId, owner) else viewOwners.remove(widgetId)
+        return view
+    }
+
+    /** true while the view [owner] created for [widgetId] still receives its updates. */
+    fun ownsView(owner: Any, widgetId: Int): Boolean = viewOwners.get(widgetId) === owner
+
+    /** Forgets [owner] as the renderer of any widget, e.g. when its screen is destroyed. */
+    fun releaseViews(owner: Any) {
+        for (i in viewOwners.size - 1 downTo 0) {
+            if (viewOwners.valueAt(i) === owner) viewOwners.removeAt(i)
+        }
     }
 
     /** Allocates a new widget ID. */
@@ -78,6 +130,7 @@ class AppWidgetHostManager private constructor(context: Context) {
 
     /** Releases a widget ID back to the system. */
     fun deleteAppWidgetId(widgetId: Int) {
+        viewOwners.remove(widgetId)
         try {
             appWidgetHost.deleteAppWidgetId(widgetId)
         } catch (e: RuntimeException) {
@@ -85,49 +138,69 @@ class AppWidgetHostManager private constructor(context: Context) {
         }
     }
 
-    // ── Home widget slot ───────────────────────────────────────────
+    // ── Provider changes ───────────────────────────────────────────
+
+    /** Registers [listener] to run on the main thread whenever installed providers change. */
+    fun addProvidersChangedListener(listener: () -> Unit) {
+        providerListeners.add(listener)
+    }
+
+    fun removeProvidersChangedListener(listener: () -> Unit) {
+        providerListeners.remove(listener)
+    }
+
+    private fun notifyProvidersChanged() {
+        providerListeners.toList().forEach { it() }
+    }
+
+    // ── Hosted widgets ─────────────────────────────────────────────
 
     /**
-     * Makes [widgetId] the home-screen widget, releasing the one it replaces.
+     * Resolves what the home screen should show for [widgetId], last bound to [provider].
      *
-     * A released ID lets the old provider receive `onDeleted()` and stop scheduling updates
-     * for a widget nobody displays.
+     * A provider that is missing because its app was uninstalled is reported as
+     * [WidgetState.Gone], and the caller drops the widget. One that is missing while its app
+     * is still installed — mid-update, or on an SD card being mounted — is
+     * [WidgetState.Unavailable] and keeps its place, so an app update never silently removes
+     * one of the user's widgets.
      */
-    fun assignHomeWidget(context: Context, widgetId: Int) {
-        val previous = WidgetPreferences.getWidgetId(context)
-        WidgetPreferences.setWidgetId(context, widgetId)
-        WidgetPreferences.setWidgetEnabled(context, true)
-        if (previous != WidgetPreferences.INVALID_WIDGET_ID && previous != widgetId) {
-            deleteAppWidgetId(previous)
-        }
+    fun resolveWidget(context: Context, widgetId: Int, provider: ComponentName?): WidgetState {
+        val info = getAppWidgetInfo(widgetId)
+        if (info?.provider != null) return WidgetState.Ready(info)
+        if (provider != null && isPackageInstalled(context, provider.packageName)) return WidgetState.Unavailable
+        Log.i(TAG, "Widget id=$widgetId lost its provider $provider")
+        return WidgetState.Gone
     }
 
-    /** Removes the home-screen widget and releases its ID back to the system. */
-    fun removeHomeWidget(context: Context) {
-        val widgetId = WidgetPreferences.getWidgetId(context)
-        WidgetPreferences.clearWidget(context)
-        if (widgetId != WidgetPreferences.INVALID_WIDGET_ID) {
-            deleteAppWidgetId(widgetId)
+    private fun isPackageInstalled(context: Context, packageName: String): Boolean = try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0L))
+        } else {
+            @Suppress("DEPRECATION")
+            context.packageManager.getPackageInfo(packageName, 0)
         }
+        true
+    } catch (_: PackageManager.NameNotFoundException) {
+        false
     }
 
     /**
-     * Releases every ID allocated to this host except the configured home widget.
+     * Releases every ID allocated to this host except the widgets the home screen shows
+     * ([keep]).
      *
      * Cleans up IDs leaked by builds that never released removed or replaced widgets.
      * Skipped while the picker is binding a new widget, whose ID is not saved yet.
      */
-    fun releaseOrphanedIds(context: Context) {
+    fun releaseOrphanedIds(keep: Set<Int>) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         if (WidgetPickerActivity.isSelectionInProgress) return
-        val keep = WidgetPreferences.getWidgetId(context)
         val allocated = try {
             appWidgetHost.appWidgetIds
         } catch (e: RuntimeException) {
             Log.e(TAG, "AppWidgetHost.getAppWidgetIds() failed", e)
             return
         }
-        allocated.filter { it != keep }.forEach { orphan ->
+        allocated.filter { it !in keep }.forEach { orphan ->
             Log.i(TAG, "Releasing orphaned widget id=$orphan")
             deleteAppWidgetId(orphan)
         }
@@ -144,6 +217,45 @@ class AppWidgetHostManager private constructor(context: Context) {
     } catch (e: RuntimeException) {
         Log.e(TAG, "bindAppWidgetIdIfAllowed($widgetId, $provider) failed", e)
         false
+    }
+
+    /** true once [widgetId] is bound to a provider, however the bind was granted. */
+    fun isBound(widgetId: Int): Boolean = getAppWidgetInfo(widgetId)?.provider != null
+
+    /**
+     * Opens the provider's configuration screen for [widgetId].
+     *
+     * Goes through [AppWidgetHost.startAppWidgetConfigureActivityForResult], which launches
+     * the screen on the host's behalf: configuration activities are often not exported,
+     * and starting them with a plain intent failed with a `SecurityException`.
+     *
+     * @return false when the screen could not be opened.
+     */
+    fun startConfigureActivity(activity: Activity, widgetId: Int, requestCode: Int): Boolean = try {
+        appWidgetHost.startAppWidgetConfigureActivityForResult(activity, widgetId, 0, requestCode, null)
+        true
+    } catch (e: RuntimeException) {
+        // ActivityNotFoundException and SecurityException are both RuntimeExceptions.
+        Log.w(TAG, "Could not open the configuration of widget id=$widgetId", e)
+        false
+    }
+
+    /** Host whose views are [HomeWidgetHostView]s and which reports provider changes. */
+    private class FocusAppWidgetHost(
+        context: Context,
+        hostId: Int,
+        private val onProvidersChanged: () -> Unit
+    ) : AppWidgetHost(context, hostId) {
+
+        override fun onCreateView(
+            context: Context,
+            appWidgetId: Int,
+            appWidget: AppWidgetProviderInfo?
+        ): AppWidgetHostView = HomeWidgetHostView(context)
+
+        override fun onProvidersChanged() {
+            onProvidersChanged.invoke()
+        }
     }
 
     companion object {

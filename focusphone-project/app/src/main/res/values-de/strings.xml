@@ -7,15 +7,13 @@
     <string name="home_all_apps">alle apps</string>
     <string name="home_settings">einstellungen</string>
     <string name="home_edit_apps">dashboard bearbeiten</string>
-    <string name="home_long_press_hint">halte eine app gedrückt, um sie von der liste zu entfernen</string>
-    <string name="home_no_apps">keine apps ausgewählt.\ntippe auf das menü, um apps hinzuzufügen.</string>
+    <string name="home_long_press_hint">halte eine app gedrückt für optionen oder ziehe sie, um sie zu verschieben</string>
+    <string name="home_no_apps">noch keine apps.\ntippe hier, um die wenigen apps zu wählen, die du wirklich brauchst.</string>
     <string name="home_menu_desc">menü öffnen</string>
 
     <string name="allapps_title">alle apps</string>
     <string name="allapps_close">schließen</string>
 
-    <string name="menu_open_app">öffnen</string>
-    <string name="menu_remove_app">von der liste entfernen</string>
     <string name="menu_app_info">app-info</string>
 
     <string name="appselect_title">wähle deine apps</string>
@@ -49,7 +47,8 @@
     <string name="settings_clock_style_label">uhrstil</string>
     <string name="settings_clock_size">uhrgröße</string>
     <string name="settings_text_size">textgröße</string>
-    <string name="settings_text_size_pt">textgröße: %1$dpt</string>
+    <string name="settings_text_size_pt">textgröße app: %1$dpt</string>
+    <string name="settings_home_text_size_pt">textgröße startseite: %1$dpt</string>
     <string name="settings_section_font">schriftart</string>
     <string name="settings_section_text_layout">text und layout</string>
     <string name="settings_font_label">launcher-schriftart</string>
@@ -115,7 +114,7 @@
     <string name="tutorial_coach_menu_title">das menü</string>
     <string name="tutorial_coach_menu_desc">wische nach links, um das menü zu öffnen. von hier aus kannst du auf alle apps, einstellungen und profile zugreifen.</string>
     <string name="tutorial_coach_apps_title">apps hinzufügen</string>
-    <string name="tutorial_coach_apps_desc">tippe auf "apps auswählen", um bis zu 10 favoriten zu wählen. halte eine app gedrückt, um sie zu entfernen.</string>
+    <string name="tutorial_coach_apps_desc">tippe im menü auf \"dashboard bearbeiten\", um bis zu 10 apps zu wählen. halte eine app gedrückt für optionen oder ziehe sie, um sie zu verschieben.</string>
     <string name="tutorial_coach_profile_title">kontextbezogene profile</string>
     <string name="tutorial_coach_profile_desc">tippe auf deinen profilnamen, um den modus zu wechseln. arbeit blockiert ablenkungen. detox blockiert alles.</string>
     <string name="tutorial_coach_block_title">apps blockieren</string>
@@ -255,12 +254,8 @@
 
     <!-- Settings: Widget -->
     <string name="settings_section_widget">widget</string>
-    <string name="settings_widget_title">startbildschirm-widget</string>
-    <string name="settings_widget_desc">füge ein system-widget zum startbildschirm hinzu</string>
     <string name="settings_widget_add">widget hinzufügen</string>
-    <string name="settings_widget_remove">widget entfernen</string>
     <string name="settings_widget_none">keines</string>
-    <string name="settings_widget_remove_confirm">aktuelles widget vom startbildschirm entfernen?</string>
     <string name="widget_config_title">widget auswählen</string>
 
     <!-- Settings: Permissions -->
@@ -364,31 +359,19 @@
 
     <!-- Language fallback -->
     <string name="settings_language_system_unsupported">system (english us)</string>
-    <string name="settings_clock_fixed_top">uhr oben fixieren</string>
-    <string name="settings_clock_fixed_top_desc">uhr immer oben anzeigen statt mittig mit apps</string>
     <string name="about_settings_title">über</string>
     <string name="appearance_settings_title">aussehen</string>
     <string name="cd_apps">apps-komponente</string>
     <string name="cd_clear_all">alle benachrichtigungen löschen</string>
     <string name="cd_clock">uhr-komponente</string>
-    <string name="cd_drag_handle">ziehen zum neuordnen</string>
-    <string name="cd_toggle_visibility">sichtbarkeit umschalten</string>
     <string name="cd_widget">widget-komponente</string>
-    <string name="cd_widget_icon">widget-symbol</string>
     <string name="focus_settings_title">fokus</string>
-    <string name="home_layout_add_widget">widget hinzufügen</string>
     <string name="home_layout_apps">apps</string>
     <string name="home_layout_clock">uhr</string>
-    <string name="home_layout_clock_size">uhrgröße</string>
     <string name="home_layout_done">fertig</string>
-    <string name="home_layout_order">reihenfolge</string>
-    <string name="home_layout_preview">vorschau</string>
-    <string name="home_layout_settings_desc">startbildschirm-komponenten neu ordnen und in der größe anpassen</string>
-    <string name="home_layout_settings_title">startbildschirm-layout</string>
-    <string name="home_layout_sizes">größen</string>
-    <string name="home_layout_title">startbildschirm-layout</string>
+    <string name="home_layout_settings_desc">blöcke auf dem startbildschirm verschieben, anpassen und hinzufügen</string>
+    <string name="home_layout_settings_title">startbildschirm bearbeiten</string>
     <string name="home_layout_widget">widget</string>
-    <string name="home_layout_widget_size">widget-größe</string>
     <string name="home_settings_title">startbildschirm</string>
     <string name="notification_clear_all">alle löschen</string>
     <string name="notification_settings_title">benachrichtigungen</string>
@@ -413,7 +396,6 @@
     <string name="settings_clock_type_desc">wähle, wie die uhrzeit angezeigt wird</string>
     <string name="settings_conscious_pause_section_desc">atme vor dem öffnen von apps durch</string>
     <string name="settings_font_desc">wähle die schriftart für den gesamten launcher</string>
-    <string name="settings_home_layout_desc">startbildschirm-komponenten neu ordnen und anpassen</string>
     <string name="settings_language_desc">app-sprache ändern</string>
     <string name="settings_notification_badges_section_desc">ungelesene zähler neben apps anzeigen</string>
     <string name="settings_notification_panel_desc_short">wische nach rechts, um benachrichtigungen zu sehen</string>
@@ -424,7 +406,7 @@
     <string name="settings_set_default_desc_short">focusphone als startbildschirm festlegen</string>
     <string name="settings_text_size_desc">größe des gesamten textes anpassen</string>
     <string name="settings_theme_desc">wähle dein farbschema</string>
-    <string name="settings_widget_settings_desc">system-widget hinzufügen oder entfernen</string>
+    <string name="settings_widget_settings_desc">ein widget auf dem startbildschirm platzieren</string>
     <string name="settings_work_keywords_section_desc">apps im arbeitsmodus nach namen blockieren</string>
     <string name="system_settings_title">system</string>
     <string name="widget_picker_empty">keine widgets verfügbar</string>
@@ -462,8 +444,6 @@
     <string name="clock_pm">pm</string>
     <string name="notification_now">jetzt</string>
     <string name="app_unknown">app</string>
-    <string name="home_layout_drag_hint">komponenten zum neuordnen ziehen</string>
-    <string name="home_layout_long_press_hint">vorschau gedrückt halten zum bearbeiten</string>
     <string name="clock_preview_words">neun
 einundvierzig</string>
 
@@ -578,7 +558,7 @@ einundvierzig</string>
     <string name="schedule_rule_removed">zeitplan entfernt</string>
     <string name="schedule_nothing_to_save">aktiviere zuerst ein zeitfenster oder ein tageslimit</string>
     <string name="schedule_accessibility_required">systemweite sperre ist aus</string>
-    <string name="schedule_accessibility_required_desc">tageslimits brauchen den focusphone-bedienungshilfedienst, um die nutzung zu messen. zum aktivieren tippen.</string>
+    <string name="schedule_accessibility_required_desc">aktiviere den focusphone-bedienungshilfedienst, damit zeitpläne auch über zuletzt verwendete apps und verknüpfungen gelten und die tägliche nutzung gemessen wird. zum aktivieren tippen.</string>
 
     <!-- Zeitplan-passwort -->
     <string name="schedule_password_row_title">zeitplan-passwort</string>
@@ -624,4 +604,154 @@ einundvierzig</string>
     <string name="settings_wallpaper_change">anderes bild wählen</string>
     <string name="settings_wallpaper_remove">hintergrund entfernen</string>
     <string name="wallpaper_access_lost">ein hintergrundbild war nicht mehr lesbar und wurde entfernt. bitte wähle es erneut</string>
+
+    <!-- Startseite: app-optionen und suche in allen apps -->
+    <string name="home_app_options_remove">vom startbildschirm entfernen</string>
+    <string name="allapps_search_no_match">keine treffer für „%1$s“</string>
+    <string name="allapps_search_hint_launch">suchen, dann eingabe zum öffnen</string>
+
+    <!-- Bewusste pause -->
+    <plurals name="pause_minutes_left_today">
+        <item quantity="one">heute noch %d minute</item>
+        <item quantity="other">heute noch %d minuten</item>
+    </plurals>
+    <string name="pause_last_minute_today">heute noch weniger als eine minute</string>
+
+    <!-- Home widget -->
+    <string name="widget_error_load">dieses widget kann nicht angezeigt werden</string>
+    <string name="widget_unavailable">widget nicht verfügbar, während seine app aktualisiert wird</string>
+    <string name="widget_picker_search_hint">widgets suchen</string>
+    <string name="widget_picker_no_results">keine widgets passen zur suche</string>
+    <string name="widget_picker_in_use_format">in verwendung · %1$s</string>
+    <string name="widget_picker_add_failed">das widget konnte nicht hinzugefügt werden</string>
+    <string name="widget_picker_config_failed">die widget-einstellungen konnten nicht geöffnet werden</string>
+    <string name="widget_option_settings">widget-einstellungen</string>
+
+    <!-- Widget library -->
+    <string name="wg_label_clock_digital">uhr</string>
+    <string name="wg_desc_clock_digital">große uhrzeit mit datum und nächstem wecker</string>
+    <string name="wg_label_clock_analog">analoguhr</string>
+    <string name="wg_desc_clock_analog">eine runde, ruhige analoguhr</string>
+    <string name="wg_label_clock_world">weltuhr</string>
+    <string name="wg_desc_clock_world">die uhrzeit in bis zu drei städten</string>
+    <string name="wg_label_date_tile">heute</string>
+    <string name="wg_desc_date_tile">tag, wochentag und monat</string>
+    <string name="wg_label_calendar_month">monat</string>
+    <string name="wg_desc_calendar_month">dieser monat auf einen blick</string>
+    <string name="wg_label_calendar_week">woche</string>
+    <string name="wg_desc_calendar_week">die sieben tage dieser woche</string>
+    <string name="wg_label_music_bar">musikleiste</string>
+    <string name="wg_desc_music_bar">was gerade läuft, mit wiedergabe und weiter</string>
+    <string name="wg_label_music_card">musikplayer</string>
+    <string name="wg_desc_music_card">cover, titel und alle steuerelemente</string>
+    <string name="wg_label_music_square">musikkachel</string>
+    <string name="wg_desc_music_square">cover mit wiedergabe und pause</string>
+    <string name="wg_label_search_pill">suche</string>
+    <string name="wg_desc_search_pill">eine suchleiste für deine apps</string>
+    <string name="wg_label_spotlight">spotlight</string>
+    <string name="wg_desc_spotlight">suche und deine lieblings-apps</string>
+    <string name="wg_label_favourites">favoriten</string>
+    <string name="wg_desc_favourites">deine lieblings-apps als liste</string>
+    <string name="wg_label_battery_ring">akku</string>
+    <string name="wg_desc_battery_ring">akkustand und ladezustand</string>
+    <string name="wg_label_storage">speicher</string>
+    <string name="wg_desc_storage">belegter und freier speicher</string>
+    <string name="wg_label_system_monitor">system</string>
+    <string name="wg_desc_system_monitor">akku, speicher und arbeitsspeicher</string>
+    <string name="wg_label_quick_toggles">schnelleinstellungen</string>
+    <string name="wg_desc_quick_toggles">taschenlampe, internet, bluetooth, lautstärke und einstellungen</string>
+    <string name="wg_label_next_alarm">nächster wecker</string>
+    <string name="wg_desc_next_alarm">wann dein nächster wecker klingelt</string>
+    <string name="wg_label_focus_profile">fokusprofil</string>
+    <string name="wg_desc_focus_profile">dein aktives profil und die verbleibende detox-zeit</string>
+    <string name="wg_label_intention">vorsatz</string>
+    <string name="wg_desc_intention">ein satz, der dich durch den tag führt</string>
+    <string name="wg_label_day_progress">fortschritt</string>
+    <string name="wg_desc_day_progress">wie viel vom tag, von der woche, vom monat und vom jahr vergangen ist</string>
+    <string name="wg_music_idle_title">keine wiedergabe</string>
+    <string name="wg_music_idle_subtitle">tippen, um deine musik zu öffnen</string>
+    <string name="wg_music_no_access_title">musik braucht zugriff auf benachrichtigungen</string>
+    <string name="wg_music_no_access_subtitle">tippen, um ihn zu erlauben</string>
+    <string name="wg_search_hint">apps suchen</string>
+    <string name="wg_favourites_header">favoriten</string>
+    <string name="wg_favourites_empty">füge favoriten hinzu, um sie hier zu sehen</string>
+    <string name="wg_battery">akku</string>
+    <string name="wg_battery_charging">lädt</string>
+    <string name="wg_battery_full">geladen</string>
+    <string name="wg_storage_used">belegt</string>
+    <string name="wg_free_format">%1$s frei</string>
+    <string name="wg_monitor_storage">speicher</string>
+    <string name="wg_monitor_memory">arbeitsspeicher</string>
+    <string name="wg_alarm_none">kein wecker</string>
+    <string name="wg_alarm_today">heute</string>
+    <string name="wg_alarm_tomorrow">morgen</string>
+    <string name="wg_profile_caption">profil</string>
+    <string name="wg_detox_left_format" formatted="false">noch %s</string>
+    <string name="wg_intention_caption">vorsatz für heute</string>
+    <string name="wg_intention_empty">tippen, um deinen vorsatz zu schreiben</string>
+    <string name="wg_progress_day">tag</string>
+    <string name="wg_progress_week">woche</string>
+    <string name="wg_progress_month">monat</string>
+    <string name="wg_progress_year">jahr</string>
+    <string name="wg_offset_local">lokal</string>
+    <string name="wg_cd_flashlight">taschenlampe</string>
+    <string name="wg_cd_internet">internet</string>
+    <string name="wg_cd_bluetooth">bluetooth</string>
+    <string name="wg_cd_volume">lautstärke</string>
+    <string name="wg_cd_settings">einstellungen</string>
+    <string name="wg_cd_play">wiedergabe</string>
+    <string name="wg_cd_pause">pause</string>
+    <string name="wg_cd_next">nächster titel</string>
+    <string name="wg_cd_previous">vorheriger titel</string>
+    <string name="wg_cd_all_apps">alle apps</string>
+    <string name="widget_no_app_for_action">keine app kann das öffnen</string>
+    <string name="wg_world_config_title">weltuhr</string>
+    <string name="wg_world_config_section">städte</string>
+    <string name="wg_world_config_hint">wähle bis zu drei städte</string>
+    <string name="wg_world_config_limit">die weltuhr zeigt bis zu drei städte</string>
+    <string name="wg_intention_config_title">vorsatz</string>
+    <string name="wg_intention_config_hint">was zählt heute?</string>
+    <string name="wg_intention_config_desc">wird im vorsatz-widget angezeigt. ein satz, bis zu 80 zeichen.</string>
+    <string name="wg_intention_config_save_failed">der vorsatz konnte nicht sicher gespeichert werden</string>
+    <string name="wg_preview_date">donnerstag, 5. november</string>
+    <string name="wg_preview_weekday">donnerstag</string>
+    <string name="wg_preview_month">november</string>
+    <string name="wg_preview_month_year">november 2026</string>
+    <string name="wg_preview_title">songtitel</string>
+    <string name="wg_preview_artist">künstler</string>
+    <string name="wg_preview_storage">38 gb frei</string>
+    <string name="wg_preview_intention">lesen, bevor ich zum handy greife</string>
+    <string name="wg_preview_alarm_day">morgen</string>
+    <string name="wg_preview_fav_1">telefon</string>
+    <string name="wg_preview_fav_2">nachrichten</string>
+    <string name="wg_preview_fav_3">kamera</string>
+    <string name="wg_preview_fav_4">karten</string>
+    <string name="wg_preview_fav_5">musik</string>
+
+    <!-- Home grid: edit mode, block actions and grid size -->
+    <string name="home_edit_hint">ziehen zum verschieben · block antippen, dann an den griffen die größe ändern</string>
+    <string name="home_edit_widgets">widgets</string>
+    <string name="home_edit_add_clock">uhr hinzufügen</string>
+    <string name="home_edit_grid">raster</string>
+    <string name="home_edit_remove">entfernen</string>
+    <string name="home_edit_clock_hidden">uhr ausgeblendet</string>
+    <string name="home_edit_clock_style">stil</string>
+    <string name="home_edit_choose_apps">apps wählen</string>
+    <string name="home_edit_removed">%1$s entfernt</string>
+    <string name="home_edit_move_up">nach oben</string>
+    <string name="home_edit_move_down">nach unten</string>
+    <string name="home_edit_move_left">nach links</string>
+    <string name="home_edit_move_right">nach rechts</string>
+    <string name="home_edit_wider">breiter</string>
+    <string name="home_edit_narrower">schmaler</string>
+    <string name="home_edit_taller">höher</string>
+    <string name="home_edit_shorter">niedriger</string>
+    <string name="home_grid_title">startbildschirm-raster</string>
+    <string name="home_grid_columns">spalten: %1$d</string>
+    <string name="home_grid_rows">zeilen: %1$d</string>
+    <string name="home_grid_no_room">kein platz auf dem startbildschirm. entferne oder verkleinere zuerst einen block.</string>
+    <plurals name="settings_widget_count">
+        <item quantity="one">%d widget auf dem startbildschirm</item>
+        <item quantity="other">%d widgets auf dem startbildschirm</item>
+    </plurals>
 </resources>

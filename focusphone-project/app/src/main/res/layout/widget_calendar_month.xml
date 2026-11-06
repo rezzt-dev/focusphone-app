@@ -1,0 +1,1020 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Month: the current month as a grid, today highlighted (4 x 3). RemoteViews ignore app:tint, so android:tint is right here.
+     A RemoteViews month has no adapter-free alternative to one view per day. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wg_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UseAppTint,TooManyViews,NestedWeights">
+
+    <ImageView
+        android:id="@+id/wg_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/wg_bg_card"
+        android:tint="@color/wg_preview_card" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="@dimen/wg_padding_compact">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="true"
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:id="@+id/wg_month_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_month"
+                android:textColor="@color/wg_preview_text"
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/wg_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_year"
+                android:textColor="@color/wg_preview_text_tertiary"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:paddingBottom="4dp">
+
+                <TextView
+                    android:id="@+id/wg_head_0"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/wg_preview_wd_0"
+                    android:textColor="@color/wg_preview_text_tertiary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/wg_head_1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/wg_preview_wd_1"
+                    android:textColor="@color/wg_preview_text_tertiary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/wg_head_2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/wg_preview_wd_2"
+                    android:textColor="@color/wg_preview_text_tertiary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/wg_head_3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/wg_preview_wd_3"
+                    android:textColor="@color/wg_preview_text_tertiary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/wg_head_4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/wg_preview_wd_4"
+                    android:textColor="@color/wg_preview_text_tertiary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/wg_head_5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/wg_preview_wd_5"
+                    android:textColor="@color/wg_preview_text_tertiary"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/wg_head_6"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/wg_preview_wd_6"
+                    android:textColor="@color/wg_preview_text_tertiary"
+                    android:textSize="11sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/wg_row_0"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_0"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text=""
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_1"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text=""
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_2"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text=""
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_3"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text=""
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_4"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text=""
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_5"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text=""
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_6"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_1"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/wg_row_1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_7"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_2"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_8"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_3"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_9"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_4"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_10"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_5"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_11"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_6"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_12"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_7"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_13"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_8"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/wg_row_2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_14"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_9"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_15"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_10"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_16"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_11"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_17"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_12"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_18"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_13"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_19"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_14"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_20"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_15"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/wg_row_3"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_21"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_16"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_22"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_17"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_23"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_18"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_24"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_19"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_25"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_20"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_26"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_21"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_27"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_22"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/wg_row_4"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_28"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_23"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_29"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_24"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_30"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_25"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_31"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_26"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_32"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_27"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_33"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_28"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_34"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_29"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/wg_row_5"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_35"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/wg_n_30"
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_36"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text=""
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_37"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text=""
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_38"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text=""
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_39"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text=""
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_40"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text=""
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/wg_cell_41"
+                        android:layout_width="@dimen/wg_calendar_cell"
+                        android:layout_height="@dimen/wg_calendar_cell"
+                        android:layout_gravity="center"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text=""
+                        android:textColor="@color/wg_preview_text"
+                        android:textSize="12sp" />
+                </FrameLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

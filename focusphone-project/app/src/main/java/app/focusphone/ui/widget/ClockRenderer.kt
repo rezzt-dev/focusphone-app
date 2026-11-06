@@ -1,12 +1,16 @@
 package app.focusphone.ui.widget
 
 import android.content.Context
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import app.focusphone.R
 import app.focusphone.domain.model.ClockType
+import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -74,17 +78,37 @@ class ClockRenderer(
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
         val date = dateFormat.format(now).lowercase(locale)
-        val time = timeFormat.format(now)
+        val is24Hour = android.text.format.DateFormat.is24HourFormat(context)
 
-        setText(R.id.tv_time, time)
+        root.findViewById<TextView>(R.id.tv_time)?.text = withQuietMarker(timeFormat.format(now), calendar, is24Hour)
         setText(R.id.tv_date, date)
-        setText(R.id.tv_stacked_h, String.format(locale, "%02d", hour))
+        // The stacked clock follows the system's 12/24-hour choice like the digital one;
+        // it used to show "15" over "08" on phones set to 12-hour time.
+        val stackedHour = if (is24Hour) hour else (hour % HOURS_PER_HALF_DAY).takeIf { it != 0 } ?: HOURS_PER_HALF_DAY
+        setText(R.id.tv_stacked_h, String.format(locale, "%02d", stackedHour))
         setText(R.id.tv_stacked_m, String.format(locale, "%02d", minute))
         setText(R.id.tv_stacked_date, date)
         setText(R.id.tv_words_time, formatTimeWords(hour, minute))
         setText(R.id.tv_words_date, date)
         root.findViewById<AnalogClockView>(R.id.view_analog)?.setTime(hour, minute)
         setText(R.id.tv_analog_date, date)
+    }
+
+    /**
+     * Shrinks the AM/PM marker of a 12-hour time to a quiet suffix. Set at the size of the
+     * digits it competed with them for attention and pushed long times onto two lines.
+     */
+    private fun withQuietMarker(time: String, calendar: Calendar, is24Hour: Boolean): CharSequence {
+        if (is24Hour) return time
+        val marker = DateFormatSymbols.getInstance(Locale.getDefault()).amPmStrings
+            .getOrNull(calendar.get(Calendar.AM_PM))
+            ?.takeIf { it.isNotBlank() } ?: return time
+        val start = time.indexOf(marker)
+        if (start < 0) return time
+        val end = start + marker.length
+        return SpannableString(time).apply {
+            setSpan(RelativeSizeSpan(MARKER_SCALE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
     }
 
     private fun formatTimeWords(hour: Int, minute: Int): String {
@@ -105,5 +129,7 @@ class ClockRenderer(
 
     private companion object {
         const val BASE_ANALOG_HEIGHT_DP = 140f
+        const val HOURS_PER_HALF_DAY = 12
+        const val MARKER_SCALE = 0.36f
     }
 }

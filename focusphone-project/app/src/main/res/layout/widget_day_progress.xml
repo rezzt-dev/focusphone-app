@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Progress: how much of the day, week, month and year has passed (4 x 2). RemoteViews ignore app:tint, so android:tint is right here. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wg_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UseAppTint">
+
+    <ImageView
+        android:id="@+id/wg_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/wg_bg_card"
+        android:tint="@color/wg_preview_card" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="@dimen/wg_padding"
+        android:paddingEnd="20dp"
+        android:paddingBottom="@dimen/wg_padding">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/wg_day_label"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_progress_day"
+                android:textColor="@color/wg_preview_text"
+                android:textSize="13sp" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/wg_bar_height"
+                android:layout_weight="1"
+                android:importantForAccessibility="no">
+
+                <ImageView
+                    android:id="@+id/wg_day_bar_track"
+                    android:importantForAccessibility="no"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_pill"
+                    android:tint="@color/wg_preview_track" />
+
+                <ImageView
+                    android:id="@+id/wg_day_bar"
+                    android:importantForAccessibility="no"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_preview_bar"
+                    android:tint="@color/wg_preview_accent" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/wg_day_value"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_percent"
+                android:textColor="@color/wg_preview_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/wg_week_label"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_progress_week"
+                android:textColor="@color/wg_preview_text"
+                android:textSize="13sp" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/wg_bar_height"
+                android:layout_weight="1"
+                android:importantForAccessibility="no">
+
+                <ImageView
+                    android:id="@+id/wg_week_bar_track"
+                    android:importantForAccessibility="no"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_pill"
+                    android:tint="@color/wg_preview_track" />
+
+                <ImageView
+                    android:id="@+id/wg_week_bar"
+                    android:importantForAccessibility="no"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_preview_bar"
+                    android:tint="@color/wg_preview_accent" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/wg_week_value"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_percent"
+                android:textColor="@color/wg_preview_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/wg_month_label"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_progress_month"
+                android:textColor="@color/wg_preview_text"
+                android:textSize="13sp" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/wg_bar_height"
+                android:layout_weight="1"
+                android:importantForAccessibility="no">
+
+                <ImageView
+                    android:id="@+id/wg_month_bar_track"
+                    android:importantForAccessibility="no"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_pill"
+                    android:tint="@color/wg_preview_track" />
+
+                <ImageView
+                    android:id="@+id/wg_month_bar"
+                    android:importantForAccessibility="no"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_preview_bar"
+                    android:tint="@color/wg_preview_accent" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/wg_month_value"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_percent"
+                android:textColor="@color/wg_preview_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/wg_year_label"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_progress_year"
+                android:textColor="@color/wg_preview_text"
+                android:textSize="13sp" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/wg_bar_height"
+                android:layout_weight="1"
+                android:importantForAccessibility="no">
+
+                <ImageView
+                    android:id="@+id/wg_year_bar_track"
+                    android:importantForAccessibility="no"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_pill"
+                    android:tint="@color/wg_preview_track" />
+
+                <ImageView
+                    android:id="@+id/wg_year_bar"
+                    android:importantForAccessibility="no"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_preview_bar"
+                    android:tint="@color/wg_preview_accent" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/wg_year_value"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_percent"
+                android:textColor="@color/wg_preview_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

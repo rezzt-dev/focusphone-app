@@ -35,21 +35,24 @@ plano**, asi que tambien le corresponde la contabilidad de los limites diarios.
 
 ```xml
 <accessibility-service
-    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowsChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagRetrieveInteractiveWindows"
     android:notificationTimeout="0"
     android:canRetrieveWindowContent="true"
     android:settingsActivity="app.focusphone.ui.settings.SettingsActivity" />
 ```
 
-solo escucha `TYPE_WINDOW_STATE_CHANGED`: le basta con saber **que paquete** pasa a primer
-plano.
+escucha `TYPE_WINDOW_STATE_CHANGED` y `TYPE_WINDOWS_CHANGED`. el paquete de la ventana
+activa identifica la aplicacion en primer plano aunque un acceso de recientes genere un
+evento cuyo origen sea system ui. una comprobacion breve tras el evento cubre la transicion.
 
 ### FLUJO DE UN EVENTO
 
 ```mermaid
 flowchart TD
-    E["TYPE_WINDOW_STATE_CHANGED"] --> C{"¿cache lista?"}
+    E["cambio de estado o de ventanas"] --> P["resolver paquete de la ventana activa"]
+    P --> C{"¿cache lista?"}
     C -->|"no"| C1["recordar el paquete<br>y refrescar la cache"]
     C -->|"si"| D["refrescar la cache si ha caducado"]
     D --> F["cerrar el uso de la app anterior"]

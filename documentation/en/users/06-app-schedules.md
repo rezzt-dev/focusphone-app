@@ -114,9 +114,10 @@ important rules:
 | minutes per day | how many minutes are allowed per day |
 | reset | automatic at local midnight |
 
-the daily limit **requires the accessibility service**: it is the only component that can
-measure how long an app stays in the foreground. without it, the time window still works but
-the minute counter does not advance.
+to enforce any rule when an app opens from recents, suggested shortcuts, notifications,
+or anywhere outside focusphone, **enable the accessibility service**. without it, a time
+window is only checked for launches from focusphone. daily limits also need the service
+to measure how long an app stays in the foreground.
 
 time accumulates while the app is in the foreground and **pauses while the screen is off**.
 the rule is re-checked every 30 seconds, or exactly when the allowance would run out, so a

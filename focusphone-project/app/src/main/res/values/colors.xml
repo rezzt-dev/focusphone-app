@@ -50,4 +50,20 @@
          ══════════════════════════════════════════════════════════════ -->
     <color name="transparent">#00000000</color>
 
+    <!-- ══════════════════════════════════════════════════════════════
+         WIDGET LIBRARY — defaults in the slate tone. They only show in
+         the picker preview: every widget is repainted at runtime with
+         the active theme (see WidgetStyle).
+         ══════════════════════════════════════════════════════════════ -->
+    <color name="wg_preview_card">#222222</color>
+    <color name="wg_preview_chip">#303030</color>
+    <color name="wg_preview_track">#3B3B3B</color>
+    <color name="wg_preview_text">#E0E0E0</color>
+    <color name="wg_preview_text_secondary">#9E9E9E</color>
+    <color name="wg_preview_text_tertiary">#6F6F6F</color>
+    <color name="wg_preview_accent">#E0E0E0</color>
+    <color name="wg_preview_on_accent">#181818</color>
+    <color name="wg_on_artwork">#FFFFFF</color>
+    <color name="wg_on_artwork_secondary">#D9FFFFFF</color>
+
 </resources>

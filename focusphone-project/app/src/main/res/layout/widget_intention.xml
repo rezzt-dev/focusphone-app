@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Intention: one line the user wrote for the day (4 x 1). RemoteViews ignore app:tint, so android:tint is right here. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wg_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UseAppTint">
+
+    <ImageView
+        android:id="@+id/wg_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/wg_bg_card"
+        android:tint="@color/wg_preview_card" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingEnd="@dimen/wg_padding">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/wg_caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.06"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="@string/wg_intention_caption"
+                android:textColor="@color/wg_preview_text_tertiary"
+                android:textSize="11sp" />
+            <TextView
+                android:id="@+id/wg_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:lineSpacingExtra="2dp"
+                android:fontFamily="sans-serif"
+                android:includeFontPadding="false"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="@string/wg_preview_intention"
+                android:textColor="@color/wg_preview_text"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/wg_edit"
+            android:layout_width="@dimen/wg_icon"
+            android:layout_height="@dimen/wg_icon"
+            android:layout_marginStart="12dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_wg_pen_line"
+            android:tint="@color/wg_preview_text_secondary" />
+    </LinearLayout>
+
+</FrameLayout>

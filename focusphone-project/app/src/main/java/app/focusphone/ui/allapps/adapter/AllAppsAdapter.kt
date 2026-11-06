@@ -3,6 +3,7 @@ package app.focusphone.ui.allapps.adapter
 import android.content.Context
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -24,7 +25,7 @@ import app.focusphone.ui.theme.FocusPalette
  * alphabetically), so their long press is a plain listener.
  */
 class AllAppsAdapter(
-    private val onAppTap: (AppInfo) -> Unit,
+    private val onAppTap: (app: AppInfo, row: View) -> Unit,
     private val onFolderTap: (AppFolder) -> Unit,
     private val onFolderLongTap: (AppFolder) -> Unit
 ) : ListAdapter<AllAppsRow, RecyclerView.ViewHolder>(DIFF) {
@@ -101,7 +102,7 @@ class AllAppsAdapter(
             )
 
             b.root.contentDescription = context.getString(R.string.cd_app_item, row.app.label)
-            b.root.setOnClickListener { onAppTap(row.app) }
+            b.root.setOnClickListener { onAppTap(row.app, it) }
             // No long-click listener: the drag callback owns the long press.
             b.root.setOnLongClickListener(null)
             b.root.isLongClickable = false

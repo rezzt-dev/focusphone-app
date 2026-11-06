@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import app.focusphone.domain.model.AppInfo
 import app.focusphone.ui.theme.FocusPalette
+import app.focusphone.ui.util.resumePressFeedback
+import app.focusphone.ui.util.suspendPressFeedback
 import kotlin.math.abs
 
 /**
@@ -71,6 +73,7 @@ class FolderDragCallback(
             FocusPalette.of(viewHolder.itemView.context).accent,
             HIGHLIGHT_ALPHA
         )
+        viewHolder.itemView.suspendPressFeedback()
         viewHolder.itemView.alpha = DRAGGED_ALPHA
         viewHolder.itemView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
     }
@@ -107,6 +110,7 @@ class FolderDragCallback(
     override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
         super.clearView(recyclerView, viewHolder)
         viewHolder.itemView.alpha = 1f
+        viewHolder.itemView.resumePressFeedback()
         highlight(recyclerView, null)
 
         val row = draggedRow

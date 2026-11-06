@@ -84,11 +84,6 @@
             android:exported="false"
             android:launchMode="singleTop" />
 
-        <!-- ── Home Layout Activity ───────────────────────────────── -->
-        <activity
-            android:name=".ui.settings.HomeLayoutActivity"
-            android:exported="false" />
-
         <!-- ── Permissions Activity ───────────────────────────────── -->
         <activity
             android:name=".ui.settings.PermissionsActivity"
@@ -119,6 +114,280 @@
             android:name=".ui.widget.WidgetPickerActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|keyboardHidden"
             android:exported="false" />
+
+        <!-- ── Widget library: FocusPhone's own widgets ──────────────
+             Each provider only names its kind; drawing lives in
+             ui.widget.library.WidgetUpdater. Exported so any launcher can
+             host them; the system only sends them APPWIDGET_UPDATE. -->
+        <receiver
+            android:name=".ui.widget.library.ClockDigitalWidget"
+            android:exported="true"
+            android:label="@string/wg_label_clock_digital">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_clock_digital" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.ClockAnalogWidget"
+            android:exported="true"
+            android:label="@string/wg_label_clock_analog">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_clock_analog" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.ClockWorldWidget"
+            android:exported="true"
+            android:label="@string/wg_label_clock_world">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_clock_world" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.DateTileWidget"
+            android:exported="true"
+            android:label="@string/wg_label_date_tile">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_date_tile" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.CalendarMonthWidget"
+            android:exported="true"
+            android:label="@string/wg_label_calendar_month">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_calendar_month" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.CalendarWeekWidget"
+            android:exported="true"
+            android:label="@string/wg_label_calendar_week">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_calendar_week" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.MusicBarWidget"
+            android:exported="true"
+            android:label="@string/wg_label_music_bar">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_music_bar" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.MusicCardWidget"
+            android:exported="true"
+            android:label="@string/wg_label_music_card">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_music_card" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.MusicSquareWidget"
+            android:exported="true"
+            android:label="@string/wg_label_music_square">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_music_square" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.SearchPillWidget"
+            android:exported="true"
+            android:label="@string/wg_label_search_pill">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_search_pill" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.SpotlightWidget"
+            android:exported="true"
+            android:label="@string/wg_label_spotlight">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_spotlight" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.FavouritesWidget"
+            android:exported="true"
+            android:label="@string/wg_label_favourites">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_favourites" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.BatteryRingWidget"
+            android:exported="true"
+            android:label="@string/wg_label_battery_ring">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_battery_ring" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.StorageWidget"
+            android:exported="true"
+            android:label="@string/wg_label_storage">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_storage" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.SystemMonitorWidget"
+            android:exported="true"
+            android:label="@string/wg_label_system_monitor">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_system_monitor" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.QuickTogglesWidget"
+            android:exported="true"
+            android:label="@string/wg_label_quick_toggles">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_quick_toggles" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.NextAlarmWidget"
+            android:exported="true"
+            android:label="@string/wg_label_next_alarm">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_next_alarm" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.FocusProfileWidget"
+            android:exported="true"
+            android:label="@string/wg_label_focus_profile">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_focus_profile" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.IntentionWidget"
+            android:exported="true"
+            android:label="@string/wg_label_intention">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_intention" />
+        </receiver>
+        <receiver
+            android:name=".ui.widget.library.DayProgressWidget"
+            android:exported="true"
+            android:label="@string/wg_label_day_progress">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_info_day_progress" />
+        </receiver>
+
+        <!-- Buttons and ticks of the widgets: only FocusPhone's own PendingIntents. -->
+        <receiver
+            android:name=".ui.widget.library.WidgetActionReceiver"
+            android:exported="false" />
+
+        <!-- Protected system broadcasts that change what the widgets show. -->
+        <receiver
+            android:name=".ui.widget.library.WidgetSystemReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+                <action android:name="android.app.action.NEXT_ALARM_CLOCK_CHANGED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Invisible stop that applies FocusPhone's launch guards to apps opened from a widget. -->
+        <activity
+            android:name=".ui.widget.library.WidgetLaunchActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.FocusPhone.WidgetTrampoline" />
+
+        <activity
+            android:name=".ui.widget.library.WorldClockConfigActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:taskAffinity="">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.widget.library.IntentionConfigActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:taskAffinity=""
+            android:windowSoftInputMode="stateVisible|adjustResize">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
 
         <!-- ── Accessibility Service (system-level app blocking) ────── -->
         <service

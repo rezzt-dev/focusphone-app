@@ -148,7 +148,7 @@ lifecycleScope.launch {
 <tr><td><code>SettingsActivity</code></td><td>a menu of six categories; it holds no controls</td></tr>
 <tr><td><code>SettingsSubActivity</code></td><td>abstract base for sub-screens: toolbar, back button, insets and a vertical container</td></tr>
 <tr><td><code>AppearanceSettingsActivity</code></td><td>theme, custom colours, typeface, text size, alignment, status bar and wallpaper</td></tr>
-<tr><td><code>HomeSettingsActivity</code></td><td>clock type and size, clock fixed at top, spacing, widget and layout</td></tr>
+<tr><td><code>HomeSettingsActivity</code></td><td>clock type and size, spacing, widget and layout</td></tr>
 <tr><td><code>FocusSettingsActivity</code></td><td>conscious pause, schedules and work mode keywords</td></tr>
 <tr><td><code>NotificationSettingsActivity</code></td><td>notification access, side panel and swipe-down gesture</td></tr>
 <tr><td><code>SystemSettingsActivity</code></td><td>permissions, accessibility, default launcher and language</td></tr>

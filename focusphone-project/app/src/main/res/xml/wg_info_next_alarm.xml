@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FocusPhone widget library: next alarm (2 x 1). Sizes follow the 70 x n - 30 launcher formula. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:minWidth="110dp"
+    android:minHeight="40dp"
+    android:minResizeWidth="110dp"
+    android:minResizeHeight="40dp"
+    android:targetCellWidth="2"
+    android:targetCellHeight="1"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/widget_next_alarm"
+    android:previewLayout="@layout/widget_next_alarm"
+    android:previewImage="@drawable/wg_preview_tile_next_alarm"
+    android:description="@string/wg_desc_next_alarm"
+    android:widgetCategory="home_screen"
+    tools:targetApi="31" />

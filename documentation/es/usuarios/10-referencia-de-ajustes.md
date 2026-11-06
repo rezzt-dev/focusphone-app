@@ -105,7 +105,6 @@ sin recargarla.
 |---|---|---|---|
 | tipo de reloj | selector con miniaturas | digital · apilado · en palabras · analogico · oculto | digital |
 | tamaño del reloj | deslizador | 0 a 100 | — |
-| reloj fijo arriba | interruptor | si / no | no |
 
 </details>
 

@@ -11,6 +11,7 @@ import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityWindowInfo
 import androidx.core.content.ContextCompat
 import app.focusphone.data.preferences.AppSchedulePreferences
 import app.focusphone.data.preferences.ProfilePreferences
@@ -75,6 +76,9 @@ class FocusAccessibilityService : AccessibilityService() {
 
     private val handler = Handler(Looper.getMainLooper())
     private val usageTick = Runnable { onUsageTick() }
+    private val foregroundRecheck = Runnable {
+        currentForegroundPackage()?.let(::onForegroundPackageDetected)
+    }
     private val diskFlushTick = object : Runnable {
         override fun run() {
             flushPendingUsageToDisk()
@@ -132,10 +136,23 @@ class FocusAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+        if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
+            event.eventType != AccessibilityEvent.TYPE_WINDOWS_CHANGED
+        ) return
 
-        val packageName = event.packageName?.toString() ?: return
+        val packageName = foregroundPackageForEvent(event, windows)
+        if (packageName != null) onForegroundPackageDetected(packageName)
 
+        // Recents can report its own window before the tapped app becomes active.
+        // Check once more after the transition so the system's shortcut path cannot
+        // leave an app unblocked when the first event still belongs to System UI.
+        handler.removeCallbacks(foregroundRecheck)
+        handler.postDelayed(foregroundRecheck, FOREGROUND_RECHECK_DELAY_MS)
+    }
+
+    private fun currentForegroundPackage(): String? = packageFromActiveWindows(windows)
+
+    private fun onForegroundPackageDetected(packageName: String) {
         if (!cacheReady) {
             packageWaitingForCache = packageName
             refreshCache(force = true)
@@ -409,6 +426,7 @@ class FocusAccessibilityService : AccessibilityService() {
         flushForegroundUsage()
         cancelUsageTick()
         handler.removeCallbacks(diskFlushTick)
+        handler.removeCallbacks(foregroundRecheck)
         if (screenReceiverRegistered) {
             unregisterReceiver(screenReceiver)
             screenReceiverRegistered = false
@@ -436,6 +454,7 @@ class FocusAccessibilityService : AccessibilityService() {
         }
 
         private const val CACHE_TTL_MS = 3000L
+        private const val FOREGROUND_RECHECK_DELAY_MS = 200L
 
         /** How often a scheduled app in the foreground is re-checked and its usage saved. */
         private const val TICK_INTERVAL_MS = 30_000L
@@ -472,4 +491,20 @@ class FocusAccessibilityService : AccessibilityService() {
             context.startActivity(intent)
         }
     }
+}
+
+/** The event source can still be Recents while the newly opened app owns the window. */
+internal fun foregroundPackageForEvent(
+    event: AccessibilityEvent,
+    windows: List<AccessibilityWindowInfo>
+): String? = packageFromActiveWindows(windows)
+    ?: event.packageName?.toString()?.takeIf {
+        event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+    }
+
+/** A window change event's package is its source, not necessarily the foreground app. */
+internal fun packageFromActiveWindows(windows: List<AccessibilityWindowInfo>): String? {
+    val foregroundWindow = windows.firstOrNull { it.isActive }
+        ?: windows.firstOrNull { it.isFocused }
+    return foregroundWindow?.root?.packageName?.toString()
 }

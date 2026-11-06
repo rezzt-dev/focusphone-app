@@ -34,21 +34,24 @@ so it also owns the accounting behind the daily limits.
 
 ```xml
 <accessibility-service
-    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowsChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagRetrieveInteractiveWindows"
     android:notificationTimeout="0"
     android:canRetrieveWindowContent="true"
     android:settingsActivity="app.focusphone.ui.settings.SettingsActivity" />
 ```
 
-it listens only for `TYPE_WINDOW_STATE_CHANGED`: knowing **which package** comes to the
-foreground is enough.
+it listens for `TYPE_WINDOW_STATE_CHANGED` and `TYPE_WINDOWS_CHANGED`. the active window's
+package identifies the foreground app even when a shortcut in recents produces an event
+whose source is system ui. a short delayed check covers the window transition.
 
 ### EVENT FLOW
 
 ```mermaid
 flowchart TD
-    E["TYPE_WINDOW_STATE_CHANGED"] --> C{"cache ready?"}
+    E["window state or windows changed"] --> P["resolve active window package"]
+    P --> C{"cache ready?"}
     C -->|"no"| C1["remember the package<br>and refresh the cache"]
     C -->|"yes"| D["refresh the cache if stale"]
     D --> F["settle the previous app's usage"]

@@ -12,6 +12,8 @@ import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.databinding.ActivityDetoxBlockedBinding
 import app.focusphone.ui.base.BaseActivity
 import app.focusphone.ui.home.HomeActivity
+import app.focusphone.ui.widget.library.WidgetTrigger
+import app.focusphone.ui.widget.library.WidgetUpdater
 import java.util.Locale
 
 /**
@@ -39,6 +41,7 @@ class DetoxBlockedActivity : BaseActivity() {
         binding.btnUnlock.setOnClickListener {
             showDetoxUnlockDialog {
                 ProfilePreferences.endDetoxSession(this)
+                WidgetUpdater.refresh(this, WidgetTrigger.PROFILE)
                 navigateHome()
             }
         }

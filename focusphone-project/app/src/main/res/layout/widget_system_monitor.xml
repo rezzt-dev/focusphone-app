@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- System: battery, storage and memory as labelled bars (4 x 2). RemoteViews ignore app:tint, so android:tint is right here. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wg_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="UseAppTint">
+
+    <ImageView
+        android:id="@+id/wg_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/wg_bg_card"
+        android:tint="@color/wg_preview_card" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:padding="@dimen/wg_padding">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/wg_battery_icon"
+                    android:layout_width="@dimen/wg_icon_small"
+                    android:layout_height="@dimen/wg_icon_small"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_wg_battery"
+                    android:tint="@color/wg_preview_text_secondary" />
+                <TextView
+                    android:id="@+id/wg_battery_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="@string/wg_battery"
+                    android:textColor="@color/wg_preview_text"
+                    android:textSize="13sp" />
+                <TextView
+                    android:id="@+id/wg_battery_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="@string/wg_preview_percent"
+                    android:textColor="@color/wg_preview_text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/wg_bar_height"
+                android:layout_marginTop="8dp"
+                android:importantForAccessibility="no">
+
+                <ImageView
+                    android:id="@+id/wg_battery_bar_track"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_pill"
+                    android:tint="@color/wg_preview_track" />
+
+                <ImageView
+                    android:id="@+id/wg_battery_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_preview_bar"
+                    android:tint="@color/wg_preview_accent" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/wg_storage_icon"
+                    android:layout_width="@dimen/wg_icon_small"
+                    android:layout_height="@dimen/wg_icon_small"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_wg_hard_drive"
+                    android:tint="@color/wg_preview_text_secondary" />
+                <TextView
+                    android:id="@+id/wg_storage_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="@string/wg_monitor_storage"
+                    android:textColor="@color/wg_preview_text"
+                    android:textSize="13sp" />
+                <TextView
+                    android:id="@+id/wg_storage_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="@string/wg_preview_storage"
+                    android:textColor="@color/wg_preview_text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/wg_bar_height"
+                android:layout_marginTop="8dp"
+                android:importantForAccessibility="no">
+
+                <ImageView
+                    android:id="@+id/wg_storage_bar_track"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_pill"
+                    android:tint="@color/wg_preview_track" />
+
+                <ImageView
+                    android:id="@+id/wg_storage_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_preview_bar"
+                    android:tint="@color/wg_preview_accent" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/wg_memory_icon"
+                    android:layout_width="@dimen/wg_icon_small"
+                    android:layout_height="@dimen/wg_icon_small"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_wg_memory_stick"
+                    android:tint="@color/wg_preview_text_secondary" />
+                <TextView
+                    android:id="@+id/wg_memory_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-medium"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="@string/wg_monitor_memory"
+                    android:textColor="@color/wg_preview_text"
+                    android:textSize="13sp" />
+                <TextView
+                    android:id="@+id/wg_memory_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="@string/wg_preview_memory"
+                    android:textColor="@color/wg_preview_text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/wg_bar_height"
+                android:layout_marginTop="8dp"
+                android:importantForAccessibility="no">
+
+                <ImageView
+                    android:id="@+id/wg_memory_bar_track"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_bg_pill"
+                    android:tint="@color/wg_preview_track" />
+
+                <ImageView
+                    android:id="@+id/wg_memory_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/wg_preview_bar"
+                    android:tint="@color/wg_preview_accent" />
+            </FrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

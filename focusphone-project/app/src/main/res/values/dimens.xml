@@ -38,4 +38,38 @@
     <dimen name="theme_card_size">72dp</dimen>
     <dimen name="theme_card_border">2dp</dimen>
     <dimen name="drawer_width">320dp</dimen>
+
+    <!-- Conscious pause -->
+    <dimen name="pause_orb_size">220dp</dimen>
+
+    <!-- Onboarding page indicator -->
+    <dimen name="pager_dot_size">6dp</dimen>
+    <dimen name="pager_dot_active_width">20dp</dimen>
+    <dimen name="pager_dot_gap">6dp</dimen>
+
+    <!-- Home grid -->
+    <dimen name="home_grid_padding_horizontal">12dp</dimen>
+    <dimen name="home_grid_padding_vertical">8dp</dimen>
+    <dimen name="home_grid_item_inset">4dp</dimen>
+    <dimen name="home_grid_corner">16dp</dimen>
+    <dimen name="home_grid_handle_radius">7dp</dimen>
+    <dimen name="home_grid_handle_touch">28dp</dimen>
+    <!-- Home widget -->
+    <dimen name="widget_card_corner">20dp</dimen>
+    <dimen name="widget_preview_height">132dp</dimen>
+    <!-- Widget library -->
+    <dimen name="wg_radius">20dp</dimen>
+    <dimen name="wg_chip_radius">12dp</dimen>
+    <dimen name="wg_field_radius">16dp</dimen>
+    <dimen name="wg_padding">18dp</dimen>
+    <dimen name="wg_padding_compact">12dp</dimen>
+    <dimen name="wg_round_inset">14dp</dimen>
+    <dimen name="wg_bar_height">6dp</dimen>
+    <dimen name="wg_icon">20dp</dimen>
+    <dimen name="wg_icon_small">16dp</dimen>
+    <dimen name="wg_button">44dp</dimen>
+    <dimen name="wg_button_large">56dp</dimen>
+    <dimen name="wg_calendar_cell">26dp</dimen>
+    <dimen name="wg_preview_bar_gap">110dp</dimen>
+
 </resources>

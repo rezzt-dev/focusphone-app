@@ -1,16 +1,18 @@
 package app.focusphone.ui.allapps
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.HapticFeedbackConstants
+import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
@@ -25,7 +27,6 @@ import app.focusphone.BuildConfig
 import app.focusphone.FocusPhoneApp
 import app.focusphone.R
 import app.focusphone.data.preferences.AppFolderPreferences
-import app.focusphone.data.preferences.ConsciousPausePreferences
 import app.focusphone.data.preferences.ProfilePreferences
 import app.focusphone.data.repository.PackageChangeMonitor
 import app.focusphone.databinding.ActivityAllAppsBinding
@@ -37,8 +38,6 @@ import app.focusphone.domain.util.FuzzyMatcher
 import app.focusphone.domain.util.normalizeAppName
 import app.focusphone.ui.allapps.adapter.AllAppsAdapter
 import app.focusphone.ui.base.BaseActivity
-import app.focusphone.ui.detox.DetoxBlockedActivity
-import app.focusphone.ui.pause.ConsciousPauseActivity
 import app.focusphone.util.LauncherUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -185,11 +184,15 @@ class AllAppsActivity : BaseActivity() {
     private var searchTextWatcher: TextWatcher? = null
     private var pendingRefresh = false
 
+    /** Set when an app was opened from here; the search starts afresh when the user is back. */
+    private var resetSearchOnReturn = false
+    private var scrollToTopOnNextRows = false
+
     private val folderPreferences: AppFolderPreferences
         get() = focusPhoneApp.container.appFolderPreferences
 
     private val adapter = AllAppsAdapter(
-        onAppTap = { app -> launchApp(app) },
+        onAppTap = { app, row -> launchApp(app, row) },
         onFolderTap = { folder ->
             binding.root.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             folderPreferences.toggleExpanded(folder.id)
@@ -202,29 +205,46 @@ class AllAppsActivity : BaseActivity() {
 
     // ── App launching ────────────────────────────────────────────────
 
-    private fun launchApp(app: AppInfo) {
+    private fun launchApp(app: AppInfo, row: View?) {
         binding.root.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-        if (ProfilePreferences.isAppBlocked(this, app.packageName)) {
-            startActivity(Intent(this, DetoxBlockedActivity::class.java))
+        if (openApp(app.packageName, app.label, source = row)) resetSearchOnReturn = true
+    }
+
+    /**
+     * Enter on the keyboard opens the best match, so a search ends where it was going:
+     * type three letters, press enter, done. Without a query it only hides the keyboard.
+     */
+    private fun launchTopMatch(): Boolean {
+        val query = binding.etSearch.text?.toString().orEmpty().trim()
+        val first = adapter.currentList.firstNotNullOfOrNull { (it as? AllAppsRow.AppRow)?.app }
+        if (query.isEmpty() || first == null) {
+            hideKeyboard()
+            return true
+        }
+        val row = binding.rvApps.findViewHolderForAdapterPosition(
+            adapter.currentList.indexOfFirst { it is AllAppsRow.AppRow }
+        )?.itemView
+        launchApp(first, row)
+        return true
+    }
+
+    /** Clears a finished search so the drawer is ready for the next one when the user is back. */
+    private fun resetSearch() {
+        resetSearchOnReturn = false
+        if (binding.etSearch.text.isNullOrEmpty()) {
+            binding.rvApps.scrollToPosition(0)
             return
         }
-        if (enforceAppSchedule(app.packageName, app.label)) return
-        val launchIntent = packageManager.getLaunchIntentForPackage(app.packageName) ?: return
-        if (ConsciousPausePreferences.isEnabled(this)) {
-            startActivity(
-                Intent(this, ConsciousPauseActivity::class.java).apply {
-                    putExtra("target_intent", launchIntent)
-                    putExtra("app_label", app.label)
-                }
-            )
-        } else {
-            try {
-                startActivity(launchIntent)
-            } catch (e: Exception) {
-                Log.e("AllAppsActivity", "Failed to launch app ${app.packageName}", e)
-                Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
-            }
-        }
+        // The full list arrives a moment later (the query is debounced); scrolling now
+        // would leave the first rows above the viewport once it lands.
+        scrollToTopOnNextRows = true
+        binding.etSearch.text?.clear()
+        binding.etSearch.clearFocus()
+    }
+
+    private fun hideKeyboard() {
+        WindowCompat.getInsetsController(window, binding.etSearch).hide(WindowInsetsCompat.Type.ime())
+        binding.etSearch.clearFocus()
     }
 
     // ── Folder actions ───────────────────────────────────────────────
@@ -392,7 +412,7 @@ class AllAppsActivity : BaseActivity() {
         ) to { toggleBlocked(app, isBlocked) }
         actions += getString(R.string.allapps_dialog_uninstall) to { uninstall(app) }
         shortcuts.forEach { shortcut ->
-            actions += shortcut.shortLabel to { launchShortcut(app, shortcut) }
+            actions += shortcut.shortLabel to { openShortcut(app.packageName, app.label, shortcut) }
         }
 
         val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
@@ -427,15 +447,6 @@ class AllAppsActivity : BaseActivity() {
         toast(getString(R.string.uninstall_progress))
         if (!LauncherUtils.requestUninstall(this, app.packageName)) {
             Toast.makeText(this, R.string.error_uninstall_failed, Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun launchShortcut(app: AppInfo, shortcut: app.focusphone.domain.model.AppShortcut) {
-        // A shortcut opens the same app, so it obeys the same schedule.
-        if (enforceAppSchedule(app.packageName, app.label)) return
-        val launched = focusPhoneApp.container.getAppShortcutsUseCase.launchShortcut(shortcut)
-        if (!launched) {
-            Toast.makeText(this, R.string.error_app_not_found, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -543,17 +554,58 @@ class AllAppsActivity : BaseActivity() {
             }
         }
         binding.etSearch.addTextChangedListener(searchTextWatcher!!)
+        styleSearchField(binding.etSearch)
+        binding.etSearch.setOnEditorActionListener { _, actionId, event ->
+            val isEnter = event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN
+            if (actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_SEARCH || isEnter) {
+                launchTopMatch()
+            } else {
+                false
+            }
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.rows.collect { rows ->
-                    adapter.submitList(rows)
-                    val empty = rows.isEmpty() && !viewModel.isLoading.value
-                    binding.tvEmpty.visibility = if (empty) View.VISIBLE else View.GONE
-                    binding.rvApps.visibility = if (empty) View.GONE else View.VISIBLE
+                    adapter.submitList(rows) {
+                        if (scrollToTopOnNextRows) {
+                            scrollToTopOnNextRows = false
+                            binding.rvApps.scrollToPosition(0)
+                        }
+                    }
+                    renderEmptyState(rows.isEmpty() && !viewModel.isLoading.value)
                 }
             }
         }
+
+        if (savedInstanceState == null && intent.getBooleanExtra(EXTRA_FOCUS_SEARCH, false)) focusSearch()
+    }
+
+    /** Puts the cursor in the search field and raises the keyboard once the window has focus. */
+    private fun focusSearch() {
+        binding.etSearch.requestFocus()
+        binding.etSearch.post {
+            WindowCompat.getInsetsController(window, binding.etSearch).show(WindowInsetsCompat.Type.ime())
+        }
+    }
+
+    /** Names the search that found nothing, so a typo is obvious at a glance. */
+    private fun renderEmptyState(empty: Boolean) {
+        if (empty) {
+            val query = binding.etSearch.text?.toString().orEmpty().trim()
+            binding.tvEmpty.text = if (query.isEmpty()) {
+                getString(R.string.search_empty_state)
+            } else {
+                getString(R.string.allapps_search_no_match, query)
+            }
+        }
+        binding.tvEmpty.visibility = if (empty) View.VISIBLE else View.GONE
+        binding.rvApps.visibility = if (empty) View.GONE else View.VISIBLE
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        if (resetSearchOnReturn) resetSearch()
     }
 
     override fun onResume() {
@@ -584,7 +636,10 @@ class AllAppsActivity : BaseActivity() {
 
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
 
-    private companion object {
-        const val INPUT_MAX_LENGTH = 50
+    companion object {
+        private const val INPUT_MAX_LENGTH = 50
+
+        /** Opens the drawer with the search field focused and the keyboard up (search widgets). */
+        const val EXTRA_FOCUS_SEARCH = "app.focusphone.extra.FOCUS_SEARCH"
     }
 }

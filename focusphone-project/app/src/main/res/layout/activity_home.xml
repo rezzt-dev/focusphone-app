@@ -40,25 +40,39 @@
         android:importantForAccessibility="no"
         android:visibility="gone" />
 
-    <LinearLayout
+    <!--
+        Home content: padded by HomeActivity.setupInsets() for the system bars and slid
+        sideways with the drawers.
+    -->
+    <FrameLayout
         android:id="@+id/root_home"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@android:color/transparent"
-        android:gravity="center_vertical">
+        android:background="@android:color/transparent">
+
+    <!--
+        HOME GRID — the clock, the favourite apps and any widgets, each on the cells the user
+        gave it. Cells, positions and widgets are managed by HomeGridController.
+    -->
+    <app.focusphone.ui.home.grid.HomeGridLayout
+        android:id="@+id/home_grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="@dimen/home_grid_padding_horizontal"
+        android:paddingTop="@dimen/home_grid_padding_vertical"
+        android:paddingEnd="@dimen/home_grid_padding_horizontal"
+        android:paddingBottom="@dimen/home_grid_padding_vertical">
 
         <!--
-            CLOCK CONTAINER — fills top 38% of screen.
-            Only one clock_type_* child is visible at a time.
-            Top padding applied via insets in HomeActivity.setupInsets()
+            CLOCK. Only one clock_type_* child is visible at a time; the frame shrinks the
+            chosen style when its block is smaller than the style needs.
         -->
-        <FrameLayout
+        <app.focusphone.ui.home.grid.ScaleToFitFrame
             android:id="@+id/clock_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
+            android:layout_height="match_parent"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp">
 
             <!-- ── TYPE 1: Digital (HH:mm + date) ─────────────────── -->
             <LinearLayout
@@ -202,24 +216,13 @@
                     tools:text="Tuesday, 5 May" />
             </LinearLayout>
 
-        </FrameLayout>
+        </app.focusphone.ui.home.grid.ScaleToFitFrame>
 
-        <!-- Widget container ───────────────────────────────────────────── -->
-        <FrameLayout
-            android:id="@+id/widget_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:visibility="gone" />
-
-        <!-- App container ──────────────────────────────────────────────── -->
+        <!-- FAVOURITE APPS. Centred in their block; the list scrolls if the block is short. -->
         <FrameLayout
             android:id="@+id/apps_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:paddingTop="8dp"
             android:paddingBottom="8dp">
 
@@ -248,11 +251,16 @@
                 android:text="@string/home_no_apps"
                 android:textColor="?android:attr/textColorSecondary"
                 android:textSize="22sp"
+                android:clickable="true"
+                android:focusable="true"
+                android:stateListAnimator="@animator/fp_press_feedback"
                 android:visibility="gone" />
 
         </FrameLayout>
 
-    </LinearLayout>
+    </app.focusphone.ui.home.grid.HomeGridLayout>
+
+    </FrameLayout>
 
     </FrameLayout>
 
@@ -347,7 +355,7 @@
                 android:id="@+id/tv_menu_settings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
+                android:stateListAnimator="@animator/fp_press_feedback"
                 android:fontFamily="sans-serif"
                 android:gravity="start|center_vertical"
                 android:paddingTop="10dp"
@@ -362,7 +370,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="?attr/selectableItemBackground"
+                android:stateListAnimator="@animator/fp_press_feedback"
                 android:fontFamily="sans-serif"
                 android:gravity="start|center_vertical"
                 android:paddingTop="10dp"
@@ -377,7 +385,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="?attr/selectableItemBackground"
+                android:stateListAnimator="@animator/fp_press_feedback"
                 android:fontFamily="sans-serif"
                 android:gravity="start|center_vertical"
                 android:paddingTop="10dp"
@@ -392,7 +400,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="?attr/selectableItemBackground"
+                android:stateListAnimator="@animator/fp_press_feedback"
                 android:fontFamily="sans-serif"
                 android:gravity="start|center_vertical"
                 android:paddingTop="10dp"

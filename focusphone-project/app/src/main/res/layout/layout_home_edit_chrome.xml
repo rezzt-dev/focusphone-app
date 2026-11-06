@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Controls of the home screen's edit mode, laid over the grid by HomeGridController.
+    Colours and backgrounds are applied in code from the active FocusPalette.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/edit_chrome"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="gone">
+
+    <!-- Actions of the selected block, floating next to it. -->
+    <LinearLayout
+        android:id="@+id/edit_item_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="6dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="4dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_item_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif"
+            android:maxWidth="140dp"
+            android:maxLines="1"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/btn_item_primary"
+            style="@style/HomeEditButton" />
+
+        <TextView
+            android:id="@+id/btn_item_remove"
+            style="@style/HomeEditButton"
+            android:text="@string/home_edit_remove" />
+    </LinearLayout>
+
+    <!-- Bottom bar: what can be added, the grid size and leaving edit mode. -->
+    <LinearLayout
+        android:id="@+id/edit_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/tv_edit_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:letterSpacing="0.02"
+            android:text="@string/home_edit_hint"
+            android:textSize="12sp" />
+
+        <!--
+            Full width with equal shares: on a narrow screen with a large font the labels
+            shrink (autosize in HomeEditChrome) instead of pushing the last one out.
+        -->
+        <LinearLayout
+            android:id="@+id/edit_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="6dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp">
+
+            <TextView
+                android:id="@+id/btn_edit_widgets"
+                style="@style/HomeEditButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="@string/home_edit_widgets" />
+
+            <TextView
+                android:id="@+id/btn_edit_clock"
+                style="@style/HomeEditButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="@string/home_edit_add_clock" />
+
+            <TextView
+                android:id="@+id/btn_edit_grid"
+                style="@style/HomeEditButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="@string/home_edit_grid" />
+
+            <TextView
+                android:id="@+id/btn_edit_done"
+                style="@style/HomeEditButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/home_layout_done" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Square widget body; a vector keeps it square under fitCenter at any cell size. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M14,0H86A14,14 0,0 1,100,14V86A14,14 0,0 1,86,100H14A14,14 0,0 1,0,86V14A14,14 0,0 1,14,0Z" />
+</vector>

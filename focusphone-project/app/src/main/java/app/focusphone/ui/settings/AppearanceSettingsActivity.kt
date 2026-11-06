@@ -37,6 +37,7 @@ import app.focusphone.ui.theme.ScrimSurface
 import app.focusphone.ui.theme.SurfaceScrim
 import app.focusphone.ui.wallpaper.WallpaperStorage
 import app.focusphone.ui.wallpaper.WallpaperUtils
+import app.focusphone.ui.widget.library.WidgetUpdater
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -156,6 +157,25 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
             }
             addView(sizeBinding.root)
 
+            val currentHomeSize = FontPreferences.getHomeFontSizePt(this@AppearanceSettingsActivity)
+            val homeSizeBinding = SettingsSliderRowBinding.inflate(inflater, this, false)
+            homeSizeBinding.ivIcon.setImageResource(R.drawable.ic_settings_text_size)
+            homeSizeBinding.ivIcon.visibility = View.VISIBLE
+            homeSizeBinding.tvLabel.text = getString(R.string.settings_home_text_size_pt, currentHomeSize)
+            homeSizeBinding.slider.apply {
+                valueFrom = 8f
+                valueTo = 24f
+                stepSize = 1f
+                value = currentHomeSize.toFloat().coerceIn(8f, 24f)
+                addOnChangeListener { _, v, _ ->
+                    homeSizeBinding.tvLabel.text = getString(R.string.settings_home_text_size_pt, v.toInt())
+                }
+                persistOnStop { v ->
+                    FontPreferences.setHomeFontSizePt(this@AppearanceSettingsActivity, v.toInt())
+                }
+            }
+            addView(homeSizeBinding.root)
+
             val alignmentView = inflater.inflate(R.layout.settings_alignment_selector, this, false)
             setupAlignmentSelector(alignmentView)
             addView(alignmentView)
@@ -211,6 +231,8 @@ class AppearanceSettingsActivity : SettingsSubActivity() {
      * only point at which a style theme can take effect.
      */
     private fun relaunchForThemeChange() {
+        // FocusPhone's widgets are painted with the theme too, wherever they are placed.
+        WidgetUpdater.refreshIfStyleChanged(this)
         val relaunch = Intent(this, AppearanceSettingsActivity::class.java)
         // BaseActivity.finish() and startActivity() already apply the fade transition.
         finish()

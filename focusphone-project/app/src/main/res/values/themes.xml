@@ -318,6 +318,22 @@
     </style>
 
     <!-- Custom Material AlertDialog styling -->
+    <!-- Text button of the home screen's edit mode (bottom bar and block actions). -->
+    <style name="HomeEditButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:stateListAnimator">@animator/fp_press_feedback</item>
+    </style>
+
     <style name="FocusPhone.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <!-- Text styling -->
         <item name="materialAlertDialogTitleTextStyle">@style/FocusPhone.DialogTitleTextStyle</item>
@@ -357,6 +373,17 @@
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- Widget launch trampoline (WidgetLaunchActivity): finishes in onCreate, so the
+         system must not draw a starting window for it either. -->
+    <style name="Theme.FocusPhone.WidgetTrampoline" parent="Theme.FocusPhone.Slate">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
     </style>
 
 </resources>

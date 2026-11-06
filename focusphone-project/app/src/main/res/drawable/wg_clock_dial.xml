@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Analog clock dial: twelve hour marks, the quarters longer. Mid grey reads on both tones. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#8C8C8C"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M120.00,24.00L120.00,10.00M171.50,30.80L175.00,24.74M209.20,68.50L215.26,65.00M216.00,120.00L230.00,120.00M209.20,171.50L215.26,175.00M171.50,209.20L175.00,215.26M120.00,216.00L120.00,230.00M68.50,209.20L65.00,215.26M30.80,171.50L24.74,175.00M24.00,120.00L10.00,120.00M30.80,68.50L24.74,65.00M68.50,30.80L65.00,24.74" />
+</vector>

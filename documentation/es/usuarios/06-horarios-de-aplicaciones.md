@@ -116,9 +116,10 @@ reglas importantes:
 | minutos al dia | numero de minutos permitidos por jornada |
 | reinicio | automatico a la medianoche local |
 
-el limite diario **necesita el servicio de accesibilidad activo**: es el unico componente
-capaz de medir cuanto tiempo pasa una aplicacion en primer plano. sin el, la franja horaria
-sigue funcionando, pero el contador de minutos no avanza.
+para aplicar cualquier regla al abrir una aplicacion desde recientes, accesos frecuentes,
+notificaciones u otros lugares fuera de focusphone, **activa el servicio de accesibilidad**.
+sin el, la franja horaria solo se comprueba al abrir desde focusphone. el limite diario
+tambien necesita ese servicio para medir cuanto tiempo pasa la aplicacion en primer plano.
 
 el tiempo se acumula mientras la aplicacion esta en primer plano y **se pausa con la
 pantalla apagada**. la regla se revisa cada 30 segundos, o justo en el momento en que el

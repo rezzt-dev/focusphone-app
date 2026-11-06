@@ -10,18 +10,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import app.focusphone.R
 import app.focusphone.data.preferences.FontPreferences
 import app.focusphone.data.preferences.HomeLayoutPreferences
-import app.focusphone.data.preferences.WidgetPreferences
 import app.focusphone.databinding.ItemSettingsClockTypeBinding
 import app.focusphone.databinding.SettingsSliderRowBinding
 import app.focusphone.domain.model.ClockType
+import app.focusphone.ui.home.HomeActivity
+import app.focusphone.ui.home.grid.HomeGridStore
 import app.focusphone.ui.util.currentWindowWidthPx
-import app.focusphone.ui.widget.AppWidgetHostManager
 import app.focusphone.ui.widget.WidgetPickerActivity
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 
 /**
- * Home screen settings: clock type, clock size, app spacing, widget and layout.
+ * Home screen settings: clock type, clock size, app spacing, adding a widget and editing
+ * the home layout (on the home screen itself).
  */
 class HomeSettingsActivity : SettingsSubActivity() {
 
@@ -29,12 +29,9 @@ class HomeSettingsActivity : SettingsSubActivity() {
     private var clockSizeSlider: Slider? = null
     private var appSpacingSlider: Slider? = null
 
-    private val widgetPickerLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            updateWidgetStatus()
-        }
+    /** A widget added from here is shown on the home screen, selected, ready to be placed. */
+    private val pickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) openHomeEditor()
     }
 
     override fun getScreenTitleRes(): Int = R.string.home_settings_title
@@ -65,16 +62,6 @@ class HomeSettingsActivity : SettingsSubActivity() {
             }
             clockSizeSlider = clockSizeBinding.slider
             addView(clockSizeBinding.root)
-
-            addSwitchRow(
-                titleResId = R.string.settings_clock_fixed_top,
-                subtitleResId = R.string.settings_clock_fixed_top_desc,
-                isChecked = HomeLayoutPreferences.isClockFixedTop(this@HomeSettingsActivity),
-                iconResId = R.drawable.ic_settings_clock,
-                onCheckedChanged = { checked ->
-                    HomeLayoutPreferences.setClockFixedTop(this@HomeSettingsActivity, checked)
-                }
-            )
         }
 
         // ── Layout & Spacing ─────────────────────────────────────────
@@ -103,20 +90,18 @@ class HomeSettingsActivity : SettingsSubActivity() {
             addView(spacingBinding.root)
 
             widgetValueView = addValueRow(
-                titleResId = R.string.settings_widget_title,
+                titleResId = R.string.settings_widget_add,
                 subtitleResId = R.string.settings_widget_settings_desc,
                 initialValue = getWidgetStatusText(),
                 iconResId = R.drawable.ic_settings_widget,
-                onClick = ::onWidgetRowClicked
+                onClick = { pickerLauncher.launch(Intent(this@HomeSettingsActivity, WidgetPickerActivity::class.java)) }
             )
 
             addCategoryRow(
                 iconResId = R.drawable.ic_settings_layout,
                 titleResId = R.string.home_layout_settings_title,
                 subtitleResId = R.string.home_layout_settings_desc,
-                onClick = {
-                    startActivity(Intent(this@HomeSettingsActivity, HomeLayoutActivity::class.java))
-                }
+                onClick = ::openHomeEditor
             )
         }
     }
@@ -201,36 +186,27 @@ class HomeSettingsActivity : SettingsSubActivity() {
     private fun spToPx(sp: Float): Float =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, resources.displayMetrics)
 
-    private fun onWidgetRowClicked() {
-        if (WidgetPreferences.isWidgetEnabled(this)) {
-            showRemoveWidgetDialog()
-        } else {
-            widgetPickerLauncher.launch(Intent(this, WidgetPickerActivity::class.java))
-        }
-    }
-
     private fun updateWidgetStatus() {
         widgetValueView?.text = getWidgetStatusText()
     }
 
-    private fun getWidgetStatusText(): String =
-        getString(
-            if (WidgetPreferences.isWidgetEnabled(this)) R.string.settings_widget_remove
-            else R.string.settings_widget_none
-        ).lowercase()
+    /** How many widgets the home screen holds. */
+    private fun getWidgetStatusText(): String {
+        val count = HomeGridStore(this).widgetIds().size
+        if (count == 0) return getString(R.string.settings_widget_none).lowercase()
+        return resources.getQuantityString(R.plurals.settings_widget_count, count, count)
+    }
 
-    private fun showRemoveWidgetDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.settings_widget_title)
-            .setMessage(R.string.settings_widget_remove_confirm)
-            .setPositiveButton(R.string.settings_widget_remove) { _, _ ->
-                // Releases the ID too, so the provider stops updating a widget nobody shows.
-                AppWidgetHostManager.getInstance(this).removeHomeWidget(this)
-                updateWidgetStatus()
-            }
-            .setNegativeButton(R.string.action_cancel, null)
-            .create()
-            .also { showStyledDialog(it) }
+    /**
+     * The layout is edited on the home screen itself, at its real size, the way a stock
+     * launcher does it: this opens home straight into edit mode.
+     */
+    private fun openHomeEditor() {
+        startActivity(
+            Intent(this, HomeActivity::class.java)
+                .putExtra(HomeActivity.EXTRA_EDIT_LAYOUT, true)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        )
     }
 
     private fun dp(value: Int): Int =

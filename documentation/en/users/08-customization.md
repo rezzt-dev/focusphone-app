@@ -109,7 +109,6 @@ and no battery or signal icons.
 |---|---|
 | clock type | digital, stacked, in words, analog or hidden |
 | clock size | percentage slider |
-| clock fixed at the top | anchors the clock to the top instead of letting it flow with the rest |
 
 the 12 or 24 hour format is **not configured in focusphone**: it is taken from the system
 setting, so there are not two places to change the same thing.

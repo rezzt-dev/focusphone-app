@@ -111,7 +111,6 @@ completamente limpia, sin hora del sistema ni iconos de bateria y cobertura.
 |---|---|
 | tipo de reloj | digital, apilado, en palabras, analogico u oculto |
 | tamaño del reloj | deslizador de porcentaje |
-| reloj fijo arriba | ancla el reloj a la parte superior en lugar de dejarlo fluir con el resto |
 
 el formato de 12 o 24 horas **no se configura en focusphone**: se toma del ajuste del
 sistema, para que no haya dos sitios donde cambiarlo.
