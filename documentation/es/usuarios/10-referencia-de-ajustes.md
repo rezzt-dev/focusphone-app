@@ -18,13 +18,13 @@ pantalla.
 flowchart TD
     S["ajustes"]
     S --> A["apariencia<br><i>tema, tipografia, colores y alineacion</i>"]
-    S --> B["pantalla de inicio<br><i>reloj, widget, espaciado y distribucion</i>"]
+    S --> B["pantalla de inicio<br><i>reloj, widgets, espaciado y editar pantalla de inicio</i>"]
     S --> C["enfoque<br><i>pausa consciente, horarios y palabras clave</i>"]
     S --> D["notificaciones<br><i>insignias, panel y gestos</i>"]
     S --> E["sistema<br><i>permisos, accesibilidad, lanzador e idioma</i>"]
     S --> F["acerca de<br><i>version, tutorial, bienvenida y licencias</i>"]
 
-    B --> B1["distribucion<br><i>vista previa real</i>"]
+    B --> B1["editar pantalla de inicio<br><i>modo edicion en la pantalla de inicio</i>"]
     C --> C1["horarios de aplicaciones<br><i>protegido con contraseña</i>"]
     E --> E1["permisos<br><i>estado de cada permiso</i>"]
 ```
@@ -66,7 +66,8 @@ colores seguros por defecto.
 
 | ajuste | tipo | rango | por defecto |
 |---|---|---|---|
-| tamaño de texto | deslizador | 8 a 24 puntos, paso de 1 | 14 |
+| tamaño de texto de la app | deslizador | 8 a 24 puntos, paso de 1 | 14 |
+| tamaño de texto de la home | deslizador | 8 a 24 puntos, paso de 1 | el de la app, hasta que lo muevas |
 | alineacion | selector de tres iconos | izquierda · centro · derecha | centro |
 | ocultar la barra de estado | interruptor | si / no | no |
 
@@ -116,8 +117,8 @@ sin recargarla.
 | ajuste | tipo | rango | efecto |
 |---|---|---|---|
 | espaciado entre apps | deslizador | 0 a 40 dp | separacion vertical entre las filas de favoritos |
-| widget | fila con valor | ninguno, o el nombre del widget activo | añade, cambia o quita el unico widget de la pantalla de inicio |
-| distribucion | abre otra pantalla | — | reordena y oculta reloj, widget y lista de apps, con vista previa real |
+| añadir widget | fila con valor | el numero de widgets en inicio | abre el selector de widgets y coloca el widget en la cuadricula |
+| editar pantalla de inicio | abre la pantalla de inicio en modo edicion | — | mueve, redimensiona, añade y quita el reloj, los favoritos y los widgets, y cambia el tamaño de la cuadricula |
 
 </details>
 
@@ -252,14 +253,14 @@ el cambio afecta solo a focusphone, no al resto del movil.
 | cambiar el color de la aplicacion | apariencia → tema |
 | poner mis propios colores | apariencia → tema → personalizado |
 | cambiar la letra | apariencia → tipografia |
-| hacer el texto mas grande | apariencia → tamaño de texto |
+| hacer el texto mas grande | apariencia → tamaño de texto de la app, y tamaño de texto de la home para la pantalla de inicio |
 | mover la lista a un lado | apariencia → alineacion |
 | quitar la barra de estado | apariencia → ocultar la barra de estado |
 | poner una foto de fondo | apariencia → fondo de pantalla |
 | cambiar el estilo del reloj | pantalla de inicio → tipo de reloj |
 | quitar el reloj | pantalla de inicio → tipo de reloj → oculto |
-| añadir un widget | pantalla de inicio → widget |
-| reordenar reloj, widget y apps | pantalla de inicio → distribucion |
+| añadir un widget | pantalla de inicio → añadir widget, o modo edicion → widgets |
+| mover o redimensionar reloj, widgets y apps | mantener pulsada la pantalla de inicio, o pantalla de inicio → editar pantalla de inicio |
 | separar mas las aplicaciones | pantalla de inicio → espaciado entre apps |
 | respirar antes de abrir una app | enfoque → pausa consciente |
 | limitar una app por horas | enfoque → horarios de aplicaciones |

@@ -10,24 +10,24 @@
 
 ## ANATOMIA DE LA PANTALLA DE INICIO
 
-la pantalla de inicio tiene tres componentes y dos cajones laterales. los tres
-componentes se pueden ocultar y reordenar entre si.
+la pantalla de inicio es una **cuadricula**, como el escritorio de un launcher de serie, con
+dos cajones laterales. contiene tres tipos de bloque, y cada uno ocupa un rectangulo de
+celdas:
 
 ```
 ┌──────────────────────────────────┐
-│                                  │
-│              09:41               │  ← reloj (5 estilos, se toca para la alarma)
-│         lunes, 12 de mayo        │
-│                                  │
-│  ┌────────────────────────────┐  │
-│  │        widget opcional     │  │  ← widget (uno solo, opcional)
-│  └────────────────────────────┘  │
-│                                  │
-│              telefono            │
-│              mensajes            │  ← favoritos (hasta 10, solo texto)
-│              camara              │
-│              notas               │
-│                                  │
+│ ┌──────────────────────────────┐ │
+│ │            09:41             │ │  ← reloj (5 estilos, se toca para la alarma)
+│ │       lunes, 12 de mayo      │ │
+│ └──────────────────────────────┘ │
+│ ┌─────────────┐ ┌──────────────┐ │
+│ │   bateria   │ │    musica    │ │  ← widgets (los que quieras, opcionales)
+│ └─────────────┘ └──────────────┘ │
+│ ┌──────────────────────────────┐ │
+│ │           telefono           │ │
+│ │           mensajes           │ │  ← favoritos (hasta 10, solo texto)
+│ │            camara            │ │
+│ └──────────────────────────────┘ │
 └──────────────────────────────────┘
    ↑ deslizar derecha    ↑ deslizar izquierda
    notificaciones        menu
@@ -35,18 +35,18 @@ componentes se pueden ocultar y reordenar entre si.
 
 <table>
 <tr>
-<th align="left">componente</th>
+<th align="left">bloque</th>
 <th align="left">que es</th>
-<th align="left">se puede ocultar</th>
+<th align="left">se puede quitar</th>
 </tr>
 <tr>
 <td>reloj</td>
-<td>la hora y la fecha, en uno de cinco estilos</td>
-<td>si</td>
+<td>la hora y la fecha, en uno de cinco estilos; se encoge para caber en un bloque pequeño en vez de recortarse</td>
+<td>si, y se vuelve a añadir desde el modo edicion</td>
 </tr>
 <tr>
-<td>widget</td>
-<td>un unico widget de otra aplicacion, si lo añades</td>
+<td>widgets</td>
+<td>los widgets que quieras: los 20 propios de focusphone o los de tus otras aplicaciones (consulta <a href="./09-notificaciones-y-widgets.md">notificaciones y widgets</a>)</td>
 <td>si</td>
 </tr>
 <tr>
@@ -56,8 +56,57 @@ componentes se pueden ocultar y reordenar entre si.
 </tr>
 </table>
 
-> el orden de los tres componentes se cambia en
-> **ajustes → pantalla de inicio → distribucion**, con una vista previa real y funcional.
+| cuadricula | valor |
+|---|---|
+| columnas | de 3 a 6 (4 por defecto) |
+| filas | de 4 a 12 (por defecto, las que hacen las celdas casi cuadradas en tu pantalla) |
+| paginas | una: los deslizamientos laterales ya son de los cajones |
+
+> si usabas una version anterior, tu disposicion previa (orden, reloj oculto, el widget y su
+> altura) se pasa a la cuadricula automaticamente la primera vez.
+
+---
+
+## MODO EDICION
+
+la disposicion se edita en la propia pantalla de inicio.
+
+**para entrar en el modo edicion**: manten pulsado un hueco libre, un widget o el reloj, o
+usa **ajustes → pantalla de inicio → editar pantalla de inicio**. los cajones se bloquean
+mientras editas.
+
+| quieres | haz esto |
+|---|---|
+| mover un bloque | arrastralo; los demas bloques le hacen sitio cuando la celda de destino se queda quieta un momento |
+| cambiar el tamaño de un bloque | tocalo para seleccionarlo y tira de las asas de los lados por los que puede crecer; los tamaños se ajustan a celdas enteras |
+| usar las acciones de un bloque | tocalo: una barra flotante muestra sus acciones — **ajustes del widget** y **quitar** en un widget, **estilo** y **quitar** en el reloj, **elegir apps** en los favoritos |
+| añadir un widget | **widgets** en la barra inferior abre el selector de widgets |
+| recuperar el reloj | **añadir reloj** en la barra inferior |
+| cambiar el tamaño de la cuadricula | **cuadricula** en la barra inferior, con vista previa en vivo de columnas y filas |
+| terminar | **listo** en la barra inferior |
+
+<details>
+<summary><strong>cuando no hay sitio</strong></summary>
+
+<br>
+
+un widget nuevo se coloca en orden de lectura. si la cuadricula esta llena, focusphone
+encoge primero la lista de favoritos desde su borde superior y despues otros bloques. si aun
+asi no hay sitio, te avisa: *no hay sitio en la pantalla de inicio. quita o reduce un bloque
+primero.*
+
+</details>
+
+<details>
+<summary><strong>editar sin arrastrar</strong></summary>
+
+<br>
+
+en el modo edicion cada bloque ofrece tambien acciones de accesibilidad —mover arriba,
+abajo, a la izquierda o a la derecha, ensanchar o estrechar, hacer mas alto o mas bajo—
+para cambiar la disposicion con talkback o con acceso por interruptor.
+
+</details>
 
 ---
 
@@ -90,6 +139,7 @@ flowchart TD
     H -->|"deslizar hacia la derecha"| N["panel de notificaciones lateral"]
     H -->|"deslizar hacia abajo"| S["persiana de notificaciones del sistema"]
     H -->|"tocar el reloj"| A["aplicacion de alarmas"]
+    H -->|"mantener pulsado un hueco, un widget o el reloj"| E["modo edicion"]
     H -->|"mantener pulsada una app"| C["menu de la aplicacion"]
     H -->|"mantener y arrastrar una app"| R["reordenar la lista"]
 ```
@@ -121,8 +171,13 @@ flowchart TD
 <td>siempre disponible, si el reloj esta visible</td>
 </tr>
 <tr>
+<td><strong>mantener pulsado un hueco, un widget o el reloj</strong></td>
+<td>entra en el <a href="#modo-edicion">modo edicion</a></td>
+<td>siempre disponible</td>
+</tr>
+<tr>
 <td><strong>mantener pulsada una app</strong></td>
-<td>abre su menu: abrir, quitar de la lista, info de la app, desinstalar</td>
+<td>abre sus opciones: los accesos directos de la app, quitar de inicio, info de la app, desinstalar</td>
 <td>siempre disponible</td>
 </tr>
 <tr>
@@ -180,7 +235,8 @@ cuando cambia el dia, sin que tengas que salir y volver a entrar.
 - se alinea a la izquierda, al centro o a la derecha (**ajustes → apariencia → alineacion**),
   algo util para usar el movil con una sola mano
 - el espacio entre aplicaciones es ajustable (**ajustes → pantalla de inicio → espaciado**)
-- si esta vacia, muestra el mensaje *sin apps seleccionadas. toca el menu para añadir apps.*
+- si esta vacia, muestra el mensaje *aun no hay apps. toca aqui para elegir las pocas que de
+  verdad necesitas.*, y al tocarlo se abre directamente el selector de apps
 
 <details>
 <summary><strong>reordenar la lista</strong></summary>
@@ -199,12 +255,13 @@ detras de las demas.
 
 <br>
 
-manteniendo pulsada una aplicacion sin arrastrarla se abre su menu:
+manteniendo pulsada una aplicacion sin arrastrarla se abre un dialogo con su nombre (un
+toque ya la abre, asi que no hay opcion "abrir"):
 
 | opcion | que hace |
 |---|---|
-| abrir | la abre (pasando por la pausa consciente si la tienes activada) |
-| quitar de la lista | la saca de los favoritos, sin desinstalarla |
+| los accesos directos de la app | los atajos que publica la aplicacion (por ejemplo "nuevo mensaje"), que se abren con las mismas comprobaciones de perfil, horario y pausa consciente que la app |
+| quitar de inicio | la saca de los favoritos, sin desinstalarla |
 | info de la app | abre la ficha de la aplicacion en los ajustes de android |
 | desinstalar | lanza el dialogo de desinstalacion del sistema |
 

@@ -12,7 +12,7 @@ por una lista de texto: un reloj, un calendario y solo las aplicaciones que de v
 
 <br>
 
-<img src="https://img.shields.io/badge/version-1.0.6-000000?style=flat-square" alt="version" />
+<img src="https://img.shields.io/badge/version-1.4.0--beta-000000?style=flat-square" alt="version 1.4.0-beta" />
 <img src="https://img.shields.io/badge/android-7.0%2B-3DDC84?style=flat-square&logo=android&logoColor=white" alt="android 7 o superior" />
 <img src="https://img.shields.io/badge/100%25-offline-4c1?style=flat-square" alt="offline" />
 <img src="https://img.shields.io/badge/sin-publicidad-4c1?style=flat-square" alt="sin publicidad" />
@@ -70,13 +70,13 @@ la ruta mas corta para orientarte:
 |---|---|---|
 | 01 | [que es focusphone](./usuarios/01-que-es-focusphone.md) | la idea del proyecto, para quien es, que hace y que no hace |
 | 02 | [instalacion y primeros pasos](./usuarios/02-instalacion-y-primeros-pasos.md) | requisitos, instalar el apk, ponerlo como lanzador por defecto y completar la bienvenida |
-| 03 | [pantalla de inicio y gestos](./usuarios/03-pantalla-de-inicio-y-gestos.md) | que hay en la pantalla de inicio y que hace cada gesto |
+| 03 | [pantalla de inicio y gestos](./usuarios/03-pantalla-de-inicio-y-gestos.md) | la cuadricula de inicio, el modo edicion y que hace cada gesto |
 | 04 | [aplicaciones y carpetas](./usuarios/04-aplicaciones-y-carpetas.md) | elegir favoritos, el cajon de todas las apps, buscar, renombrar, carpetas y desinstalar |
 | 05 | [perfiles y detox](./usuarios/05-perfiles-y-detox.md) | los perfiles normal, trabajo y detox, el bloqueo con contraseña y el bloqueo real del sistema |
 | 06 | [horarios de aplicaciones](./usuarios/06-horarios-de-aplicaciones.md) | franjas horarias por app, dias de la semana y limite diario de uso |
 | 07 | [pausa consciente](./usuarios/07-pausa-consciente.md) | la respiracion previa a abrir una app y como configurarla |
-| 08 | [personalizacion](./usuarios/08-personalizacion.md) | temas, colores propios, tipografias, tamaño de texto, relojes, fondo de pantalla y distribucion |
-| 09 | [notificaciones y widgets](./usuarios/09-notificaciones-y-widgets.md) | el panel lateral de notificaciones, el gesto hacia abajo y el widget de la pantalla de inicio |
+| 08 | [personalizacion](./usuarios/08-personalizacion.md) | temas, colores propios, tipografias, tamaño de texto de la app y de la home, relojes, fondo de pantalla y distribucion |
+| 09 | [notificaciones y widgets](./usuarios/09-notificaciones-y-widgets.md) | el panel lateral de notificaciones, el gesto hacia abajo, los 20 widgets propios y el selector de widgets |
 | 10 | [referencia de ajustes](./usuarios/10-referencia-de-ajustes.md) | todas las pantallas de ajustes, opcion por opcion |
 | 11 | [privacidad y permisos](./usuarios/11-privacidad-y-permisos.md) | que permisos pide, por que, que datos guarda y donde |
 | 12 | [preguntas frecuentes](./usuarios/12-preguntas-frecuentes.md) | dudas y problemas habituales, con su solucion |
@@ -110,8 +110,10 @@ mindmap
     pantalla de inicio
       reloj con 5 estilos
       calendario del mes
+      cuadricula de 3-6 por 4-12 celdas
       hasta 10 favoritos
-      widget opcional
+      los widgets que quieras
+      modo edicion
     gestos
       deslizar izquierda abre el menu
       deslizar derecha abre notificaciones

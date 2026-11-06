@@ -81,8 +81,15 @@ the selector shows a live sample of each typeface before applying it.
 
 ### TEXT SIZE
 
-a slider between **8 and 24 points**, with 14 as the default. it affects the whole interface
-while keeping the hierarchy: titles stay larger than body text, and bold stays bold.
+**settings → appearance** has two sliders, both between **8 and 24 points**:
+
+| slider | affects | default |
+|---|---|---|
+| app text size | settings, all apps, dialogs and every other screen | 14 |
+| home text size | the home screen, including its side menu and notification panel | follows the app text size until you move it |
+
+both keep the hierarchy: titles stay larger than body text, and bold stays bold. if you used
+an earlier version, the home screen keeps its current look until you choose a home size.
 
 ### ALIGNMENT
 
@@ -202,18 +209,13 @@ menu, settings) gets the amount it needs for what it renders.
 
 ## HOME SCREEN LAYOUT
 
-**settings → home screen → layout**
+the layout is edited directly on the home screen, in **edit mode**: long press an empty spot,
+a widget or the clock, or use **settings → home screen → edit home screen**. there you move
+and resize the clock, the favourites and any number of widgets, and change the size of the
+grid. the whole procedure is in
+[home screen and gestures → edit mode](./03-home-screen-and-gestures.md#edit-mode).
 
-a screen with a **real, working preview** of your home screen: the clock ticks, the widget
-renders and your actual favourites appear.
-
-| action | how |
-|---|---|
-| reorder components | drag the blocks in the preview |
-| hide the clock | the clock block's switch |
-| hide the widget | the widget block's switch |
-
-the favourites list cannot be hidden: it is the core of the screen.
+the favourites list cannot be removed: it is the core of the screen.
 
 ### APP SPACING
 

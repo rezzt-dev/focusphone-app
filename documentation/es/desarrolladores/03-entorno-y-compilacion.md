@@ -95,8 +95,8 @@ android {
         applicationId = "app.focusphone"
         minSdk        = 24
         targetSdk     = 36
-        versionCode   = 3
-        versionName   = "1.0.6"
+        versionCode   = 4
+        versionName   = "1.4.0-beta"
         testInstrumentationRunner = "app.focusphone.TestRunner"
     }
 
@@ -119,9 +119,10 @@ android {
 | `testInstrumentationRunner` | `app.focusphone.TestRunner` | runner propio que permite sustituir repositorios |
 | `unitTests.isIncludeAndroidResources` | activado | las pruebas de robolectric inflan layouts reales, asi que necesitan los recursos fusionados |
 
-> `versionCode` y `versionName` se mantienen sincronizados con la rama de publicacion
-> (`alfa-X.Y.Z`), y `versionCode` **debe subir en cada build publicado**: la pantalla
-> *acerca de* muestra `versionName` al usuario.
+> `versionName` es `<x.y.z>-beta` mientras la app esta en beta, y coincide con la seccion
+> `[x.y.z]` de `changelog.md` y con la etiqueta `v<x.y.z>`; `versionCode` **debe subir en cada
+> build publicado**: la pantalla *acerca de* muestra `versionName` al usuario, y `1.0.0-beta` y
+> `1.4-beta` se publicaron las dos como `1.0.6` (`versionCode` 3) por no hacerlo.
 
 ---
 
@@ -309,7 +310,7 @@ hay cinco reglas desactivadas a proposito, cada una con su motivo en `.editorcon
 `function-signature`, `class-signature`, `argument-list-wrapping` y `multiline-if-else` (donde
 se parte una firma o una lista de argumentos es una decision de legibilidad del autor, no algo
 que reescribir solo porque cabria en una linea), mas `no-multi-spaces` (el codigo alinea las
-asignaciones en columnas, `versionCode   = 3`).
+asignaciones en columnas, `versionCode   = 4`).
 
 la version del *motor* de ktlint esta fijada en el catalogo de versiones (`ktlint`) aparte de
 la de su plugin de gradle (`ktlintGradle`), de modo que el formateador nunca se mueve solo y

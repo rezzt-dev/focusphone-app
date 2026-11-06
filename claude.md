@@ -3,8 +3,12 @@
 > This file exists so Claude (and any other AI agent) always has the git
 > workflow rules available, independent of `.docs/` (gitignored) being
 > present locally. For the full architecture, tech stack, build commands and
-> code style guide, see [`agents.md`](agents.md) — this file only duplicates
+> code style guide, see [`agents.md`](./agents.md) — this file only duplicates
 > the commit / PR / merge / release conventions.
+>
+> repository layout: `changelog.md` lives at `repo-docs/changelog.md` (with the
+> other information documents), and the community files GitHub detects
+> (`security.md`, `contributing.md`, `code_of_conduct.md`) live in `.github/`.
 
 ## Commit, PR, Merge & Release Guidelines
 

@@ -15,7 +15,7 @@ el workflow vive en `.github/workflows/android-ci.yml`.
 | propiedad | valor |
 |---|---|
 | nombre | `android-ci` |
-| disparadores | `push` a `main` y a `alfa-*`, y **toda** pull request |
+| disparadores | `push` a `main`, `version-beta`, `beta-*` y `alfa-*`, y **toda** pull request |
 | runner | `ubuntu-latest` |
 | tiempo limite | 45 minutos |
 | concurrencia | un grupo por workflow y referencia, con cancelacion de ejecuciones anteriores |
@@ -109,9 +109,9 @@ aunque alguna de esas integraciones se reactive desde los ajustes del repositori
 
 | elemento | donde | regla |
 |---|---|---|
-| `versionName` | `app/build.gradle.kts` | se muestra al usuario en *acerca de* |
+| `versionName` | `app/build.gradle.kts` | `<x.y.z>-beta` mientras este en beta; se muestra al usuario en *acerca de* |
 | `versionCode` | `app/build.gradle.kts` | **debe incrementarse en cada build publicado** |
-| rama de publicacion | git | `alfa-X.Y.Z`, sincronizada con el `versionName` |
+| ramas | git | `beta-1.X` (desarrollo) → `version-beta` (versiones estables) → `main` (publicada, la ultima en actualizarse), siempre con merge commit |
 | etiqueta | git | `v<x.y.z>`, sin sufijos |
 | cabecera del changelog | `changelog.md` | `## [x.y.z] - aaaa-mm-dd` |
 
@@ -246,6 +246,9 @@ la salida queda en `app/release/`, que **no** esta bajo control de versiones.
 - [ ] la pull request de publicacion sigue el formato de titulo y descripcion
 - [ ] el merge se hace con *create a merge commit*
 - [ ] la release lleva la etiqueta `v<x.y.z>` y el bloque `### ENGLISH` como cuerpo
+- [ ] mientras la app este en beta, la release se marca como **pre-release**
+- [ ] el apk esta firmado con la clave de publicacion (sha-256 del certificado en [`security.es.md`](../../../.github/security.es.md#verificar-un-apk)), comprobado con `apksigner verify --print-certs`
+- [ ] se adjunta un fichero `SHA256SUMS` (`sha256sum focusphone-*.apk > SHA256SUMS`) junto al apk
 
 </details>
 

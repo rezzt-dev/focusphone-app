@@ -83,43 +83,83 @@ the rest of the interface: there are no red circles.
 
 ---
 
-## THE HOME SCREEN WIDGET
+## WIDGETS
 
-focusphone supports **exactly one widget** on the home screen. this is deliberate: a grid of
-widgets would turn the screen back into the shop window it is trying to escape.
+the home screen holds **any number of widgets**, each in its own block of the grid (see
+[edit mode](./03-home-screen-and-gestures.md#edit-mode)). they can be focusphone's own or
+those of your other apps.
+
+### FOCUSPHONE'S 20 WIDGETS
+
+they follow your active theme (the custom one included) and redraw when you change theme,
+colours, day/night mode or language. their icons are [lucide](https://lucide.dev) icons. they
+are real android widgets, so **they also work in any other launcher**, and opening an app
+from them always goes through focusphone's profile block, schedule and conscious pause.
+
+| group | widget | what it shows |
+|---|---|---|
+| time | clock | large time, the date and the next alarm |
+| time | analog clock | an analog face |
+| time | world clock | up to three cities side by side, each with its offset from local time (chosen when you add it) |
+| time | today | weekday, day of the month and month on a square tile |
+| time | month | the month grid |
+| time | week | the current week as a strip |
+| music | music bar · music player · music tile | what is playing, with play/pause, previous and next; the tile uses the artwork |
+| navigation | search | a search field that opens all apps with the keyboard already up |
+| navigation | spotlight | search plus your favourites |
+| navigation | favourites | as many favourites as its height holds, in the home screen's order |
+| system | battery | battery level as a ring, with a charging icon |
+| system | storage | free and used storage |
+| system | system | battery, storage and memory together |
+| system | quick settings | a real torch toggle, plus shortcuts to android's internet, bluetooth and volume panels and to settings |
+| system | next alarm | the time of your next alarm |
+| focus | focus profile | the active profile and, during a detox, its end |
+| focus | intention | a sentence you write for the day, stored encrypted |
+| focus | progress | how much of the day, week, month and year has passed |
+
+> the three music widgets need **notification access**, because android only exposes what
+> is playing to notification listeners. without it they show a "no access" state.
 
 ### ADDING A WIDGET
 
-**settings → home screen → widget**
+from edit mode (**widgets** in the bottom bar) or from **settings → home screen → add
+widget**, which also shows how many widgets the home screen has. the picker:
 
-1. tap the widget row
-2. pick a widget from the list your apps offer
-3. if the widget needs its own configuration, its configuration screen opens
-4. the widget appears on the home screen, in the position it has in the layout
+- groups widgets by app, with the app's icon, and lists **focusphone's own first**;
+- has a fuzzy search;
+- shows faithful previews (on android 12+, the widget's own preview layout rendered live);
+- shows each widget's size in cells of **your** grid, and marks with *in use* the ones
+  already on the home screen.
 
-### REMOVING OR CHANGING IT
+if a widget needs its own configuration, its configuration screen opens before it is placed.
+if the grid has no room, the picker tells you instead of replacing another widget.
 
-| action | how |
-|---|---|
-| change widget | go back to the widget row and pick another |
-| remove the widget | tap *remove widget* and confirm |
-| hide it without removing it | turn off the widget block in *layout* |
+### CHANGING OR REMOVING IT
+
+in edit mode, tap the widget: its floating bar offers **widget settings** (when the widget
+can be reconfigured) and **remove**. to move or resize it, drag it or pull its handles.
 
 <details>
-<summary><strong>widgets that fit well</strong></summary>
+<summary><strong>"widget unavailable"</strong></summary>
 
 <br>
 
-the widgets that disturb the look least are the text ones or the single-value ones:
+while the app that provides a widget is being updated, android briefly removes the widget's
+provider. focusphone shows *widget unavailable while its app updates* in its place instead of
+deleting it, and the widget comes back on its own when the update finishes.
 
-- weather, in its compact form
-- next calendar event
-- quick note
-- minimalist music control
-- step counter
+</details>
 
-the ones that fit worst are large widgets with images, carousels or news feeds: they work,
-but they push the favourites list down and bring the visual noise back to the screen.
+<details>
+<summary><strong>widgets from other apps</strong></summary>
+
+<br>
+
+the widgets that disturb the look least are the text ones or the single-value ones (weather
+in its compact form, the next calendar event, a quick note). large widgets with images,
+carousels or news feeds work, but bring the visual noise back to the screen. each
+manufacturer pads widgets differently: focusphone removes that default padding and, when a
+widget does not fit its block, shrinks it instead of cropping it.
 
 </details>
 
@@ -132,7 +172,8 @@ but they push the favourites list down and bring the visual noise back to the sc
 | side notification panel | notification access | only for this feature |
 | swipe-down gesture | accessibility service (recommended) | no, but without it it may not work on android 12+ |
 | notification badges | notification access | only for this feature |
-| widget | none | — |
+| focusphone's music widgets | notification access | only for those three widgets |
+| any other widget | none | — |
 
 ---
 

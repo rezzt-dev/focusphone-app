@@ -304,6 +304,25 @@ writing would replace the real data with whatever was built from the empty fallb
 
 ---
 
+## HOME GRID AND WIDGET LIBRARY
+
+two subsystems added in `1.4.0-beta` follow the same layering as the rest of the app.
+
+| concern | where | rule |
+|---|---|---|
+| grid model and maths | `domain/model/HomeGrid.kt`, `domain/util/GridLayoutEngine.kt` | pure kotlin, fully unit tested; every operation returns a new layout or `null` and never leaves overlaps |
+| grid storage | `HomeGridPreferences` through `HomeGridStore` | one text line per block (`HomeGridSerializer`); the store repairs a damaged layout and migrates the pre-grid column once |
+| grid view and editing | `ui/home/grid/` | edit mode lives on the home screen itself; spans come from the real cell size (`HomeGridMetrics`, `WidgetSizing`) |
+| widget hosting | `ui/widget/` | views are always created through `AppWidgetHostManager.createView` / `WidgetSurface`, with the factory-free inflater of `WidgetHostContext` |
+| built-in widgets | `ui/widget/library/` | providers hold no logic: `FocusWidgetKind` maps each one to a renderer and its triggers, and `WidgetUpdater.refresh(context, trigger)` is the only way to ask for a redraw |
+| colours in widgets | `WidgetStyle.resolve(context)` | derived from `FocusPalette`, never from layout defaults |
+| launching from a widget | `WidgetIntents.openApp` → `WidgetLaunchActivity` → `BaseActivity.openApp` | profile block, schedule and conscious pause apply even when the widget lives in another launcher |
+
+the detailed rules for both are in [`agents.md`](../../../agents.md), sections *widget
+library* and *home grid*.
+
+---
+
 ## ENTRY POINTS
 
 | entry point | class | when it acts |

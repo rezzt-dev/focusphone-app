@@ -82,9 +82,16 @@ el selector muestra una muestra en vivo de cada tipografia antes de aplicarla.
 
 ### TAMAÑO DE TEXTO
 
-un deslizador entre **8 y 24 puntos**, con 14 como valor por defecto. afecta a toda la
-interfaz manteniendo la jerarquia: los titulos siguen siendo mas grandes que el cuerpo, y
-las negritas siguen siendo negritas.
+**ajustes → apariencia** tiene dos deslizadores, los dos entre **8 y 24 puntos**:
+
+| deslizador | afecta a | por defecto |
+|---|---|---|
+| tamaño de texto de la app | ajustes, todas las apps, dialogos y el resto de pantallas | 14 |
+| tamaño de texto de la home | la pantalla de inicio, incluidos su menu lateral y su panel de notificaciones | sigue al de la app hasta que lo muevas |
+
+los dos mantienen la jerarquia: los titulos siguen siendo mas grandes que el cuerpo, y las
+negritas siguen siendo negritas. si usabas una version anterior, la pantalla de inicio
+conserva su aspecto hasta que elijas un tamaño para la home.
 
 ### ALINEACION
 
@@ -207,18 +214,14 @@ muestra.
 
 ## DISTRIBUCION DE LA PANTALLA DE INICIO
 
-**ajustes → pantalla de inicio → distribucion**
+la disposicion se edita directamente en la pantalla de inicio, en el **modo edicion**:
+manten pulsado un hueco, un widget o el reloj, o usa **ajustes → pantalla de inicio →
+editar pantalla de inicio**. ahi mueves y cambias el tamaño del reloj, de los favoritos y de
+todos los widgets que quieras, y cambias el tamaño de la cuadricula. el procedimiento
+completo esta en
+[pantalla de inicio y gestos → modo edicion](./03-pantalla-de-inicio-y-gestos.md#modo-edicion).
 
-una pantalla con una **vista previa real y funcional** de tu pantalla de inicio: el reloj
-funciona, el widget se renderiza y tus favoritos aparecen de verdad.
-
-| accion | como |
-|---|---|
-| reordenar componentes | arrastra los bloques de la vista previa |
-| ocultar el reloj | interruptor del bloque del reloj |
-| ocultar el widget | interruptor del bloque del widget |
-
-la lista de favoritos no se puede ocultar: es el nucleo de la pantalla.
+la lista de favoritos no se puede quitar: es el nucleo de la pantalla.
 
 ### ESPACIADO ENTRE APLICACIONES
 

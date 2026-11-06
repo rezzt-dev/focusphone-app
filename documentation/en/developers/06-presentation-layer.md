@@ -147,21 +147,22 @@ lifecycleScope.launch {
 <tr><td><code>AllAppsActivity</code></td><td>the full drawer: search, folders, dragging and the options menu</td></tr>
 <tr><td><code>SettingsActivity</code></td><td>a menu of six categories; it holds no controls</td></tr>
 <tr><td><code>SettingsSubActivity</code></td><td>abstract base for sub-screens: toolbar, back button, insets and a vertical container</td></tr>
-<tr><td><code>AppearanceSettingsActivity</code></td><td>theme, custom colours, typeface, text size, alignment, status bar and wallpaper</td></tr>
-<tr><td><code>HomeSettingsActivity</code></td><td>clock type and size, spacing, widget and layout</td></tr>
+<tr><td><code>AppearanceSettingsActivity</code></td><td>theme, custom colours, typeface, app and home text size, alignment, status bar and wallpaper</td></tr>
+<tr><td><code>HomeSettingsActivity</code></td><td>clock type and size, spacing, add widget and edit home screen (opens <code>HomeActivity</code> with <code>EXTRA_EDIT_LAYOUT</code>)</td></tr>
 <tr><td><code>FocusSettingsActivity</code></td><td>conscious pause, schedules and work mode keywords</td></tr>
 <tr><td><code>NotificationSettingsActivity</code></td><td>notification access, side panel and swipe-down gesture</td></tr>
 <tr><td><code>SystemSettingsActivity</code></td><td>permissions, accessibility, default launcher and language</td></tr>
 <tr><td><code>AboutSettingsActivity</code></td><td>version, tutorial, onboarding restart and licences</td></tr>
-<tr><td><code>HomeLayoutActivity</code></td><td>component reordering and visibility, with a <strong>real, working</strong> preview</td></tr>
 <tr><td><code>PermissionsActivity</code></td><td>the status of every permission</td></tr>
 <tr><td><code>OnboardingActivity</code></td><td>five-step onboarding with <code>ViewPager2</code> and live default-launcher verification</td></tr>
-<tr><td><code>ConsciousPauseActivity</code></td><td>the breathing countdown before the target app opens</td></tr>
+<tr><td><code>ConsciousPauseActivity</code></td><td>one guided breath (<code>BreathingOrbView</code>) before the target app opens, with the minutes left today for apps with a daily limit</td></tr>
 <tr><td><code>DetoxBlockedActivity</code></td><td>full-screen block with a live countdown and password unlock</td></tr>
 <tr><td><code>AppScheduleActivity</code></td><td>the rule list, password protected; it renders nothing until unlocked</td></tr>
 <tr><td><code>AppScheduleEditActivity</code></td><td>editor for one rule; re-checks <code>ScheduleAccessGate</code> on every <code>onResume</code></td></tr>
 <tr><td><code>ScheduleBlockedActivity</code></td><td>schedule block; <strong>no unlock button</strong>, on purpose</td></tr>
-<tr><td><code>WidgetPickerActivity</code></td><td>picking the single widget, through the activity result api</td></tr>
+<tr><td><code>WidgetPickerActivity</code></td><td>the widget picker: grouped by app, fuzzy search, live previews, size in grid cells; it adds the widget to the grid itself (<code>HomeGridStore.addWidget</code>)</td></tr>
+<tr><td><code>WidgetLaunchActivity</code></td><td>invisible, not exported trampoline that applies <code>BaseActivity.openApp</code> to apps opened from a built-in widget, in any launcher</td></tr>
+<tr><td><code>WorldClockConfigActivity</code> · <code>IntentionConfigActivity</code></td><td>configuration screens of the world clock (up to three cities) and the intention widgets</td></tr>
 </table>
 
 ---

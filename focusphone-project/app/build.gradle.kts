@@ -20,10 +20,11 @@ android {
         applicationId = "app.focusphone"
         minSdk        = 24
         targetSdk     = 36
-        // Keep in sync with the release branch (alfa-X.Y.Z) and bump versionCode on
-        // every published build: "about" shows versionName to the user.
-        versionCode   = 3
-        versionName   = "1.0.6"
+        // versionName is "<x.y.z>-beta" while in beta and matches the changelog section
+        // "[x.y.z]" and the git tag "v<x.y.z>"; "about" shows it to the user. Bump
+        // versionCode on every published build (1.0.0-beta and 1.4-beta both shipped as 3).
+        versionCode   = 4
+        versionName   = "1.4.0-beta"
 
         testInstrumentationRunner = "app.focusphone.TestRunner"
     }

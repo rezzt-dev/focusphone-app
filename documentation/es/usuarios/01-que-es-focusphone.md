@@ -83,7 +83,7 @@ consciente antes de abrir una aplicacion.
 
 <br>
 
-- dependes de widgets grandes y multiples en la pantalla de inicio: focusphone admite **un** widget
+- quieres iconos de apps en la pantalla de inicio o varias paginas de escritorio: focusphone muestra las apps como texto, en una sola pagina
 - necesitas gestos avanzados configurables o multiples pantallas de escritorio
 - quieres un control parental para el movil de otra persona: focusphone esta pensado para autoimponerse limites, no para imponerselos a terceros
 - usas un lanzador con integracion profunda del fabricante que no quieres perder
@@ -100,7 +100,7 @@ flowchart LR
         A1["reloj<br>5 estilos"]
         A2["calendario<br>del mes"]
         A3["favoritos<br>hasta 10 apps"]
-        A4["widget<br>opcional"]
+        A4["widgets<br>20 propios + los de otras apps"]
     end
 
     subgraph ENFOQUE["herramientas de enfoque"]
@@ -114,7 +114,7 @@ flowchart LR
         C1["4 temas<br>+ tema propio"]
         C2["4 tipografias"]
         C3["fondo de pantalla<br>con desenfoque"]
-        C4["distribucion<br>reordenable"]
+        C4["cuadricula<br>modo edicion"]
     end
 
     PANTALLA --> ENFOQUE --> ASPECTO
@@ -122,10 +122,12 @@ flowchart LR
 
 ### PANTALLA DE INICIO
 
-un reloj que puedes mostrar en cinco estilos distintos (digital, apilado, en
-palabras, analogico u oculto), un calendario del mes en el menu lateral y la lista
-de tus aplicaciones favoritas, con un maximo de diez. puedes reordenarlas
-arrastrandolas y renombrarlas para que se llamen como tu quieras.
+una cuadricula de 3 a 6 columnas por 4 a 12 filas donde colocas, mueves y redimensionas un
+reloj en cinco estilos (digital, apilado, en palabras, analogico u oculto), la lista de tus
+aplicaciones favoritas, con un maximo de diez, y los widgets que quieras: los 20 propios de
+focusphone o los de tus otras aplicaciones. el calendario del mes esta en el menu lateral.
+puedes reordenar las favoritas arrastrandolas y renombrarlas para que se llamen como tu
+quieras.
 
 ### HERRAMIENTAS DE ENFOQUE
 
@@ -134,8 +136,8 @@ arrastrandolas y renombrarlas para que se llamen como tu quieras.
   tiempo, protegido con contraseña.
 - **horarios**: cada aplicacion puede tener una franja horaria permitida, con seleccion
   de dias, y un limite de minutos al dia. funcionan siempre, tambien en el perfil normal.
-- **pausa consciente**: una cuenta atras de unos segundos antes de abrir cualquier
-  aplicacion, con la pregunta de si de verdad quieres abrirla.
+- **pausa consciente**: una sola respiracion guiada de unos segundos antes de abrir
+  cualquier aplicacion, con la pregunta de si de verdad quieres abrirla.
 
 ### APARIENCIA
 
@@ -165,7 +167,7 @@ y control de legibilidad.
 | propiedad | valor |
 |---|---|
 | nombre de paquete | `app.focusphone` |
-| version documentada | 1.0.6 |
+| version documentada | 1.4.0-beta |
 | android minimo | 7.0 (api 24) |
 | android objetivo | 16 (api 36) |
 | lenguaje | kotlin |

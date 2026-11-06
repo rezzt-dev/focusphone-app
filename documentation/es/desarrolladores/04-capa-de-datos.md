@@ -180,9 +180,10 @@ cifrados.
 <th align="left" width="34%">contenido</th>
 </tr>
 <tr><td><code>ThemePreferences</code></td><td><code>focusphone_theme</code></td><td>no</td><td>tema, colores personalizados, alineacion, barra de estado, bienvenida completada</td></tr>
-<tr><td><code>FontPreferences</code></td><td><code>focusphone_prefs</code></td><td>no</td><td>tipografia, tipo y tamaño de reloj, tamaño de texto (8-24 pt, por defecto 14)</td></tr>
-<tr><td><code>HomeLayoutPreferences</code></td><td><code>focusphone_home_layout</code></td><td>no</td><td>orden de componentes, visibilidad de reloj y widget, espaciado</td></tr>
-<tr><td><code>WidgetPreferences</code></td><td><code>focusphone_widget</code></td><td>no</td><td>id del unico widget y su activacion</td></tr>
+<tr><td><code>FontPreferences</code></td><td><code>focusphone_prefs</code></td><td>no</td><td>tipografia, tipo y tamaño de reloj, tamaño de texto de la app y de la home (`home_font_size_pt`, que sigue al de la app hasta que se elige), los dos de 8-24 pt, por defecto 14</td></tr>
+<tr><td><code>HomeGridPreferences</code></td><td><code>focusphone_home_grid</code></td><td>no</td><td>el tamaño de la cuadricula y una linea por bloque (reloj, favoritos, widgets con su id, proveedor y celdas); en el primer arranque lee y despues borra el orden de <code>focusphone_home_layout</code> y el widget de <code>focusphone_widget</code> anteriores a la cuadricula</td></tr>
+<tr><td><code>HomeLayoutPreferences</code></td><td><code>focusphone_home_layout</code></td><td>no</td><td>espaciado entre apps y tipo de reloj que se recupera tras ocultarlo</td></tr>
+<tr><td><code>LibraryWidgetPreferences</code></td><td><code>focusphone_widget_library</code> · <code>focusphone_widget_library_secure</code></td><td>la intencion, si</td><td>ciudades del reloj mundial por id de widget y la firma de estilo (sin cifrar); el texto de intencion (cifrado)</td></tr>
 <tr><td><code>WallpaperPreferences</code></td><td><code>focusphone_wallpaper</code></td><td>no</td><td>uri por superficie, modo compartido, desenfoque e intensidad, legibilidad (por defecto 60)</td></tr>
 <tr><td><code>GesturePreferences</code></td><td><code>focusphone_gestures</code></td><td>no</td><td>gesto de deslizar hacia abajo</td></tr>
 <tr><td><code>NotificationPanelPreferences</code></td><td><code>focusphone_notification_panel</code></td><td>no</td><td>activacion del panel lateral</td></tr>
@@ -230,20 +231,19 @@ las cuatro preferencias sensibles pasan por `EncryptedPrefs`, que a su vez usa
 <tr><td><code>Lost</code></td><td>el contenido no podra descifrarse <strong>nunca</strong></td><td>se trata como ausente, para que el usuario pueda reconstruir sus datos</td></tr>
 </table>
 
-<details>
-<summary><strong>deteccion del formato heredado en texto plano</strong></summary>
+es el patron que aplican `AppFolderPreferences`, `AppSchedulePreferences` y
+`ProfilePreferences`: mientras el estado es `Unavailable`, la interfaz muestra una lista vacia
+**y rechaza cualquier escritura**.
 
-<br>
+### DETECCION DEL TEXTO PLANO ANTIGUO
 
 `CustomAppLabelsPreferences` reconoce los valores antiguos en texto plano **por su forma**
 (`SecureStorageHelper.looksEncrypted`), nunca por un fallo al descifrar.
 
-el motivo: cuando la clave del keystore se pierde, un valor cifrado real **tambien** falla
-al descifrarse; tratarlo como texto plano volveria a cifrar el texto cifrado y corromperia
-la etiqueta para siempre. los valores ilegibles se dejan intactos en disco y se muestra la
-etiqueta del sistema.
-
-</details>
+> el motivo: cuando la clave del keystore se pierde, un valor cifrado real **tambien** falla
+> al descifrarse; tratarlo como texto plano volveria a cifrar el texto cifrado y corromperia
+> la etiqueta para siempre. los valores ilegibles se dejan intactos en disco y se muestra la
+> etiqueta del sistema.
 
 ---
 

@@ -2,7 +2,7 @@ name: android-ci
 
 on:
   push:
-    branches: [main, "alfa-*"]
+    branches: [main, version-beta, "beta-*", "alfa-*"]
   pull_request:
 
 permissions:

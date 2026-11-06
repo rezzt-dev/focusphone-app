@@ -190,6 +190,15 @@ siguiente conexion.
 los `PendingIntent` de cada notificacion se guardan en un mapa concurrente y se liberan al
 descartarla o al desconectarse el listener.
 
+
+### WIDGETS DE MUSICA
+
+`MediaWidgetBridge` llama a `MediaSessionManager.getActiveSessions` con el componente de este
+oyente, algo que android solo permite mientras el oyente esta activado. lee bajo demanda el
+titulo, el artista, la caratula y el estado de reproduccion de la sesion activa para los tres
+widgets de musica, y envia reproducir/pausar, anterior y siguiente mediante los controles de
+transporte de la sesion. no se guarda nada; sin acceso, los widgets muestran un estado "sin
+acceso".
 ---
 
 ## PUNTOS DE APLICACION DEL BLOQUEO
@@ -199,7 +208,7 @@ hay **dos** caminos por los que se aplica un bloqueo, y ambos deben mantenerse c
 ```mermaid
 flowchart LR
     subgraph DENTRO["dentro de focusphone"]
-        A["toque en una app"] --> B["BaseActivity.enforceAppSchedule()"]
+        A["toque en una app, un acceso directo o un widget propio"] --> B["BaseActivity.openApp / openShortcut"]
         B --> C["ProfilePreferences.isAppBlocked()"]
     end
     subgraph FUERA["fuera de focusphone"]
@@ -211,11 +220,13 @@ flowchart LR
 
 | camino | cubre | requiere el servicio |
 |---|---|---|
-| `BaseActivity.enforceAppSchedule()` | cualquier lanzamiento iniciado en focusphone | no |
+| `BaseActivity.openApp` / `openShortcut` (bloqueo de perfil, `enforceAppSchedule()`, pausa consciente) | cualquier lanzamiento iniciado en focusphone, y los toques en un widget propio en cualquier launcher, mediante `WidgetLaunchActivity` | no |
 | `FocusAccessibilityService` | cualquier lanzamiento del sistema | si |
 
-> al añadir una nueva via de lanzamiento en la aplicacion, **llama a `enforceAppSchedule()`**,
-> o esa via se convertira en un hueco por el que los bloqueos no se aplican.
+> al añadir una nueva via de lanzamiento en la aplicacion, **pasa por `BaseActivity.openApp` /
+> `openShortcut`** (o, en un widget, por `WidgetIntents.openApp`), nunca por
+> `getLaunchIntentForPackage` + `startActivity`, o esa via se convertira en un hueco por el
+> que los bloqueos no se aplican.
 
 ---
 

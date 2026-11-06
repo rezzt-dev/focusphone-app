@@ -12,7 +12,7 @@ with a list of text: a clock, a calendar and only the apps you actually use.</st
 
 <br>
 
-<img src="https://img.shields.io/badge/version-1.0.6-000000?style=flat-square" alt="version" />
+<img src="https://img.shields.io/badge/version-1.4.0--beta-000000?style=flat-square" alt="version 1.4.0-beta" />
 <img src="https://img.shields.io/badge/android-7.0%2B-3DDC84?style=flat-square&logo=android&logoColor=white" alt="android 7 or newer" />
 <img src="https://img.shields.io/badge/100%25-offline-4c1?style=flat-square" alt="offline" />
 <img src="https://img.shields.io/badge/no-ads-4c1?style=flat-square" alt="no ads" />
@@ -70,13 +70,13 @@ the shortest path to getting oriented:
 |---|---|---|
 | 01 | [what is focusphone](./users/01-what-is-focusphone.md) | the idea behind the project, who it is for, what it does and what it does not do |
 | 02 | [installation and first steps](./users/02-installation-and-first-steps.md) | requirements, installing the apk, setting it as the default launcher and finishing onboarding |
-| 03 | [home screen and gestures](./users/03-home-screen-and-gestures.md) | what is on the home screen and what every gesture does |
+| 03 | [home screen and gestures](./users/03-home-screen-and-gestures.md) | the home screen grid, edit mode and what every gesture does |
 | 04 | [apps and folders](./users/04-apps-and-folders.md) | picking favourites, the app drawer, searching, renaming, folders and uninstalling |
 | 05 | [profiles and detox](./users/05-profiles-and-detox.md) | the normal, work and detox profiles, password locking and real system-level blocking |
 | 06 | [app schedules](./users/06-app-schedules.md) | per-app time windows, weekday selection and daily usage limits |
 | 07 | [conscious pause](./users/07-conscious-pause.md) | the breathing countdown before an app opens, and how to configure it |
-| 08 | [customization](./users/08-customization.md) | themes, custom colours, fonts, text size, clocks, wallpaper and layout |
-| 09 | [notifications and widgets](./users/09-notifications-and-widgets.md) | the side notification panel, the swipe-down gesture and the home screen widget |
+| 08 | [customization](./users/08-customization.md) | themes, custom colours, fonts, app and home text size, clocks, wallpaper and layout |
+| 09 | [notifications and widgets](./users/09-notifications-and-widgets.md) | the side notification panel, the swipe-down gesture, the 20 built-in widgets and the widget picker |
 | 10 | [settings reference](./users/10-settings-reference.md) | every settings screen, option by option |
 | 11 | [privacy and permissions](./users/11-privacy-and-permissions.md) | which permissions it asks for, why, and what data it stores and where |
 | 12 | [faq](./users/12-faq.md) | common questions and problems, with their answers |
@@ -110,8 +110,10 @@ mindmap
     home screen
       clock with 5 styles
       month calendar
+      grid of 3-6 by 4-12 cells
       up to 10 favourites
-      optional widget
+      any number of widgets
+      edit mode
     gestures
       swipe left opens the menu
       swipe right opens notifications

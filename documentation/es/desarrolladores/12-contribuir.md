@@ -23,11 +23,11 @@
 
 ```mermaid
 flowchart LR
-    A["fork"] --> B["rama<br>feature/... o fix/..."]
+    A["fork"] --> B["rama desde beta-1.X<br>feature/... o fix/..."]
     B --> C["commits<br>segun la guia"]
     C --> D["verificacion local"]
     D --> E["entrada en changelog.md"]
-    E --> F["pull request"]
+    E --> F["pull request<br>contra beta-1.X"]
     F --> G["ci verde"]
     G --> H["merge commit"]
 ```
@@ -41,6 +41,10 @@ git checkout -b feature/nombre-descriptivo
 git commit
 git push origin feature/nombre-descriptivo
 ```
+
+las pull requests van contra la rama `beta-1.X` activa (hoy `beta-1.5`). despues el
+mantenedor fusiona `beta-1.X` en `version-beta`, que guarda las versiones estables, y
+`version-beta` en `main`, que se actualiza la ultima — siempre con merge commit.
 
 ---
 
