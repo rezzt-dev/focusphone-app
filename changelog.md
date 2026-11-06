@@ -44,6 +44,8 @@
 - añadir `disclaimer.md` y `disclaimer.es.md`: los bloqueos son un compromiso personal y no una herramienta de seguridad, control parental ni supervision, y el uso de los nombres "focusphone" y "rezzt-dev" se limita segun la clausula 3.d de la licencia
 - añadir `privacy.md` y `privacy.es.md`, una politica de privacidad independiente contrastada con el manifest y el codigo: datos guardados y cifrados, datos que se leen sin guardarse, widgets en otros launchers, permisos, copias de seguridad, registros, derechos rgpd/lopdgdd, menores, cambios y contacto
 - añadir `permissions.md` y `permissions.es.md` con la justificacion tecnica de cada permiso, de los servicios de accesibilidad y de notificaciones, de los componentes exportados y las declaraciones que pediria google play
+- añadir las versiones en castellano `security.es.md`, `contributing.es.md` y `code_of_conduct.es.md` (traduccion oficial del contributor covenant 2.1), enlazadas con su version inglesa
+- añadir `.github/support.md` y `.github/support.es.md` con los canales de ayuda, y un enlace de ayuda en `.github/ISSUE_TEMPLATE/config.yml`
 
 #### CAMBIADO
 - reorganizar la seccion de fondo de pantalla: el interruptor principal va solo, el modo "mismo fondo en todas las pantallas" muestra una unica fila "imagen", la intensidad del desenfoque solo aparece con el desenfoque activo y se elimina la fila informativa sin accion
@@ -82,6 +84,9 @@
 - suavizar las esquinas de los widgets propios: el campo de busqueda de `widget_search_pill` y `widget_spotlight` pasa de pastilla a rectangulo redondeado (`wg_bg_field`) y se reducen los radios de tarjeta, chip, cuadrado y caratula; las barras del modo edicion de inicio pasan tambien de pastilla a esquinas suaves
 - separar el tamaño de texto de la pantalla de inicio del de la app y los ajustes: `FontPreferences.getHomeFontSizePt` guarda su propio valor (`home_font_size_pt`, que hasta que se elige sigue al de la app para no alterar instalaciones existentes) y `HomeActivity` lo aplica mediante el nuevo `BaseActivity.userFontScale`, y el slider existente pasa a llamarse "tamaño de texto de la app"
 - traducir `license` al ingles de forma completa y fiel (antes era un resumen) y añadir los componentes de terceros (1.4), la naturaleza no comercial y no osi de la licencia (11), los idiomas con prevalencia del castellano (12), el contacto `contacto@rezzt.dev` (13), las clausulas que subsisten tras la terminacion y el caracter de compromiso personal de los bloqueos en la ausencia de garantia
+- actualizar `security.md` a la beta: tabla real de versiones soportadas, verificacion del apk con `SHA256SUMS` y la huella sha-256 del certificado de firma, aviso de que `v1.0.0-beta` se firmo con otra clave y hay que desinstalarla, y `contacto@rezzt.dev` como canal mientras el informe privado de github no este activado
+- sustituir `code_of_conduct.md` por el texto literal del contributor covenant 2.1 con `contacto@rezzt.dev` como contacto de cumplimiento, y ampliar `contributing.md` con el flujo de ramas `beta-1.X` → `version-beta` → `main`, el formato del changelog y la lista de codigo sensible que exige revision
+- hacer bilingues las plantillas de issues y de pull request, sustituir `privacy@rezzt.dev` y `conduct@rezzt.dev` por `contacto@rezzt.dev`, añadir el origen del apk y las areas de cuadricula y widgets al informe de error, y alinear la plantilla de pull request con el bloque `### CASTELLANO` / `### ENGLISH` del changelog
 
 #### CORREGIDO
 - aplicar los bloqueos de horario y limite diario al abrir aplicaciones desde recientes y accesos frecuentes mediante cambios de ventana, y avisar de la necesidad del servicio de accesibilidad para todas las reglas
@@ -182,6 +187,8 @@
 - add `disclaimer.md` and `disclaimer.es.md`: locks are a personal commitment and not a security, parental control or monitoring tool, and use of the names "focusphone" and "rezzt-dev" is limited by clause 3.d of the license
 - add `privacy.md` and `privacy.es.md`, a standalone privacy policy checked against the manifest and the code: stored and encrypted data, data read but not stored, widgets in other launchers, permissions, backups, logs, gdpr/lopdgdd rights, children, changes and contact
 - add `permissions.md` and `permissions.es.md` with the technical justification of every permission, of the accessibility and notification services, of the exported components and of the declarations google play would require
+- add the spanish versions `security.es.md`, `contributing.es.md` and `code_of_conduct.es.md` (official contributor covenant 2.1 translation), linked to their english counterparts
+- add `.github/support.md` and `.github/support.es.md` with the help channels, and a help link in `.github/ISSUE_TEMPLATE/config.yml`
 
 #### CHANGED
 - reorganize the wallpaper section: the master switch stands alone, "same wallpaper everywhere" shows a single "image" row, blur intensity only appears while blur is on, and the inert info row is gone
@@ -220,6 +227,9 @@
 - soften the corners of the built-in widgets: the search field of `widget_search_pill` and `widget_spotlight` turns from a pill into a rounded rectangle (`wg_bg_field`) and the card, chip, square and artwork radii get smaller; the home edit mode bars also turn from pills into softly rounded panels
 - split the home screen text size from the app and settings text size: `FontPreferences.getHomeFontSizePt` stores its own value (`home_font_size_pt`, which follows the app size until one is chosen so existing installs are unchanged) and `HomeActivity` applies it through the new `BaseActivity.userFontScale`, and the existing slider is renamed "app text size"
 - translate `license` into english in full and faithfully (it was a summary) and add third-party components (1.4), the non-commercial, non-osi nature of the license (11), languages with spanish prevailing (12), the `contacto@rezzt.dev` contact (13), the clauses that survive termination and the personal-commitment nature of the locks in the no-warranty clause
+- update `security.md` for the beta: the real supported versions table, apk verification with `SHA256SUMS` and the signing certificate sha-256 fingerprint, a warning that `v1.0.0-beta` was signed with another key and must be uninstalled, and `contacto@rezzt.dev` as the channel while github private reporting is not enabled
+- replace `code_of_conduct.md` with the verbatim contributor covenant 2.1 text with `contacto@rezzt.dev` as the enforcement contact, and extend `contributing.md` with the `beta-1.X` → `version-beta` → `main` branch flow, the changelog format and the list of sensitive code that requires review
+- make the issue and pull request templates bilingual, replace `privacy@rezzt.dev` and `conduct@rezzt.dev` with `contacto@rezzt.dev`, add the apk source and the grid and widget areas to the bug report, and align the pull request template with the changelog `### CASTELLANO` / `### ENGLISH` block
 
 #### FIXED
 - enforce time windows and daily limits when apps open from recents and suggested shortcuts through window change events, and show the accessibility warning for every schedule rule
