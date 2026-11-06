@@ -95,8 +95,8 @@ android {
         applicationId = "app.focusphone"
         minSdk        = 24
         targetSdk     = 36
-        versionCode   = 3
-        versionName   = "1.0.6"
+        versionCode   = 4
+        versionName   = "1.4.0-beta"
         testInstrumentationRunner = "app.focusphone.TestRunner"
     }
 
@@ -119,9 +119,10 @@ android {
 | `testInstrumentationRunner` | `app.focusphone.TestRunner` | a custom runner that allows repository substitution |
 | `unitTests.isIncludeAndroidResources` | enabled | robolectric tests inflate real layouts, so they need the merged resources |
 
-> `versionCode` and `versionName` stay in sync with the release branch (`alfa-X.Y.Z`), and
-> `versionCode` **must be bumped on every published build**: the *about* screen shows
-> `versionName` to the user.
+> `versionName` is `<x.y.z>-beta` while the app is in beta, and matches the `[x.y.z]` section
+> of `changelog.md` and the `v<x.y.z>` tag; `versionCode` **must be bumped on every published
+> build**: the *about* screen shows `versionName` to the user, and `1.0.0-beta` and
+> `1.4-beta` both shipped as `1.0.6` (`versionCode` 3) because it was not.
 
 ---
 
@@ -306,7 +307,7 @@ five rules are switched off on purpose, each with its reason in `.editorconfig`:
 `function-signature`, `class-signature`, `argument-list-wrapping` and `multiline-if-else`
 (where a signature or an argument list breaks is an authored readability decision, not
 something to re-flow because it would fit on one line), plus `no-multi-spaces` (the codebase
-aligns assignments into columns, `versionCode   = 3`).
+aligns assignments into columns, `versionCode   = 4`).
 
 the ktlint *engine* is pinned in the version catalog (`ktlint`) separately from its gradle
 plugin (`ktlintGradle`), so the formatter never moves on its own and rewrites files that ci

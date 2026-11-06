@@ -80,7 +80,7 @@ are capped at ten, and why the conscious pause exists.
 
 <br>
 
-- you rely on large, multiple home screen widgets: focusphone supports **one** widget
+- you want app icons on the home screen or several home screen pages: focusphone shows apps as text, on a single page
 - you need configurable advanced gestures or several desktop screens
 - you want parental controls for someone else's phone: focusphone is built for setting your own limits, not imposing them on others
 - you use a launcher with deep vendor integration that you do not want to lose
@@ -97,7 +97,7 @@ flowchart LR
         A1["clock<br>5 styles"]
         A2["calendar<br>current month"]
         A3["favourites<br>up to 10 apps"]
-        A4["widget<br>optional"]
+        A4["widgets<br>20 built-in + other apps'"]
     end
 
     subgraph FOCUS["focus tools"]
@@ -111,7 +111,7 @@ flowchart LR
         C1["4 themes<br>+ a custom one"]
         C2["4 typefaces"]
         C3["wallpaper<br>with blur"]
-        C4["reorderable<br>layout"]
+        C4["grid layout<br>edit mode"]
     end
 
     SCREEN --> FOCUS --> LOOK
@@ -119,9 +119,11 @@ flowchart LR
 
 ### HOME SCREEN
 
-a clock you can show in five different styles (digital, stacked, in words, analog or
-hidden), a month calendar in the side menu, and the list of your favourite apps, capped at
-ten. you can reorder them by dragging and rename them to whatever you want.
+a grid of 3 to 6 columns by 4 to 12 rows where you place, move and resize a clock in five
+styles (digital, stacked, in words, analog or hidden), the list of your favourite apps,
+capped at ten, and any number of widgets — focusphone's own 20 or those of your other apps.
+a month calendar lives in the side menu. you can reorder favourites by dragging and rename
+them to whatever you want.
 
 ### FOCUS TOOLS
 
@@ -130,8 +132,8 @@ ten. you can reorder them by dragging and rename them to whatever you want.
   protected by a password.
 - **schedules**: any app can have an allowed time window, with weekday selection, and a
   daily allowance in minutes. they always apply, even in the normal profile.
-- **conscious pause**: a countdown of a few seconds before any app opens, asking whether you
-  really want to open it.
+- **conscious pause**: one guided breath of a few seconds before any app opens, asking
+  whether you really want to open it.
 
 ### APPEARANCE
 
@@ -160,7 +162,7 @@ alignment, and your own wallpaper with blur and legibility control.
 | property | value |
 |---|---|
 | package name | `app.focusphone` |
-| documented version | 1.0.6 |
+| documented version | 1.4.0-beta |
 | minimum android | 7.0 (api 24) |
 | target android | 16 (api 36) |
 | language | kotlin |

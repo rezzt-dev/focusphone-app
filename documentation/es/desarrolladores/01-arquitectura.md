@@ -306,6 +306,25 @@ vacio de respaldo.
 
 ---
 
+## CUADRICULA DE INICIO Y BIBLIOTECA DE WIDGETS
+
+dos subsistemas añadidos en `1.4.0-beta` siguen las mismas capas que el resto de la app.
+
+| aspecto | donde | regla |
+|---|---|---|
+| modelo y matematica de la cuadricula | `domain/model/HomeGrid.kt`, `domain/util/GridLayoutEngine.kt` | kotlin puro, con pruebas unitarias completas; cada operacion devuelve una disposicion nueva o `null` y nunca deja solapes |
+| almacenamiento de la cuadricula | `HomeGridPreferences` a traves de `HomeGridStore` | una linea de texto por bloque (`HomeGridSerializer`); el store repara una disposicion dañada y migra una vez la columna anterior a la cuadricula |
+| vista y edicion de la cuadricula | `ui/home/grid/` | el modo edicion vive en la propia pantalla de inicio; los tamaños salen del tamaño real de celda (`HomeGridMetrics`, `WidgetSizing`) |
+| alojamiento de widgets | `ui/widget/` | las vistas se crean siempre con `AppWidgetHostManager.createView` / `WidgetSurface`, con el inflater sin factory de `WidgetHostContext` |
+| widgets propios | `ui/widget/library/` | los proveedores no tienen logica: `FocusWidgetKind` asocia cada uno a un renderizador y a sus disparadores, y `WidgetUpdater.refresh(context, trigger)` es la unica forma de pedir un redibujado |
+| colores de los widgets | `WidgetStyle.resolve(context)` | derivados de `FocusPalette`, nunca de los valores por defecto del layout |
+| abrir desde un widget | `WidgetIntents.openApp` → `WidgetLaunchActivity` → `BaseActivity.openApp` | el bloqueo de perfil, el horario y la pausa consciente se aplican aunque el widget este en otro launcher |
+
+las reglas detalladas de ambos estan en [`agents.md`](../../../agents.md), secciones
+*widget library* y *home grid*.
+
+---
+
 ## PUNTOS DE ENTRADA
 
 | punto de entrada | clase | cuando actua |

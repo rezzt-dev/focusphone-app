@@ -11,7 +11,7 @@
 
 <br><br>
 
-<img src="https://img.shields.io/badge/version-1.0.6-000000?style=flat-square" alt="version 1.0.6" />
+<img src="https://img.shields.io/badge/version-1.4.0--beta-000000?style=flat-square" alt="version 1.4.0-beta" />
 <img src="https://img.shields.io/badge/kotlin-2.0%2B-7F52FF?style=flat-square&logo=kotlin&logoColor=white" alt="kotlin" />
 <img src="https://img.shields.io/badge/min%20sdk-24-3DDC84?style=flat-square&logo=android&logoColor=white" alt="min sdk 24" />
 <img src="https://img.shields.io/badge/target%20sdk-36-3DDC84?style=flat-square&logo=android&logoColor=white" alt="target sdk 36" />

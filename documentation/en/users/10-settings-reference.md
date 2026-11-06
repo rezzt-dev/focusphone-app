@@ -17,13 +17,13 @@ controls: it is a menu of six categories, and each one opens its own screen.
 flowchart TD
     S["settings"]
     S --> A["appearance<br><i>theme, font, colours and alignment</i>"]
-    S --> B["home screen<br><i>clock, widget, spacing and layout</i>"]
+    S --> B["home screen<br><i>clock, widgets, spacing and edit home screen</i>"]
     S --> C["focus<br><i>conscious pause, schedules and keywords</i>"]
     S --> D["notifications<br><i>badges, panel and gestures</i>"]
     S --> E["system<br><i>permissions, accessibility, launcher and language</i>"]
     S --> F["about<br><i>version, tutorial, onboarding and licences</i>"]
 
-    B --> B1["layout<br><i>real preview</i>"]
+    B --> B1["edit home screen<br><i>edit mode on the home screen</i>"]
     C --> C1["app schedules<br><i>password protected</i>"]
     E --> E1["permissions<br><i>status of each one</i>"]
 ```
@@ -65,7 +65,8 @@ kept.
 
 | setting | type | range | default |
 |---|---|---|---|
-| text size | slider | 8 to 24 points, step 1 | 14 |
+| app text size | slider | 8 to 24 points, step 1 | 14 |
+| home text size | slider | 8 to 24 points, step 1 | the app text size, until you move it |
 | alignment | three-icon selector | left · centre · right | centre |
 | hide the status bar | switch | yes / no | no |
 
@@ -115,8 +116,8 @@ reloading it.
 | setting | type | range | effect |
 |---|---|---|---|
 | app spacing | slider | 0 to 40 dp | vertical gap between favourite rows |
-| widget | row with value | none, or the active widget's name | adds, changes or removes the single home screen widget |
-| layout | opens another screen | — | reorders and hides clock, widget and app list, with a real preview |
+| add widget | row with value | the number of widgets on the home screen | opens the widget picker and places the widget on the grid |
+| edit home screen | opens the home screen in edit mode | — | moves, resizes, adds and removes the clock, the favourites and the widgets, and changes the grid size |
 
 </details>
 
@@ -251,14 +252,14 @@ the change affects focusphone only, not the rest of the phone.
 | change the app's colours | appearance → theme |
 | use my own colours | appearance → theme → custom |
 | change the typeface | appearance → font |
-| make the text bigger | appearance → text size |
+| make the text bigger | appearance → app text size, and home text size for the home screen |
 | move the list to one side | appearance → alignment |
 | remove the status bar | appearance → hide the status bar |
 | set a photo as background | appearance → wallpaper |
 | change the clock style | home screen → clock type |
 | remove the clock | home screen → clock type → hidden |
-| add a widget | home screen → widget |
-| reorder clock, widget and apps | home screen → layout |
+| add a widget | home screen → add widget, or edit mode → widgets |
+| move or resize clock, widgets and apps | long press the home screen, or home screen → edit home screen |
 | space the apps further apart | home screen → app spacing |
 | breathe before opening an app | focus → conscious pause |
 | limit an app by time | focus → app schedules |

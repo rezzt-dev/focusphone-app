@@ -87,45 +87,88 @@ de texto, coherente con el resto de la interfaz: no hay circulos rojos.
 
 ---
 
-## EL WIDGET DE LA PANTALLA DE INICIO
+## WIDGETS
 
-focusphone admite **un unico widget** en la pantalla de inicio. es una decision
-deliberada: una rejilla de widgets convertiria la pantalla en el mismo escaparate del que
-se intenta salir.
+la pantalla de inicio admite **los widgets que quieras**, cada uno en su propio bloque de la
+cuadricula (consulta el [modo edicion](./03-pantalla-de-inicio-y-gestos.md#modo-edicion)).
+pueden ser los propios de focusphone o los de tus otras aplicaciones.
+
+### LOS 20 WIDGETS DE FOCUSPHONE
+
+siguen tu tema activo (incluido el personalizado) y se redibujan al cambiar de tema, de
+colores, de modo dia/noche o de idioma. sus iconos son de [lucide](https://lucide.dev). son
+widgets reales de android, asi que **tambien funcionan en cualquier otro launcher**, y abrir
+una app desde ellos siempre pasa por el bloqueo de perfil, el horario y la pausa consciente
+de focusphone.
+
+| grupo | widget | que muestra |
+|---|---|---|
+| hora | reloj | la hora en grande, la fecha y la proxima alarma |
+| hora | reloj analogico | una esfera analogica |
+| hora | reloj mundial | hasta tres ciudades una junto a otra, cada una con su diferencia con la hora local (se eligen al añadirlo) |
+| hora | hoy | dia de la semana, dia del mes y mes en un mosaico cuadrado |
+| hora | mes | la cuadricula del mes |
+| hora | semana | la semana actual en una tira |
+| musica | barra de musica · reproductor · mosaico de musica | lo que suena, con reproducir/pausar, anterior y siguiente; el mosaico usa la caratula |
+| navegacion | busqueda | un campo de busqueda que abre todas las apps con el teclado ya levantado |
+| navegacion | spotlight | busqueda mas tus favoritas |
+| navegacion | favoritas | tantas favoritas como quepan en su altura, en el orden de la pantalla de inicio |
+| sistema | bateria | el nivel de bateria en un anillo, con icono de carga |
+| sistema | almacenamiento | el almacenamiento libre y usado |
+| sistema | sistema | bateria, almacenamiento y memoria juntos |
+| sistema | ajustes rapidos | un interruptor real de linterna, mas atajos a los paneles de internet, bluetooth y volumen de android y a los ajustes |
+| sistema | proxima alarma | la hora de tu proxima alarma |
+| enfoque | perfil de enfoque | el perfil activo y, durante un detox, cuando termina |
+| enfoque | intencion | una frase que escribes para el dia, guardada cifrada |
+| enfoque | progreso | cuanto ha pasado del dia, la semana, el mes y el año |
+
+> los tres widgets de musica necesitan el **acceso a notificaciones**, porque android solo
+> muestra lo que suena a los oyentes de notificaciones. sin el, muestran un estado "sin
+> acceso".
 
 ### AÑADIR UN WIDGET
 
-**ajustes → pantalla de inicio → widget**
+desde el modo edicion (**widgets** en la barra inferior) o desde **ajustes → pantalla de
+inicio → añadir widget**, que tambien indica cuantos widgets hay en inicio. el selector:
 
-1. pulsa la fila del widget
-2. elige un widget de la lista de los que ofrecen tus aplicaciones
-3. si el widget necesita configuracion propia, se abre su pantalla de configuracion
-4. el widget aparece en la pantalla de inicio, en la posicion que tenga en la distribucion
+- agrupa los widgets por aplicacion, con su icono, y muestra **primero los de focusphone**;
+- tiene una busqueda difusa;
+- muestra vistas previas fieles (en android 12+, la vista previa del propio widget dibujada
+  en vivo);
+- indica el tamaño de cada widget en celdas de **tu** cuadricula, y marca como *en uso* los
+  que ya estan en inicio.
 
-### QUITARLO O CAMBIARLO
+si un widget necesita su propia configuracion, se abre su pantalla de configuracion antes de
+colocarlo. si la cuadricula no tiene sitio, el selector te avisa en vez de sustituir otro
+widget.
 
-| accion | como |
-|---|---|
-| cambiar de widget | vuelve a la fila del widget y elige otro |
-| quitar el widget | pulsa *quitar widget* y confirma |
-| ocultarlo sin quitarlo | desactiva el bloque del widget en *distribucion* |
+### CAMBIARLO O QUITARLO
+
+en el modo edicion, toca el widget: su barra flotante ofrece **ajustes del widget** (si el
+widget se puede reconfigurar) y **quitar**. para moverlo o cambiar su tamaño, arrastralo o
+tira de sus asas.
 
 <details>
-<summary><strong>widgets que encajan bien</strong></summary>
+<summary><strong>"widget no disponible"</strong></summary>
 
 <br>
 
-los widgets que menos rompen la estetica son los de texto o los de una sola dato:
+mientras se actualiza la aplicacion que ofrece un widget, android retira un momento su
+proveedor. focusphone muestra en su lugar *widget no disponible mientras su app se
+actualiza* en vez de borrarlo, y el widget vuelve solo cuando termina la actualizacion.
 
-- tiempo, en su version compacta
-- proximo evento del calendario
-- nota rapida
-- control de musica minimalista
-- contador de pasos
+</details>
 
-los que peor encajan son los widgets grandes con imagenes, carruseles o fuentes de noticias:
-funcionan, pero desplazan hacia abajo la lista de favoritos y devuelven el ruido visual a la
-pantalla.
+<details>
+<summary><strong>widgets de otras aplicaciones</strong></summary>
+
+<br>
+
+los widgets que menos alteran el aspecto son los de texto o de un solo dato (el tiempo en su
+forma compacta, el proximo evento del calendario, una nota rapida). los widgets grandes con
+imagenes, carruseles o noticias funcionan, pero devuelven el ruido visual a la pantalla.
+cada fabricante añade un margen distinto a los widgets: focusphone quita ese margen por
+defecto y, cuando un widget no cabe en su bloque, lo encoge en vez de recortarlo.
 
 </details>
 
@@ -138,7 +181,8 @@ pantalla.
 | panel lateral de notificaciones | acceso a notificaciones | solo para esta funcion |
 | gesto hacia abajo | servicio de accesibilidad (recomendado) | no, pero sin el puede no funcionar en android 12+ |
 | insignias de notificacion | acceso a notificaciones | solo para esta funcion |
-| widget | ninguno | — |
+| widgets de musica de focusphone | acceso a notificaciones | solo para esos tres widgets |
+| cualquier otro widget | ninguno | — |
 
 ---
 

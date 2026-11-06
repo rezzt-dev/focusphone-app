@@ -109,7 +109,10 @@ report it as an issue.
 
 <br>
 
-no, and that is deliberate. focusphone has a single screen plus two side drawers.
+no, and that is deliberate. focusphone has a single grid page plus two side drawers. what
+you can do is arrange that page as you like: up to 6 columns by 12 rows, with the clock, your
+favourites and any number of widgets (see
+[edit mode](./03-home-screen-and-gestures.md#edit-mode)).
 
 </details>
 
@@ -285,7 +288,9 @@ data from android settings.
 
 by downloading the new version's apk from the repository's releases tab and installing it
 over the previous one. the app does not check for updates by itself, because it does not
-connect to the internet.
+connect to the internet. an update only installs over the previous version when both are
+signed with the same key; `v1.0.0-beta` was not, so coming from it you have to uninstall
+first (see [installation](./02-installation-and-first-steps.md)).
 
 </details>
 

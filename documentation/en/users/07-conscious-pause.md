@@ -10,14 +10,22 @@
 
 ## WHAT IT IS
 
-the conscious pause is a countdown of a few seconds that appears **between** the moment you
-tap an app and the moment it opens. during that countdown you see a breathing circle, an
-*inhale* / *hold* / *exhale* prompt, and the question:
+the conscious pause is **one guided breath** of a few seconds that appears **between** the
+moment you tap an app and the moment it opens:
+
+- during the first half a disc **swells** (*inhale…*) and during the second half it
+  **settles** (*exhale…*), inside a ring that fills as the time passes.
+- a light haptic tick marks the moment the breath turns.
+- the question stays on screen the whole time:
 
 > are you sure you want to open *x*?
 
-when the countdown ends, the app opens on its own. if at any point you decide not to, you
-tap **cancel** and go back to the home screen.
+- if the app has a daily limit (see [app schedules](./06-app-schedules.md)), the pause also
+  tells you how many **minutes are left today**.
+
+when the breath ends, the app opens on its own. if at any point you decide not to, you tap
+**cancel** and go back to the home screen. with android's animations turned off, the disc
+stays still and only the ring and the text move.
 
 ---
 
@@ -75,6 +83,14 @@ flowchart LR
 </tr>
 <tr>
 <td>you open an app from the all apps drawer</td>
+<td>the pause appears</td>
+</tr>
+<tr>
+<td>you open an app from a focusphone widget, in focusphone or in another launcher</td>
+<td>the pause appears</td>
+</tr>
+<tr>
+<td>you open an app shortcut from the long-press menu of a favourite</td>
 <td>the pause appears</td>
 </tr>
 <tr>

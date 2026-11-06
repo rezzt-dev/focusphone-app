@@ -1,6 +1,6 @@
 # FocusPhone — Agent Guide
 
-> **FocusPhone** is a minimalist Android launcher designed to reduce digital distraction. It replaces the device's home screen with a clean, text-only interface showing a clock, a calendar, and up to 10 favourite apps. It supports contextual profiles (Normal, Work, Detox), a "Conscious Pause" breathing timer before opening apps, and extensive theming.
+> **FocusPhone** is a minimalist Android launcher designed to reduce digital distraction. It replaces the device's home screen with a grid holding a clock, up to 10 favourite apps shown as text and any number of widgets (20 built-in ones included), with a calendar in the side menu. It supports contextual profiles (Normal, Work, Detox), a "Conscious Pause" breathing timer before opening apps, and extensive theming.
 
 ---
 
@@ -9,12 +9,12 @@
 | Property | Value |
 |----------|-------|
 | **Package** | `app.focusphone` |
-| **Version** | 1.0.6 |
+| **Version** | 1.4.0-beta (`versionCode` 4) |
 | **Language** | Kotlin |
 | **Min SDK** | 24 |
 | **Target / Compile SDK** | 36 |
 | **Java Compatibility** | 11 |
-| **AGP** | 9.2.1 |
+| **AGP** | 9.3.0 |
 
 The project is a single-module Android application (`:app`) with no library modules. It uses the **Android Gradle Plugin 9.x** and requires a **JDK 21** toolchain, selected through Gradle's daemon toolchain criteria (`gradle/gradle-daemon-jvm.properties`) — never a machine-specific path.
 
@@ -29,7 +29,7 @@ The project is a single-module Android application (`:app`) with no library modu
 - **Material 3** (`com.google.android.material:material`)
 
 ### Data & Storage
-- **Room 2.8.4** — stores the user's favourite apps (`favourite_apps` table).
+- **Room 2.8.5** — stores the user's favourite apps (`favourite_apps` table).
 - **SharedPreferences** — stores all user settings (theme, font, profiles, detox timer, conscious pause, custom app labels, work keywords). Synchronous access is intentional so themes can be applied before `setContentView`.
 
 ### Architecture Patterns
@@ -244,7 +244,7 @@ app/src/main/java/app/focusphone/
 ### Build Configuration Notes
 - `viewBinding = true` and `buildConfig = true` are enabled.
 - Release builds use ProGuard (`proguard-rules.pro`) with `isMinifyEnabled = true` and `isShrinkResources = true`.
-- Room uses `kapt` (legacy annotation processor) because AGP 9.2.1 is used.
+- Room uses `kapt` (legacy annotation processor, `com.android.legacy-kapt`) because AGP 9.x is used.
 - The Gradle daemon runs on a JDK 21 chosen by `gradle/gradle-daemon-jvm.properties` (regenerate with `./gradlew updateDaemonJvm --jvm-version=21`); do not reintroduce `org.gradle.java.home`.
 - Lint runs on release builds (`checkReleaseBuilds = true`, `abortOnError = true`) and there is no lint baseline: fix new errors at the source.
 - CI (`.github/workflows/android-ci.yml`) runs `staticAnalysis` (ktlint + detekt) first, then unit tests, `lintDebug` and an unsigned `assembleRelease`, on every push and pull request.
@@ -538,7 +538,11 @@ single page: the drawers already own the horizontal swipes.
 
 - The app is signed and built as an APK via `./gradlew assembleRelease`.
 - Output is in `app/release/`.
-- `versionCode` and `versionName` are defined in `app/build.gradle.kts` (`defaultConfig`).
+- `versionCode` and `versionName` are defined in `app/build.gradle.kts` (`defaultConfig`). `versionName` is `<x.y.z>-beta` while in beta and matches the `## [x.y.z]` changelog section and the `v<x.y.z>` tag; bump `versionCode` on every published build.
+- Branch flow: `beta-1.X` (development) → `version-beta` (stable versions) → `main` (published, updated last), always with a merge commit.
+- Releases are signed with the release key whose certificate SHA-256 is published in `.github/security.md`; attach `SHA256SUMS` and mark beta releases as pre-release.
+- Documentation layout: `license`, `notice`, `readme.md`, `agents.md` and `claude.md` stay at the root (GitHub and agents only find them there); `repo-docs/` holds `changelog.md`, `readme.es.md`, `privacy*.md`, `permissions*.md`, `disclaimer*.md` and `third_party_licenses.md`; `.github/` holds the community files GitHub detects (`security*.md`, `contributing*.md`, `code_of_conduct*.md`, `support*.md`). When this guide says `changelog.md`, it means `repo-docs/changelog.md`.
+- Legal and policy files (`license`, `notice`, `repo-docs/third_party_licenses.md`, `repo-docs/privacy*.md`, `repo-docs/permissions*.md`, `repo-docs/disclaimer*.md`) must stay in sync with the code. A new dependency, permission or data type must update them and the in-app `assets/open_source_licenses.html` / `assets/privacy_policy.html`.
 - The launcher intent filter in `AndroidManifest.xml` uses `android:priority="1"` on `HOME` / `DEFAULT` / `LAUNCHER` categories.
 
 ---

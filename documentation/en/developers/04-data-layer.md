@@ -178,9 +178,10 @@ twelve objects, each with its own `SharedPreferences` file. four of them encrypt
 <th align="left" width="34%">contents</th>
 </tr>
 <tr><td><code>ThemePreferences</code></td><td><code>focusphone_theme</code></td><td>no</td><td>theme, custom colours, alignment, status bar, onboarding completed</td></tr>
-<tr><td><code>FontPreferences</code></td><td><code>focusphone_prefs</code></td><td>no</td><td>typeface, clock type and size, text size (8-24 pt, default 14)</td></tr>
-<tr><td><code>HomeLayoutPreferences</code></td><td><code>focusphone_home_layout</code></td><td>no</td><td>component order, clock and widget visibility, spacing</td></tr>
-<tr><td><code>WidgetPreferences</code></td><td><code>focusphone_widget</code></td><td>no</td><td>the single widget's id and enablement</td></tr>
+<tr><td><code>FontPreferences</code></td><td><code>focusphone_prefs</code></td><td>no</td><td>typeface, clock type and size, app text size and home text size (`home_font_size_pt`, which follows the app size until set), both 8-24 pt, default 14</td></tr>
+<tr><td><code>HomeGridPreferences</code></td><td><code>focusphone_home_grid</code></td><td>no</td><td>the grid size and one line per block (clock, favourites, widgets with their id, provider and cells); on first run it reads and then clears the pre-grid <code>focusphone_home_layout</code> order and <code>focusphone_widget</code> widget</td></tr>
+<tr><td><code>HomeLayoutPreferences</code></td><td><code>focusphone_home_layout</code></td><td>no</td><td>app spacing and the clock type to restore after hiding it</td></tr>
+<tr><td><code>LibraryWidgetPreferences</code></td><td><code>focusphone_widget_library</code> · <code>focusphone_widget_library_secure</code></td><td>the intention, yes</td><td>world clock cities per widget id and the style signature (plain); the intention text (encrypted)</td></tr>
 <tr><td><code>WallpaperPreferences</code></td><td><code>focusphone_wallpaper</code></td><td>no</td><td>per-surface uris, shared mode, blur and intensity, legibility (default 60)</td></tr>
 <tr><td><code>GesturePreferences</code></td><td><code>focusphone_gestures</code></td><td>no</td><td>swipe-down gesture</td></tr>
 <tr><td><code>NotificationPanelPreferences</code></td><td><code>focusphone_notification_panel</code></td><td>no</td><td>side panel enablement</td></tr>

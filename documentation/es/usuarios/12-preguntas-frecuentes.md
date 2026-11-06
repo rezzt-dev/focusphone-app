@@ -112,7 +112,10 @@ forzar la actualizacion, y reportalo como incidencia.
 
 <br>
 
-no, y es deliberado. focusphone tiene una unica pantalla, mas dos cajones laterales.
+no, y es deliberado. focusphone tiene una unica pagina en cuadricula, mas dos cajones
+laterales. lo que si puedes es organizar esa pagina a tu gusto: hasta 6 columnas por 12
+filas, con el reloj, tus favoritos y los widgets que quieras (consulta el
+[modo edicion](./03-pantalla-de-inicio-y-gestos.md#modo-edicion)).
 
 </details>
 
@@ -292,7 +295,10 @@ aplicacion o borras sus datos desde los ajustes de android.
 
 descargando el apk de la version nueva desde la pestaña de releases del repositorio e
 instalandolo encima del anterior. la aplicacion no comprueba actualizaciones por su cuenta,
-porque no se conecta a internet.
+porque no se conecta a internet. una actualizacion solo se instala encima de la version
+anterior si las dos estan firmadas con la misma clave; `v1.0.0-beta` no lo estaba, asi que
+si vienes de ella tienes que desinstalarla primero (consulta
+[instalacion](./02-instalacion-y-primeros-pasos.md)).
 
 </details>
 

@@ -1,34 +1,35 @@
-name: bug report
-description: something in the app behaves differently from what the documentation describes.
+name: bug report · informe de error
+description: something in the app behaves differently from what the documentation describes. · algo de la app no se comporta como dice la documentación.
 title: "bug | "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        thanks for taking the time to report this.
+        thanks for taking the time to report this. · gracias por dedicar tiempo a informar de esto.
 
-        **do not use this form for a security problem.** vulnerabilities go through
-        [private advisories](https://github.com/rezzt-dev/focusphone-app/security/advisories/new)
-        or `privacy@rezzt.dev`, as described in [`security.md`](https://github.com/rezzt-dev/focusphone-app/blob/main/security.md).
+        **do not use this form for a security problem.** follow [`security.md`](https://github.com/rezzt-dev/focusphone-app/blob/main/.github/security.md) and write to `contacto@rezzt.dev`.
+        **no uses este formulario para un problema de seguridad.** sigue [`security.es.md`](https://github.com/rezzt-dev/focusphone-app/blob/main/.github/security.es.md) y escribe a `contacto@rezzt.dev`.
+
+        you can write in english or in spanish. · puedes escribir en inglés o en castellano.
 
   - type: checkboxes
     id: preflight
     attributes:
-      label: before reporting
+      label: before reporting · antes de informar
       options:
-        - label: i am on the latest published version, or on the latest code in the active branch.
+        - label: i am on the latest published version, or on the latest code in the active branch. · uso la última versión publicada, o el último código de la rama activa.
           required: true
-        - label: i searched the open and closed issues and this is not a duplicate.
+        - label: i searched the open and closed issues and this is not a duplicate. · he buscado en los issues abiertos y cerrados y no está repetido.
           required: true
-        - label: this is not a security vulnerability.
+        - label: this is not a security vulnerability. · no es una vulnerabilidad de seguridad.
           required: true
 
   - type: textarea
     id: what-happens
     attributes:
-      label: what happens
-      description: the actual behaviour, in one or two sentences.
+      label: what happens · qué ocurre
+      description: the actual behaviour, in one or two sentences. · el comportamiento real, en una o dos frases.
       placeholder: the clock disappears from the home screen after switching profile.
     validations:
       required: true
@@ -36,16 +37,16 @@ body:
   - type: textarea
     id: what-should-happen
     attributes:
-      label: what should happen instead
-      description: if the documentation states the expected behaviour, link the chapter.
+      label: what should happen instead · qué debería ocurrir
+      description: if the documentation states the expected behaviour, link the chapter. · si la documentación describe el comportamiento esperado, enlaza el capítulo.
     validations:
       required: true
 
   - type: textarea
     id: steps
     attributes:
-      label: steps to reproduce
-      description: numbered, starting from a fresh launch of the app.
+      label: steps to reproduce · pasos para reproducirlo
+      description: numbered, starting from a fresh launch of the app. · numerados, empezando por abrir la app desde cero.
       value: |
         1.
         2.
@@ -56,16 +57,27 @@ body:
   - type: input
     id: version
     attributes:
-      label: focusphone version
-      description: shown in **settings → about** (`versionName` and, if you know it, `versionCode`).
-      placeholder: "1.0.6 (versionCode 3)"
+      label: focusphone version · versión de focusphone
+      description: shown in **settings → about** (`versionName` and, if you know it, `versionCode`). · se muestra en **ajustes → acerca de**.
+      placeholder: "1.4.0-beta (versionCode 4)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: source
+    attributes:
+      label: where the apk came from · de dónde salió el apk
+      options:
+        - a github release (focusphone-*.apk) · una release de github
+        - built from source · compilado desde el código
+        - other · otro
     validations:
       required: true
 
   - type: input
     id: device
     attributes:
-      label: device and android version
+      label: device and android version · dispositivo y versión de android
       placeholder: "pixel 6a — android 15"
     validations:
       required: true
@@ -73,39 +85,40 @@ body:
   - type: dropdown
     id: area
     attributes:
-      label: area
-      description: which part of the app the problem is in. pick the closest one.
+      label: area · área
+      description: which part of the app the problem is in. pick the closest one. · en qué parte de la app está el problema. elige la más cercana.
       options:
-        - home screen, gestures or clock
-        - all apps, folders or search
-        - profiles or detox
-        - app schedules
-        - conscious pause
-        - notifications or widgets
-        - appearance, themes, fonts or wallpaper
-        - onboarding, permissions or launcher setup
-        - settings, other or not sure
+        - home screen grid, edit mode, gestures or clock · cuadrícula de inicio, modo edición, gestos o reloj
+        - widgets or widget picker · widgets o selector de widgets
+        - all apps, folders or search · todas las apps, carpetas o búsqueda
+        - profiles or detox · perfiles o detox
+        - app schedules · horarios de apps
+        - conscious pause · pausa consciente
+        - notifications · notificaciones
+        - appearance, themes, fonts or wallpaper · apariencia, temas, tipografías o fondo
+        - onboarding, permissions or launcher setup · bienvenida, permisos o elegir launcher
+        - settings, other or not sure · ajustes, otro o no lo sé
     validations:
       required: true
 
   - type: dropdown
     id: reproducibility
     attributes:
-      label: how often it reproduces
+      label: how often it reproduces · con qué frecuencia ocurre
       options:
-        - every time
-        - often, but not always
-        - happened once
+        - every time · siempre
+        - often, but not always · a menudo, pero no siempre
+        - happened once · una sola vez
     validations:
       required: true
 
   - type: textarea
     id: logs
     attributes:
-      label: logs, stack trace or screenshots
+      label: logs, stack trace or screenshots · registros, traza o capturas
       description: |
-        a screen recording is worth more than a description for anything visual.
-        `adb logcat` output is pasted as text, not as an image.
+        a screen recording is worth more than a description for anything visual. `adb logcat` output is pasted as text, not as an image. remove anything personal first.
+        para algo visual, una grabación de pantalla vale más que una descripción. la salida de `adb logcat` se pega como texto, no como imagen. quita antes cualquier dato personal.
       render: text
     validations:
       required: false

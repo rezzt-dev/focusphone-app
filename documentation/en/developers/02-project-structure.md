@@ -106,15 +106,16 @@ app/src/main/java/app/focusphone/
 | `preferences/AppSchedulePreferences.kt` | schedule rules, password and usage counters; encrypted |
 | `preferences/ConsciousPausePreferences.kt` | conscious pause enablement and duration |
 | `preferences/CustomAppLabelsPreferences.kt` | custom labels; encrypted, with plain-text migration |
-| `preferences/FontPreferences.kt` | typeface, clock type and size, text size |
+| `preferences/FontPreferences.kt` | typeface, clock type and size, app and home text size |
 | `preferences/GesturePreferences.kt` | swipe-down gesture |
-| `preferences/HomeLayoutPreferences.kt` | home component order and visibility, spacing |
+| `preferences/HomeGridPreferences.kt` | the home grid, one line per block (`HomeGridSerializer`); reads and clears the pre-grid layout once |
+| `preferences/HomeLayoutPreferences.kt` | the look of the home blocks: app spacing, clock type before hiding it |
+| `preferences/LibraryWidgetPreferences.kt` | built-in widget options: world clock cities, the intention text (encrypted) |
 | `preferences/NotificationPanelPreferences.kt` | notification panel enablement |
 | `preferences/ProfilePreferences.kt` | profile, detox, password, blocked apps and keywords; encrypted |
 | `preferences/ThemePreferences.kt` | theme, custom colours, alignment, status bar, onboarding |
 | `preferences/TutorialPreferences.kt` | tutorial progress |
 | `preferences/WallpaperPreferences.kt` | per-surface wallpapers, shared mode, blur and legibility |
-| `preferences/WidgetPreferences.kt` | the single widget's id |
 | `repository/AppRepositoryImpl.kt` | installed-app queries with a brief cache |
 | `repository/FavouriteAppRepositoryImpl.kt` | room plus label merging and the preferences migration |
 | `repository/NotificationRepository.kt` | active notifications, in memory only |
@@ -135,6 +136,7 @@ app/src/main/java/app/focusphone/
 | `model/AppScheduleRule.kt` | schedule rule and block reason |
 | `model/AppShortcut.kt` | app shortcut |
 | `model/ClockType.kt` | the five clock styles |
+| `model/HomeGrid.kt` | grid model: `HomeGrid`, `HomeGridItem`, `CellRect`, `SpanLimits` (3-6 columns × 4-12 rows) |
 | `model/ToggleResult.kt` | result of toggling a favourite |
 | `repository/AppRepository.kt` | installed-apps interface |
 | `repository/FavouriteAppRepository.kt` | favourites crud interface |
@@ -148,6 +150,8 @@ app/src/main/java/app/focusphone/
 | `util/AppScheduleEvaluator.kt` | pure schedule evaluation and serialization |
 | `util/FavouriteOrdering.kt` | pure reordering rule expressed as a merge |
 | `util/FuzzyMatcher.kt` | fuzzy subsequence search |
+| `util/GridLayoutEngine.kt` | pure grid maths: free room, move, resize, insert, squeeze, refit |
+| `util/HomeGridSerializer.kt` | grid serialization, versioned and tolerant of malformed lines |
 | `util/TextExtensions.kt` | name and search-text normalization |
 
 </details>
@@ -161,6 +165,7 @@ app/src/main/java/app/focusphone/
 |---|---|
 | `base` | `BaseActivity`, the base of every screen |
 | `home` | `HomeActivity`, `HomeViewModel`, favourites and notifications adapters |
+| `home/grid` | `HomeGridLayout`, `HomeGridController`, `HomeGridEditor`, `HomeGridStore`, `HomeGridMetrics`, `HomeEditChrome`, `WidgetFitFrame`, `ScaleToFitFrame` |
 | `appselect` | favourites selection with search |
 | `allapps` | full drawer, mixed rows, folder dragging and adapter |
 | `settings` | category menu, sub-screen base, row helpers and six sub-screens |
@@ -171,7 +176,8 @@ app/src/main/java/app/focusphone/
 | `theme` | `FocusColors`, `FocusPalette`, `SurfaceScrim` |
 | `tutorial` | tutorial content and overlay |
 | `wallpaper` | copying, downscaling and wallpaper utilities |
-| `widget` | analog clock, clock renderer, surface and widget picker |
+| `widget` | widget hosting (`AppWidgetHostManager`, `HomeWidgetHostView`, `WidgetHostContext`, `WidgetSurface`, `WidgetSizing`), the widget picker, the analog clock and the clock renderer |
+| `widget/library` | the 20 built-in widgets: `FocusWidgetKind`, providers, renderers, `WidgetStyle`, `WidgetUpdater`, `MediaWidgetBridge`, `WidgetLaunchActivity` and the two configuration screens |
 | `util` | window metrics |
 
 </details>
@@ -188,7 +194,7 @@ app/src/main/java/app/focusphone/
 | `security/PasswordHasher.kt` | pbkdf2-hmac-sha256 with salt, plus legacy format detection |
 | `security/PasswordAttemptPolicy.kt` | shared attempt and cooldown policy |
 | `service/FocusAccessibilityService.kt` | system-level blocking and usage accounting |
-| `service/FocusNotificationService.kt` | notification listener for the side panel |
+| `service/FocusNotificationService.kt` | notification listener for the side panel and the music widgets |
 
 </details>
 
@@ -252,7 +258,7 @@ app/src/androidTest/java/app/focusphone/   # instrumented
 ├── AppScheduleTest.kt, AppSelectFlowTest.kt, ClockRendererTest.kt,
 ├── DetoxPasswordTest.kt, FavouriteAppDaoTest.kt, OnboardingFlowTest.kt,
 ├── ProfilePreferencesStorageTest.kt, ProfileSwitchTest.kt,
-└── WallpaperStorageTest.kt, WidgetSlotTest.kt
+└── WallpaperStorageTest.kt, HomeGridWidgetIdsTest.kt
 ```
 
 full detail in [testing and quality](./10-testing-and-quality.md).
