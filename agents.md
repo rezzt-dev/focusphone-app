@@ -561,14 +561,12 @@ single page: the drawers already own the horizontal swipes.
 
 ## Commit, PR, Merge & Release Guidelines
 
-> the full guides live in `.docs/-github-guides/`, and their entry point is
-> `.docs/manager.md`. `.docs/` is gitignored, so it is not present in
-> every clone or agent environment: this section is the self-contained digest that
-> every agent must follow when the folder is missing. if `.docs/-github-guides/` is
-> present, **read `manager.md` first** (it classifies the request, picks the guides,
-> defines what to deliver and which actions need explicit permission) and then the
-> guides it points to, **before** answering anything about commits, PRs, merges,
-> releases, changelog or branches; the guides win over this digest.
+> the git workflow guides in `.docs/-github-guides/`, their entry point
+> `.docs/manager.md` and the audit procedure `.docs/repo-audit-and-fix.md` are
+> versioned. other internal `.docs/` content remains ignored.
+> **read `manager.md` first**, then the selected guides, before preparing commits,
+> pull requests, merges, releases, changelog entries or branch operations.
+> this section is the self-contained digest; the versioned guides take precedence.
 
 ### QUE GUIA USAR SEGUN LA PETICION
 

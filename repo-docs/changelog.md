@@ -5,6 +5,7 @@
 ### CASTELLANO
 
 #### CAMBIADO
+- versionar las nueve guias de gestion de `.docs/` y actualizar las instrucciones para conservar las notas internas como archivos locales
 - exigir español de españa y conservar `ñ` y `Ñ`, incluso en formatos que pidan escribir sin acentos
 - sustituir en `agents.md` y `claude.md` la copia literal de las guias de commits y pull requests por un resumen que se entiende solo: tabla de peticion a guia, reglas obligatorias, formatos de commit, pr, merge, ramas y release, y como presentar el resultado
 - hacer que ambos ficheros remitan a `.docs/manager.md` como punto de entrada cuando exista, y que mande sobre el resumen
@@ -14,6 +15,7 @@
 ### ENGLISH
 
 #### CHANGED
+- track the nine `.docs/` management guides and update instructions to keep internal notes local
 - require spanish from spain and preserve `ñ` and `Ñ`, including formats that omit vowel accents
 - replace the verbatim copy of the commit and pull request guides in `agents.md` and `claude.md` with a self-contained digest: request-to-guide table, mandatory rules, commit, pr, merge, branch and release formats, and how to present the result
 - make both files point to `.docs/manager.md` as the entry point when it exists, and let it take precedence over the digest

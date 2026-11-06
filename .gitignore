@@ -44,11 +44,14 @@ ehthumbs.db
 # Kotlin / Compiler caches
 .kotlin/
 
-# Local working documentation and agent skills (not part of the published project).
-# The workflow rules an agent actually needs (commit format, pull request, merge and
-# release procedure) are duplicated in full inside `agents.md` and `claude.md`, which
-# are tracked: nothing here is required to clone, build or contribute to the project.
+# Share management instructions; keep private notes, resources and imported skills local.
 .docs/
+!/.docs/
+/.docs/*
+!/.docs/manager.md
+!/.docs/repo-audit-and-fix.md
+!/.docs/-github-guides/
+!/.docs/-github-guides/*.md
 
 # Editor and local tooling folders (not part of the published project).
 # `.github/` is tracked on purpose: the ci workflows and the dependency policy
